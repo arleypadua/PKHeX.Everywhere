@@ -13,6 +13,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
@@ -27,7 +29,7 @@ jobs:
     - name: Publish Linux x64
       run: dotnet publish PkHex.CLI.csproj -r linux-x64 -c Release
     - name: Create Release
-      id: create_release_linux_x64
+      id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
@@ -52,7 +54,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.create_release_linux_x64.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        upload_url: ${{ steps.create_release.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: ./bin/Release/net8.0/linux-x64/publish/PkHex.CLI
         asset_name: PKHeX-linux-x64
         asset_content_type: application/octet-stream
