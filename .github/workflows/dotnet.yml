@@ -23,7 +23,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Publish Mac OS ARM64
-      run: dotnet publish -r osx-arm64 -c Release
+      run: dotnet publish PkHex.CLI.csproj -r osx-arm64 -c Release
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
