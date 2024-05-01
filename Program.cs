@@ -59,14 +59,13 @@ public sealed partial class PkCommand : Command<PkCommand.Settings>
             var selection = AnsiConsole.Prompt(new SelectionPrompt<string>()
                             .Title($"Hello [yellow bold]{game.Trainer.Name.ToUpperInvariant()}[/] What would you like to do?")
                             .PageSize(10)
-                            .AddChoices(["View Trainer Info", "View Inventory", "View PC Boxes", "Exit"])
+                            .AddChoices(["View Trainer Info", "View/Edit Inventory", "Exit"])
                             .WrapAround(true));
 
             return selection switch
             {
                 "View Trainer Info" => ViewTrainerInfo.Handle(game),
-                "View Inventory" => ViewInventory.Handle(game),
-                "View PC Boxes" => Result.Continue,
+                "View/Edit Inventory" => ViewInventory.Handle(game),
                 "Exit" => Exit.Handle(game, settings),
                 _ => Result.Continue
             };
