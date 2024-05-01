@@ -22,10 +22,12 @@ jobs:
         dotnet-version: 8.0.x
     - name: Restore dependencies
       run: dotnet restore PkHex.CLI.csproj
-    - name: Publish Mac OS ARM64
-      run: dotnet publish PkHex.CLI.csproj -r osx-arm64 -c Release
+    # - name: Publish Mac OS ARM64
+    #   run: dotnet publish PkHex.CLI.csproj -r osx-arm64 -c Release
+    - name: Publish Linux x64
+      run: dotnet publish PkHex.CLI.csproj -r linux-x64 -c Release
     - name: Create Release
-      id: create_release
+      id: create_release_linux_x64
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
@@ -34,13 +36,23 @@ jobs:
         release_name: Release ${{ github.ref }}
         draft: false
         prerelease: false
+    # - name: Upload Release Asset (Mac OS ARM64)
+    #   id: upload-release-asset 
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+    #     asset_path: ./bin/Release/net8.0/osx-arm64/publish/PkHex.CLI
+    #     asset_name: PKHeX-arm64
+    #     asset_content_type: application/octet-stream
     - name: Upload Release Asset (Mac OS ARM64)
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./bin/Release/net8.0/osx-arm64/publish/PkHex.CLI
-        asset_name: PKHeX-arm64
+        upload_url: ${{ steps.create_release.create_release_linux_x64.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./bin/Release/net8.0/linux-x64/publish/PkHex.CLI
+        asset_name: PKHeX-linux-x64
         asset_content_type: application/octet-stream
