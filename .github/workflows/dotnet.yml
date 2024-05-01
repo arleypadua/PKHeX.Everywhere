@@ -21,7 +21,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore PkHex.CLI.csproj
     - name: Publish Mac OS ARM64
       run: dotnet publish PkHex.CLI.csproj -r osx-arm64 -c Release
     - name: Create Release
