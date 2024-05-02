@@ -84,6 +84,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
+        make_latest: true
         generate_release_notes: true
         files: |
           pkhex-cli-linux-x64.zip
