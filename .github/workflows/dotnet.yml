@@ -56,12 +56,18 @@ jobs:
         path: artifacts
     - name: List artifacts
       run: ls -R artifacts
+    - name: Zip artifacts
+      run: |
+        zip -r pkhex-cli-linux-x64.zip artifacts/artifact-linux-x64
+        zip -r pkhex-cli-win-x64.zip artifacts/artifact-win-x64
+        zip -r pkhex-cli-osx-arm64.zip artifacts/artifact-osx-arm64
 
     - name: Release
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
+        generate_release_notes: true
         files: |
-          artifacts/artifact-linux-x64/pkhex-cli
-          artifacts/artifact-win-x64/pkhex-cli.exe
-          artifacts/artifact-osx-arm64/pkhex-cli
+          pkhex-cli-linux-x64.zip
+          pkhex-cli-win-x64.zip
+          pkhex-cli-osx-arm64.zip
