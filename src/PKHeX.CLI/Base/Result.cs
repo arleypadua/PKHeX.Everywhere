@@ -1,6 +1,6 @@
 using Spectre.Console;
 
-namespace PkHex.CLI.Base;
+namespace PKHeX.CLI.Base;
 
 public enum Result
 {

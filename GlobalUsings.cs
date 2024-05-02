@@ -1,1 +1,0 @@
-﻿global using static PkHex.CLI.Base.ResultHandling;

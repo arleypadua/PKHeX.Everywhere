@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <PublishAot>true</PublishAot>
     <IsAotCompatible>true</IsAotCompatible>
+    <TargetName>pkhex-cli</TargetName>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="data/**">

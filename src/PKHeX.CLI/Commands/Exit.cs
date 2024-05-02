@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
-using PkHex.CLI.Base;
-using PkHex.CLI.Facade;
+using PKHeX.CLI.Base;
+using PKHeX.CLI.Facade;
 using Spectre.Console;
 
-namespace PkHex.CLI;
+namespace PKHeX.CLI;
 
 public static class Exit
 {

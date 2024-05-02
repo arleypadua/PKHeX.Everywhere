@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace PkHex.CLI.Base;
+namespace PKHeX.CLI.Base;
 
 public abstract class Enumeration : IComparable
 {

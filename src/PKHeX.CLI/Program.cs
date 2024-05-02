@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
-using PkHex.CLI;
-using PkHex.CLI.Base;
-using PkHex.CLI.Commands;
-using PkHex.CLI.Facade;
+using PKHeX.CLI;
+using PKHeX.CLI.Base;
+using PKHeX.CLI.Commands;
+using PKHeX.CLI.Facade;
 using PKHeX.Core;
 using Spectre.Console;
 using Spectre.Console.Cli;

@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
-using PkHex.CLI.Base;
-using PkHex.CLI.Facade;
+using PKHeX.CLI.Base;
+using PKHeX.CLI.Facade;
 using Spectre.Console;
 
-namespace PkHex.CLI.Commands;
+namespace PKHeX.CLI.Commands;
 
 public static class ViewInventory
 {

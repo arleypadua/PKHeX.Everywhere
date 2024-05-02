@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Immutable;
-using PkHex.CLI.Facade.Repositories;
+using PKHeX.CLI.Facade.Repositories;
 using PKHeX.Core;
 
-namespace PkHex.CLI.Facade;
+namespace PKHeX.CLI.Facade;
 
 public class Inventory : IEnumerable<Inventory.Item>
 {

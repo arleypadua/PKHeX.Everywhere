@@ -1,7 +1,7 @@
-﻿using PkHex.CLI.Facade;
+﻿using PKHeX.CLI.Facade;
 using PKHeX.Core;
 
-namespace PkHex.CLI.Facade;
+namespace PKHeX.CLI.Facade;
 
 public class Trainer
 {

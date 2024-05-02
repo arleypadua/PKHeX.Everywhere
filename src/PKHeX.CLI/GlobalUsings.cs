@@ -1,0 +1,1 @@
+﻿global using static PKHeX.CLI.Base.ResultHandling;

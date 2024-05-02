@@ -31,13 +31,13 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Publish - ${{ matrix.config.rid }}
-      run: dotnet publish PkHex.CLI.csproj -r ${{ matrix.config.rid }} -c Release
+      run: dotnet publish ./src/PKHeX.CLI/PKHeX.CLI.csproj -r ${{ matrix.config.rid }} -c Release
 
     - name: Upload - ${{ matrix.config.rid }}
       uses: actions/upload-artifact@v4
       with:
         name: artifact-${{ matrix.config.rid }}
-        path: ./bin/Release/net8.0/${{ matrix.config.rid }}/publish
+        path: ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish
 
   release:
     runs-on: ubuntu-latest
@@ -60,6 +60,6 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          artifact-linux-x64/PkHex.CLI
-          artifact-win-x64/PkHex.CLI.exe
-          artifact-osx-arm64/PkHex.CLI
+          artifact-linux-x64/PKHeX.CLI
+          artifact-win-x64/PKHeX.CLI.exe
+          artifact-osx-arm64/PKHeX.CLI

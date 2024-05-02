@@ -1,6 +1,6 @@
 using PKHeX.Core;
 
-namespace PkHex.CLI.Facade;
+namespace PKHeX.CLI.Facade;
 
 public class Money
 {

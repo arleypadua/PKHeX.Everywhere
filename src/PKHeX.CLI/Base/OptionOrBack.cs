@@ -1,4 +1,4 @@
-namespace PkHex.CLI.Base;
+namespace PKHeX.CLI.Base;
 
 record class OptionOrBack
 {
