@@ -58,9 +58,9 @@ jobs:
       run: ls -R artifacts
     - name: Zip artifacts
       run: |
-        zip -r pkhex-cli-linux-x64.zip artifacts/artifact-linux-x64
-        zip -r pkhex-cli-win-x64.zip artifacts/artifact-win-x64
-        zip -r pkhex-cli-osx-arm64.zip artifacts/artifact-osx-arm64
+        zip pkhex-cli-linux-x64.zip artifacts/artifact-linux-x64/pkhex-cli
+        zip pkhex-cli-win-x64.zip artifacts/artifact-win-x64/pkhex-cli.exe
+        zip pkhex-cli-osx-arm64.zip artifacts/artifact-osx-arm64/pkhex-cli
 
     - name: Release
       uses: softprops/action-gh-release@v2
