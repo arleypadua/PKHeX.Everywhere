@@ -9,18 +9,31 @@ This is a Command Line Interface (CLI) tool for interacting with Pokémon save f
 - **View/Edit Inventory**: View and edit the inventory of the trainer.
 - **Exit**: Exit the program.
 
-## Usage
+## Building
 
 ### Prerequisites
 
-- .NET Core runtime installed on your system.
+- .NET Core SDK 8.x
 
-### Installation
+### Steps
 
 1. Clone this repository to your local machine.
 2. Navigate to the project directory.
 3. Compile the program using `dotnet build`.
 4. Run the program using `dotnet run -- [options]`.
+
+## Releasing
+
+1. `git tag vX.Y.Z HEAD`
+2. `git push origin --tags`
+3. If pipeline doesn't run automatically, trigger it via the [actions page](https://github.com/arleypadua/PKHeX.CLI/actions/workflows/dotnet.yml)
+   1. select the tag as the target, otherwise the Github Release won't be created
+
+## Usage
+
+1. Download the latest version for your system [here](https://github.com/arleypadua/PKHeX.CLI/releases)
+2. Put the file somewhere that's visible from your PATH directory
+3. Run `pkhex-cli /path/to/savefile.bin`
 
 ### Command Line Options
 
@@ -29,7 +42,7 @@ This is a Command Line Interface (CLI) tool for interacting with Pokémon save f
 ### Example Usage
 
 ```bash
-dotnet run -- ./path/to/savefile.bin
+pkhex-cli /path/to/savefile.bin
 ```
 
 # Credits

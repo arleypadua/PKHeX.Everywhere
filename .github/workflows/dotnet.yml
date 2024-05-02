@@ -52,14 +52,14 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: artifacts
-        pattern: artifact-*
-        run: ls -R
+    - name: List artifacts
+      run: ls -R artifacts
 
     - name: Release
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          artifact-linux-x64/PKHeX.CLI
-          artifact-win-x64/PKHeX.CLI.exe
-          artifact-osx-arm64/PKHeX.CLI
+          artifacts/artifact-linux-x64/PKHeX.CLI
+          artifacts/artifact-win-x64/PKHeX.CLI.exe
+          artifacts/artifact-osx-arm64/PKHeX.CLI
