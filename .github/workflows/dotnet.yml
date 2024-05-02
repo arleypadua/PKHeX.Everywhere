@@ -6,6 +6,8 @@ name: .NET
 on:
   push:
     branches: [ "main" ]
+    tags:
+      - 'v*'
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
@@ -60,6 +62,6 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          artifacts/artifact-linux-x64/PKHeX.CLI
-          artifacts/artifact-win-x64/PKHeX.CLI.exe
-          artifacts/artifact-osx-arm64/PKHeX.CLI
+          artifacts/artifact-linux-x64/pkhex-cli
+          artifacts/artifact-win-x64/pkhex-cli.exe
+          artifacts/artifact-osx-arm64/pkhex-cli

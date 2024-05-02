@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using PKHeX.CLI;
 using PKHeX.CLI.Base;
 using PKHeX.CLI.Commands;
@@ -7,8 +9,20 @@ using PKHeX.Core;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-var app = new CommandApp<PkCommand>();
-app.Run(args);
+public static class Program
+{
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(PkCommand))]
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(PkCommand.Settings))]
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, "Spectre.Console.Cli.ExplainCommand", "Spectre.Console.Cli")]
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, "Spectre.Console.Cli.VersionCommand", "Spectre.Console.Cli")]
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, "Spectre.Console.Cli.XmlDocCommand", "Spectre.Console.Cli")]
+    public static void Main(string[] args)
+    {
+        var app = new CommandApp<PkCommand>();
+        app.Run(args);
+    }
+
+}
 
 public sealed partial class PkCommand : Command<PkCommand.Settings>
 {
@@ -76,6 +90,8 @@ public sealed partial class PkCommand : Command<PkCommand.Settings>
 
     public sealed class Settings : CommandSettings
     {
+        public Settings() { }
+
         [Description("The path to the save file. Default to ./data/savedata.bin")]
         [CommandArgument(0, "[savefile]")]
         public string SaveFilePath { get; set; } = "./data/savedata.bin";

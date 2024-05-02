@@ -22,6 +22,12 @@ This is a Command Line Interface (CLI) tool for interacting with Pokémon save f
 3. Compile the program using `dotnet build`.
 4. Run the program using `dotnet run -- [options]`.
 
+Example
+
+```bash
+dotnet run --project ./src/PKHeX.CLI/PKHeX.CLI.csproj -- ./src/PKHeX.CLI/data/savedata.bin
+```
+
 ## Releasing
 
 1. `git tag vX.Y.Z HEAD`
