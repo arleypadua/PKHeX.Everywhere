@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Immutable;
-using PKHeX.CLI.Facade.Repositories;
+using PKHeX.Facade.Repositories;
 using PKHeX.Core;
 
-namespace PKHeX.CLI.Facade;
+namespace PKHeX.Facade;
 
 public class Inventory : IEnumerable<Inventory.Item>
 {
@@ -34,6 +34,11 @@ public class Inventory : IEnumerable<Inventory.Item>
 
     public void Remove(ushort itemId)
     {
+        if (itemId == ItemDefinition.None)
+        {
+            throw new InvalidOperationException("Cannot remove None item.");
+        }
+        
         _pouch.RemoveAll(i => i.Index == itemId);
         Commit();
     }
@@ -55,7 +60,9 @@ public class Inventory : IEnumerable<Inventory.Item>
             throw new InvalidOperationException($"Item {itemId} is not supported in this inventory.");
         }
 
-        _pouch.ModifyAllCount(Convert.ToInt32(count), (i) => i.Index == itemId);
+        _pouch.RemoveAll(i => i.Index == itemId);
+        _pouch.GiveItem(_saveFile, itemId, Convert.ToInt32(count));
+
         Commit();
     }
 
@@ -87,6 +94,7 @@ public class Inventory : IEnumerable<Inventory.Item>
         public int Count => _item.Count;
 
         public bool IsNone => Id == ItemDefinition.None;
+        public ItemDefinition Definition => _itemFetcher(Id);
         
         public override string ToString() => $"{Name} x{Count}";
     }

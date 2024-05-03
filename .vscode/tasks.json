@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/pkhex.test.sln",
+                "${workspaceFolder}/PKHeX.CLI.sln",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary;ForceNoAlign"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/pkhex.test.sln",
+                "${workspaceFolder}/PKHeX.CLI.sln",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary;ForceNoAlign"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/pkhex.test.sln"
+                "${workspaceFolder}/PKHeX.CLI.sln"
             ],
             "problemMatcher": "$msCompile"
         }
