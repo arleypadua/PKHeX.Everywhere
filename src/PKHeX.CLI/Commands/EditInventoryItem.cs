@@ -1,5 +1,5 @@
 ﻿using PKHeX.CLI.Base;
-using PKHeX.CLI.Facade;
+using PKHeX.Facade;
 using Spectre.Console;
 
 namespace PKHeX.CLI;
@@ -7,14 +7,17 @@ namespace PKHeX.CLI;
 public class EditInventoryItem
 {
     public static Result Handle(Game game, string inventoryType, ushort itemId) => SafeHandle(() => {
+        var itemDefinition = game.ItemRepository.GetItem(itemId);
         var inventory = game.Trainer.Inventories[inventoryType];
         var item = inventory.Items.FirstOrDefault(i => i.Id == itemId);
-        if (item is null)
-        {
-            throw new InvalidOperationException($"Item with ID {itemId} not found in {inventoryType} inventory.");
-        }
 
-        var count = AnsiConsole.Ask($"How many {item.Name} would you like to set? [grey italic](setting to 0 will remove the item)[/]", item.Count);
+        var promptText = $"How many {itemDefinition.Name} would you like to set?";
+        if (item != null)
+        {
+            promptText = $"{promptText} [grey italic](current: {item.Count})[/]";
+        }
+        
+        var count = AnsiConsole.Ask(promptText, item?.Count ?? 0);
         if (count == 0)
         {
             inventory.Remove(itemId);

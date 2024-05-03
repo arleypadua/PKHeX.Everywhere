@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using PKHeX.Core;
 
-namespace PKHeX.CLI.Facade;
+namespace PKHeX.Facade;
 
 public class Inventories
 {

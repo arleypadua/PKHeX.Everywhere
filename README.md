@@ -25,7 +25,7 @@ This is a Command Line Interface (CLI) tool for interacting with Pokémon save f
 Example
 
 ```bash
-dotnet run --project ./src/PKHeX.CLI/PKHeX.CLI.csproj -- ./src/PKHeX.CLI/data/savedata.bin
+dotnet run --project ./src/PKHeX.CLI ./src/PKHeX.CLI/data/savedata.bin
 ```
 
 ## Releasing

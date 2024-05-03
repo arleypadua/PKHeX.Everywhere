@@ -1,12 +1,11 @@
-﻿using PKHeX.CLI.Facade.Repositories;
+﻿using PKHeX.Facade.Repositories;
 using PKHeX.Core;
 
-namespace PKHeX.CLI.Facade;
+namespace PKHeX.Facade;
 
 public class Game
 {
     private readonly SaveFile _saveFile;
-    private readonly List<HistoryEntry> _historyLog = new();
 
     public Game(SaveFile saveFile)
     {
@@ -18,10 +17,7 @@ public class Game
 
     public ItemRepository ItemRepository { get; init; }
     public Trainer Trainer { get; init; }
-    public HistoryEntry[] HistoryLog => _historyLog.ToArray();
 
     public byte[] ToByteArray(BinaryExportSetting setting = BinaryExportSetting.None) => _saveFile.Write(setting);
     public SaveFile GetSaveFile() => _saveFile;
-
-    public record HistoryEntry(string Message);
 }

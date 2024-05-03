@@ -1,6 +1,6 @@
-using PKHeX.CLI.Base;
+using PKHeX.Facade.Base;
 
-namespace PKHeX.CLI.Facade;
+namespace PKHeX.Facade;
 
 public sealed class Gender : Enumeration
 {

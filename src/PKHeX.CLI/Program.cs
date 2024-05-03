@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using PKHeX.CLI;
 using PKHeX.CLI.Base;
 using PKHeX.CLI.Commands;
-using PKHeX.CLI.Facade;
+using PKHeX.Facade;
 using PKHeX.Core;
 using Spectre.Console;
 using Spectre.Console.Cli;

@@ -1,6 +1,6 @@
 using PKHeX.Core;
 
-namespace PKHeX.CLI.Facade.Repositories;
+namespace PKHeX.Facade.Repositories;
 
 public class ItemRepository
 {

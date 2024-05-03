@@ -19,7 +19,7 @@ record class OptionOrBack
     public record class Back : OptionOrBack
     {
         private Back() { }
-        public override string ToString() => "[bold darkgreen]Back[/]";
+        public override string ToString() => "[bold darkgreen]< Back[/]";
 
         public static readonly Back Instance = new();
     }

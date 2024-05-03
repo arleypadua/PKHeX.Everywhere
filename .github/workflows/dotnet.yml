@@ -35,10 +35,19 @@ jobs:
         config: 
           - os: ubuntu-latest
             rid: linux-x64
+            artifact:
+              from: PKHeX.CLI
+              to: pkhex-cli
           - os: windows-latest
             rid: win-x64
+            artifact:
+              from: PKHeX.CLI.exe
+              to: pkhex-cli.exe
           - os: macos-latest
             rid: osx-arm64
+            artifact:
+              from: PKHeX.CLI
+              to: pkhex-cli
 
     runs-on: ${{ matrix.config.os }}
     needs: test
@@ -53,11 +62,14 @@ jobs:
     - name: Publish - ${{ matrix.config.rid }}
       run: dotnet publish ./src/PKHeX.CLI/PKHeX.CLI.csproj -r ${{ matrix.config.rid }} -c Release
 
+    - name: Copy artifact with new name
+      run: cp ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.from }} ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.to }}
+
     - name: Upload - ${{ matrix.config.rid }}
       uses: actions/upload-artifact@v4
       with:
         name: artifact-${{ matrix.config.rid }}
-        path: ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish
+        path: ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.to }}
 
   release:
     runs-on: ubuntu-latest
@@ -77,9 +89,9 @@ jobs:
       run: ls -R artifacts
     - name: Zip artifacts
       run: |
-        zip pkhex-cli-linux-x64.zip artifacts/artifact-linux-x64/pkhex-cli
-        zip pkhex-cli-win-x64.zip artifacts/artifact-win-x64/pkhex-cli.exe
-        zip pkhex-cli-osx-arm64.zip artifacts/artifact-osx-arm64/pkhex-cli
+        zip -j pkhex-cli-linux-x64.zip artifacts/artifact-linux-x64/pkhex-cli
+        zip -j pkhex-cli-win-x64.zip artifacts/artifact-win-x64/pkhex-cli.exe
+        zip -j pkhex-cli-osx-arm64.zip artifacts/artifact-osx-arm64/pkhex-cli
 
     - name: Release
       uses: softprops/action-gh-release@v2
