@@ -22,6 +22,7 @@ public class Pokemon
     public PokemonMove Move3 => new PokemonMove(_pokemon, _game.MoveRepository.GetMove, PokemonMove.MoveIndex.Move3);
     public PokemonMove Move4 => new PokemonMove(_pokemon, _game.MoveRepository.GetMove, PokemonMove.MoveIndex.Move4);
     public Gender Gender => Gender.FromByte(_pokemon.Gender);
+    public bool IsShiny => _pokemon.IsShiny;
 }
 
 public class PokemonMove
