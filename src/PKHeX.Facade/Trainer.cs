@@ -1,30 +1,29 @@
-﻿using PKHeX.Facade;
-using PKHeX.Core;
+﻿using PKHeX.Core;
 
 namespace PKHeX.Facade;
 
 public class Trainer
 {
     private readonly Game _game;
-    private readonly SaveFile _saveFile;
-
-    public Trainer(Game game, SaveFile saveFile)
+    
+    public Trainer(Game game)
     {
         _game = game;
-        _saveFile = saveFile;
 
-        Id = new TrainerId(_saveFile.TID16, _saveFile.SID16);
-        Money = new Money(_saveFile);
-        Inventories = new Inventories(_game, _saveFile);
+        Id = new TrainerId(_game.SaveFile.TID16, _game.SaveFile.SID16);
+        Money = new Money(_game);
+        Inventories = new Inventories(_game);
+        Party = new PokemonParty(_game);
     }
 
     public TrainerId Id { get; init; }
-    public string Name => _saveFile.OT;
-    public Gender Gender => Gender.FromByte(_saveFile.Gender);
+    public string Name => _game.SaveFile.OT;
+    public Gender Gender => Gender.FromByte(_game.SaveFile.Gender);
     public Money Money { get; init; }
     public Inventories Inventories { get; private set; }
+    public PokemonParty Party { get; private set; }
 
-    public string? RivalName => _saveFile switch
+    public string? RivalName => _game.SaveFile switch
     {
         SAV1 gen1 => gen1.Rival,
         SAV2 gen2 => gen2.Rival,
