@@ -12,6 +12,6 @@ public static class PokemonExtensions
 
         var shiny = pokemon.IsShiny ? " ✨" : string.Empty;
         
-        return $"✨ {pokemon.Species} {gender} Lv. [yellow]{pokemon.Level}[/]{shiny}";
+        return $"{pokemon.Species} {gender} Lv. [yellow]{pokemon.Level}[/]{shiny}";
     }
 }
