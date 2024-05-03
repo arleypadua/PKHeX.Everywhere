@@ -7,15 +7,13 @@ namespace PKHeX.Facade;
 
 public class Inventory : IEnumerable<Inventory.Item>
 {
-    private readonly SaveFile _saveFile;
-    private readonly ItemRepository _itemRepository;
+    private readonly Game _game;
     private readonly InventoryPouch _pouch;
 
-    public Inventory(string type, SaveFile saveFile, ItemRepository itemRepository)
+    public Inventory(string type, Game game)
     {
-        _saveFile = saveFile;
-        _itemRepository = itemRepository;
-        _pouch = saveFile.Inventory.FirstOrDefault(i => i.Type.ToString() == type)
+        _game = game;
+        _pouch = _game.SaveFile.Inventory.FirstOrDefault(i => i.Type.ToString() == type)
             ?? throw new InvalidOperationException($"Inventory of type {type} not found");
 
         Type = type;
@@ -30,7 +28,7 @@ public class Inventory : IEnumerable<Inventory.Item>
     public ImmutableList<ItemDefinition> SupportedItems => _pouch
         .GetAllItems()
         .ToArray()
-        .Select(_itemRepository.GetItem).ToImmutableList();
+        .Select(_game.ItemRepository.GetItem).ToImmutableList();
 
     public void Remove(ushort itemId)
     {
@@ -38,7 +36,7 @@ public class Inventory : IEnumerable<Inventory.Item>
         {
             throw new InvalidOperationException("Cannot remove None item.");
         }
-        
+
         _pouch.RemoveAll(i => i.Index == itemId);
         Commit();
     }
@@ -61,21 +59,21 @@ public class Inventory : IEnumerable<Inventory.Item>
         }
 
         _pouch.RemoveAll(i => i.Index == itemId);
-        _pouch.GiveItem(_saveFile, itemId, Convert.ToInt32(count));
+        _pouch.GiveItem(_game.SaveFile, itemId, Convert.ToInt32(count));
 
         Commit();
     }
 
     private void Commit()
     {
-        _saveFile.Inventory = _saveFile.Inventory
+        _game.SaveFile.Inventory = _game.SaveFile.Inventory
             .Select(i => i.Type.ToString() == Type ? _pouch : i)
             .ToImmutableList();
     }
 
     private ImmutableList<Item> GetItems()
     {
-        return _pouch.Items.Select(i => new Item(i, _itemRepository.GetItem)).ToImmutableList();
+        return _pouch.Items.Select(i => new Item(i, _game.ItemRepository.GetItem)).ToImmutableList();
     }
 
     public sealed class Item

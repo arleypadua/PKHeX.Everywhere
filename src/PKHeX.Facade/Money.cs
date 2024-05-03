@@ -4,23 +4,23 @@ namespace PKHeX.Facade;
 
 public class Money
 {
-    private readonly SaveFile _saveFile;
+    private readonly Game _game;
 
-    public Money(SaveFile saveFile)
+    public Money(Game game)
     {
-        _saveFile = saveFile;
+        _game = game;
     }
 
-    public decimal Amount => _saveFile.Money;
+    public decimal Amount => _game.SaveFile.Money;
 
     public void Set(uint amount)
     {
-        _saveFile.Money = amount;
+        _game.SaveFile.Money = (uint)Math.Min(amount, _game.SaveFile.MaxMoney);
     }
 
     public void SetMax()
     {
-        _saveFile.Money = Convert.ToUInt32(_saveFile.MaxMoney);
+        _game.SaveFile.Money = Convert.ToUInt32(_game.SaveFile.MaxMoney);
     }
 
     public override string ToString() => Amount.ToString("C");

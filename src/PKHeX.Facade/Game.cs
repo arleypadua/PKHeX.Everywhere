@@ -5,19 +5,22 @@ namespace PKHeX.Facade;
 
 public class Game
 {
-    private readonly SaveFile _saveFile;
+    internal readonly SaveFile SaveFile;
 
     public Game(SaveFile saveFile)
     {
-        _saveFile = saveFile;
+        SaveFile = saveFile;
         ItemRepository = new ItemRepository(saveFile);
+        MoveRepository = new MoveRepository();
 
-        Trainer = new Trainer(this, saveFile);
+        Trainer = new Trainer(this);
     }
 
     public ItemRepository ItemRepository { get; init; }
+    public MoveRepository MoveRepository { get; init; }
     public Trainer Trainer { get; init; }
 
-    public byte[] ToByteArray(BinaryExportSetting setting = BinaryExportSetting.None) => _saveFile.Write(setting);
-    public SaveFile GetSaveFile() => _saveFile;
+    public byte[] ToByteArray() => SaveFile.Write(
+        setting: SaveFile.Metadata.GetSuggestedFlags(SaveFile.Extension)
+    );
 }

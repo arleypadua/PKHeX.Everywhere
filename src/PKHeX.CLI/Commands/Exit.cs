@@ -25,7 +25,7 @@ public static class Exit
 
     private static Result SaveExisting(Game game, PkCommand.Settings settings)
     {
-        File.WriteAllBytes(settings.SaveFilePath, ToByteArray(game, settings));
+        File.WriteAllBytes(settings.SaveFilePath, game.ToByteArray());
         return Result.Exit;
     }
 
@@ -45,15 +45,7 @@ public static class Exit
         var savePath = AnsiConsole.Ask("Enter the path to save the new file", suggestedFilePath)
             ?? suggestedFilePath;
 
-        File.WriteAllBytes(savePath, ToByteArray(game, new PkCommand.Settings { SaveFilePath = savePath }));
+        File.WriteAllBytes(savePath, game.ToByteArray());
         return Result.Exit;
-    }
-
-    private static byte[] ToByteArray(Game game, PkCommand.Settings settings)
-    {
-        var ext = Path.GetExtension(settings.SaveFilePath).ToLowerInvariant();
-        var flags = game.GetSaveFile().Metadata.GetSuggestedFlags(ext);
-
-        return game.ToByteArray(flags);
     }
 }

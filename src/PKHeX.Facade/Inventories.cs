@@ -6,12 +6,10 @@ namespace PKHeX.Facade;
 public class Inventories
 {
     private readonly Game _game;
-    private readonly SaveFile _saveFile;
 
-    public Inventories(Game game, SaveFile saveFile)
+    public Inventories(Game game)
     {
         _game = game;
-        _saveFile = saveFile;
 
         InventoryTypes = GetInventoryTypes();
         InventoryItems = GetInventories();
@@ -37,11 +35,11 @@ public class Inventories
     public ImmutableDictionary<string, Inventory> InventoryItems { get; init; }
 
     private ImmutableHashSet<string> GetInventoryTypes()
-        => _saveFile.Inventory.Select(i => i.Type.ToString()).ToImmutableHashSet();
+        => _game.SaveFile.Inventory.Select(i => i.Type.ToString()).ToImmutableHashSet();
 
     private ImmutableDictionary<string, Inventory> GetInventories() => InventoryTypes.ToImmutableDictionary(
         type => type,
-        type => new Inventory(type, _saveFile, _game.ItemRepository)
+        type => new Inventory(type, _game)
     );
 }
 
