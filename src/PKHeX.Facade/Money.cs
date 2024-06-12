@@ -1,5 +1,3 @@
-using PKHeX.Core;
-
 namespace PKHeX.Facade;
 
 public class Money

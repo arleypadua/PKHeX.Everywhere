@@ -35,7 +35,7 @@ public static class RestoreBackup
 
     private static Result HandleBackup(PkCommand.Settings settings, BackupFile backupFile)
     {
-        Save.Backup(settings);
+        Save.Backup(settings.ResolveSaveFilePath());
         
         File.Copy(backupFile.FilePath, settings.ResolveSaveFilePath(), overwrite: true);
         AnsiConsole.MarkupLine($"Backup restored: {backupFile.FilePath}");

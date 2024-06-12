@@ -7,7 +7,7 @@ record class OptionOrBack
             .Cast<OptionOrBack>()
             .Append(Back.Instance);
 
-    public record class Option<T>(
+    public record Option<T>(
         T Value,
         Func<T, string>? Display = null) : OptionOrBack
     {
