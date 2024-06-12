@@ -1,8 +1,9 @@
 ﻿using PKHeX.CLI.Base;
+using PKHeX.CLI.Extensions;
 using PKHeX.Facade;
 using Spectre.Console;
 
-namespace PKHeX.CLI;
+namespace PKHeX.CLI.Commands;
 
 public static class ShowPokemonParty
 {

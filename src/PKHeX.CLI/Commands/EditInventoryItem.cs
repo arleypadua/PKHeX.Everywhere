@@ -2,7 +2,7 @@
 using PKHeX.Facade;
 using Spectre.Console;
 
-namespace PKHeX.CLI;
+namespace PKHeX.CLI.Commands;
 
 public class EditInventoryItem
 {

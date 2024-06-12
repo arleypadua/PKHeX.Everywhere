@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using PKHeX.CLI;
 using PKHeX.CLI.Base;
 using PKHeX.CLI.Commands;
-using PKHeX.Facade;
 using PKHeX.Core;
+using PKHeX.Facade;
 using Spectre.Console;
 using Spectre.Console.Cli;
+
+namespace PKHeX.CLI;
 
 public static class Program
 {
@@ -70,27 +71,37 @@ public sealed partial class PkCommand : Command<PkCommand.Settings>
         RepeatUntilExit(() =>
         {
             var selection = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                            .Title($"Hello [yellow bold]{game.Trainer.Name.ToUpperInvariant()}[/] What would you like to do?")
-                            .PageSize(10)
-                            .AddChoices([
-                                "View Trainer Info", 
-                                "View/Edit Pokémon Party",
-                                "View/Edit Inventory", 
-                                "Exit"
-                            ])
-                            .WrapAround(true));
+                .Title($"Hello [yellow bold]{game.Trainer.Name.ToUpperInvariant()}[/] What would you like to do?")
+                .PageSize(10)
+                .AddChoices(
+                    Choices.ViewTrainerInfo,
+                    Choices.ViewPokemonParty,
+                    Choices.ViewInventory,
+                    Choices.RestoreBackup,
+                    Choices.Exit)
+                .WrapAround());
 
             return selection switch
             {
-                "View Trainer Info" => ViewTrainerInfo.Handle(game),
-                "View/Edit Pokémon Party" => ShowPokemonParty.Handle(game),
-                "View/Edit Inventory" => ViewInventory.Handle(game),
-                "Exit" => Exit.Handle(game, settings),
+                Choices.ViewTrainerInfo => ViewTrainerInfo.Handle(game),
+                Choices.ViewPokemonParty => ShowPokemonParty.Handle(game),
+                Choices.ViewInventory => ViewInventory.Handle(game),
+                Choices.Exit => Exit.Handle(game, settings),
+                Choices.RestoreBackup => RestoreBackup.Handle(game, settings),
                 _ => Result.Continue
             };
         });
 
         return 0;
+    }
+    
+    private static class Choices
+    {
+        public const string ViewTrainerInfo = "View Trainer Info";
+        public const string ViewPokemonParty = "View/Edit Pokémon Party";
+        public const string ViewInventory = "View/Edit Inventory";
+        public const string RestoreBackup = "Restore Backup";
+        public const string Exit = "Exit";
     }
 
     public sealed class Settings : CommandSettings

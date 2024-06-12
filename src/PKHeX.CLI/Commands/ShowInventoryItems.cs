@@ -1,9 +1,8 @@
 ﻿using PKHeX.CLI.Base;
-using PKHeX.CLI.Commands;
 using PKHeX.Facade;
 using Spectre.Console;
 
-namespace PKHeX.CLI;
+namespace PKHeX.CLI.Commands;
 
 public class ShowInventoryItems
 {

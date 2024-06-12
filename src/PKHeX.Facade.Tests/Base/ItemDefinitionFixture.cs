@@ -1,6 +1,6 @@
 ﻿using PKHeX.Facade.Repositories;
 
-namespace PKHeX.Facade.Tests;
+namespace PKHeX.Facade.Tests.Base;
 
 public static class ItemDefinitionFixture
 {
