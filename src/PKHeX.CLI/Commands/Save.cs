@@ -11,17 +11,17 @@ public static class Save
     {
         Backup(settings);
         File.WriteAllBytes(settings.ResolveSaveFilePath(), game.ToByteArray());
-        AnsiConsole.MarkupLine($"[bold green]Successfully overwrite file at ${settings.SaveFilePath}[/]");
+        AnsiConsole.MarkupLine($"[bold green]Successfully overwrite file at ${settings.ResolveSaveFilePath()}[/]");
         return Result.Exit;
     }
 
     public static Result SaveAsNew(Game game, PkCommand.Settings settings)
     {
-        var extension = Path.GetExtension(settings.SaveFilePath) ?? string.Empty;
-        var fileName = Path.GetFileNameWithoutExtension(settings.SaveFilePath) ?? "savedata";
+        var extension = Path.GetExtension(settings.ResolveSaveFilePath());
+        var fileName = Path.GetFileNameWithoutExtension(settings.ResolveSaveFilePath());
         fileName = Regex.Replace(fileName, @"_\d+", string.Empty);
         
-        var workingPath = Path.GetDirectoryName(settings.SaveFilePath) ?? "./";
+        var workingPath = Path.GetDirectoryName(settings.ResolveSaveFilePath()) ?? "./";
         var epochNow = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         
         var suggestedName = $"{fileName}_{epochNow}{extension}";
@@ -42,7 +42,7 @@ public static class Save
             return;
         }
 
-        var backupName = $"{settings.SaveFilePath}.{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.backup"; 
+        var backupName = $"{settings.ResolveSaveFilePath()}.{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.backup"; 
         File.Copy(settings.ResolveSaveFilePath(), backupName);
         AnsiConsole.MarkupLine($"[bold green]Created backup at ${backupName}[/]");
     }
