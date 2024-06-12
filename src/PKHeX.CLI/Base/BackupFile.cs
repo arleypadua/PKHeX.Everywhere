@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-
 namespace PKHeX.CLI.Base;
 
 public record BackupFile(string FilePath)
@@ -8,7 +6,7 @@ public record BackupFile(string FilePath)
 
     public DateTimeOffset Date => DateTimeOffset.FromUnixTimeSeconds(_unixTimestamp);
 
-    public string Hash => ComputeHashOf(FilePath);
+    public string Hash => Hasher.ComputeHashOf(FilePath);
 
     public static List<BackupFile> GetBackupFilesFor(string originalFile) =>
         Directory.GetFiles(BackupPath(originalFile), "*.backup", SearchOption.AllDirectories)
@@ -19,7 +17,7 @@ public record BackupFile(string FilePath)
 
     public static bool BackupExists(string path, out string? existingBackupPath)
     {
-        var file = GetBackupFilesFor(path).FirstOrDefault(f => f.Hash == ComputeHashOf(path));
+        var file = GetBackupFilesFor(path).FirstOrDefault(f => f.Hash == Hasher.ComputeHashOf(path));
         existingBackupPath = file?.FilePath;
         
         return file is not null;
@@ -35,13 +33,5 @@ public record BackupFile(string FilePath)
         return backupFile.StartsWith(originalFile)
                && backupFile.EndsWith(".backup")
                && int.TryParse(backupFile.Split('.')[^2], out var _);
-    }
-
-    private static string ComputeHashOf(string filePath)
-    {
-        using var sha526 = SHA512.Create();
-        using var stream = File.OpenRead(filePath);
-        var hash = sha526.ComputeHash(stream);
-        return BitConverter.ToString(hash).Replace("-", string.Empty);
     }
 }

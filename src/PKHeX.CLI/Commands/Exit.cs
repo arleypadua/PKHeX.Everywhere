@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using PKHeX.CLI.Base;
+﻿using PKHeX.CLI.Base;
 using PKHeX.Facade;
 using Spectre.Console;
 
