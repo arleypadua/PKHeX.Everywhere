@@ -26,7 +26,7 @@ namespace PKHeX.CLI.Commands
                     .Title($"[bold darkgreen]Add item to Bag ({inventoryType})[/]")
                     .PageSize(10)
                     .EnableSearch()
-                    .WrapAround(true));
+                    .WrapAround());
 
             return selection switch
             {

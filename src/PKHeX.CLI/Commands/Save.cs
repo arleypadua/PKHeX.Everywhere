@@ -10,7 +10,7 @@ public static class Save
     public static Result SaveExisting(Game game, PkCommand.Settings settings)
     {
         Backup(settings);
-        File.WriteAllBytes(settings.SaveFilePath, game.ToByteArray());
+        File.WriteAllBytes(settings.ResolveSaveFilePath(), game.ToByteArray());
         AnsiConsole.MarkupLine($"[bold green]Successfully overwrite file at ${settings.SaveFilePath}[/]");
         return Result.Exit;
     }
@@ -36,14 +36,14 @@ public static class Save
 
     public static void Backup(PkCommand.Settings settings)
     {
-        if (BackupFile.BackupExists(settings.SaveFilePath, out var existing))
+        if (BackupFile.BackupExists(settings.ResolveSaveFilePath(), out var existing))
         {
             AnsiConsole.MarkupLine($"[yellow]Backup already exists on path: {existing}[/]");
             return;
         }
 
         var backupName = $"{settings.SaveFilePath}.{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.backup"; 
-        File.Copy(settings.SaveFilePath, backupName);
+        File.Copy(settings.ResolveSaveFilePath(), backupName);
         AnsiConsole.MarkupLine($"[bold green]Created backup at ${backupName}[/]");
     }
 }

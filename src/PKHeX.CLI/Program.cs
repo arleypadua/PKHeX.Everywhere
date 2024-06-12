@@ -24,12 +24,14 @@ public static class Program
 
 }
 
-public sealed partial class PkCommand : Command<PkCommand.Settings>
+public sealed class PkCommand : Command<PkCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
-        var saveFile = LoadSaveFile(settings.SaveFilePath);
+        var saveFile = LoadSaveFile(settings.ResolveSaveFilePath());
         if (saveFile is null) return 1;
+
+        settings.PersistedSettings.LastSaveFilePath = settings.ResolveSaveFilePath();
 
         PrintHeader();
 
@@ -106,10 +108,14 @@ public sealed partial class PkCommand : Command<PkCommand.Settings>
 
     public sealed class Settings : CommandSettings
     {
-        public Settings() { }
-
         [Description("The path to the save file. Default to ./data/savedata.bin")]
         [CommandArgument(0, "[savefile]")]
-        public string SaveFilePath { get; set; } = "./data/savedata.bin";
+        public string? SaveFilePath { get; set; }
+
+        public PersistedSettings PersistedSettings { get; } = PersistedSettings.Load();
+        
+        public string ResolveSaveFilePath() => SaveFilePath ?? PersistedSettings.LastSaveFilePath ?? LocalDebugSaveFile;
+        
+        private const string LocalDebugSaveFile = "./data/savedata.bin";
     }
 }
