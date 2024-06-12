@@ -1,32 +1,36 @@
 using FluentAssertions;
 using PKHeX.Core;
+using PKHeX.Facade.Tests.Base;
 
 namespace PKHeX.Facade.Tests;
 
 public class InventoryTests
 {
-    [Fact]
-    public void InventoryRepository_ShouldReturnExpectedItem()
+    [Theory]
+    [SupportedSaveFiles]
+    public void InventoryRepository_ShouldReturnExpectedItem(string saveFile)
     {
-        var game = GameFixture.CreateTestGame();
+        var game = LoadTestGame(saveFile);
         var masterball = game.ItemRepository.GetItem(1);
         masterball.Should().Be(MasterBall);
     }
 
-    [Fact]
-    public void Inventories_ShouldContainBallsInventory()
+    [Theory]
+    [SupportedSaveFiles]
+    public void Inventories_ShouldContainBallsInventory(string saveFile)
     {
-        var game = GameFixture.CreateTestGame();
+        var game = LoadTestGame(saveFile);
         game.Trainer.Inventories.InventoryTypes.Should().Contain("Balls");
         
         var ballInventory = game.Trainer.Inventories.InventoryItems["Balls"];
         ballInventory.SupportedItems.Should().Contain(MasterBall);
     }
 
-    [Fact]
-    public void Inventories_ShouldAllowChangingItemAmount()
+    [Theory]
+    [SupportedSaveFiles]
+    public void Inventories_ShouldAllowChangingItemAmount(string saveFile)
     {
-        var game = GameFixture.CreateTestGame();
+        var game = LoadTestGame(saveFile);
         var ballInventory = game.Trainer.Inventories.InventoryItems["Balls"];
         ballInventory.Set(MasterBall.Id, 5);
 
@@ -37,10 +41,11 @@ public class InventoryTests
         });
     }
 
-    [Fact]
-    public void Inventories_ShouldAllowRemovingItem()
+    [Theory]
+    [SupportedSaveFiles]
+    public void Inventories_ShouldAllowRemovingItem(string saveFile)
     {
-        var game = GameFixture.CreateTestGame();
+        var game = LoadTestGame(saveFile);
         var ballInventory = game.Trainer.Inventories.InventoryItems["Balls"];
         ballInventory.Remove(MasterBall.Id);
 

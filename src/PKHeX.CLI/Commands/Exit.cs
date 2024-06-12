@@ -3,7 +3,7 @@ using PKHeX.CLI.Base;
 using PKHeX.Facade;
 using Spectre.Console;
 
-namespace PKHeX.CLI;
+namespace PKHeX.CLI.Commands;
 
 public static class Exit
 {
@@ -11,41 +11,23 @@ public static class Exit
     {
         var answer = AnsiConsole.Prompt(new SelectionPrompt<string>()
             .Title("There may be changes to your save, what would you like to do?")
-            .AddChoices(["Leave without saving", "Overwrite current", "Save as new", "Cancel"]));
+            .AddChoices(Choices.LeaveWithoutSaving, Choices.OverwriteCurrent, Choices.SaveAsNew, Choices.Cancel));
 
         return answer switch
         {
-            "Leave without saving" => Result.Exit,
-            "Overwrite current" => SaveExisting(game, settings),
-            "Save as new" => SaveAsNew(game, settings),
-            "Cancel" => Result.Continue,
+            Choices.LeaveWithoutSaving => Result.Exit,
+            Choices.OverwriteCurrent => Save.SaveExisting(game, settings),
+            Choices.SaveAsNew => Save.SaveAsNew(game, settings),
+            Choices.Cancel => Result.Continue,
             _ => Result.Continue
         };
     }
 
-    private static Result SaveExisting(Game game, PkCommand.Settings settings)
+    private static class Choices
     {
-        File.WriteAllBytes(settings.SaveFilePath, game.ToByteArray());
-        return Result.Exit;
-    }
-
-    private static Result SaveAsNew(Game game, PkCommand.Settings settings)
-    {
-        var extension = Path.GetExtension(settings.SaveFilePath) ?? string.Empty;
-        var fileName = Path.GetFileNameWithoutExtension(settings.SaveFilePath) ?? "savedata";
-        fileName = Regex.Replace(fileName, @"_\d+", string.Empty);
-        
-        var workingPath = Path.GetDirectoryName(settings.SaveFilePath) ?? "./";
-        var epochNow = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        
-        var suggestedName = $"{fileName}_{epochNow}{extension}";
-        var suggestedFilePath = Path.Combine(workingPath, suggestedName);
-        
-
-        var savePath = AnsiConsole.Ask("Enter the path to save the new file", suggestedFilePath)
-            ?? suggestedFilePath;
-
-        File.WriteAllBytes(savePath, game.ToByteArray());
-        return Result.Exit;
+        public const string LeaveWithoutSaving = "Leave without saving";
+        public const string OverwriteCurrent = "Overwrite current [italic lightgreen](will always save a backup)[/]";
+        public const string SaveAsNew = "Save as new";
+        public const string Cancel = "Cancel";
     }
 }

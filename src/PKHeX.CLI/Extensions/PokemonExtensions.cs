@@ -1,6 +1,6 @@
 ﻿using PKHeX.Facade;
 
-namespace PKHeX.CLI;
+namespace PKHeX.CLI.Extensions;
 
 public static class PokemonExtensions
 {
