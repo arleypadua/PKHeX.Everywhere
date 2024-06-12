@@ -73,7 +73,7 @@ public sealed class PkCommand : Command<PkCommand.Settings>
         RepeatUntilExit(() =>
         {
             var selection = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                .Title($"Hello [yellow bold]{game.Trainer.Name.ToUpperInvariant()}[/] What would you like to do?")
+                .Title($"Hello [yellow bold]{game.Trainer.Name.ToUpperInvariant()}[/]! What would you like to do?")
                 .PageSize(10)
                 .AddChoices(
                     Choices.ViewTrainerInfo,
