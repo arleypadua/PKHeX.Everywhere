@@ -13,7 +13,7 @@ public static class Exit
             .Title("There may be changes to your save, what would you like to do?")
             .AddChoices(Choices.LeaveWithoutSaving, Choices.OverwriteCurrent, Choices.SaveAsNew, Choices.Cancel));
 
-        return answer switch
+        var result = answer switch
         {
             Choices.LeaveWithoutSaving => Result.Exit,
             Choices.OverwriteCurrent => Save.SaveExisting(game, settings),
@@ -21,6 +21,13 @@ public static class Exit
             Choices.Cancel => Result.Continue,
             _ => Result.Continue
         };
+
+        if (result == Result.Exit)
+        {
+            settings.PersistedSettings.Save();
+        }
+
+        return result;
     }
 
     private static class Choices

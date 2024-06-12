@@ -4,7 +4,7 @@ using Spectre.Console;
 
 namespace PKHeX.CLI.Commands;
 
-public class EditInventoryItem
+public static class EditInventoryItem
 {
     public static Result Handle(Game game, string inventoryType, ushort itemId) => SafeHandle(() => {
         var itemDefinition = game.ItemRepository.GetItem(itemId);

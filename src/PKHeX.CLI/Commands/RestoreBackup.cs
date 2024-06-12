@@ -8,7 +8,7 @@ public static class RestoreBackup
 {
     public static Result Handle(Game game, PkCommand.Settings settings)
     {
-        var backupFiles = BackupFile.GetBackupFilesFor(settings.SaveFilePath);
+        var backupFiles = BackupFile.GetBackupFilesFor(settings.ResolveSaveFilePath());
 
         if (backupFiles.Count == 0)
         {
@@ -37,7 +37,7 @@ public static class RestoreBackup
     {
         Save.Backup(settings);
         
-        File.Copy(backupFile.FilePath, settings.SaveFilePath, overwrite: true);
+        File.Copy(backupFile.FilePath, settings.ResolveSaveFilePath(), overwrite: true);
         AnsiConsole.MarkupLine($"Backup restored: {backupFile.FilePath}");
         
         return Result.Exit;
