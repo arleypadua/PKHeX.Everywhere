@@ -28,11 +28,8 @@ public sealed class PkCommand : Command<PkCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
-        var filePath = settings.ResolveSaveFilePath();
-
         PrintHeader();
         
-        settings.PersistedSettings.LastSaveFilePath = filePath;
         return Run(settings.ResolveSaveFilePath(), settings);
     }
 
@@ -47,6 +44,10 @@ public sealed class PkCommand : Command<PkCommand.Settings>
     private int Run(string path, Settings settings)
     {
         var game = Game.LoadFrom(path);
+        
+        AnsiConsole.MarkupLine(string.Empty);
+        AnsiConsole.MarkupLine($"Successfully loaded the save state at: [blue]{path}[/]");
+        AnsiConsole.MarkupLine(string.Empty);
 
         RepeatUntilExit(() =>
         {
@@ -71,7 +72,7 @@ public sealed class PkCommand : Command<PkCommand.Settings>
                 _ => Result.Continue
             };
         });
-
+        
         return 0;
     }
     

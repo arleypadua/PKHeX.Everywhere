@@ -19,7 +19,7 @@ public static class Save
         }
         
         File.WriteAllBytes(settings.ResolveSaveFilePath(), game.ToByteArray());
-        AnsiConsole.MarkupLine($"[bold green]Successfully overwrite file at ${settings.ResolveSaveFilePath()}[/]");
+        AnsiConsole.MarkupLine($"[green]Successfully overwritten file at {settings.ResolveSaveFilePath()}[/]");
         return Result.Exit;
     }
 
@@ -35,7 +35,6 @@ public static class Save
         var suggestedName = $"{fileName}_{epochNow}{extension}";
         var suggestedFilePath = Path.Combine(workingPath, suggestedName);
         
-
         var savePath = AnsiConsole.Ask("Enter the path to save the new file", suggestedFilePath);
 
         File.WriteAllBytes(String.IsNullOrWhiteSpace(savePath) ? suggestedFilePath : savePath, game.ToByteArray());
@@ -50,8 +49,8 @@ public static class Save
             return;
         }
 
-        var backupName = $"{path}.{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.backup"; 
+        var backupName = BackupFile.Name.FromPath(path); 
         File.Copy(path, backupName);
-        AnsiConsole.MarkupLine($"[bold green]Created backup at ${backupName}[/]");
+        AnsiConsole.MarkupLine($"[green]Created backup at {backupName}[/]");
     }
 }
