@@ -68,7 +68,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Publish - ${{ matrix.config.rid }}
-      run: dotnet publish ./src/PKHeX.CLI/PKHeX.CLI.csproj -r ${{ matrix.config.rid }} -c Release /p:Version=${{ steps.get_tag.outputs.version }}
+      run: dotnet publish ./src/PKHeX.CLI/PKHeX.CLI.csproj -r ${{ matrix.config.rid }} -c Release
 
     - name: Copy artifact with new name
       run: cp ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.from }} ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.to }}
