@@ -14,19 +14,37 @@ public static class Exit
 
         var result = answer switch
         {
-            Choices.LeaveWithoutSaving => Result.Exit,
+            Choices.LeaveWithoutSaving => ExitWithoutSaving(),
             Choices.OverwriteCurrent => Save.SaveExisting(game, settings),
             Choices.SaveAsNew => Save.SaveAsNew(game, settings),
             Choices.Cancel => Result.Continue,
             _ => Result.Continue
         };
 
-        if (result == Result.Exit)
-        {
-            settings.PersistedSettings.Save();
-        }
+        if (result != Result.Exit) return result;
+        
+        settings.PersistedSettings.LastSaveFilePath = settings.ResolveSaveFilePath();
+        settings.PersistedSettings.Save();
+            
+        PrintExecuteHelpBanner(settings);
 
         return result;
+    }
+
+    private static Result ExitWithoutSaving()
+    {
+        AnsiConsole.MarkupLine("[yellow]Exited without saving[/]");
+        return Result.Exit;
+    }
+
+    private static void PrintExecuteHelpBanner(PkCommand.Settings settings)
+    {
+        AnsiConsole.MarkupLine(string.Empty);
+        AnsiConsole.MarkupLine("[grey50 italic]To run PKHeX.CLI again:[/]");
+        AnsiConsole.MarkupLine(string.Empty);
+        AnsiConsole.MarkupLine($"[grey50 italic]\t* execute [olive]pkhex-cli[/] to open the last used save file ({settings.ResolveSaveFilePath()})[/]");
+        AnsiConsole.MarkupLine("[grey50 italic]\t* execute [olive]pkhex-cli /path/to/save-file[/] to open another save file[/]");
+        AnsiConsole.MarkupLine(string.Empty);
     }
 
     private static class Choices

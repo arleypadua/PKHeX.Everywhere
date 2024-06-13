@@ -34,4 +34,9 @@ public record BackupFile(string FilePath)
                && backupFile.EndsWith(".backup")
                && int.TryParse(backupFile.Split('.')[^2], out var _);
     }
+
+    public static class Name
+    {
+        public static string FromPath(string path) => $"{path}.{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.backup";
+    }
 }
