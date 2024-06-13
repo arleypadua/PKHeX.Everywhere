@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using PKHeX.CLI.Base;
 using PKHeX.CLI.Commands;
-using PKHeX.Core;
 using PKHeX.Facade;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -28,17 +28,23 @@ public sealed class PkCommand : Command<PkCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
-        PrintHeader();
+        PrintHeader(settings);
         
         return Run(settings.ResolveSaveFilePath(), settings);
     }
 
-    private void PrintHeader()
+    private void PrintHeader(Settings settings)
     {
         AnsiConsole.Write(
             new FigletText("PKHeX CLI")
                 .LeftJustified()
                 .Color(Color.Red));
+
+        if (settings.Version is null) return;
+        
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine($"[red]version {settings.Version.Major}.{settings.Version.Minor}.{settings.Version.Build}[/]");
+        AnsiConsole.WriteLine();
     }
 
     private int Run(string path, Settings settings)
@@ -92,6 +98,7 @@ public sealed class PkCommand : Command<PkCommand.Settings>
         public string? SaveFilePath { get; set; }
 
         public PersistedSettings PersistedSettings { get; } = PersistedSettings.Load();
+        public Version? Version => Assembly.GetExecutingAssembly().GetName().Version;
         
         public string ResolveSaveFilePath() => SaveFilePath ?? PersistedSettings.LastSaveFilePath ?? LocalDebugSaveFile;
         
