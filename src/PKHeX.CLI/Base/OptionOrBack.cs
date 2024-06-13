@@ -1,6 +1,6 @@
 namespace PKHeX.CLI.Base;
 
-record class OptionOrBack
+record OptionOrBack
 {
     public static IEnumerable<OptionOrBack> WithValues<T>(IEnumerable<T> options, Func<T, string>? display = null) =>
         options.Select(v => new Option<T>(v, display))
