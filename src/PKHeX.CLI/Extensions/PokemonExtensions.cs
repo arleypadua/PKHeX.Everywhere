@@ -6,12 +6,23 @@ public static class PokemonExtensions
 {
     public static string GetPokemonDisplay(this Pokemon pokemon)
     {
-        var gender = pokemon.Gender == Gender.Male
-            ? $"[dodgerblue2 bold]{pokemon.Gender.Symbol}[/]"
-            : $"[violet bold]{pokemon.Gender.Symbol}[/]";
-
-        var shiny = pokemon.IsShiny ? " ✨" : string.Empty;
+        var gender = $"[{pokemon.Gender.Color()} bold]{pokemon.Gender.Symbol}[/]";
         
-        return $"{pokemon.Species} {gender} Lv. [yellow]{pokemon.Level}[/]{shiny}";
+        return $"{pokemon.NameDisplay()} {gender} Lv. [yellow]{pokemon.Level}[/]{pokemon.ShinyDisplay()}";
+    }
+
+    public static string NameDisplay(this Pokemon pokemon) => pokemon.Nickname == pokemon.Species.Name()
+        ? pokemon.Species.Name()
+        : $"{pokemon.Nickname} ({pokemon.Species.Name()})";
+    
+    public static string ShinyDisplay(this Pokemon pokemon) => pokemon.IsShiny ? " ✨" : string.Empty;
+
+    private static string Color(this Gender gender)
+    {
+        if (gender == Gender.Male) return "dodgerblue2";
+        if (gender == Gender.Female) return "violet";
+        if (gender == Gender.Genderless) return "yellow3";
+        
+        return string.Empty;
     }
 }

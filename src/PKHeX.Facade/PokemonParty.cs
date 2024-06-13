@@ -1,14 +1,15 @@
-﻿namespace PKHeX.Facade;
+﻿using PKHeX.Core;
 
-public class PokemonParty
+namespace PKHeX.Facade;
+
+public class PokemonParty(Game game)
 {
-    private readonly Game _game;
+    private IList<PKM> _partyData = game.SaveFile.PartyData;
+    public IEnumerable<Pokemon> Pokemons => _partyData
+        .Select(pkm => new Pokemon(pkm, game));
 
-    public PokemonParty(Game game)
+    public void Commit()
     {
-        _game = game;
+        game.SaveFile.PartyData = _partyData;
     }
-
-    public IEnumerable<Pokemon> Pokemons => _game.SaveFile.PartyData
-        .Select(pkm => new Pokemon(pkm, _game));
 }

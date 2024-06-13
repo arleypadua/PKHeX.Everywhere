@@ -19,12 +19,12 @@ public static class ShowPokemonParty
                 .AddChoices(OptionOrBack.WithValues(
                     options: party,
                     display: (pokemon) => pokemon.GetPokemonDisplay()))
-                .WrapAround(true));
+                .WrapAround());
 
             return selection switch
             {
                 OptionOrBack.Back => Result.Exit,
-                OptionOrBack.Option<Pokemon> option => Result.Exit, // TODO: Implement the Pokémon view
+                OptionOrBack.Option<Pokemon> option => EditPokemon.Handle(game, option.Value),
                 _ => Result.Exit
             };
         });
