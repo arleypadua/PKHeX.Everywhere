@@ -28,14 +28,12 @@ public sealed class PkCommand : Command<PkCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
-        var saveFile = LoadSaveFile(settings.ResolveSaveFilePath());
-        if (saveFile is null) return 1;
-
-        settings.PersistedSettings.LastSaveFilePath = settings.ResolveSaveFilePath();
+        var filePath = settings.ResolveSaveFilePath();
 
         PrintHeader();
-
-        return Run(saveFile, settings);
+        
+        settings.PersistedSettings.LastSaveFilePath = filePath;
+        return Run(settings.ResolveSaveFilePath(), settings);
     }
 
     private void PrintHeader()
@@ -46,29 +44,9 @@ public sealed class PkCommand : Command<PkCommand.Settings>
                 .Color(Color.Red));
     }
 
-    private SaveFile? LoadSaveFile(string path)
+    private int Run(string path, Settings settings)
     {
-        var saveFileObject = FileUtil.GetSupportedFile(path);
-        if (saveFileObject is null)
-        {
-            AnsiConsole.MarkupLine($"[bold red]Failed to load save file at {path}[/]");
-            return null;
-        }
-
-        if (saveFileObject is not SaveFile saveFile)
-        {
-            AnsiConsole.MarkupLine($"[bold red]Unsupported save file ({saveFileObject.GetType().Name}) at {path}[/]");
-            return null;
-        }
-
-        AnsiConsole.MarkupLine($"[bold green]Loaded save file at {path}[/]");
-
-        return saveFile;
-    }
-
-    private int Run(SaveFile saveFile, Settings settings)
-    {
-        var game = new Game(saveFile);
+        var game = Game.LoadFrom(path);
 
         RepeatUntilExit(() =>
         {
