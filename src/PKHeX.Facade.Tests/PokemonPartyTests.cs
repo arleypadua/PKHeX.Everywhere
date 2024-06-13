@@ -9,7 +9,7 @@ public class PokemonPartyTests
     [SupportedSaveFiles]
     public void PartyShouldContain(string saveFile)
     {
-        var game = LoadTestGame(saveFile);
+        var game = Game.LoadFrom(saveFile);
         game.Trainer.Party.Pokemons.Should().HaveCountGreaterThan(0);
     }
 }

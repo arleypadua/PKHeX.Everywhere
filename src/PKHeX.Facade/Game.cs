@@ -21,6 +21,12 @@ public class Game
     public Trainer Trainer { get; init; }
 
     public byte[] ToByteArray() => SaveFile.Write(
-        setting: SaveFile.Metadata.GetSuggestedFlags(SaveFile.Extension)
+        setting: SaveFile.Metadata.GetSuggestedFlags(Path.GetExtension(SaveFile.Metadata.FileName))
     );
+
+    public static Game LoadFrom(string path)
+    {
+        var saveFile = SaveUtil.GetVariantSAV(path) ?? throw new InvalidOperationException($"The file at {path} did not load into a save file.");
+        return new Game(saveFile);
+    }
 }
