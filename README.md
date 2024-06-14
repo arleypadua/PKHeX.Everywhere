@@ -30,10 +30,10 @@ dotnet run --project ./src/PKHeX.CLI ./src/PKHeX.CLI/data/savedata.bin
 
 ## Releasing
 
-1. `git tag vX.Y.Z HEAD`
-2. `git push origin --tags`
-3. If pipeline doesn't run automatically, trigger it via the [actions page](https://github.com/arleypadua/PKHeX.CLI/actions/workflows/dotnet.yml)
-   1. select the tag as the target, otherwise the Github Release won't be created
+1. Go to the [Release](https://github.com/arleypadua/PKHeX.CLI/actions/workflows/release.yml) workflow
+2. Choose whether it is a `major`, `minor` or `patch` bump
+3. Run it
+4. By the end of the workflow, you should have a new [Release](https://github.com/arleypadua/PKHeX.CLI/releases/latest)
 
 ## Usage
 
