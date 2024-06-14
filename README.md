@@ -9,6 +9,44 @@ This is a Command Line Interface (CLI) tool for interacting with Pokémon save f
 - **View/Edit Inventory**: View and edit the inventory of the trainer.
 - **Exit**: Exit the program.
 
+## Installation
+
+### Homebrew
+
+```bash
+brew tap arleypadua/homebrew-PKHeX.CLI
+brew install pkhex-cli
+```
+
+Verify the installation with
+
+```bash
+pkhex-cli --version
+```
+
+should print out
+
+```bash
+PKHeX CLI: x.y.z
+```
+
+### Manual download
+
+1. Download the latest version for your system [here](https://github.com/arleypadua/PKHeX.CLI/releases)
+2. Put the file somewhere that's visible from your PATH directory
+3. Run `pkhex-cli /path/to/savefile.bin`
+
+## Usage
+
+```bash
+pkhex-cli /path/to/savefile.bin
+```
+
+### Command Line Options
+
+- **savefile**: (Optional) The path to the save file. Defaults to "./data/savedata.bin".
+- **--version**: Shows the version
+
 ## Building
 
 ### Prerequisites
@@ -34,22 +72,6 @@ dotnet run --project ./src/PKHeX.CLI ./src/PKHeX.CLI/data/savedata.bin
 2. Choose whether it is a `major`, `minor` or `patch` bump
 3. Run it
 4. By the end of the workflow, you should have a new [Release](https://github.com/arleypadua/PKHeX.CLI/releases/latest)
-
-## Usage
-
-1. Download the latest version for your system [here](https://github.com/arleypadua/PKHeX.CLI/releases)
-2. Put the file somewhere that's visible from your PATH directory
-3. Run `pkhex-cli /path/to/savefile.bin`
-
-### Command Line Options
-
-- **savefile**: (Optional) The path to the save file. Defaults to "./data/savedata.bin".
-
-### Example Usage
-
-```bash
-pkhex-cli /path/to/savefile.bin
-```
 
 # Credits
 

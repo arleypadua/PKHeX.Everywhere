@@ -28,6 +28,12 @@ public sealed class PkCommand : Command<PkCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
+        if (settings.ShowVersion)
+        {
+            AnsiConsole.MarkupLine($"[red]PKHeX CLI[/]: [yellow]{settings.Version?.ToString(3)}[/]");
+            return 0;
+        }
+        
         PrintHeader(settings);
         
         return Run(settings.ResolveSaveFilePath(), settings);
@@ -43,7 +49,7 @@ public sealed class PkCommand : Command<PkCommand.Settings>
         if (settings.Version is null) return;
         
         AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine($"[red]version {settings.Version.Major}.{settings.Version.Minor}.{settings.Version.Build}[/]");
+        AnsiConsole.MarkupLine($"[red]version {settings.Version?.ToString(3)}[/]");
         AnsiConsole.WriteLine();
     }
 
@@ -99,6 +105,10 @@ public sealed class PkCommand : Command<PkCommand.Settings>
         [Description("The path to the save file. Default to ./data/savedata.bin")]
         [CommandArgument(0, "[savefile]")]
         public string? SaveFilePath { get; set; }
+        
+        [CommandOption("-v|--version")]
+        [DefaultValue(false)]
+        public bool ShowVersion { get; init; }
 
         public PersistedSettings PersistedSettings { get; } = PersistedSettings.Load();
         public Version? Version => Assembly.GetExecutingAssembly().GetName().Version;
