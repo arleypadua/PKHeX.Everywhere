@@ -30,13 +30,8 @@ jobs:
       - name: Semver tag
         id: semver_tag
         run: |
-          # Get the last tag from git
           last_tag=$(git describe --tags --always --abbrev=0)
-
-          ls
-
-          # Call the bump_version function with the last tag and the type "minor"
-          new_version=$(./bump_version "$last_tag" "${{ inputs.versionBump }}")
+          new_version=$(./semver "$last_tag" "${{ inputs.versionBump }}")
 
           echo "${{ inputs.versionBump }} bump from $last_tag to $new_version"
           echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
