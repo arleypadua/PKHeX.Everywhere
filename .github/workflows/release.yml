@@ -20,6 +20,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        run: |
+          git --version
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
       
       - name: Semver tag
         id: semver_tag
