@@ -27,8 +27,6 @@ jobs:
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
 
-          git update-index --chmod=+x ./semver.sh
-
       - name: Semver tag
         id: semver_tag
         run: |
