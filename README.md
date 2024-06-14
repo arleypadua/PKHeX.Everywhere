@@ -14,7 +14,7 @@ This is a Command Line Interface (CLI) tool for interacting with Pokémon save f
 ### Homebrew
 
 ```bash
-brew tap arleypadua/homebrew-PKHeX.CLI
+brew tap arleypadua/homebrew-pkhex-cli
 brew install pkhex-cli
 ```
 
