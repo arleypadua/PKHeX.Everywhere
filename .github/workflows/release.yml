@@ -27,11 +27,13 @@ jobs:
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
 
+          git update-index --chmod=+x ./semver.sh
+
       - name: Semver tag
         id: semver_tag
         run: |
           last_tag=$(git describe --tags --always --abbrev=0)
-          new_version=$(./semver "$last_tag" "${{ inputs.versionBump }}")
+          new_version=$(./semver.sh "$last_tag" "${{ inputs.versionBump }}")
 
           echo "${{ inputs.versionBump }} bump from $last_tag to $new_version"
           echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
