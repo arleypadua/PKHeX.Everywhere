@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Function to bump the version
 bump_version() {
   local version=$1
   local type=$2
@@ -37,3 +36,6 @@ bump_version() {
   # Print the new version
   echo "v$major.$minor.$patch"
 }
+
+# Call the function with the passed arguments
+bump_version "$1" "$2"
