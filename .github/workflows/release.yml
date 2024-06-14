@@ -16,19 +16,27 @@ jobs:
   versionBump:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.semver_tag.outputs.semver_tag }}
+      new_version: ${{ steps.semver_tag.outputs.new_version }}
 
     steps:
       - uses: actions/checkout@v4
       
       - name: Semver tag
         id: semver_tag
-        uses: gandarez/semver-action@master
-        with:
-          bump: ${{ inputs.versionBump }}
-          branching_model: "trunk-based"
-          main_branch_name: "main"
-          debug: true
+        run: |
+          # Get the last tag from git
+          last_tag=$(git describe --tags --abbrev=0)
+
+          # Call the bump_version function with the last tag and the type "minor"
+          new_version=$(bump_version "$last_tag" "${{ inputs.versionBump }}")
+
+          echo "${{ inputs.versionBump }} bump from $last_tag to $new_version"
+          echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
+      
+      - name: Push new tag
+        run: |
+          git tag ${{ steps.semver_tag.outputs.new_version }} HEAD
+          git push origin --tags
 
   publish:
     strategy:
@@ -65,7 +73,7 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - name: Publish - ${{ matrix.config.rid }}
-        run: dotnet publish ./src/PKHeX.CLI/PKHeX.CLI.csproj -r ${{ matrix.config.rid }} -c Release /p:Version=${{ needs.versionBump.outputs.version }}
+        run: dotnet publish ./src/PKHeX.CLI/PKHeX.CLI.csproj -r ${{ matrix.config.rid }} -c Release /p:Version=${{ needs.versionBump.outputs.new_version }}
 
       - name: Copy artifact with new name
         run: cp ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.from }} ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.to }}
