@@ -24,8 +24,8 @@ jobs:
       run: |
         version="${GITHUB_REF##*/}"
         version="${version#v}"
-        echo "Version without v: $version"
-        echo "::set-output name=version::$version"
+        echo "Version string: $version"
+        echo "CLI_VERSION=$version" >> "$GITHUB_OUTPUT"
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -56,6 +56,11 @@ jobs:
             artifact:
               from: PKHeX.CLI
               to: pkhex-cli
+          - os: macos-latest
+            rid: osx-x64
+            artifact:
+              from: PKHeX.CLI
+              to: pkhex-cli
 
     runs-on: ${{ matrix.config.os }}
     needs: test
@@ -68,7 +73,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Publish - ${{ matrix.config.rid }}
-      run: dotnet publish ./src/PKHeX.CLI/PKHeX.CLI.csproj -r ${{ matrix.config.rid }} -c Release
+      run: dotnet publish ./src/PKHeX.CLI/PKHeX.CLI.csproj -r ${{ matrix.config.rid }} -c Release /p:Version=${{ needs.test.outputs.CLI_VERSION }}
 
     - name: Copy artifact with new name
       run: cp ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.from }} ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.to }}
@@ -100,6 +105,7 @@ jobs:
         zip -j pkhex-cli-linux-x64.zip artifacts/artifact-linux-x64/pkhex-cli
         zip -j pkhex-cli-win-x64.zip artifacts/artifact-win-x64/pkhex-cli.exe
         zip -j pkhex-cli-osx-arm64.zip artifacts/artifact-osx-arm64/pkhex-cli
+        zip -j pkhex-cli-osx-x64.zip artifacts/artifact-osx-x64/pkhex-cli
 
     - name: Release
       uses: softprops/action-gh-release@v2
@@ -110,3 +116,4 @@ jobs:
           pkhex-cli-linux-x64.zip
           pkhex-cli-win-x64.zip
           pkhex-cli-osx-arm64.zip
+          pkhex-cli-osx-x64.zip
