@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       new_version: ${{ steps.semver_tag.outputs.new_version }}
+      new_version_raw: ${{ steps.semver_tag.outputs.new_version_raw }}
 
     steps:
       - uses: actions/checkout@v4
@@ -36,9 +37,11 @@ jobs:
         run: |
           last_tag=$(git describe --tags --always --abbrev=0)
           new_version=$(./semver.sh "$last_tag" "${{ inputs.versionBump }}")
+          new_version_raw=${new_version#v}
 
           echo "${{ inputs.versionBump }} bump from $last_tag to $new_version"
           echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
+          echo "new_version_raw=$new_version_raw" >> "$GITHUB_OUTPUT"
       
       - name: Push new tag
         run: |
@@ -80,7 +83,7 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - name: Publish - ${{ matrix.config.rid }}
-        run: dotnet publish ./src/PKHeX.CLI/PKHeX.CLI.csproj -r ${{ matrix.config.rid }} -c Release /p:Version=${{ needs.versionBump.outputs.new_version }}
+        run: dotnet publish ./src/PKHeX.CLI/PKHeX.CLI.csproj -r ${{ matrix.config.rid }} -c Release /p:Version=${{ needs.versionBump.outputs.new_version_raw }}
 
       - name: Copy artifact with new name
         run: cp ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.from }} ./src/PKHeX.CLI/bin/Release/net8.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.to }}
