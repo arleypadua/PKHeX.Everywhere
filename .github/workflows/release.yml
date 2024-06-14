@@ -11,6 +11,8 @@ on:
           - patch
           - minor
           - major
+permissions:
+  contents: write
 
 jobs:
   versionBump:
