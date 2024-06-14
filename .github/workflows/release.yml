@@ -121,6 +121,7 @@ jobs:
         with:
           make_latest: true
           generate_release_notes: true
+          tag_name: ${{ needs.versionBump.outputs.new_version }}
           files: |
             pkhex-cli-linux-x64.zip
             pkhex-cli-win-x64.zip
