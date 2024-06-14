@@ -28,6 +28,7 @@ jobs:
           bump: ${{ inputs.versionBump }}
           branching_model: "trunk-based"
           main_branch_name: "main"
+          debug: true
 
   publish:
     strategy:
