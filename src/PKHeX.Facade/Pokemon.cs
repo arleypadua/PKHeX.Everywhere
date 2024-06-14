@@ -14,6 +14,7 @@ public class Pokemon(PKM pokemon, Game game)
         set => pokemon.Ball = Convert.ToByte(value.Id);
     }
 
+    public EntityId Id => new (Pkm.TID16, Pkm.SID16);
     public Species Species => (Species)pokemon.Species;
     public string Nickname => pokemon.Nickname;
     public int Level => pokemon.CurrentLevel;

@@ -4,7 +4,7 @@ using Spectre.Console;
 
 namespace PKHeX.CLI.Commands;
 
-public class ShowInventoryItems
+public static class ShowInventoryItems
 {
     public static Result Handle(Game game, string inventoryType)
     {
@@ -22,23 +22,25 @@ public class ShowInventoryItems
                 inventoryItems = inventoryItems.Append(noneItem);
             }
 
+            var allItems = inventoryItems.ToList();
+
             var selection = AnsiConsole.Prompt(new SelectionPrompt<OptionOrBack>()
                 .AddChoices(OptionOrBack.WithValues(
-                    options: inventoryItems, 
+                    options: allItems, 
                     display: (item) => item.IsNone
                         ? "[bold lightgreen]+ Add new item[/]"
                         : $"(#{item.Id:000}) {item.Name} x [yellow]{item.Count}[/]"))
-                .Title($"[bold darkgreen]Bag of {inventoryType}[/] [yellow]({inventoryItems.Count()}/{inventory.Count()})[/]")
+                .Title($"[bold darkgreen]Bag of {inventoryType}[/] [yellow]({allItems.Count()}/{inventory.Count()})[/]")
                 .PageSize(10)
                 .EnableSearch()
-                .WrapAround(true));
+                .WrapAround());
  
             return selection switch
             {
                 OptionOrBack.Back => Result.Exit,
-                OptionOrBack.Option<Inventory.Item> item and { Value: { IsNone: false } } => 
+                OptionOrBack.Option<Inventory.Item> { Value: { IsNone: false } } item => 
                     EditInventoryItem.Handle(game, inventoryType, item.Value.Id),
-                OptionOrBack.Option<Inventory.Item> item and { Value: { IsNone: true } } => 
+                OptionOrBack.Option<Inventory.Item> { Value: { IsNone: true } } => 
                     AddInventoryItem.Handle(game, inventoryType),
                 _ => Result.Exit
             };

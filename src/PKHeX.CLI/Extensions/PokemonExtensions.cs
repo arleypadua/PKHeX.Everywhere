@@ -1,4 +1,5 @@
 ﻿using PKHeX.Facade;
+using PKHeX.Facade.Extensions;
 
 namespace PKHeX.CLI.Extensions;
 
@@ -11,10 +12,6 @@ public static class PokemonExtensions
         return $"{pokemon.NameDisplay()} {gender} Lv. [yellow]{pokemon.Level}[/]{pokemon.ShinyDisplay()}";
     }
 
-    public static string NameDisplay(this Pokemon pokemon) => pokemon.Nickname == pokemon.Species.Name()
-        ? pokemon.Species.Name()
-        : $"{pokemon.Nickname} ({pokemon.Species.Name()})";
-    
     public static string ShinyDisplay(this Pokemon pokemon) => pokemon.IsShiny ? " ✨" : string.Empty;
 
     private static string Color(this Gender gender)

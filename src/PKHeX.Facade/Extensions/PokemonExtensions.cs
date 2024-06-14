@@ -1,7 +1,14 @@
 using System.Text.RegularExpressions;
 using PKHeX.Core;
 
-namespace PKHeX.CLI.Extensions;
+namespace PKHeX.Facade.Extensions;
+
+public static class PokemonExtensions
+{
+    public static string NameDisplay(this Pokemon pokemon) => pokemon.Nickname == pokemon.Species.Name()
+        ? pokemon.Species.Name()
+        : $"{pokemon.Nickname} ({pokemon.Species.Name()})";
+}
 
 public static partial class SpeciesExtensions
 {
