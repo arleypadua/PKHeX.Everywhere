@@ -63,6 +63,7 @@ public sealed class PkCommand : Command<PkCommand.Settings>
                 .AddChoices(
                     Choices.ViewTrainerInfo,
                     Choices.ViewPokemonParty,
+                    Choices.ViewPokemonBox,
                     Choices.ViewInventory,
                     Choices.RestoreBackup,
                     Choices.Exit)
@@ -72,6 +73,7 @@ public sealed class PkCommand : Command<PkCommand.Settings>
             {
                 Choices.ViewTrainerInfo => ViewTrainerInfo.Handle(game),
                 Choices.ViewPokemonParty => ShowPokemonParty.Handle(game),
+                Choices.ViewPokemonBox => ShowPokemonBox.Handle(game),
                 Choices.ViewInventory => ViewInventory.Handle(game),
                 Choices.Exit => Exit.Handle(game, settings),
                 Choices.RestoreBackup => RestoreBackup.Handle(game, settings),
@@ -86,6 +88,7 @@ public sealed class PkCommand : Command<PkCommand.Settings>
     {
         public const string ViewTrainerInfo = "View Trainer Info";
         public const string ViewPokemonParty = "View/Edit Pokémon Party";
+        public const string ViewPokemonBox = "View/Edit Pokemon Box";
         public const string ViewInventory = "View/Edit Inventory";
         public const string RestoreBackup = "Restore Backup";
         public const string Exit = "Exit";

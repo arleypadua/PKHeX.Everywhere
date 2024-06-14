@@ -1,7 +1,7 @@
 using PKHeX.CLI.Base;
-using PKHeX.CLI.Extensions;
 using PKHeX.Core;
 using PKHeX.Facade;
+using PKHeX.Facade.Extensions;
 using PKHeX.Facade.Repositories;
 using Spectre.Console;
 
@@ -13,6 +13,7 @@ public static class EditPokemon
     {
         IEnumerable<PokemonAttribute> attributes =
         [
+            new PokemonAttribute.Id(pokemon),
             new PokemonAttribute.Name(pokemon),
             new PokemonAttribute.CapturedWith(pokemon),
             new PokemonAttribute.Level(pokemon),
@@ -41,8 +42,6 @@ public static class EditPokemon
                 : Result.Exit;
         });
         
-        game.Trainer.Party.Commit();
-        
         return Result.Continue;
     }
 
@@ -55,6 +54,11 @@ public static class EditPokemon
 
         public virtual Result HandleSelection() => Result.Continue;
         
+        public class Id(Pokemon pokemon) : PokemonAttribute
+        {
+            protected override string Label => "TID/SID";
+            protected override string Value => pokemon.Id.ToString();
+        }
         public class Name(Pokemon pokemon) : PokemonAttribute
         {
             protected override string Label => "Name/Nickname";

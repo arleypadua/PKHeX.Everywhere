@@ -9,28 +9,10 @@ public static class ShowPokemonParty
 {
     public static Result Handle(Game game)
     {
-        RepeatUntilExit(() =>
-        {
-            var party = game.Trainer.Party.Pokemons;
-
-            var selection = AnsiConsole.Prompt(new SelectionPrompt<OptionOrBack>()
-                .Title("Which Pokémon would you like to view?")
-                .PageSize(10)
-                .AddChoices(OptionOrBack.WithValues(
-                    options: party,
-                    display: (pokemon) => pokemon.GetPokemonDisplay()))
-                .WrapAround());
-
-            return selection switch
-            {
-                OptionOrBack.Back => Result.Exit,
-                OptionOrBack.Option<Pokemon> option => EditPokemon.Handle(game, option.Value),
-                _ => Result.Exit
-            };
-        });
+        RepeatUntilExit(() => ShowPokemons.Handle(game, game.Trainer.Party.Pokemons));
+        
+        game.Trainer.Party.Commit();
 
         return Result.Continue;
     }
-
-    
 }

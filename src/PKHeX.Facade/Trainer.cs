@@ -10,18 +10,20 @@ public class Trainer
     {
         _game = game;
 
-        Id = new TrainerId(_game.SaveFile.TID16, _game.SaveFile.SID16);
+        Id = new EntityId(_game.SaveFile.TID16, _game.SaveFile.SID16);
         Money = new Money(_game);
         Inventories = new Inventories(_game);
         Party = new PokemonParty(_game);
+        PokemonBox = new PokemonBox(_game);
     }
 
-    public TrainerId Id { get; init; }
+    public EntityId Id { get; }
     public string Name => _game.SaveFile.OT;
     public Gender Gender => Gender.FromByte(_game.SaveFile.Gender);
-    public Money Money { get; init; }
+    public Money Money { get; }
     public Inventories Inventories { get; private set; }
     public PokemonParty Party { get; private set; }
+    public PokemonBox PokemonBox { get; private set; }
 
     public string? RivalName => _game.SaveFile switch
     {
@@ -34,9 +36,4 @@ public class Trainer
         SAV8BS gen8 => gen8.Rival,
         _ => null
     };
-}
-
-public record TrainerId(ushort TID, ushort SID)
-{
-    public override string ToString() => $"{TID}/{SID}";
 }
