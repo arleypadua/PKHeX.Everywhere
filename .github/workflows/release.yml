@@ -33,6 +33,8 @@ jobs:
           # Get the last tag from git
           last_tag=$(git describe --tags --always --abbrev=0)
 
+          ls
+
           # Call the bump_version function with the last tag and the type "minor"
           new_version=$(./bump_version "$last_tag" "${{ inputs.versionBump }}")
 
