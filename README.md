@@ -1,6 +1,6 @@
 # PKHeX CLI
 
-This is a Command Line Interface (CLI) tool for interacting with Pokémon save files. It provides various functionalities to manage and modify Pokémon save data in a convenient and scriptable manner.
+This is a cross platform Command Line Interface (CLI) tool for interacting with Pokémon save files. It provides various functionalities to manage and modify Pokémon save data.
 
 ## Features
 
