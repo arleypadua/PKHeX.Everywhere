@@ -11,14 +11,24 @@ This is a Command Line Interface (CLI) tool for interacting with Pokémon save f
 
 ## Installation
 
+### Script
+
+```bash
+curl -sL https://raw.githubusercontent.com/arleypadua/PKHeX.CLI/main/install.sh | bash
+```
+
 ### Homebrew
 
 ```bash
 brew tap arleypadua/homebrew-pkhex-cli
 brew install pkhex-cli
 ```
+### Manual download
 
-Verify the installation with
+1. Download the latest version for your system [here](https://github.com/arleypadua/PKHeX.CLI/releases)
+2. Put the file somewhere that's visible from your PATH directory
+
+### Verify the installation with
 
 ```bash
 pkhex-cli --version
@@ -29,12 +39,6 @@ should print out
 ```bash
 PKHeX CLI: x.y.z
 ```
-
-### Manual download
-
-1. Download the latest version for your system [here](https://github.com/arleypadua/PKHeX.CLI/releases)
-2. Put the file somewhere that's visible from your PATH directory
-3. Run `pkhex-cli /path/to/savefile.bin`
 
 ## Usage
 
