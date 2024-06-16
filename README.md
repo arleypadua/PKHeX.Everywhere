@@ -14,7 +14,7 @@ This is a cross platform Command Line Interface (CLI) tool for interacting with 
 ### Script
 
 ```bash
-curl -sL https://raw.githubusercontent.com/arleypadua/PKHeX.CLI/main/install.sh | bash
+curl -sL https://raw.githubusercontent.com/arleypadua/PKHeX.CLI/main/install.sh | sudo bash
 ```
 
 ### Homebrew
