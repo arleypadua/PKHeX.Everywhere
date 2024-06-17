@@ -52,14 +52,14 @@ jobs:
           SHA256_LINUX_X64=$(sha256sum pkhex-cli-linux-x64.zip | awk '{ print $1 }')
 
           # output extracted information
-          echo "::set-output name=version::$VERSION"
-          echo "::set-output name=osx_arm64_url::$OSX_ARM64_URL"
-          echo "::set-output name=osx_x64_url::$OSX_X64_URL"
-          echo "::set-output name=linux_x64_url::$LINUX_X64_URL"
-
-          echo "::set-output name=sha256_osx_arm64::$SHA256_OSX_ARM64"
-          echo "::set-output name=sha256_osx_x64::$SHA256_OSX_X64"
-          echo "::set-output name=sha256_linux_x64::$SHA256_LINUX_X64"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "osx_arm64_url=$OSX_ARM64_URL" >> "$GITHUB_OUTPUT"
+          echo "osx_x64_url=$OSX_X64_URL" >> "$GITHUB_OUTPUT"
+          echo "linux_x64_url=$LINUX_X64_URL" >> "$GITHUB_OUTPUT"
+          
+          echo "sha256_osx_arm64=$SHA256_OSX_ARM64" >> "$GITHUB_OUTPUT"
+          echo "sha256_osx_x64=$SHA256_OSX_X64" >> "$GITHUB_OUTPUT"
+          echo "sha256_linux_x64=$SHA256_LINUX_X64" >> "$GITHUB_OUTPUT"
 
       - name: Generate pkhex-cli.rb formula
         run: |
