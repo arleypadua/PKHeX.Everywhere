@@ -13,18 +13,29 @@ This is a cross platform Command Line Interface (CLI) tool for interacting with 
 
 ## Installation
 
-### Script
-
-```bash
-curl -sL https://raw.githubusercontent.com/arleypadua/PKHeX.CLI/main/install.sh | sudo bash
-```
-
 ### Homebrew
 
 ```bash
 brew tap arleypadua/homebrew-pkhex-cli
 brew install pkhex-cli
 ```
+
+### Script
+
+```bash
+curl -sL https://raw.githubusercontent.com/arleypadua/PKHeX.CLI/main/install.sh | sudo bash
+```
+
+#### Compatibility with batocera
+
+PKHeX.CLI is compatible with batocera:
+
+1. Make sure you can access batocera with SSH. [(Details here)](https://wiki.batocera.org/access_the_batocera_via_ssh).
+2. Open an ssh session: `ssh root@batocera` the default password is usually `linux`
+3. run `curl -sL https://raw.githubusercontent.com/arleypadua/PKHeX.CLI/main/install.sh | bash`
+   * _note that because we are accessing as `root` there's **no need** to run `sudo bash`_
+4. You should be able to use it as stated [here](https://github.com/arleypadua/PKHeX.CLI?tab=readme-ov-file#usage).
+
 ### Manual download
 
 1. Download the latest version for your system [here](https://github.com/arleypadua/PKHeX.CLI/releases)
