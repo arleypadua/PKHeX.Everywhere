@@ -7,7 +7,9 @@ This is a cross platform Command Line Interface (CLI) tool for interacting with 
 - **Load Save File**: Load a Pokémon save file from a specified path.
 - **View Trainer Info**: View information about the trainer in the save file.
 - **View/Edit Inventory**: View and edit the inventory of the trainer.
-- **Exit**: Exit the program.
+- **View/Edit Party**: View and edit your party.
+- **View/Edit Pokemon Box**: View and edit all pokemons in your box.
+- **Backups**: When exiting the program, if changes were made, a backup will be created.
 
 ## Installation
 
