@@ -16,14 +16,16 @@ public class PersistedSettings(string? lastSaveFilePath = null)
                 lastSaveFilePath = null;
                 return;
             }
-            
+
             var fullPath = Path.GetFullPath(value);
             lastSaveFilePath = fullPath;
         }
     }
-    
+
     public void Save()
     {
+        EnsureConfigurationPathCreated();
+        
         var serialized = JsonSerializer.Serialize(this, PersistedSettingsContext.Default.PersistedSettings);
         File.WriteAllText(SettingsFilePath, serialized);
     }
@@ -48,11 +50,19 @@ public class PersistedSettings(string? lastSaveFilePath = null)
         {
             AnsiConsole.WriteLine($"[red]Error loading settings: {e.Message}[/]");
         }
-        
+
         return new PersistedSettings();
     }
 
-    private static readonly string SettingsFilePath = Path.Combine(AppContext.BaseDirectory, "settings.json");
+    private void EnsureConfigurationPathCreated()
+    {
+        Directory.CreateDirectory(SettingsDirectory);
+    }
+
+    private static readonly string SettingsDirectory =
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "pkhex-cli");
+    
+    private static readonly string SettingsFilePath = Path.Combine(SettingsDirectory, "settings.json");
 }
 
 [JsonSourceGenerationOptions(WriteIndented = true)]
