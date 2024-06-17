@@ -2,6 +2,8 @@
 
 This is a cross platform Command Line Interface (CLI) tool for interacting with Pokémon save files. It provides various functionalities to manage and modify Pokémon save data.
 
+![](./docs/pkhex-cli-demo.gif)
+
 ## Features
 
 - **Load Save File**: Load a Pokémon save file from a specified path.
