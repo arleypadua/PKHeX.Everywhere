@@ -13,18 +13,17 @@ jobs:
     permissions:
       contents: write
     env: 
-      CONTEXT_DEBUG: ${{ toJSON(github.event.workflow_run) }}
+      CONTEXT_DEBUG: ${{ toJSON(github) }}
 
     steps:
       - name: Print context
-        if: ${{ runner.debug == '1' }}
         run: echo $CONTEXT_DEBUG
         
       - name: Checkout formula repository
         uses: actions/checkout@v4
         with:
           repository: arleypadua/homebrew-pkhex-cli
-          token: actions/checkout@v4 
+          token: ${{ secrets.GIT_HUB_HOMEBREW_FORMULA_TOKEN }}
           
       - name: Generate pkhex-cli.rb formula
         run: |
