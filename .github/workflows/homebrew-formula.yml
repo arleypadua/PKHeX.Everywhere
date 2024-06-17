@@ -12,12 +12,19 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env: 
+      CONTEXT_DEBUG: ${{ toJSON(github.event.workflow_run) }}
 
     steps:
+      - name: Print context
+        if: ${{ runner.debug == '1' }}
+        run: echo $CONTEXT_DEBUG
+        
       - name: Checkout formula repository
         uses: actions/checkout@v4
         with:
           repository: arleypadua/homebrew-pkhex-cli
+          token: actions/checkout@v4 
           
       - name: Generate pkhex-cli.rb formula
         run: |
@@ -54,9 +61,4 @@ jobs:
           git config user.email "<>"
           git add Formula/pkhex-cli.rb
           git commit -m "Update pkhex-cli.rb to version $VERSION"
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GIT_HUB_HOMEBREW_FORMULA_TOKEN }}
-          repository: arleypadua/homebrew-pkhex-cli
+          git push origin
