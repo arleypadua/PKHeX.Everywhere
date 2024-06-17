@@ -1,6 +1,14 @@
 name: Release homebrew formula
 
 on:
+  workflow_dispatch:
+    inputs:
+      manualTrigger:
+        description: 'To target a manual triggered job '
+        type: boolean
+        required: false
+        default: true
+        
   workflow_run:
     workflows: ["Release"]
     types:
@@ -8,46 +16,74 @@ on:
 
 jobs:
   generateHomebrewFormula:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || inputs.manualTrigger }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env: 
-      CONTEXT_DEBUG: ${{ toJSON(github) }}
 
     steps:
-      - name: Print context
-        run: echo $CONTEXT_DEBUG
-        
       - name: Checkout formula repository
         uses: actions/checkout@v4
         with:
           repository: arleypadua/homebrew-pkhex-cli
           token: ${{ secrets.GIT_HUB_HOMEBREW_FORMULA_TOKEN }}
+
+      - name: Fetch latest release metadata
+        id: fetch_metadata
+        run: |
+          curl -s https://api.github.com/repos/arleypadua/PKHeX.CLI/releases/latest > latest_release.json
+
+      - name: Parse release metadata
+        id: parse_metadata
+        run: |
+          VERSION=$(jq -r .tag_name latest_release.json)
+          OSX_ARM64_URL=$(jq -r '.assets[] | select(.name | test("pkhex-cli-osx-arm64.zip")) | .browser_download_url' latest_release.json)
+          OSX_X64_URL=$(jq -r '.assets[] | select(.name | test("pkhex-cli-osx-x64.zip")) | .browser_download_url' latest_release.json)
+          LINUX_X64_URL=$(jq -r '.assets[] | select(.name | test("pkhex-cli-linux-x64.zip")) | .browser_download_url' latest_release.json)
+
+          # compute sha256 checksum
+          curl -L -o pkhex-cli-osx-arm64.zip $OSX_ARM64_URL
+          SHA256_OSX_ARM64=$(sha256sum pkhex-cli-osx-arm64.zip | awk '{ print $1 }')
           
+          curl -L -o pkhex-cli-osx-x64.zip $OSX_X64_URL
+          SHA256_OSX_X64=$(sha256sum pkhex-cli-osx-x64.zip | awk '{ print $1 }')
+          
+          curl -L -o pkhex-cli-linux-x64.zip $LINUX_X64_URL
+          SHA256_LINUX_X64=$(sha256sum pkhex-cli-linux-x64.zip | awk '{ print $1 }')
+
+          # output extracted information
+          echo "::set-output name=version::$VERSION"
+          echo "::set-output name=osx_arm64_url::$OSX_ARM64_URL"
+          echo "::set-output name=osx_x64_url::$OSX_X64_URL"
+          echo "::set-output name=linux_x64_url::$LINUX_X64_URL"
+
+          echo "::set-output name=sha256_osx_arm64::$SHA256_OSX_ARM64"
+          echo "::set-output name=sha256_osx_x64::$SHA256_OSX_X64"
+          echo "::set-output name=sha256_linux_x64::$SHA256_LINUX_X64"
+
       - name: Generate pkhex-cli.rb formula
         run: |
           cat <<EOF > Formula/pkhex-cli.rb
           class PkhexCli < Formula
-            version "${{ github.event.workflow_run.jobs.versionBump.outputs.new_version }}"
+            version "${{ steps.parse_metadata.outputs.version }}"
             desc "A CLI to manipulate pokemon game save files."
             homepage "https://github.com/arleypadua/PKHeX.CLI"
-          
+
             if OS.mac? && Hardware::CPU.arm?
-              url "https://github.com/arleypadua/PKHeX.CLI/releases/download/#{version}/pkhex-cli-osx-arm64.zip"
-              sha256 "${{ github.event.workflow_run.jobs.release.outputs.osx_arm64_sha256 }}"
+              url "${{ steps.parse_metadata.outputs.osx_arm64_url }}"
+              sha256 "${{ steps.parse_metadata.outputs.sha256_osx_arm64 }}"
             elsif OS.mac?
-              url "https://github.com/arleypadua/PKHeX.CLI/releases/download/#{version}/pkhex-cli-osx-x64.zip"
-              sha256 "${{ github.event.workflow_run.jobs.release.outputs.osx_x64_sha256 }}"
+              url "${{ steps.parse_metadata.outputs.osx_x64_url }}"
+              sha256 "${{ steps.parse_metadata.outputs.sha256_osx_x64 }}"
             elsif OS.linux?
-              url "https://github.com/arleypadua/PKHeX.CLI/releases/download/#{version}/pkhex-cli-linux-x64.zip"
-              sha256 "${{ github.event.workflow_run.jobs.release.outputs.linux_x64_sha256 }}"
+              url "${{ steps.parse_metadata.outputs.linux_x64_url }}"
+              sha256 "${{ steps.parse_metadata.outputs.sha256_linux_x64 }}"
             end
-          
+
             def install
               bin.install "pkhex-cli"
             end
-          
+
             test do
               system "#{bin}/pkhex-cli --version"
             end
@@ -59,5 +95,5 @@ jobs:
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
           git add Formula/pkhex-cli.rb
-          git commit -m "Update pkhex-cli.rb to version $VERSION"
+          git commit -m "update pkhex-cli formula to version ${{ steps.parse_metadata.outputs.version }}"
           git push origin
