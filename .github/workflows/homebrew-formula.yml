@@ -10,7 +10,6 @@ jobs:
   generateHomebrewFormula:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    needs: [ versionBump, release ]
     permissions:
       contents: write
 
