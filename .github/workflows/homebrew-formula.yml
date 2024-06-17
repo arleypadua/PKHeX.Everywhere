@@ -1,0 +1,58 @@
+name: Generate pkhex-cli.rb
+
+on:
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
+
+jobs:
+  generateHomebrewFormula:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    needs: [ versionBump, release ]
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout formula repository
+        uses: actions/checkout@v4
+        with:
+          repository: arleypadua/homebrew-pkhex-cli
+          
+      - name: Generate pkhex-cli.rb formula
+        run: |
+          cat <<EOF > Formula/pkhex-cli.rb
+          class PkhexCli < Formula
+            version "${{ github.event.workflow_run.jobs.versionBump.outputs.new_version }}"
+            desc "A CLI to manipulate pokemon game save files."
+            homepage "https://github.com/arleypadua/PKHeX.CLI"
+          
+            if OS.mac? && Hardware::CPU.arm?
+              url "https://github.com/arleypadua/PKHeX.CLI/releases/download/#{version}/pkhex-cli-osx-arm64.zip"
+              sha256 "${{ github.event.workflow_run.jobs.release.outputs.osx_arm64_sha256 }}"
+            elsif OS.mac?
+              url "https://github.com/arleypadua/PKHeX.CLI/releases/download/#{version}/pkhex-cli-osx-x64.zip"
+              sha256 "${{ github.event.workflow_run.jobs.release.outputs.osx_x64_sha256 }}"
+            elsif OS.linux?
+              url "https://github.com/arleypadua/PKHeX.CLI/releases/download/#{version}/pkhex-cli-linux-x64.zip"
+              sha256 "${{ github.event.workflow_run.jobs.release.outputs.linux_x64_sha256 }}"
+            end
+          
+            def install
+              bin.install "pkhex-cli"
+            end
+          
+            test do
+              system "#{bin}/pkhex-cli --version"
+            end
+          end
+          EOF
+          
+      - name: Commit and push pkhex-cli.rb to another repository
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git add Formula/pkhex-cli.rb
+          git commit -m "Update pkhex-cli.rb to version $VERSION"
+          git push origin
