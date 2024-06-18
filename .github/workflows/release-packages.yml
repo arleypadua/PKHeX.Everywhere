@@ -135,7 +135,9 @@ jobs:
           $windows_url = $windows_asset.browser_download_url
 
           Invoke-WebRequest -Uri $windows_url -OutFile pkhex-cli-win-x64.zip
-          Expand-Archive -Path "pkhex-cli-win-x64.zip" -DestinationPath Get-Location -Force
+          Expand-Archive -Path "pkhex-cli-win-x64.zip" -Force
+
+          ls
 
           echo "version=$version" >> $env:GITHUB_OUTPUT
 
@@ -169,6 +171,8 @@ jobs:
 
       - name: Create tools directory and move executable
         run: |
+          ls
+          
           New-Item -ItemType Directory -Force -Path tools
           Move-Item -Path pkhex-cli.exe -Destination tools/
 
