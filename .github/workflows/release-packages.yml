@@ -137,8 +137,6 @@ jobs:
           Invoke-WebRequest -Uri $windows_url -OutFile pkhex-cli-win-x64.zip
           Expand-Archive -Path "pkhex-cli-win-x64.zip" -Force
 
-          ls
-
           echo "version=$version" >> $env:GITHUB_OUTPUT
 
       - name: Create pkhex-cli.nuspec
@@ -171,10 +169,8 @@ jobs:
 
       - name: Create tools directory and move executable
         run: |
-          ls
-          
           New-Item -ItemType Directory -Force -Path tools
-          Move-Item -Path pkhex-cli.exe -Destination tools/
+          Move-Item -Path pkhex-cli-win-x64/pkhex-cli.exe -Destination tools/
 
       - name: Pack the Chocolatey package
         run: choco pack
