@@ -109,7 +109,7 @@ jobs:
           git push origin
 
   publishChocolateyPackage:
-    if: ${{ github.event.workflow_run.conclusion == 'success' || || (inputs.manualTrigger && inputs.pushChocolateyPackage) }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || (inputs.manualTrigger && inputs.pushChocolateyPackage) }}
     runs-on: windows-latest
     needs: generateHomebrewFormula
 
