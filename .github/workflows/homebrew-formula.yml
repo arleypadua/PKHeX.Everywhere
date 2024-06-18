@@ -127,9 +127,9 @@ jobs:
           Invoke-WebRequest -Uri $windows_url -OutFile pkhex-cli-win-x64.zip
           $sha256_windows = (Get-FileHash -Path pkhex-cli-win-x64.zip -Algorithm SHA256).Hash
 
-          echo "version=$version" >> $env:GITHUB_ENV
-          echo "windows_url=$windows_url" >> $env:GITHUB_ENV
-          echo "sha256_windows=$sha256_windows" >> $env:GITHUB_ENV
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "windows_url=$windows_url" >> $env:GITHUB_OUTPUT
+          echo "sha256_windows=$sha256_windows" >> $env:GITHUB_OUTPUT
 
       - name: Create pkhex-cli.nuspec
         run: |
