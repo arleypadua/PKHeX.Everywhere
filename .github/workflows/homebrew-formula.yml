@@ -3,6 +3,16 @@ name: Release homebrew formula
 on:
   workflow_dispatch:
     inputs:
+      pushHomebrewFormula:
+        description: 'push homebrew formula'
+        type: boolean
+        required: false
+        default: true
+      pushChocolateyPackage:
+        description: 'push chocolatey package'
+        type: boolean
+        required: false
+        default: true
       manualTrigger:
         description: 'To target a manual triggered job '
         type: boolean
@@ -16,7 +26,7 @@ on:
 
 jobs:
   generateHomebrewFormula:
-    if: ${{ github.event.workflow_run.conclusion == 'success' || inputs.manualTrigger }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || (inputs.manualTrigger && inputs.pushHomebrewFormula) }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -97,3 +107,64 @@ jobs:
           git add Formula/pkhex-cli.rb
           git commit -m "update pkhex-cli formula to version ${{ steps.parse_metadata.outputs.version }}"
           git push origin
+
+  publishChocolateyPackage:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || || (inputs.manualTrigger && inputs.pushChocolateyPackage) }}
+    runs-on: windows-latest
+    needs: generateHomebrewFormula
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch latest release metadata
+        id: fetch_parse_metadata
+        run: |
+          $latest_release = Invoke-RestMethod -Uri https://api.github.com/repos/arleypadua/PKHeX.CLI/releases/latest
+          $version = $latest_release.tag_name -replace '^v'
+          $windows_asset = $latest_release.assets | Where-Object { $_.name -like "pkhex-cli-win-x64.zip" }
+          $windows_url = $windows_asset.browser_download_url
+
+          Invoke-WebRequest -Uri $windows_url -OutFile pkhex-cli-win-x64.zip
+          $sha256_windows = (Get-FileHash -Path pkhex-cli-win-x64.zip -Algorithm SHA256).Hash
+
+          echo "version=$version" >> $env:GITHUB_ENV
+          echo "windows_url=$windows_url" >> $env:GITHUB_ENV
+          echo "sha256_windows=$sha256_windows" >> $env:GITHUB_ENV
+
+      - name: Create pkhex-cli.nuspec
+        run: |
+          $nuspecContent = @"
+          <?xml version="1.0"?>
+          <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+            <metadata>
+              <id>pkhex-cli</id>
+              <version>${{ steps.fetch_parse_metadata.outputs.version }}</version>
+              <title>pkhex-cli</title>
+              <authors>Arley Pádua</authors>
+              <owners>Arley Pádua</owners>
+              <description>PKHeX</description>
+              <summary>Cross platform CLI tool for interacting with Pokemon save files. Works with Mac OS, Linux and Windows.</summary>
+              <projectUrl>https://github.com/arleypadua/PKHeX.CLI</projectUrl>
+              <licenseUrl>https://github.com/arleypadua/PKHeX.CLI/tree/main?tab=MIT-1-ov-file#readme</licenseUrl>
+              <requireLicenseAcceptance>false</requireLicenseAcceptance>
+              <tags>CLI, PKHeX</tags>
+            </metadata>
+            <files>
+              <file src="tools\**" target="tools" />
+            </files>
+          </package>
+          "@
+
+          $nuspecContent | Out-File -FilePath pkhex-cli.nuspec
+
+      - name: Create tools directory and move executable
+        run: |
+          New-Item -ItemType Directory -Force -Path tools
+          Move-Item -Path pkhex-cli-win-x64.zip -Destination tools/
+
+      - name: Pack the Chocolatey package
+        run: choco pack
+
+      - name: Push the Chocolatey package
+        run: choco push pkhex-cli.${{ steps.fetch_parse_metadata.outputs.version }}.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
