@@ -15,14 +15,14 @@ This is a cross platform Command Line Interface (CLI) tool for interacting with 
 
 ## Installation
 
-### Homebrew
+### Homebrew (MacOS/Linux)
 
 ```bash
 brew tap arleypadua/homebrew-pkhex-cli
 brew install pkhex-cli
 ```
 
-### Script
+### Script (MacOS/Linux)
 
 ```bash
 curl -sL https://raw.githubusercontent.com/arleypadua/PKHeX.CLI/main/install.sh | sudo bash
@@ -37,6 +37,16 @@ PKHeX.CLI is compatible with batocera:
 3. run `curl -sL https://raw.githubusercontent.com/arleypadua/PKHeX.CLI/main/install.sh | bash`
    * _note that because we are accessing as `root` there's **no need** to run `sudo bash`_
 4. You should be able to use it as stated [here](https://github.com/arleypadua/PKHeX.CLI?tab=readme-ov-file#usage).
+
+### Chocolatey (Windows)
+
+1. Make sure `chocolatey` is [properly installed](https://chocolatey.org/install#individual)
+2. Open `powershell` as administrator
+3. Run the following:
+
+```powershell
+choco install pkhex-cli
+```
 
 ### Manual download
 
