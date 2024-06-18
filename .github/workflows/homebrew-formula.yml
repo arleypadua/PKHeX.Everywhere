@@ -111,7 +111,6 @@ jobs:
   publishChocolateyPackage:
     if: ${{ github.event.workflow_run.conclusion == 'success' || (inputs.manualTrigger && inputs.pushChocolateyPackage) }}
     runs-on: windows-latest
-    needs: generateHomebrewFormula
 
     steps:
       - name: Checkout repository
