@@ -104,9 +104,9 @@ jobs:
         id: check_file_change
         run: |
           if git diff --exit-code Formula/pkhex-cli.rb; then
-            echo "file_changed=false" >> $GITHUB_OUTPUT
+            echo "file_changed=false" >> $GITHUB_ENV
           else
-            echo "file_changed=true" >> $GITHUB_OUTPUT
+            echo "file_changed=true" >> $GITHUB_ENV
           fi
       
       - name: Commit and push pkhex-cli.rb to another repository
