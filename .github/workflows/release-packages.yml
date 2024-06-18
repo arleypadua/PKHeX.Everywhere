@@ -135,11 +135,9 @@ jobs:
           $windows_url = $windows_asset.browser_download_url
 
           Invoke-WebRequest -Uri $windows_url -OutFile pkhex-cli-win-x64.zip
-          $sha256_windows = (Get-FileHash -Path pkhex-cli-win-x64.zip -Algorithm SHA256).Hash
+          Expand-Archive -Path "pkhex-cli-win-x64.zip" -DestinationPath Get-Location -Force
 
           echo "version=$version" >> $env:GITHUB_OUTPUT
-          echo "windows_url=$windows_url" >> $env:GITHUB_OUTPUT
-          echo "sha256_windows=$sha256_windows" >> $env:GITHUB_OUTPUT
 
       - name: Create pkhex-cli.nuspec
         run: |
@@ -155,12 +153,14 @@ jobs:
               <description>PKHeX</description>
               <summary>Cross platform CLI tool for interacting with Pokemon save files. Works with Mac OS, Linux and Windows.</summary>
               <projectUrl>https://github.com/arleypadua/PKHeX.CLI</projectUrl>
-              <licenseUrl>https://github.com/arleypadua/PKHeX.CLI/tree/main?tab=MIT-1-ov-file#readme</licenseUrl>
+              <licenseUrl>https://github.com/arleypadua/PKHeX.CLI/blob/main/LICENSE</licenseUrl>
               <requireLicenseAcceptance>false</requireLicenseAcceptance>
-              <tags>CLI, PKHeX</tags>
+              <tags>CLI PKHeX</tags>
+              <releaseNotes>https://github.com/arleypadua/PKHeX.CLI/releases</releaseNotes>
             </metadata>
             <files>
               <file src="tools\**" target="tools" />
+              <file src="LICENSE" target="tools/LICENSE" />
             </files>
           </package>
           "@
@@ -170,7 +170,7 @@ jobs:
       - name: Create tools directory and move executable
         run: |
           New-Item -ItemType Directory -Force -Path tools
-          Move-Item -Path pkhex-cli-win-x64.zip -Destination tools/
+          Move-Item -Path pkhex-cli.exe -Destination tools/
 
       - name: Pack the Chocolatey package
         run: choco pack
