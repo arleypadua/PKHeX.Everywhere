@@ -1,4 +1,4 @@
-name: Release homebrew formula
+name: Release packages
 
 on:
   workflow_dispatch:
@@ -99,8 +99,18 @@ jobs:
             end
           end
           EOF
-          
+
+      - name: Check if Formula/pkhex-cli.rb has changed
+        id: check_file_change
+        run: |
+          if git diff --exit-code Formula/pkhex-cli.rb; then
+            echo "file_changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "file_changed=true" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Commit and push pkhex-cli.rb to another repository
+        if: env.file_changed == 'true'
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
