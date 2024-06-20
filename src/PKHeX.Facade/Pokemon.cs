@@ -7,24 +7,24 @@ public class Pokemon(PKM pokemon, Game game)
 {
     public PKM Pkm => pokemon;
     public Game Game => game;
-    
+
     public ItemDefinition Ball
     {
         get => game.ItemRepository.GetItem(pokemon.Ball);
         set => pokemon.Ball = Convert.ToByte(value.Id);
     }
 
-    public EntityId Id => new (Pkm.TID16, Pkm.SID16);
+    public EntityId Id => new(Pkm.TID16, Pkm.SID16);
     public Species Species => (Species)pokemon.Species;
     public string Nickname => pokemon.Nickname;
     public int Level => pokemon.CurrentLevel;
     public Stats EVs => Stats.EvFrom(pokemon);
     public Stats IVs => Stats.IvFrom(pokemon);
     public Stats Status => Stats.StatsFrom(pokemon);
-    public PokemonMove Move1 => new(pokemon, game.MoveRepository.GetMove, PokemonMove.MoveIndex.Move1);
-    public PokemonMove Move2 => new(pokemon, game.MoveRepository.GetMove, PokemonMove.MoveIndex.Move2);
-    public PokemonMove Move3 => new(pokemon, game.MoveRepository.GetMove, PokemonMove.MoveIndex.Move3);
-    public PokemonMove Move4 => new(pokemon, game.MoveRepository.GetMove, PokemonMove.MoveIndex.Move4);
+    public PokemonMove Move1 => new(pokemon, PokemonMove.MoveIndex.Move1);
+    public PokemonMove Move2 => new(pokemon, PokemonMove.MoveIndex.Move2);
+    public PokemonMove Move3 => new(pokemon, PokemonMove.MoveIndex.Move3);
+    public PokemonMove Move4 => new(pokemon, PokemonMove.MoveIndex.Move4);
     public Gender Gender => Gender.FromByte(pokemon.Gender);
     public bool IsShiny => pokemon.IsShiny;
 
@@ -51,12 +51,31 @@ public class Pokemon(PKM pokemon, Game game)
     {
         pokemon.SetIsShiny(shiny);
     }
-    
+
+    public void ChangeMove(PokemonMove.MoveIndex moveIndex, MoveDefinition newMove)
+    {
+        var newMoveSet = new Moveset(
+            moveIndex == PokemonMove.MoveIndex.Move1 ? newMove.Id : Move1.Move.Id,
+            moveIndex == PokemonMove.MoveIndex.Move2 ? newMove.Id : Move2.Move.Id,
+            moveIndex == PokemonMove.MoveIndex.Move3 ? newMove.Id : Move3.Move.Id,
+            moveIndex == PokemonMove.MoveIndex.Move4 ? newMove.Id : Move4.Move.Id);
+
+        if (newMoveSet.ToArray().All(m => m == MoveDefinition.None.Id))
+        {
+            return;
+        }
+
+        pokemon.SetMoves(newMoveSet);
+        pokemon.FixMoves();
+    }
+
     public record Stats(int Attack, int Defense, int Health, int Speed)
     {
         public static Stats EvFrom(PKM pokemon) => new(pokemon.EV_ATK, pokemon.EV_DEF, pokemon.EV_HP, pokemon.EV_SPD);
         public static Stats IvFrom(PKM pokemon) => new(pokemon.IV_ATK, pokemon.IV_DEF, pokemon.IV_HP, pokemon.IV_SPD);
-        public static Stats StatsFrom(PKM pokemon) => new(pokemon.Stat_ATK, pokemon.Stat_DEF, pokemon.Stat_HPMax, pokemon.Stat_SPD);
+
+        public static Stats StatsFrom(PKM pokemon) =>
+            new(pokemon.Stat_ATK, pokemon.Stat_DEF, pokemon.Stat_HPMax, pokemon.Stat_SPD);
 
         public override string ToString() => $"Atk: {Attack} / Def: {Defense} / SPD: {Speed} / HP: {Health}";
     }
@@ -64,16 +83,15 @@ public class Pokemon(PKM pokemon, Game game)
 
 public class PokemonMove(
     PKM pokemon,
-    Func<ushort, MoveDefinition> getMove,
     PokemonMove.MoveIndex moveIndex)
 {
     public MoveDefinition Move =>
         moveIndex switch
         {
-            MoveIndex.Move1 => getMove(pokemon.Move1),
-            MoveIndex.Move2 => getMove(pokemon.Move2),
-            MoveIndex.Move3 => getMove(pokemon.Move3),
-            MoveIndex.Move4 => getMove(pokemon.Move4),
+            MoveIndex.Move1 => MoveRepository.Instance.GetMove(pokemon.Move1),
+            MoveIndex.Move2 => MoveRepository.Instance.GetMove(pokemon.Move2),
+            MoveIndex.Move3 => MoveRepository.Instance.GetMove(pokemon.Move3),
+            MoveIndex.Move4 => MoveRepository.Instance.GetMove(pokemon.Move4),
             _ => throw new ArgumentOutOfRangeException()
         };
 

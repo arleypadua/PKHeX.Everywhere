@@ -14,7 +14,7 @@ public static class ShowPokemons
             .PageSize(10)
             .AddChoices(OptionOrBack.WithValues(
                 options: pokemons,
-                display: pokemon => pokemon.GetPokemonDisplay()))
+                display: pokemon => pokemon.GetPokemonDisplay(includeLegalityFlag: true)))
             .WrapAround());
 
         return selection switch

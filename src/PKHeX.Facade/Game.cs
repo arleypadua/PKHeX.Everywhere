@@ -11,13 +11,11 @@ public class Game
     {
         SaveFile = saveFile;
         ItemRepository = new ItemRepository(saveFile);
-        MoveRepository = new MoveRepository();
 
         Trainer = new Trainer(this);
     }
 
     public ItemRepository ItemRepository { get; init; }
-    public MoveRepository MoveRepository { get; init; }
     public Trainer Trainer { get; init; }
 
     public byte[] ToByteArray() => SaveFile.Write(
