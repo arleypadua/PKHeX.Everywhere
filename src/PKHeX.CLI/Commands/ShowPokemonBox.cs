@@ -66,7 +66,7 @@ public static class ShowPokemonBox
         {
             public Pokemon Pokemon { get; } = pokemon;
             public override Species Species { get; } = pokemon.Species;
-            public override string Display() => $"(#{(int)Species:000}) {Pokemon.GetPokemonDisplay()}";
+            public override string Display() => $"(#{(int)Species:000}) {Pokemon.GetPokemonDisplay(includeLegalityFlag: true)}";
         }
 
         public static PokemonBoxChoice From(IList<Pokemon> pokemons) => pokemons switch
