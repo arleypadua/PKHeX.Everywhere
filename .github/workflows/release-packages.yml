@@ -200,7 +200,7 @@ jobs:
           As the author of this software, I confirm these binaries are authentic and securely packaged.
           "@
 
-          $verificationContent | Out-File -FilePath tools/VERIFICATION.txt
+          $verificationContent | Out-File -FilePath VERIFICATION.txt
 
       - name: Pack the Chocolatey package
         run: choco pack
