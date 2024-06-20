@@ -136,8 +136,9 @@ jobs:
 
           Invoke-WebRequest -Uri $windows_url -OutFile pkhex-cli-win-x64.zip
           Expand-Archive -Path "pkhex-cli-win-x64.zip" -Force
-
+          
           echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "windowsUrl=$windows_url" >> $env:GITHUB_OUTPUT
 
       - name: Create pkhex-cli.nuspec
         run: |
@@ -150,8 +151,9 @@ jobs:
               <title>pkhex-cli</title>
               <authors>Arley Pádua</authors>
               <owners>Arley Pádua</owners>
-              <description>PKHeX</description>
-              <summary>Cross platform CLI tool for interacting with Pokemon save files. Works with Mac OS, Linux and Windows.</summary>
+              <description>Cross platform CLI tool for interacting with Pokemon save files. Works with Mac OS, Linux and Windows.</description>
+              <summary>Cross platform CLI tool for interacting with Pokemon save files.</summary>
+              <packageSourceUrl>https://github.com/arleypadua/PKHeX.CLI</packageSourceUrl>
               <projectUrl>https://github.com/arleypadua/PKHeX.CLI</projectUrl>
               <licenseUrl>https://github.com/arleypadua/PKHeX.CLI/blob/main/LICENSE</licenseUrl>
               <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -161,6 +163,7 @@ jobs:
             <files>
               <file src="tools\**" target="tools" />
               <file src="LICENSE" target="tools/LICENSE" />
+              <file src="VERIFICATION.txt" target="tools/VERIFICATION.txt" />
             </files>
           </package>
           "@
@@ -171,6 +174,33 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path tools
           Move-Item -Path pkhex-cli-win-x64/pkhex-cli.exe -Destination tools/
+
+      - name: Create VERIFICATION.txt
+        run: |
+          $fileHash = (Get-FileHash -Path "pkhex-cli-win-x64/pkhex-cli.exe" -Algorithm SHA256).Hash
+
+          $verificationContent = @"
+          VERIFICATION
+          Verification is intended to assist the Chocolatey moderators and community
+          in verifying that this package's contents are trustworthy.
+
+          ## Reason for Including Binaries
+          The binaries are included directly to ensure a consistent and reliable installation.
+
+          ## Source of Binaries
+          Obtained from the official GitHub release:
+          ${{ steps.fetch_parse_metadata.outputs.windows_url }}
+
+          ## Verification Steps
+          - Unzip the contents of the downloaded zip file
+          - SHA256 checksum:
+            - Expected: $fileHash
+            - Use `(Get-FileHash -Path "pkhex-cli.exe" -Algorithm SHA256).Hash` to verify.
+
+          As the author of this software, I confirm these binaries are authentic and securely packaged.
+          "@
+
+          $verificationContent | Out-File -FilePath tools/VERIFICATION.txt
 
       - name: Pack the Chocolatey package
         run: choco pack
