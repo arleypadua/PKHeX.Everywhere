@@ -177,7 +177,7 @@ jobs:
 
       - name: Create VERIFICATION.txt
         run: |
-          $fileHash = (Get-FileHash -Path "pkhex-cli-win-x64/pkhex-cli.exe" -Algorithm SHA256).Hash
+          $fileHash = (Get-FileHash -Path "tools/pkhex-cli.exe" -Algorithm SHA256).Hash
 
           $verificationContent = @"
           VERIFICATION
