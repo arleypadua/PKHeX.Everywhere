@@ -19,4 +19,10 @@ public class ItemRepository
 public record ItemDefinition(ushort Id, string Name)
 {
     public static int None = 0;
-};
+}
+
+public static class ItemRepositoryExtensions
+{
+    public static ItemDefinition GetItem(this ItemRepository repository, int id) =>
+        repository.GetItem(Convert.ToUInt16(id));
+}
