@@ -1,4 +1,5 @@
 using PKHeX.CLI.Base;
+using PKHeX.CLI.Commands.EditPokemonCommand;
 using PKHeX.CLI.Extensions;
 using PKHeX.Facade;
 using Spectre.Console;
