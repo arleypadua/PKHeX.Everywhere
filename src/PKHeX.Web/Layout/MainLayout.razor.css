@@ -1,0 +1,18 @@
+.logo {
+    color: white;
+    margin-top: 10px;
+    padding: 16px;
+    text-align: center;
+}
+
+.nav-text > a {
+    color: white;
+}
+
+.nav-text > a:hover {
+    color: cornflowerblue;
+}
+
+.layout-header {
+    color: white;
+}

@@ -24,6 +24,7 @@ public class PokemonBox
     private readonly IList<Pokemon> _pokemonList;
     
     public IDictionary<Species, List<Pokemon>> BySpecies { get; }
+    public IList<Pokemon> All => _pokemonList;
 
     public void Commit()
     {

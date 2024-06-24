@@ -9,7 +9,7 @@ public class Money
         _game = game;
     }
 
-    public decimal Amount => _game.SaveFile.Money;
+    public uint Amount => _game.SaveFile.Money;
 
     public void Set(uint amount)
     {

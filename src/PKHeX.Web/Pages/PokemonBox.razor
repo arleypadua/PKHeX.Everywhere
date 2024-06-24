@@ -1,0 +1,14 @@
+@page "/pokemon-box"
+@using PKHeX.Core
+@using PKHeX.Facade
+
+<PageTitle>Pokemon Box</PageTitle>
+
+<PokemonTable DataSource="@PokemonList" />
+
+@code {
+    [Inject] public required GameService GameService { get; set; }
+
+    private IList<Pokemon> PokemonList => GameService.Game?.Trainer.PokemonBox.All
+        .Where(p => p.Species != Species.None).ToList() ?? [];
+}

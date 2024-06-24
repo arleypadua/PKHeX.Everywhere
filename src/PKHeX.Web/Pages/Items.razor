@@ -1,0 +1,25 @@
+@page "/items"
+@using PKHeX.Facade
+@using PKHeX.Facade.Repositories
+
+<Tabs @bind-ActiveKey="@_activeKey" DefaultActiveKey="@DefaultActiveKey" Animated>
+    @foreach (var inventoryType in InventoryTypes)
+    {
+        <TabPane Tab="@inventoryType" Key="@inventoryType">
+            <ItemsTable
+                Inventory="Inventories?[inventoryType]"
+                DataSource="@(Inventories?[inventoryType].Where(i => i.Definition.Id != ItemDefinition.None).ToList())" />
+        </TabPane>
+    }
+</Tabs>
+
+@code {
+    [Inject] public required GameService GameService { get; set; }
+
+    string? _activeKey;
+
+    Inventories? Inventories => GameService.Game?.Trainer.Inventories;
+    string[] InventoryTypes => Inventories?.InventoryTypes.OrderBy(t => t).ToArray() ?? [];
+
+    string? DefaultActiveKey => InventoryTypes?.FirstOrDefault();
+}

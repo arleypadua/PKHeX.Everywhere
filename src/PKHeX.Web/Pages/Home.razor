@@ -1,0 +1,43 @@
+﻿@page "/"
+@using PKHeX.Facade
+@inject GameService GameService
+
+<PageTitle>Home</PageTitle>
+
+<Descriptions Title="Trainer" Bordered Column="@_columns" Size="small">
+    <DescriptionsItem Title="TID/SID">@_game.Trainer.Id</DescriptionsItem>
+    <DescriptionsItem Title="Name">@_game.Trainer.Name</DescriptionsItem>
+    <DescriptionsItem Title="Gender">@_game.Trainer.Gender.Symbol</DescriptionsItem>
+    <DescriptionsItem Title="Cash">
+        <AntDesign.InputNumber
+            TValue="uint"
+            Formatter='value => $"$ {value}"'
+            Value="@_game.Trainer.Money.Amount"
+            OnChange="newValue => _game.Trainer.Money.Set(newValue)"
+            Style="width: 100%; max-width: 170px;"
+            Min="0" Max="999999"
+            />
+    </DescriptionsItem>
+    <DescriptionsItem Title="Rival">@_game.Trainer.RivalName</DescriptionsItem>
+</Descriptions>
+
+@code {
+
+    private readonly Dictionary<string, int> _columns = new()
+    {
+        { "Xxl", 3 },
+        { "Xl", 3 },
+        { "Lg", 3 },
+        { "Md", 3 },
+        { "Sm", 2 },
+        { "Xs", 1 }
+    };
+
+    private Game _game = default!;
+
+    protected override void OnInitialized()
+    {
+        _game = GameService.Game!;
+    }
+
+}

@@ -48,11 +48,6 @@ public class Inventory : IEnumerable<Inventory.Item>
             throw new InvalidOperationException("Cannot set item to None.");
         }
         
-        if (count < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(count), "Count must be greater than or equal to zero.");
-        }
-
         if (SupportedItems.All(i => i.Id != itemId))
         {
             throw new InvalidOperationException($"Item {itemId} is not supported in this inventory.");
@@ -86,6 +81,8 @@ public class Inventory : IEnumerable<Inventory.Item>
             _itemFetcher = itemFetcher;
             _item = item;
         }
+
+        public Item() : this(default!, default!) { }
 
         public ushort Id => Convert.ToUInt16(_item.Index);
         public string Name => _itemFetcher(Id).Name;

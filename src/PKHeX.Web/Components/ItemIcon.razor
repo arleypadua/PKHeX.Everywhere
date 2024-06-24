@@ -1,0 +1,11 @@
+@using PKHeX.Facade.Repositories
+
+<Image Src="@ContentUrl()" Preview="false"></Image>
+
+@code {
+    [Parameter] public required ItemDefinition Item { get; set; }
+
+    private string ContentUrl() => $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/{ItemName}.png";
+
+    private string ItemName => string.Join('-', Item.Name.ToLower().Replace("é", "e").Split(' '));
+}

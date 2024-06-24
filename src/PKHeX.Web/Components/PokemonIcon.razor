@@ -1,0 +1,12 @@
+@using PKHeX.Core
+
+<Image Src="@ContentUrl()" Preview="false"></Image>
+
+@code {
+    [Parameter] public Species Species { get; set; }
+    [Parameter] public bool AnimateOnHover { get; set; } = true;
+
+    string AnimateClass => AnimateOnHover ? "hover-animate" : string.Empty;
+
+    private string ContentUrl() => $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/{Species.Id()}.png";
+}

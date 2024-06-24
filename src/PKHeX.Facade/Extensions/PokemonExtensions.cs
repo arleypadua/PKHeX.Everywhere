@@ -14,6 +14,7 @@ public static class PokemonExtensions
 
 public static partial class SpeciesExtensions
 {
+    public static int Id(this Species species) => (int)species;
     public static string Name(this Species species) => PascalCaseRegex().Replace(species.ToString(), " $1");
     
     [GeneratedRegex("(?<!^)([A-Z])")]

@@ -1,0 +1,52 @@
+@page "/load"
+@layout EmptyLayout
+@inject NavigationManager Navigation
+@inject GameService GameService
+@inject HttpClient HttpClient
+
+<Layout>
+    <Content Style="margin: 24px 16px 0; display: flex; justify-content: center">
+        <div
+            class="site-layout-background"
+            style="
+                    padding: 24px; 
+                    min-height: 360px; 
+                    display: flex; 
+                    flex-direction: column; 
+                    align-items: center; 
+                    justify-content: center; 
+                    gap: 20px">
+            Open a save file
+            <LoadGameComponent />
+        </div>
+    </Content>
+    <Footer Style="text-align: center;">PKHeX.Web - A web view of the CLI</Footer>
+</Layout>
+
+@code {
+    protected override void OnInitialized()
+    {
+        ToHomeIfLoaded();
+    }
+
+#if DEBUG
+    protected override async Task OnInitializedAsync()
+    {
+
+        var testData = await HttpClient.GetByteArrayAsync("/data/savedata.bin");
+        GameService.Load(testData, "savedata.bin");
+        ToHomeIfLoaded();
+    }
+#endif
+
+    protected override void OnAfterRender(bool firstRender) => ToHomeIfLoaded();
+
+    private void ToHomeIfLoaded()
+    {
+        if (GameService.IsLoaded)
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+
+}
