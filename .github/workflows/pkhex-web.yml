@@ -1,0 +1,55 @@
+name: PKHeX.Web
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+      - name: Publish
+        run: dotnet publish ./src/PKHeX.Web/PKHeX.Web.csproj -c Release -o ./src/PKHeX.Web/bin/pkhex-web-publish
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-pkhex-web
+          path: ./src/PKHeX.Web/bin/pkhex-web-publish/wwwroot
+          
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_publish
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: List artifacts
+        run: ls -R artifacts
+        
+      - name: Checkout PKHeX.Web repository
+        uses: actions/checkout@v4
+        with:
+          repository: pkhex-web/pkhex-web.github.io
+          ref: gh-pages
+          path: pkhex-web
+          token: ${{ secrets.GIT_HUB_PKHEX_WEB_TOKEN }}
