@@ -6,6 +6,12 @@ name: .NET
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - './src/**'
+      - './PKHeX.CLI.sln'
+    paths-ignore:
+      - './src/PKHeX.Web'
+    
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
