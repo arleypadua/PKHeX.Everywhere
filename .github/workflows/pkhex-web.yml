@@ -53,3 +53,17 @@ jobs:
           ref: gh-pages
           path: pkhex-web
           token: ${{ secrets.GIT_HUB_PKHEX_WEB_TOKEN }}
+
+      - name: Copy artifacts to Github pages repository
+        run: |
+          cp -R artifacts/artifact-pkhex-web/* pkhex-web/
+
+      - name: Commit and push new artifacts
+        run: |
+          cd pkhex-web
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git add --all
+          git commit -m "Update PKHeX.Web artifacts"
+          git push origin
+          cd ..
