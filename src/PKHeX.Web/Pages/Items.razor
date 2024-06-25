@@ -2,24 +2,106 @@
 @using PKHeX.Facade
 @using PKHeX.Facade.Repositories
 
-<Tabs @bind-ActiveKey="@_activeKey" DefaultActiveKey="@DefaultActiveKey" Animated>
-    @foreach (var inventoryType in InventoryTypes)
-    {
-        <TabPane Tab="@inventoryType" Key="@inventoryType">
-            <ItemsTable
-                Inventory="Inventories?[inventoryType]"
-                DataSource="@(Inventories?[inventoryType].Where(i => i.Definition.Id != ItemDefinition.None).ToList())" />
-        </TabPane>
-    }
-</Tabs>
+<Space Direction="DirectionVHType.Vertical" Style="gap: 20px;">
+    <PageHeader BackIcon="true" Class="site-page-header">
+        <TitleTemplate>Items</TitleTemplate>
+
+        <PageHeaderExtra>
+            <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Plus" OnClick="OnAddItemClick">Add</Button>
+        </PageHeaderExtra>
+    </PageHeader>
+
+    <Tabs @bind-ActiveKey="@_activeKey" DefaultActiveKey="@DefaultActiveKey" Animated>
+        @foreach (var inventoryType in InventoryTypes)
+        {
+            <TabPane Tab="@inventoryType" Key="@inventoryType">
+                <ItemsTable
+                    Inventory="Inventories?[inventoryType]"
+                    DataSource="@(Inventories?[inventoryType].Where(i => i.Definition.Id != ItemDefinition.None).ToList())"/>
+            </TabPane>
+        }
+    </Tabs>
+</Space>
+
+<Modal Title="@("BasicModal")"
+       @bind-Visible="@_addItemModalVisible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel">
+    @AddItemModalTemplate()
+</Modal>
 
 @code {
     [Inject] public required GameService GameService { get; set; }
 
     string? _activeKey;
-
+    
     Inventories? Inventories => GameService.Game?.Trainer.Inventories;
     string[] InventoryTypes => Inventories?.InventoryTypes.OrderBy(t => t).ToArray() ?? [];
 
-    string? DefaultActiveKey => InventoryTypes?.FirstOrDefault();
+    string? DefaultActiveKey => InventoryTypes.FirstOrDefault();
+
+    #region Add Item Modal
+    
+    bool _addItemModalVisible;
+    ushort? _itemIdToBeAdded;
+    uint? _itemCountToBeAdded;
+    IEnumerable<ItemDefinition> SupportedItems => Inventories?[_activeKey ?? ""].CurrentSupportedItems ?? [];
+    
+    void OnAddItemClick()
+    {
+        _addItemModalVisible = true;
+    }
+
+    void HandleOk()
+    {
+        if (_itemIdToBeAdded is null || _itemCountToBeAdded is null)
+        {
+            ResetModal();
+            return;
+        }
+        
+        Inventories![_activeKey!].Set(_itemIdToBeAdded.Value, _itemCountToBeAdded.Value);
+        ResetModal();
+    }
+
+    void HandleCancel()
+    {
+        ResetModal();
+    }
+
+    private void ResetModal()
+    {
+        _itemCountToBeAdded = 0;
+    }
+
+    RenderFragment AddItemModalTemplate()
+    {
+        return
+            @<Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; gap: 20px;">
+                <Select TItem="ItemDefinition"
+                        TItemValue="ushort?"
+                        DataSource="@SupportedItems"
+                        @bind-Value="@_itemIdToBeAdded"
+                        LabelName="@nameof(ItemDefinition.Name)"
+                        ValueName="@nameof(ItemDefinition.Id)"
+                        Placeholder="Select an item"
+                        DefaultActiveFirstOption="false"
+                        EnableSearch
+                        EnableVirtualization>
+                    <ItemTemplate>
+                        <ItemIcon Item="@context" /> @context.Name
+                    </ItemTemplate>
+                </Select>
+                
+                <AntDesign.InputNumber
+                    TValue="uint?"
+                    @bind-Value="@_itemCountToBeAdded"
+                    Min="0"
+                    Max="999"/>
+            </Space>
+            ;
+    }
+
+    #endregion
+
 }

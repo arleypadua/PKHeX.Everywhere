@@ -22,7 +22,7 @@ public class InventoryTests
         game.Trainer.Inventories.InventoryTypes.Should().Contain("Balls");
         
         var ballInventory = game.Trainer.Inventories.InventoryItems["Balls"];
-        ballInventory.SupportedItems.Should().Contain(MasterBall);
+        ballInventory.AllSupportedItems.Should().Contain(MasterBall);
     }
 
     [Theory]
