@@ -63,6 +63,7 @@ jobs:
       - name: Commit and push new artifacts
         run: |
           cd pkhex-web
+          touch .nojekyll
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
           git add --all
