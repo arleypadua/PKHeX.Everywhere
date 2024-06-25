@@ -9,8 +9,6 @@ on:
     paths:
       - './src/**'
       - './PKHeX.CLI.sln'
-    paths-ignore:
-      - './src/PKHeX.Web'
     
   pull_request:
     branches: [ "main" ]
