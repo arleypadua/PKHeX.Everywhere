@@ -24,7 +24,17 @@ public class Game
 
     public static Game LoadFrom(string path)
     {
-        var saveFile = SaveUtil.GetVariantSAV(path) ?? throw new InvalidOperationException($"The file at {path} did not load into a save file.");
+        var saveFile = SaveUtil.GetVariantSAV(path)
+                       ?? throw new InvalidOperationException($"The file at {path} did not load into a save file.");
+
+        return new Game(saveFile);
+    }
+
+    public static Game LoadFrom(byte[] bytes, string? path = null)
+    {
+        var saveFile = SaveUtil.GetVariantSAV(bytes, path)
+                       ?? throw new InvalidOperationException($"The file at {path} did not load into a save file.");
+
         return new Game(saveFile);
     }
 }

@@ -1,0 +1,92 @@
+@using PKHeX.Facade
+
+<Table
+    TItem="Inventory.Item"
+    DataSource="@FilteredDataSource"
+    @bind-PageIndex="_pageIndex"
+    @bind-PageSize="_pageSize"
+    EnableVirtualization>
+    <PropertyColumn Title="" Property="@(c => c.Definition.Id)">
+        <ItemIcon Item="@context.Definition"/>
+    </PropertyColumn>
+    <PropertyColumn Title="Name" Property="@(c => c.Definition.Name)" Sortable Filterable/>
+    <PropertyColumn Title="Amount" Property="c => c.Count" Sortable Filterable></PropertyColumn>
+    <ActionColumn Title="Action">
+        <Space Size=@("middle")>
+            <SpaceItem>
+                <Button Type="@ButtonType.Link" OnClick="() => ShowModalFor(context)">Edit</Button>
+            </SpaceItem>
+        </Space>
+    </ActionColumn>
+</Table>
+
+<Modal Title="@("BasicModal")"
+       @bind-Visible="@_modalVisible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel">
+    @EditItemCountTemplate()
+</Modal>
+
+@code {
+    bool _modalVisible = false;
+    int _pageIndex = 1;
+    int _pageSize = 10;
+
+    Inventory.Item? _selectedItem;
+    int? _selectedItemCount;
+
+    [Parameter] public required Inventory Inventory { get; set; }
+    [Parameter] public IList<Inventory.Item> DataSource { get; set; } = [];
+    [Parameter] public bool ShowNone { get; set; } = false;
+
+    IList<Inventory.Item> FilteredDataSource => ShowNone ? DataSource : DataSource.Where(i => !i.IsNone).ToList();
+
+    RenderFragment EditItemCountTemplate()
+    {
+        return
+            @<Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; gap: 20px;">
+                <AntDesign.InputNumber
+                    TValue="int?"
+                    @bind-Value="@_selectedItemCount"
+                    Min="0"
+                    Max="999"/>
+                <p>
+                    <em>
+                        Setting to 0 will remove the item
+                    </em>
+                </p>
+            </Space>
+            ;
+    }
+
+    void ShowModalFor(Inventory.Item item)
+    {
+        SetSelectedItem(item);
+        _modalVisible = true;
+    }
+
+    void SetSelectedItem(Inventory.Item? item)
+    {
+        _selectedItem = item;
+        _selectedItemCount = item?.Count;
+    }
+
+    private void HandleOk()
+    {
+        if (_selectedItem == null || _selectedItemCount == null) return;
+
+        if (_selectedItemCount > 0)
+        {
+            Inventory.Set(_selectedItem.Id, (uint)_selectedItemCount.Value);
+        }
+        else
+        {
+            Inventory.Remove(_selectedItem.Id);
+        }
+
+        SetSelectedItem(null);
+    }
+
+    private void HandleCancel() => SetSelectedItem(null);
+
+}

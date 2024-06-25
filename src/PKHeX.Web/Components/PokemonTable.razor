@@ -1,0 +1,30 @@
+@using AntDesign.TableModels
+@using PKHeX.Facade
+
+<Table
+    TItem="Pokemon"
+    DataSource="@DataSource"
+    @bind-PageIndex="_pageIndex"
+    @bind-PageSize="_pageSize"
+    EnableVirtualization>
+    <PropertyColumn Title="" Property="@(c => c.Species)">
+        <PokemonIcon Species="@context.Species"/>
+    </PropertyColumn>
+    <PropertyColumn Title="Name" Property="@(c => c.Species.Name())" Sortable Filterable/>
+    <PropertyColumn Title="Level" Property="c => c.Level" Sortable Filterable></PropertyColumn>
+    <ActionColumn Title="Action">
+        <Space Size=@("middle")>
+            <SpaceItem>
+                <a>View</a>
+            </SpaceItem>
+        </Space>
+    </ActionColumn>
+</Table>
+
+@code {
+    int _pageIndex = 1;
+    int _pageSize = 10;
+    
+
+    [Parameter] public IList<Pokemon> DataSource { get; set; } = [];
+}

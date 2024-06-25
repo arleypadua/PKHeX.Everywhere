@@ -5,8 +5,9 @@ namespace PKHeX.Facade;
 public class PokemonParty(Game game)
 {
     private readonly IList<PKM> _partyData = game.SaveFile.PartyData;
-    public IEnumerable<Pokemon> Pokemons => _partyData
-        .Select(pkm => new Pokemon(pkm, game));
+    public IList<Pokemon> Pokemons => _partyData
+        .Select(pkm => new Pokemon(pkm, game))
+        .ToList();
 
     public void Commit()
     {

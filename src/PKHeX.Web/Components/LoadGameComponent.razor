@@ -1,0 +1,51 @@
+@inject JsService Js
+@inject NavigationManager Navigation
+
+@if (GameService.IsLoaded)
+{
+    <Space >
+        <DropdownButton OnClick='ExportSaveAsync'>
+            <Overlay>
+                <Menu>
+                    <MenuItem OnClick="OpenFilePickerAsync">Load another save</MenuItem>
+                </Menu>
+            </Overlay>
+            <Unbound>
+                Export "@GameService.FileName"
+            </Unbound>
+        </DropdownButton>
+    </Space>
+}
+else
+{
+    <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.FolderOpen" OnClick="OpenFilePickerAsync">Open</Button>
+}
+
+<InputFile OnChange="LoadSave" @ref="_inputGameFile" style="display: none;"></InputFile>
+
+
+@code {
+    private InputFile _inputGameFile = default!;
+
+    [Inject] public required GameService GameService { get; set; }
+
+    private async Task LoadSave(InputFileChangeEventArgs e)
+    {
+        using MemoryStream ms = new MemoryStream();
+        await e.File.OpenReadStream(2 * 1024 * 1000).CopyToAsync(ms);
+
+        GameService.Load(ms.ToArray(), e.File.Name);
+        
+        Navigation.NavigateTo("/");
+    }
+
+    private async Task ExportSaveAsync()
+    {
+        if (GameService.Game is null) return;
+        
+        var stream = GameService.Export();
+        await Js.DownloadFile(stream, GameService.FileName ?? string.Empty);
+    }
+
+    private async Task OpenFilePickerAsync() => await Js.ClickOnAsync(_inputGameFile.Element);
+}

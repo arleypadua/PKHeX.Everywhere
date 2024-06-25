@@ -5,6 +5,9 @@ namespace PKHeX.Facade;
 
 public class Pokemon(PKM pokemon, Game game)
 {
+    // for some reflection
+    public Pokemon() : this(default!, default!) { }
+    
     public PKM Pkm => pokemon;
     public Game Game => game;
 
