@@ -11,8 +11,7 @@ namespace PKHeX.CLI.Commands
         {
             var inventory = game.Trainer.Inventories[inventoryType];
             var supportedItems = inventory
-                .SupportedItems
-                .Except(inventory.Items.Select(i => i.Definition))
+                .CurrentSupportedItems
                 .OrderBy(i => i.Name);
 
             var selection = AnsiConsole.Prompt(new SelectionPrompt<OptionOrBack>()

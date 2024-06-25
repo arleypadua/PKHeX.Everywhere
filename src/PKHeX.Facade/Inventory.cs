@@ -25,10 +25,21 @@ public class Inventory : IEnumerable<Inventory.Item>
 
     public string Type { get; init; }
     public ImmutableList<Item> Items => GetItems();
-    public ImmutableList<ItemDefinition> SupportedItems => _pouch
+    
+    /// <summary>
+    /// Returns a list of all items supported in this inventory
+    /// </summary>
+    public ImmutableList<ItemDefinition> AllSupportedItems => _pouch
         .GetAllItems()
         .ToArray()
         .Select(_game.ItemRepository.GetItem).ToImmutableList();
+
+    /// <summary>
+    /// Returns a list of all items that can be added to the current inventory
+    /// </summary>
+    public ImmutableList<ItemDefinition> CurrentSupportedItems => AllSupportedItems
+        .Except(Items.Select(i => i.Definition))
+        .ToImmutableList();
 
     public void Remove(ushort itemId)
     {
@@ -48,7 +59,7 @@ public class Inventory : IEnumerable<Inventory.Item>
             throw new InvalidOperationException("Cannot set item to None.");
         }
         
-        if (SupportedItems.All(i => i.Id != itemId))
+        if (AllSupportedItems.All(i => i.Id != itemId))
         {
             throw new InvalidOperationException($"Item {itemId} is not supported in this inventory.");
         }

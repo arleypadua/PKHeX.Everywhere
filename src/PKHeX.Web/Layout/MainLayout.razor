@@ -10,7 +10,11 @@
 
         <div class="logo">PKHeX.Web</div>
 
-        <Menu Theme="MenuTheme.Dark" Mode="MenuMode.Inline" DefaultSelectedKeys=@(new[] { SelectedMenuItem?.Route })>
+        <Menu 
+            Theme="MenuTheme.Dark" 
+            Mode="MenuMode.Inline" 
+            DefaultSelectedKeys="@([SelectedMenuItem?.Route ?? string.Empty])"
+            SelectedKeys="@([SelectedMenuItem?.Route ?? string.Empty])">
             @foreach (var item in _menuItems)
             {
                 <MenuItem Key="@item.Route">
@@ -38,7 +42,7 @@
                 @Body
             </div>
         </Content>
-        <Footer Style="text-align: center;">PKHeX.Web - A web view of the CLI</Footer>
+        <PkHexFooter />
     </Layout>
 
 </Layout>
