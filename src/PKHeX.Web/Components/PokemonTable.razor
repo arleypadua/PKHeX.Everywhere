@@ -6,6 +6,8 @@
     DataSource="@DataSource"
     @bind-PageIndex="_pageIndex"
     @bind-PageSize="_pageSize"
+    Size="TableSize.Small"
+    Responsive
     EnableVirtualization>
     <PropertyColumn Title="" Property="@(c => c.Species)">
         <PokemonIcon Species="@context.Species"/>
@@ -25,6 +27,5 @@
     int _pageIndex = 1;
     int _pageSize = 10;
     
-
     [Parameter] public IList<Pokemon> DataSource { get; set; } = [];
 }

@@ -5,6 +5,8 @@
     DataSource="@FilteredDataSource"
     @bind-PageIndex="_pageIndex"
     @bind-PageSize="_pageSize"
+    Size="TableSize.Small"
+    Responsive
     EnableVirtualization>
     <PropertyColumn Title="" Property="@(c => c.Definition.Id)">
         <ItemIcon Item="@context.Definition"/>
