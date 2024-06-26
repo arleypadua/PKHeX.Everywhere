@@ -1,0 +1,35 @@
+/*
+    --- .tab-scrollable ---
+    Allow antd tabs to be scrollable
+    Usage:
+        <Tabs Class="tab-scrollable">...</Tabs>
+*/
+.tab-scrollable .ant-tabs-nav-wrap {
+    overflow-x: scroll !important;
+    
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.tab-scrollable .ant-tabs-nav-wrap::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-scrollable .ant-tabs-nav-list {
+    transform:  translate(0px, 0px) !important;
+}
+
+.tab-scrollable .ant-tabs-nav-operations {
+    display: none !important;
+}
+
+.tab-scrollable .ant-tabs-nav-wrap::after {
+    box-shadow: unset !important;
+}
+
+.tab-scrollable .ant-tabs-nav-wrap::before {
+    box-shadow: unset !important;
+}
+/*
+    --- End .tab-scrollable ---
+*/

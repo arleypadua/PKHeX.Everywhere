@@ -1,10 +1,11 @@
 ﻿@page "/"
 @using PKHeX.Facade
 @inject GameService GameService
+@inject AntdThemeService ThemeService
 
 <PageTitle>Home</PageTitle>
 
-<Descriptions Title="Trainer" Bordered Column="@_columns" Size="small">
+<Descriptions Title="Trainer" Bordered Column="@ThemeService.ColumnsConfiguration" Size="small">
     <DescriptionsItem Title="TID/SID">@_game.Trainer.Id</DescriptionsItem>
     <DescriptionsItem Title="Name">@_game.Trainer.Name</DescriptionsItem>
     <DescriptionsItem Title="Gender">@_game.Trainer.Gender.Symbol</DescriptionsItem>
@@ -22,17 +23,6 @@
 </Descriptions>
 
 @code {
-
-    private readonly Dictionary<string, int> _columns = new()
-    {
-        { "Xxl", 3 },
-        { "Xl", 3 },
-        { "Lg", 3 },
-        { "Md", 3 },
-        { "Sm", 2 },
-        { "Xs", 1 }
-    };
-
     private Game _game = default!;
 
     protected override void OnInitialized()

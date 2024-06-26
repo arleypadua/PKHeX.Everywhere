@@ -1,0 +1,25 @@
+@using PKHeX.Facade.Repositories
+
+@* TODO: Fix this, binding is not working *@
+
+<Select TItem="ItemDefinition"
+        TItemValue="ushort?"
+        DataSource="@Items"
+        @bind-Value="@SelectedItemId"
+        LabelName="@nameof(ItemDefinition.Name)"
+        ValueName="@nameof(ItemDefinition.Id)"
+        Placeholder="Select an item"
+        DefaultActiveFirstOption="false"
+        EnableSearch
+        EnableVirtualization>
+    <ItemTemplate>
+        <ItemIcon Item="@context" /> @context.Name
+    </ItemTemplate>
+</Select>
+
+@code {
+    [Parameter] public required IEnumerable<ItemDefinition> Items { get; set; }
+    
+    [Parameter] public ushort? SelectedItemId { get; set; }
+    [Parameter] public EventCallback<ushort?> SelectedItemIdChanged { get; set; }
+}
