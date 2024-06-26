@@ -1,0 +1,39 @@
+@using PKHeX.Core
+
+@if (IsShiny)
+{
+    <BadgeRibbon Class="pokemon_image__shiny_ribbon" Color="orange">
+        <TextTemplate>
+            <span class="pokemon_image__shiny_ribbon__span" Style="font-size: 8px;">shiny</span>
+        </TextTemplate>
+        <ChildContent>
+            <Image Src="@ContentUrl()" Preview="false"></Image>
+        </ChildContent>
+    </BadgeRibbon>}
+else
+{
+    <Image Src="@ContentUrl()" Preview="false"></Image>
+}
+
+@code {
+    [Parameter] public Species Species { get; set; }
+    [Parameter] public bool IsShiny { get; set; }
+
+    private string ContentUrl() => IsShiny
+        ? $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/{Species.Id()}.gif"
+        : $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/{Species.Id()}.gif";
+
+}
+
+<style>
+    .pokemon_image__shiny_ribbon .pokemon_image__shiny_ribbon__span {
+        display: inline-block;
+        line-height: 0;
+        transform: translateY(-5px);
+    }
+
+    .pokemon_image__shiny_ribbon {
+        height: 17px !important;
+        top: -15px;
+    }
+</style>

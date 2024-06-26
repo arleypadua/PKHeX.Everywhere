@@ -1,5 +1,5 @@
-@using AntDesign.TableModels
 @using PKHeX.Facade
+@inject NavigationManager Navigation
 
 <Table
     TItem="Pokemon"
@@ -17,7 +17,11 @@
     <ActionColumn Title="Action">
         <Space Size=@("middle")>
             <SpaceItem>
-                <a>View</a>
+                <Button
+                    Type="@ButtonType.Link"
+                    OnClick='() => Navigation.NavigateTo($"/pokemon/{context.PID}")'>
+                    View
+                </Button>
             </SpaceItem>
         </Space>
     </ActionColumn>
@@ -26,6 +30,6 @@
 @code {
     int _pageIndex = 1;
     int _pageSize = 10;
-    
+
     [Parameter] public IList<Pokemon> DataSource { get; set; } = [];
 }

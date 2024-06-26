@@ -3,17 +3,9 @@
 
 @if (GameService.IsLoaded)
 {
-    <Space >
-        <DropdownButton OnClick='ExportSaveAsync'>
-            <Overlay>
-                <Menu>
-                    <MenuItem OnClick="OpenFilePickerAsync">Load another save</MenuItem>
-                </Menu>
-            </Overlay>
-            <Unbound>
-                Export "@GameService.FileName"
-            </Unbound>
-        </DropdownButton>
+    <Space Direction="DirectionVHType.Vertical" Style="width: 100%; max-width: 300px; gap: 20px;">
+        <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Export" OnClick='ExportSaveAsync'>Export</Button>
+        <Button Icon="@IconType.Outline.FolderOpen" OnClick='OpenFilePickerAsync'>Open new...</Button>
     </Space>
 }
 else

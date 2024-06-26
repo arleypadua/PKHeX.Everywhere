@@ -1,5 +1,6 @@
 ﻿using PKHeX.Core;
 using PKHeX.Facade.Repositories;
+using PKHeX.Facade.Extensions;
 
 namespace PKHeX.Facade;
 
@@ -21,6 +22,9 @@ public class Pokemon(PKM pokemon, Game game)
     public uint PID => Pkm.PID;
     public Species Species => (Species)pokemon.Species;
     public string Nickname => pokemon.Nickname;
+
+    public bool NicknameSet =>
+        !pokemon.Nickname.Equals(Species.Name(), StringComparison.InvariantCultureIgnoreCase);
     public int Level => pokemon.CurrentLevel;
     public PokemonNature Natures => new(pokemon);
     public Stats EVs => Stats.EvFrom(pokemon);
@@ -34,7 +38,12 @@ public class Pokemon(PKM pokemon, Game game)
     public bool IsShiny => pokemon.IsShiny;
     public ItemDefinition HeldItem => game.ItemRepository.GetItem(pokemon.HeldItem);
     public AbilityDefinition Ability => AbilityRepository.Instance.Get(pokemon.Ability);
-    public int Friendship => pokemon.CurrentFriendship;
+    public int Friendship
+    {
+        get => pokemon.CurrentFriendship;
+        set => pokemon.CurrentFriendship = (byte)Math.Clamp(value, 0, 255);
+    }
+
     public PokemonFlags Flags => new(pokemon);
     public PokemonMetConditions MetConditions => new(pokemon);
 
@@ -98,13 +107,31 @@ public class Pokemon(PKM pokemon, Game game)
     {
         public Nature Nature => pokemon.Nature;
         public Nature StatNature => pokemon.StatNature;
+
+        public override string ToString() => Nature == StatNature
+            ? Nature.ToString()
+            : $"{Nature} / {StatNature}";
     }
 
     public class PokemonFlags(PKM pokemon)
     {
-        public bool IsEgg => pokemon.IsEgg;
-        public bool IsInfected => pokemon.IsPokerusInfected;
-        public bool IsCured => pokemon.IsPokerusCured;
+        public bool IsEgg
+        {
+            get => pokemon.IsEgg;
+            set => pokemon.IsEgg = value;
+        }
+
+        public bool IsInfected
+        {
+            get => pokemon.IsPokerusInfected;
+            set => pokemon.IsPokerusInfected = value;
+        }
+
+        public bool IsCured
+        {
+            get => pokemon.IsPokerusCured;
+            set => pokemon.IsPokerusCured = value;
+        }
     }
 
     public class PokemonMetConditions(PKM pokemon)

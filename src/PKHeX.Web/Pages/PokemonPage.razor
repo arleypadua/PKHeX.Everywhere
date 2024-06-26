@@ -1,0 +1,53 @@
+@page "/pokemon/{Pid}"
+@using PKHeX.Facade
+@inject AntdThemeService ThemeService
+
+@if (Pokemon is not null)
+{
+    <Space Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
+        <PageHeader BackIcon="true" Style="max-width: 100%">
+            <TitleTemplate>Pokemon</TitleTemplate>
+
+            <PageHeaderExtra>
+                <Space Style="width: 100%;" Align="center" Direction="DirectionVHType.Vertical">
+                    <PokemonImage
+                        Species="@Pokemon.Species"
+                        IsShiny="@Pokemon.IsShiny"/>
+                </Space>
+            </PageHeaderExtra>
+        </PageHeader>
+
+        <Tabs @bind-ActiveKey="@_activeTab" DefaultActiveKey="Description" Class="tab-scrollable" Animated>
+            <TabPane Tab="Description" Key="Description">
+                <PokemonDescription Pokemon="Pokemon" />
+            </TabPane>
+            <TabPane Tab="Met Conditions" Key="Met Conditions">
+                <PokemonMetConditions Pokemon="Pokemon" />
+            </TabPane>
+            <TabPane Tab="Moves" Key="Moves">
+                <h1>Moves</h1>
+            </TabPane>
+        </Tabs>
+    </Space>
+}
+
+@code {
+    [Inject] public required GameService GameService { get; set; }
+
+    [Parameter] public required string Pid { get; set; }
+
+    private uint PidNumber => Convert.ToUInt32(Pid);
+
+    private Pokemon? Pokemon =>
+        GameService.Game?.Trainer.Party.Pokemons.FirstOrDefault(p => p.PID == PidNumber)
+        ?? GameService.Game?.Trainer.PokemonBox.All.FirstOrDefault(p => p.PID == PidNumber);
+
+    private string _activeTab;
+
+}
+
+<style>
+    .pokemon_page__heading_extra__grow .ant-page-header-heading-extra {
+        flex-grow: 1;
+    }
+</style>

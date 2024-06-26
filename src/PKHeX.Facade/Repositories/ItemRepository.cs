@@ -19,6 +19,8 @@ public class ItemRepository
 public record ItemDefinition(ushort Id, string Name)
 {
     public static int None = 0;
+    
+    public bool IsNone => Id == None;
 }
 
 public static class ItemRepositoryExtensions

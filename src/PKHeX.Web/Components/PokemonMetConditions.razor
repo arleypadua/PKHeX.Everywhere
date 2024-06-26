@@ -1,0 +1,24 @@
+@using PKHeX.Core
+@using PKHeX.Facade
+@using PKHeX.Facade.Repositories
+@inject AntdThemeService ThemeService
+
+<Descriptions Bordered Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
+    <DescriptionsItem Title="Origin Game">@Pokemon.MetConditions.Version.Name</DescriptionsItem>
+    <DescriptionsItem Title="Captured With">
+        <ItemIcon Item="Pokemon.Ball"/> @Pokemon.Ball.Name
+    </DescriptionsItem>
+    <DescriptionsItem Title="Location">@Pokemon.MetConditions.Location.Name</DescriptionsItem>
+    <DescriptionsItem Title="Date">
+        <DatePicker TValue="DateOnly?" Picker="@DatePickerType.Date" @bind-Value="Pokemon.Pkm.MetDate" Format="dd/MM/yyyy" AllowClear="false"/>
+    </DescriptionsItem>
+</Descriptions>
+
+@code {
+    [Parameter] public required Pokemon Pokemon { get; set; }
+
+    IEnumerable<ItemDefinition> Balls => BallApplicator
+        .GetLegalBalls(Pokemon.Pkm)
+        .Select(b => Pokemon.Game.ItemRepository.GetItem((ushort)b));
+
+}

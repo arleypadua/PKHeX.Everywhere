@@ -1,0 +1,70 @@
+@using PKHeX.Facade
+@inject AntdThemeService ThemeService
+
+<Descriptions Bordered Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
+    <DescriptionsItem Title="Species">@Pokemon.Species.Name()</DescriptionsItem>
+    @if (Pokemon.NicknameSet)
+    {
+        <DescriptionsItem Title="Nickname">@Pokemon.Nickname</DescriptionsItem>
+    }
+    <DescriptionsItem Title="PID">
+        <Text Copyable>@Pokemon.PID.ToString("X8")</Text>
+    </DescriptionsItem>
+    <DescriptionsItem Title="Level">
+        <Text Editable EditConfig="_editableLevel">@Pokemon.Level</Text>
+    </DescriptionsItem>
+    <DescriptionsItem Title="Nature">
+        @Pokemon.Natures
+    </DescriptionsItem>
+    <DescriptionsItem Title="Held Item">
+        @Pokemon.HeldItem.Name
+    </DescriptionsItem>
+    <DescriptionsItem Title="Ability">
+        @Pokemon.Ability.Name
+    </DescriptionsItem>
+    <DescriptionsItem Title="Friendship">
+        <Text Editable EditConfig="_editableFriendship">@Pokemon.Friendship</Text>
+    </DescriptionsItem>
+    <DescriptionsItem Title="Egg">
+        <Switch Disabled Value="Pokemon.Flags.IsEgg" OnChange="f => Pokemon.Flags.IsEgg = f"/>
+    </DescriptionsItem>
+    <DescriptionsItem Title="Infected">
+        <Switch Disabled Value="Pokemon.Flags.IsInfected" OnChange="f => Pokemon.Flags.IsInfected = f"/>
+    </DescriptionsItem>
+    <DescriptionsItem Title="Cured">
+        <Switch Disabled Value="Pokemon.Flags.IsCured" OnChange="f => Pokemon.Flags.IsCured = f"/>
+    </DescriptionsItem>
+</Descriptions>
+
+@code {
+    [Parameter] public required Pokemon Pokemon { get; set; }
+
+    private TypographyEditableConfig _editableLevel = default!;
+    private TypographyEditableConfig _editableFriendship = default!;
+
+    protected override void OnInitialized()
+    {
+        _editableLevel = new() { Text = Pokemon?.Level.ToString(), OnChange = HandleLevelChange };
+        _editableFriendship = new() { Text = Pokemon?.Friendship.ToString(), OnChange = HandleFriendshipChange };
+    }
+
+    private void HandleLevelChange(string newValueString)
+    {
+        var parsed = int.TryParse(newValueString, out var newValue);
+        if (!parsed) return;
+
+        Pokemon?.ChangeLevel(newValue);
+    }
+
+    private void HandleFriendshipChange(string newValueString)
+    {
+        var pokemon = Pokemon;
+        if (pokemon is null) return;
+
+        var parsed = int.TryParse(newValueString, out var newValue);
+        if (!parsed) return;
+
+        pokemon.Friendship = newValue;
+    }
+
+}

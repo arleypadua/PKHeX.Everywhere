@@ -1,0 +1,66 @@
+@using PKHeX.Facade
+@using PKHeX.Facade.Repositories
+<Modal Title="@($"Add Item to \"{TargetInventory.Type}\"")"
+       @bind-Visible="@Visible"
+       OnOk="@HandleOkInternal"
+       OnCancel="@HandleCancelInternal">
+    @AddItemModalTemplate()
+</Modal>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    
+    [Parameter] public EventCallback<ItemToBeAdded> OnOk { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public required Inventory TargetInventory { get; set; }
+
+    private ushort? _itemIdToBeAdded;
+    private uint? _itemCountToBeAdded;
+    
+    RenderFragment AddItemModalTemplate()
+    {
+        return
+            @<Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; gap: 20px;">
+                <Select TItem="ItemDefinition"
+                        TItemValue="ushort?"
+                        DataSource="@TargetInventory.CurrentSupportedItems"
+                        @bind-Value="@_itemIdToBeAdded"
+                        LabelName="@nameof(ItemDefinition.Name)"
+                        ValueName="@nameof(ItemDefinition.Id)"
+                        Placeholder="Select an item"
+                        DefaultActiveFirstOption="false"
+                        EnableSearch
+                        EnableVirtualization>
+                    <ItemTemplate>
+                        <ItemIcon Item="@context"/> @context.Name
+                    </ItemTemplate>
+                </Select>
+
+                <AntDesign.InputNumber
+                    TValue="uint?"
+                    Style="width: 100%; max-width: 110px;"
+                    @bind-Value="@_itemCountToBeAdded"
+                    PlaceHolder="Quantity"
+                    Min="0"
+                    Max="999"/>
+            </Space>
+            ;
+    }
+
+    private async Task HandleOkInternal()
+    {
+        if (_itemIdToBeAdded is null || _itemCountToBeAdded is null) return;
+
+        await OnOk.InvokeAsync(new ItemToBeAdded(_itemIdToBeAdded.Value, _itemCountToBeAdded.Value));
+    }
+
+    private Task HandleCancelInternal() => OnCancel.InvokeAsync();
+
+    private void ResetModal()
+    {
+        _itemCountToBeAdded = 0;
+    }
+
+    public record ItemToBeAdded(ushort Id, uint Count);
+}
