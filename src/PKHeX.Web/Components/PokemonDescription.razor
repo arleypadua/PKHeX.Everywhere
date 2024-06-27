@@ -1,4 +1,3 @@
-@using PKHeX.Facade
 @inject AntdThemeService ThemeService
 
 <Descriptions Bordered Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
@@ -9,6 +8,9 @@
     }
     <DescriptionsItem Title="PID">
         <Text Copyable>@Pokemon.PID.ToString("X8")</Text>
+    </DescriptionsItem>
+    <DescriptionsItem Title="Shiny">
+        <Switch Value="@Pokemon.IsShiny" OnChange="HandleShinyChange" />
     </DescriptionsItem>
     <DescriptionsItem Title="Level">
         <Text Editable EditConfig="_editableLevel">@Pokemon.Level</Text>
@@ -22,11 +24,19 @@
     <DescriptionsItem Title="Ability">
         @Pokemon.Ability.Name
     </DescriptionsItem>
-    <DescriptionsItem Title="Friendship">
-        <Text Editable EditConfig="_editableFriendship">@Pokemon.Friendship</Text>
+    <DescriptionsItem>
+        <TitleTemplate>
+            @(Egg.IsEgg ? "Hatch Counter" : "Friendship")
+        </TitleTemplate>
+        <ChildContent>
+            <Text Editable EditConfig="@(Egg.IsEgg ? _editableHatchCounter : _editableFriendship)">
+                @(Egg.IsEgg ? Egg.HatchCounter : Pokemon.Friendship)
+            </Text>
+        </ChildContent>
     </DescriptionsItem>
     <DescriptionsItem Title="Egg">
-        <Switch Disabled Value="Pokemon.Flags.IsEgg" OnChange="f => Pokemon.Flags.IsEgg = f"/>
+        @* TODO fix switch of the egg status.. weird behaviour between hatch counter and friendship values *@
+        <Switch Disabled Value="Egg.IsEgg" OnChange="HandleIsEggSwitched"/>
     </DescriptionsItem>
     <DescriptionsItem Title="Infected">
         <Switch Disabled Value="Pokemon.Flags.IsInfected" OnChange="f => Pokemon.Flags.IsInfected = f"/>
@@ -38,33 +48,62 @@
 
 @code {
     [Parameter] public required Pokemon Pokemon { get; set; }
+    [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
+
+    private Egg Egg => Pokemon.Egg;
 
     private TypographyEditableConfig _editableLevel = default!;
     private TypographyEditableConfig _editableFriendship = default!;
+    private TypographyEditableConfig _editableHatchCounter = default!;
 
     protected override void OnInitialized()
     {
-        _editableLevel = new() { Text = Pokemon?.Level.ToString(), OnChange = HandleLevelChange };
-        _editableFriendship = new() { Text = Pokemon?.Friendship.ToString(), OnChange = HandleFriendshipChange };
+        _editableLevel = new() { Text = Pokemon.Level.ToString(), OnChange = (v) => HandleLevelChange(v) };
+        _editableFriendship = new() { Text = Pokemon.Friendship.ToString(), OnChange = (v) => HandleFriendshipChange(v) };
+        _editableHatchCounter = new() { Text = Pokemon.Egg.HatchCounter?.ToString(), OnChange = (v) => HandleHatchCounterChange(v) };
     }
 
-    private void HandleLevelChange(string newValueString)
+    private Task HandleLevelChange(string newValueString)
     {
         var parsed = int.TryParse(newValueString, out var newValue);
-        if (!parsed) return;
+        if (!parsed) return Task.CompletedTask;
 
-        Pokemon?.ChangeLevel(newValue);
+        Pokemon.ChangeLevel(newValue);
+        return OnPokemonChanged.InvokeAsync();
     }
 
-    private void HandleFriendshipChange(string newValueString)
+    private Task HandleFriendshipChange(string newValueString)
     {
         var pokemon = Pokemon;
-        if (pokemon is null) return;
 
         var parsed = int.TryParse(newValueString, out var newValue);
-        if (!parsed) return;
+        if (!parsed) return Task.CompletedTask;
 
         pokemon.Friendship = newValue;
+        return OnPokemonChanged.InvokeAsync();
+    }
+    
+    private Task HandleHatchCounterChange(string newValueString)
+    {
+        var pokemon = Pokemon;
+
+        var parsed = int.TryParse(newValueString, out var newValue);
+        if (!parsed) return Task.CompletedTask;
+
+        pokemon.Egg.HatchCounter = newValue;
+        return OnPokemonChanged.InvokeAsync();
+    }
+
+    private Task HandleShinyChange(bool newShinyValue)
+    {
+        Pokemon.SetShiny(newShinyValue);
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private void HandleIsEggSwitched(bool isEgg)
+    {
+        Egg.IsEgg = isEgg;
+        Egg.HatchCounter = 1;
     }
 
 }

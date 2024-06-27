@@ -2,7 +2,10 @@ using PKHeX.CLI.Base;
 using PKHeX.CLI.Commands.EditPokemonCommand.Attributes;
 using PKHeX.Facade;
 using PKHeX.Facade.Extensions;
+using PKHeX.Facade.Pokemons;
 using Spectre.Console;
+using MetConditions = PKHeX.CLI.Commands.EditPokemonCommand.Attributes.MetConditions;
+using Stats = PKHeX.CLI.Commands.EditPokemonCommand.Attributes.Stats;
 
 namespace PKHeX.CLI.Commands.EditPokemonCommand;
 

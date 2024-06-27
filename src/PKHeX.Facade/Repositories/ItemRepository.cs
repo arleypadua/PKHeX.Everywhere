@@ -1,4 +1,5 @@
 using PKHeX.Core;
+using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Facade.Repositories;
 
@@ -14,6 +15,11 @@ public class ItemRepository
     }
 
     public ItemDefinition GetItem(ushort id) => _items[id];
+
+    public List<ItemDefinition> GetLegalBallsFor(Pokemon pokemon) => BallApplicator
+        .GetLegalBalls(pokemon.Pkm)
+        .Select(b => GetItem((ushort)b))
+        .ToList();
 }
 
 public record ItemDefinition(ushort Id, string Name)

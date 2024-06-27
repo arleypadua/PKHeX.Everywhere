@@ -1,0 +1,33 @@
+@using PKHeX.Core
+@if (_analysis is not null && !_analysis.Valid)
+{
+    <Alert Type="@AlertType.Error" Message="Not legal" Closable>
+        <ul>
+            @foreach (var issue in _analysis.Results.Where(r => r.Judgement <= 0))
+            {
+                <li>@issue.Identifier: @issue.Comment</li>
+            }
+        </ul>
+    </Alert>   
+}
+
+@code {
+    [Parameter] public required Pokemon Pokemon { get; set; }
+
+    private LegalityAnalysis? _analysis;
+
+    protected override void OnInitialized()
+    {
+        _analysis = Pokemon.Legality();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        _analysis = Pokemon.Legality();
+    }
+
+    public void Refresh()
+    {
+        _analysis = Pokemon.Legality();
+    }
+}

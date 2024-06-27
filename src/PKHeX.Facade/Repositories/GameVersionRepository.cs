@@ -14,6 +14,8 @@ public class GameVersionRepository
             .Select((version, id) => (id, version))
             .ToDictionary(x => x.id, x => new GameVersionDefinition(x.id, x.version));
     }
+
+    public List<GameVersionDefinition> All => _abilities.Values.ToList();
     
     public GameVersionDefinition Get(int id) => _abilities[id];
     public GameVersionDefinition Get(GameVersion version) => Get((int)version);

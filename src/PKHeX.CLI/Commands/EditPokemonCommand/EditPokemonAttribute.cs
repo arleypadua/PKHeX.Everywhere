@@ -1,7 +1,7 @@
 using PKHeX.CLI.Base;
 using PKHeX.CLI.Extensions;
-using PKHeX.Facade;
 using PKHeX.Facade.Extensions;
+using PKHeX.Facade.Pokemons;
 using Spectre.Console;
 
 namespace PKHeX.CLI.Commands.EditPokemonCommand;
@@ -86,7 +86,7 @@ abstract class EditPokemonAttribute(Pokemon pokemon)
         protected override string Label => string.Empty;
         protected override string Value => string.Empty;
 
-        public override string Display => $"[yellow]Is Egg:[/] {Pokemon.Flags.IsEgg.ToDisplayEmoji(),-3} " +
+        public override string Display => $"[yellow]Is Egg:[/] {Pokemon.Egg.IsEgg.ToDisplayEmoji(),-3} " +
                                           $"[yellow]Infected:[/] {Pokemon.Flags.IsInfected.ToDisplayEmoji(),-3} " +
                                           $"[yellow]Cured:[/] {Pokemon.Flags.IsCured.ToDisplayEmoji()}";
     }
@@ -103,7 +103,7 @@ abstract class EditPokemonAttribute(Pokemon pokemon)
         }
     }
 
-    public abstract class PokemonStatsBase(Pokemon pokemon, string label, Pokemon.Stats stats)
+    public abstract class PokemonStatsBase(Pokemon pokemon, string label, Stats stats)
         : SimpleAttribute(pokemon, label, string.Empty)
     {
         public override string Display => $"[yellow]{Label}:[/]{Environment.NewLine}   " +
