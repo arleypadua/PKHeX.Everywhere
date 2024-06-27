@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using PKHeX.Core;
+using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Facade.Extensions;
 

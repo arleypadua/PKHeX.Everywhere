@@ -1,25 +1,53 @@
 @using PKHeX.Facade.Repositories
 
-@* TODO: Fix this, binding is not working *@
-
 <Select TItem="ItemDefinition"
         TItemValue="ushort?"
         DataSource="@Items"
         @bind-Value="@SelectedItemId"
+        OnSelectedItemChanged="SelectedItemChanged"
         LabelName="@nameof(ItemDefinition.Name)"
         ValueName="@nameof(ItemDefinition.Id)"
         Placeholder="Select an item"
         DefaultActiveFirstOption="false"
         EnableSearch
         EnableVirtualization>
+    <LabelTemplate>
+        <Space Style="gap: 5px">
+            <ItemIcon Item="@context"/> <span>@context.Name</span>
+        </Space>
+
+    </LabelTemplate>
     <ItemTemplate>
-        <ItemIcon Item="@context" /> @context.Name
+        <Space Style="gap: 5px">
+            <ItemIcon Item="@context"/> <span>@context.Name</span>
+        </Space>
     </ItemTemplate>
 </Select>
 
 @code {
     [Parameter] public required IEnumerable<ItemDefinition> Items { get; set; }
-    
+    [Parameter] public HashSet<ItemDefinition> IllegalItems { get; set; } = new();
+
     [Parameter] public ushort? SelectedItemId { get; set; }
-    [Parameter] public EventCallback<ushort?> SelectedItemIdChanged { get; set; }
+    [Parameter] public EventCallback<ItemDefinition> SelectedItemChanged { get; set; }
+
+    RenderFragment RenderItem(ItemDefinition item)
+    {
+        var legalItem = IllegalItems.Contains(item)
+            ? "item_selector__item_template__illegal"
+            : string.Empty;
+        
+        return
+            @<Space Style="gap: 5px;" Class="@legalItem">
+                <ItemIcon Item="@item"/> <span>@item.Name</span>
+            </Space>;
+    }
+
 }
+
+<!--suppress CssUnresolvedCustomProperty -->
+<style>
+    .item_selector__item_template__illegal {
+        background-color: var(--ant-error-color);
+    }
+</style>

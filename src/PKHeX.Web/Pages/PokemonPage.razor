@@ -1,6 +1,6 @@
-@page "/pokemon/{Pid}"
-@using PKHeX.Facade
-@inject AntdThemeService ThemeService
+@page "/pokemon/{PartyOrBox}/{Pid}"
+@using PokemonMetConditions = PKHeX.Web.Components.PokemonMetConditions
+@inject NavigationManager Navigation
 
 @if (Pokemon is not null)
 {
@@ -16,13 +16,18 @@
                 </Space>
             </PageHeaderExtra>
         </PageHeader>
+        
+        <PokemonLegalityBanner @ref="_legalityBanner" Pokemon="Pokemon" />
 
         <Tabs @bind-ActiveKey="@_activeTab" DefaultActiveKey="Description" Class="tab-scrollable" Animated>
             <TabPane Tab="Description" Key="Description">
-                <PokemonDescription Pokemon="Pokemon" />
+                <PokemonDescription Pokemon="Pokemon" OnPokemonChanged="HandlePokemonChange" />
             </TabPane>
             <TabPane Tab="Met Conditions" Key="Met Conditions">
-                <PokemonMetConditions Pokemon="Pokemon" />
+                <PokemonMetConditions Pokemon="Pokemon" OnPokemonChanged="HandlePokemonChange" />
+            </TabPane>
+            <TabPane Tab="Stats" Key="Stats">
+                <h1>Stats</h1>
             </TabPane>
             <TabPane Tab="Moves" Key="Moves">
                 <h1>Moves</h1>
@@ -35,6 +40,7 @@
     [Inject] public required GameService GameService { get; set; }
 
     [Parameter] public required string Pid { get; set; }
+    [Parameter] public required string PartyOrBox { get; set; }
 
     private uint PidNumber => Convert.ToUInt32(Pid);
 
@@ -42,8 +48,23 @@
         GameService.Game?.Trainer.Party.Pokemons.FirstOrDefault(p => p.PID == PidNumber)
         ?? GameService.Game?.Trainer.PokemonBox.All.FirstOrDefault(p => p.PID == PidNumber);
 
-    private string _activeTab;
+    private string _activeTab = default!;
+    private PokemonLegalityBanner _legalityBanner = default!;
 
+    private const string Party = "party";
+    private const string Box = "box";
+
+    void HandlePokemonChange(Pokemon changedPokemon)
+    {
+        // some changes might change the id of the Pokémon
+        if (changedPokemon.PID != PidNumber)
+        {
+            Navigation.NavigateTo($"/pokemon/{PartyOrBox}/{changedPokemon.PID}");
+            return;
+        }
+        
+        _legalityBanner.Refresh();
+    }
 }
 
 <style>

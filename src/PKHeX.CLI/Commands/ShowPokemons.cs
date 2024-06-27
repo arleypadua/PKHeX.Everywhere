@@ -2,6 +2,7 @@ using PKHeX.CLI.Base;
 using PKHeX.CLI.Commands.EditPokemonCommand;
 using PKHeX.CLI.Extensions;
 using PKHeX.Facade;
+using PKHeX.Facade.Pokemons;
 using Spectre.Console;
 
 namespace PKHeX.CLI.Commands;

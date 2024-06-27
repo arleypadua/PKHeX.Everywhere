@@ -4,6 +4,7 @@ using PKHeX.CLI.Extensions;
 using PKHeX.Core;
 using PKHeX.Facade;
 using PKHeX.Facade.Extensions;
+using PKHeX.Facade.Pokemons;
 using Spectre.Console;
 
 namespace PKHeX.CLI.Commands;

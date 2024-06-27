@@ -1,5 +1,6 @@
 ﻿using PKHeX.Facade;
 using PKHeX.Facade.Extensions;
+using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.CLI.Extensions;
 

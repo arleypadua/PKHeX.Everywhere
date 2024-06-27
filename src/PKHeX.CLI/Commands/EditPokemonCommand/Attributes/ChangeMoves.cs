@@ -1,6 +1,6 @@
 using PKHeX.CLI.Base;
-using PKHeX.Facade;
 using PKHeX.Facade.Extensions;
+using PKHeX.Facade.Pokemons;
 using PKHeX.Facade.Repositories;
 using Spectre.Console;
 

@@ -1,24 +1,59 @@
-@using PKHeX.Core
-@using PKHeX.Facade
 @using PKHeX.Facade.Repositories
 @inject AntdThemeService ThemeService
+@inject GameService GameService
 
 <Descriptions Bordered Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
     <DescriptionsItem Title="Origin Game">@Pokemon.MetConditions.Version.Name</DescriptionsItem>
-    <DescriptionsItem Title="Captured With">
-        <ItemIcon Item="Pokemon.Ball"/> @Pokemon.Ball.Name
-    </DescriptionsItem>
     <DescriptionsItem Title="Location">@Pokemon.MetConditions.Location.Name</DescriptionsItem>
+    <DescriptionsItem Title="Captured With">
+        <ItemSelect 
+            Items="@LegalBalls"
+            SelectedItemId="Pokemon.Ball.Id"
+            SelectedItemChanged="HandleCapturedWithChanged" />
+    </DescriptionsItem>
+    <DescriptionsItem Title="Level">
+        <AntDesign.InputNumber 
+            TValue="int"
+            Value="Pokemon.MetConditions.Level"
+            OnChange="HandleLevelChanged"
+            Min="1"
+            Max="100"
+            DefaultValue="1" />
+    </DescriptionsItem>
+    
     <DescriptionsItem Title="Date">
-        <DatePicker TValue="DateOnly?" Picker="@DatePickerType.Date" @bind-Value="Pokemon.Pkm.MetDate" Format="dd/MM/yyyy" AllowClear="false"/>
+        <DatePicker 
+            TValue="DateOnly?" 
+            Picker="@DatePickerType.Date"
+            Format="dd/MM/yyyy" 
+            AllowClear="false"
+            Value="Pokemon.MetConditions.Date"
+            OnChange="HandleDateChanged"/>
     </DescriptionsItem>
 </Descriptions>
 
 @code {
     [Parameter] public required Pokemon Pokemon { get; set; }
+    [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
+    
+    HashSet<ItemDefinition> LegalBalls => GameService.Game?.ItemRepository.GetLegalBallsFor(Pokemon).ToHashSet() ?? [];
+    
+    async Task HandleCapturedWithChanged(ItemDefinition item)
+    {
+        Pokemon.Ball = item;
+        await OnPokemonChanged.InvokeAsync(Pokemon);
+    }
 
-    IEnumerable<ItemDefinition> Balls => BallApplicator
-        .GetLegalBalls(Pokemon.Pkm)
-        .Select(b => Pokemon.Game.ItemRepository.GetItem((ushort)b));
+    async Task HandleLevelChanged(int level)
+    {
+        Pokemon.MetConditions.Level = level;
+        await OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    async Task HandleDateChanged(DateTimeChangedEventArgs<DateOnly?> arg)
+    {
+        Pokemon.MetConditions.Date = arg.Date;
+        await OnPokemonChanged.InvokeAsync(Pokemon);
+    }
 
 }

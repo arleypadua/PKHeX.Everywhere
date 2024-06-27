@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using PKHeX.Core;
 using PKHeX.Facade.Extensions;
+using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Facade.Repositories;
 

@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Components;
 using PKHeX.Facade;
 
 namespace PKHeX.Web.Services;
