@@ -44,9 +44,12 @@
 
     private uint PidNumber => Convert.ToUInt32(Pid);
 
-    private Pokemon? Pokemon =>
-        GameService.Game?.Trainer.Party.Pokemons.FirstOrDefault(p => p.PID == PidNumber)
-        ?? GameService.Game?.Trainer.PokemonBox.All.FirstOrDefault(p => p.PID == PidNumber);
+    private Pokemon? Pokemon => PartyOrBox switch
+    {
+        Party => GameService.Game?.Trainer.Party.Pokemons.FirstOrDefault(p => p.PID == PidNumber),
+        Box => GameService.Game?.Trainer.PokemonBox.All.FirstOrDefault(p => p.PID == PidNumber),
+        _ => null
+    };
 
     private string _activeTab = default!;
     private PokemonLegalityBanner _legalityBanner = default!;
