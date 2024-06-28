@@ -1,0 +1,21 @@
+<Image Src="@ContentUrl()" Style="width: 75px" Preview="false"></Image>
+
+@code {
+    [Parameter] public required PokemonTypes Types { get; set; }
+    [Parameter] public required TypeIndex Index { get; set; }
+
+    private string ContentUrl() => Index switch
+    {
+        TypeIndex.Primary => $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/{AsPokeApi(Types.Type1)}.png",
+        TypeIndex.Secondary => $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/{AsPokeApi(Types.Type2)}.png",
+        _ => string.Empty
+    };
+
+    public enum TypeIndex
+    {
+        Primary,
+        Secondary
+    }
+
+    public static int AsPokeApi(int type) => type + 1;
+}

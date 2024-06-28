@@ -1,0 +1,39 @@
+@using PKHeX.Core
+
+<Select TItem="NatureSelection"
+        TItemValue="Nature?"
+        DataSource="@_natures"
+        @bind-Value="@SelectedNature"
+        OnSelectedItemChanged="SelectedNatureChangedInternal"
+        LabelName="@nameof(NatureSelection.Name)"
+        ValueName="@nameof(NatureSelection.Nature)"
+        Placeholder="Nature"
+        DefaultActiveFirstOption="false"
+        EnableSearch
+        EnableVirtualization>
+    <LabelTemplate>
+        @RenderItem(context)
+    </LabelTemplate>
+    <ItemTemplate>
+        @RenderItem(context)
+    </ItemTemplate>
+</Select>
+
+@code {
+    private NatureSelection[] _natures = Enum.GetValues<Nature>()
+        .Select(n => new NatureSelection(n, n.ToString()))
+        .ToArray();
+    
+    [Parameter] public Nature? SelectedNature { get; set; }
+    [Parameter] public EventCallback<Nature> SelectedNatureChanged { get; set; }
+
+    RenderFragment RenderItem(NatureSelection item)
+    {
+        return @<span>@item.Name</span>;
+    }
+    
+    private Task SelectedNatureChangedInternal(NatureSelection arg) => SelectedNatureChanged.InvokeAsync(arg.Nature);
+
+    record NatureSelection(Nature Nature, string Name);
+
+}
