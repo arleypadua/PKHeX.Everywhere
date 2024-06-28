@@ -1,5 +1,6 @@
 @inject JsService Js
 @inject NavigationManager Navigation
+@inject HttpClient HttpClient
 
 @if (GameService.IsLoaded)
 {
@@ -10,7 +11,10 @@
 }
 else
 {
-    <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.FolderOpen" OnClick="OpenFilePickerAsync">Open</Button>
+    <Space Direction="DirectionVHType.Vertical" Style="width: 100%; max-width: 300px; gap: 20px;">
+        <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.FolderOpen" OnClick="OpenFilePickerAsync">Open</Button>
+        <Button OnClick='OpenDemo'>Demo</Button>
+    </Space>
 }
 
 <InputFile OnChange="LoadSave" @ref="_inputGameFile" style="display: none;"></InputFile>
@@ -37,6 +41,13 @@ else
         
         var stream = GameService.Export();
         await Js.DownloadFile(stream, GameService.FileName ?? string.Empty);
+    }
+
+    private async Task OpenDemo()
+    {
+        var testData = await HttpClient.GetByteArrayAsync("https://raw.githubusercontent.com/arleypadua/PKheX.CLI/master/src/PKHeX.Facade.Tests/data/savedata_1.sav");
+        GameService.Load(testData, "savedata_1.sav");
+        Navigation.NavigateTo($"/");
     }
 
     private async Task OpenFilePickerAsync() => await Js.ClickOnAsync(_inputGameFile.Element);
