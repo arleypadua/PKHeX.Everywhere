@@ -7,13 +7,13 @@
     {
         <Descriptions Bordered Title="@description.Key" Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
             <DescriptionsItem Title="Base">
-                @InputFor(@description.Value.GetBase, @description.Value.SetBase)
+                @InputFor(@description.Value.GetBase, @description.Value.SetBase, @description.Value.ReadOnly)
             </DescriptionsItem>
             <DescriptionsItem Title="IV">
-                @InputFor(@description.Value.GetIv, @description.Value.SetIv)
+                @InputFor(@description.Value.GetIv, @description.Value.SetIv, @description.Value.ReadOnly)
             </DescriptionsItem>
             <DescriptionsItem Title="EV">
-                @InputFor(@description.Value.GetEv, @description.Value.SetEv)
+                @InputFor(@description.Value.GetEv, @description.Value.SetEv, @description.Value.ReadOnly)
             </DescriptionsItem>
         </Descriptions>
     }
@@ -40,11 +40,12 @@
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
 
-    private RenderFragment InputFor(Func<int> get, Action<int> set)
+    private RenderFragment InputFor(Func<int> get, Action<int> set, bool readOnly)
     {
         return
             @<AntDesign.InputNumber
                  TValue="int"
+                 Disabled="readOnly"
                  Value="get()"
                  OnChange="(v) => HandleStatChange(set, v)"/>;
     }
