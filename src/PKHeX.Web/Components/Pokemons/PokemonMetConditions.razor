@@ -6,53 +6,63 @@
     <DescriptionsItem Title="Origin Game">@Pokemon.MetConditions.Version.Name</DescriptionsItem>
     <DescriptionsItem Title="Location">@Pokemon.MetConditions.Location.Name</DescriptionsItem>
     <DescriptionsItem Title="Captured With">
-        <ItemSelect 
-            Items="@LegalBalls"
+        <ItemSelect
+            Items="@AllBalls"
             SelectedItemId="Pokemon.Ball.Id"
-            SelectedItemChanged="HandleCapturedWithChanged" />
+            SelectedItemChanged="HandleCapturedWithChanged"/>
     </DescriptionsItem>
     <DescriptionsItem Title="Level">
-        <AntDesign.InputNumber 
+        <AntDesign.InputNumber
             TValue="int"
             Value="Pokemon.MetConditions.Level"
             OnChange="HandleLevelChanged"
             Min="1"
             Max="100"
-            DefaultValue="1" />
+            DefaultValue="1"/>
     </DescriptionsItem>
-    
+
     <DescriptionsItem Title="Date">
-        <DatePicker 
-            TValue="DateOnly?" 
+        <DatePicker
+            TValue="DateOnly?"
             Picker="@DatePickerType.Date"
-            Format="dd/MM/yyyy" 
+            Format="dd/MM/yyyy"
             AllowClear="false"
             Value="Pokemon.MetConditions.Date"
             OnChange="HandleDateChanged"/>
+    </DescriptionsItem>
+
+    <DescriptionsItem Title="Fateful Encounter">
+        <Switch Value="Pokemon.MetConditions.FatefulEncounter" OnChange="HandleFatefulEncounterChange" />
     </DescriptionsItem>
 </Descriptions>
 
 @code {
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
-    
-    HashSet<ItemDefinition> LegalBalls => GameService.Game?.ItemRepository.GetLegalBallsFor(Pokemon).ToHashSet() ?? [];
-    
-    async Task HandleCapturedWithChanged(ItemDefinition item)
+
+    ISet<ItemDefinition> AllBalls => GameService.Game?.ItemRepository.AllBalls() ?? new HashSet<ItemDefinition>();
+
+    private async Task HandleCapturedWithChanged(ItemDefinition item)
     {
         Pokemon.Ball = item;
         await OnPokemonChanged.InvokeAsync(Pokemon);
     }
 
-    async Task HandleLevelChanged(int level)
+    private async Task HandleLevelChanged(int level)
     {
         Pokemon.MetConditions.Level = level;
         await OnPokemonChanged.InvokeAsync(Pokemon);
     }
 
-    async Task HandleDateChanged(DateTimeChangedEventArgs<DateOnly?> arg)
+    private async Task HandleDateChanged(DateTimeChangedEventArgs<DateOnly?> arg)
     {
         Pokemon.MetConditions.Date = arg.Date;
+        await OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private async Task HandleFatefulEncounterChange(bool flag)
+    {
+        Pokemon.MetConditions.FatefulEncounter = flag;
         await OnPokemonChanged.InvokeAsync(Pokemon);
     }
 

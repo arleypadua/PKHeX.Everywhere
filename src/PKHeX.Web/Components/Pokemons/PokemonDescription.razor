@@ -1,13 +1,25 @@
+@using PKHeX.Core
 @inject AntdThemeService ThemeService
 
 <Descriptions Bordered Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
     <DescriptionsItem Title="Species">@Pokemon.Species.Name()</DescriptionsItem>
-    @if (Pokemon.NicknameSet)
-    {
-        <DescriptionsItem Title="Nickname">@Pokemon.Nickname</DescriptionsItem>
-    }
+
+    <DescriptionsItem Title="Types">
+        <Space Style="gap: 5px" Direction="DirectionVHType.Vertical" Wrap>
+            <PokemonTypeImage Types="Pokemon.Types" Index="PokemonTypeImage.TypeIndex.Primary" />
+            @if (Pokemon.Types.HasSecondary)
+            {
+                <PokemonTypeImage Types="Pokemon.Types" Index="PokemonTypeImage.TypeIndex.Secondary" />
+            }
+        </Space>
+    </DescriptionsItem>
     <DescriptionsItem Title="PID">
         <Text Copyable>@Pokemon.PID.ToString("X8")</Text>
+    </DescriptionsItem>
+    <DescriptionsItem Title="Nickname">
+        <Text Editable EditConfig="_editableNickname">
+            @(Pokemon.NicknameSet ? Pokemon.Nickname : "---")
+        </Text>
     </DescriptionsItem>
     <DescriptionsItem Title="Shiny">
         <Switch Value="@Pokemon.IsShiny" OnChange="HandleShinyChange" />
@@ -16,7 +28,17 @@
         <Text Editable EditConfig="_editableLevel">@Pokemon.Level</Text>
     </DescriptionsItem>
     <DescriptionsItem Title="Nature">
-        @Pokemon.Natures
+        <NatureSelect 
+            SelectedNature="Pokemon.Natures.Nature"
+            SelectedNatureChanged="HandleNatureChanged"
+            />
+    </DescriptionsItem>
+    <DescriptionsItem Title="Form">
+        <AntDesign.InputNumber
+            TValue="short"
+            Value="Pokemon.Form"
+            OnChange="HandleFormChanged"
+            />
     </DescriptionsItem>
     <DescriptionsItem Title="Held Item">
         @Pokemon.HeldItem.Name
@@ -36,7 +58,7 @@
     </DescriptionsItem>
     <DescriptionsItem Title="Egg">
         @* TODO fix switch of the egg status.. weird behaviour between hatch counter and friendship values *@
-        <Switch Disabled Value="Egg.IsEgg" OnChange="HandleIsEggSwitched"/>
+        <Switch Value="Egg.IsEgg" OnChange="HandleIsEggSwitched"/>
     </DescriptionsItem>
     <DescriptionsItem Title="Infected">
         <Switch Disabled Value="Pokemon.Flags.IsInfected" OnChange="f => Pokemon.Flags.IsInfected = f"/>
@@ -52,12 +74,14 @@
 
     private Egg Egg => Pokemon.Egg;
 
+    private TypographyEditableConfig _editableNickname = default!;
     private TypographyEditableConfig _editableLevel = default!;
     private TypographyEditableConfig _editableFriendship = default!;
     private TypographyEditableConfig _editableHatchCounter = default!;
 
     protected override void OnInitialized()
     {
+        _editableNickname = new() { Text = Pokemon.Nickname, OnChange = (v) => HandleNickNameChanged(v) };
         _editableLevel = new() { Text = Pokemon.Level.ToString(), OnChange = (v) => HandleLevelChange(v) };
         _editableFriendship = new() { Text = Pokemon.Friendship.ToString(), OnChange = (v) => HandleFriendshipChange(v) };
         _editableHatchCounter = new() { Text = Pokemon.Egg.HatchCounter?.ToString(), OnChange = (v) => HandleHatchCounterChange(v) };
@@ -100,10 +124,29 @@
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 
-    private void HandleIsEggSwitched(bool isEgg)
+    private Task HandleIsEggSwitched(bool isEgg)
     {
         Egg.IsEgg = isEgg;
-        Egg.HatchCounter = 1;
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleNickNameChanged(string? nickname)
+    {
+        Pokemon.ChangeNickname(nickname?.Trim() ?? string.Empty);
+        _editableNickname.Text = Pokemon.Nickname;
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleFormChanged(short arg)
+    {
+        Pokemon.Form = arg;
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleNatureChanged(Nature nature)
+    {
+        Pokemon.Natures.ChangeAll(nature);
+        return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 
 }

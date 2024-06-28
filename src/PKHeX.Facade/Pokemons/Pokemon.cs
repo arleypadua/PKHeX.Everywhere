@@ -7,8 +7,10 @@ namespace PKHeX.Facade.Pokemons;
 public class Pokemon(PKM pokemon, Game game)
 {
     // for some reflection
-    public Pokemon() : this(default!, default!) { }
-    
+    public Pokemon() : this(default!, default!)
+    {
+    }
+
     public PKM Pkm => pokemon;
     public Game Game => game;
 
@@ -21,12 +23,21 @@ public class Pokemon(PKM pokemon, Game game)
     public EntityId Id => new(Pkm.TID16, Pkm.SID16);
     public uint PID => Pkm.PID;
     public Species Species => (Species)pokemon.Species;
+    public PokemonTypes Types => new(pokemon);
     public string Nickname => pokemon.Nickname;
 
     public bool NicknameSet =>
         !pokemon.Nickname.Equals(Species.Name(), StringComparison.InvariantCultureIgnoreCase);
+
     public int Level => pokemon.CurrentLevel;
     public PokemonNature Natures => new(pokemon);
+
+    public short Form
+    {
+        get => pokemon.Form;
+        set => pokemon.Form = (byte)value;
+    }
+
     public Stats EVs => Stats.EvFrom(pokemon);
     public Stats IVs => Stats.IvFrom(pokemon);
     public Stats BaseStats => Stats.BaseFrom(pokemon);
@@ -38,6 +49,7 @@ public class Pokemon(PKM pokemon, Game game)
     public bool IsShiny => pokemon.IsShiny;
     public ItemDefinition HeldItem => game.ItemRepository.GetItem(pokemon.HeldItem);
     public AbilityDefinition Ability => AbilityRepository.Instance.Get(pokemon.Ability);
+
     public int Friendship
     {
         get => pokemon.CurrentFriendship;

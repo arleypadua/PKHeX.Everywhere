@@ -1,5 +1,4 @@
 @page "/pokemon/{PartyOrBox}/{Pid}"
-@using PokemonMetConditions = PKHeX.Web.Components.PokemonMetConditions
 @inject NavigationManager Navigation
 
 @if (Pokemon is not null)
@@ -27,7 +26,9 @@
                 <PokemonMetConditions Pokemon="Pokemon" OnPokemonChanged="HandlePokemonChange" />
             </TabPane>
             <TabPane Tab="Stats" Key="Stats">
-                <h1>Stats</h1>
+                <PokemonStats 
+                    Pokemon="Pokemon"
+                    OnPokemonChanged="HandlePokemonChange"/>
             </TabPane>
             <TabPane Tab="Moves" Key="Moves">
                 <h1>Moves</h1>

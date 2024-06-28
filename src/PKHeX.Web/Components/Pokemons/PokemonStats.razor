@@ -1,0 +1,99 @@
+@using System.Reflection
+@using PKHeX.Core
+@inject AntdThemeService ThemeService
+
+<Space Style="gap: 20px;" Wrap>
+    @foreach (var description in Descriptions)
+    {
+        <Descriptions Bordered Title="@description.Key" Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
+            <DescriptionsItem Title="Base">
+                @InputFor(@description.Value.GetBase, @description.Value.SetBase)
+            </DescriptionsItem>
+            <DescriptionsItem Title="IV">
+                @InputFor(@description.Value.GetIv, @description.Value.SetIv)
+            </DescriptionsItem>
+            <DescriptionsItem Title="EV">
+                @InputFor(@description.Value.GetEv, @description.Value.SetEv)
+            </DescriptionsItem>
+        </Descriptions>
+    }
+
+    @if (Pokemon.BaseStats.CombatPower is not null)
+    {
+        <Descriptions Bordered Title="Extra" Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
+            <DescriptionsItem Title="CP">
+                <AntDesign.InputNumber
+                    TValue="int"
+                    Value="Pokemon.BaseStats.CombatPower.Value"
+                    OnChange="v => HandleStatChange(_ => Pokemon.BaseStats.CombatPower = v, v)"/>
+                <Button
+                    OnClick="HandleResetCPClick">
+                    Re-calculate
+                </Button>
+
+            </DescriptionsItem>
+        </Descriptions>
+    }
+</Space>
+
+@code {
+    [Parameter] public required Pokemon Pokemon { get; set; }
+    [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
+
+    private RenderFragment InputFor(Func<int> get, Action<int> set)
+    {
+        return
+            @<AntDesign.InputNumber
+                 TValue="int"
+                 Value="get()"
+                 OnChange="(v) => HandleStatChange(set, v)"/>;
+    }
+
+    private Task HandleStatChange(Action<int> set, int value)
+    {
+        set(value);
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleResetCPClick()
+    {
+        if (Pokemon.Pkm is ICombatPower combatPower)
+        {
+            combatPower.ResetCP();
+            return OnPokemonChanged.InvokeAsync(Pokemon);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Dictionary<string, DescriptionRecord> Descriptions => new()
+    {
+        { "HP", new(Pokemon, _health) },
+        { "Attack", new(Pokemon, _attack) },
+        { "Defense", new(Pokemon, _defense) },
+        { "Special Attack", new(Pokemon, _specialAttack) },
+        { "Special Defense", new(Pokemon, _specialDefense) },
+        { "Speed", new(Pokemon, _speed) },
+        { "Total", new(Pokemon, _total, true) },
+    };
+
+    record DescriptionRecord(Pokemon Pokemon, PropertyInfo Property, bool ReadOnly = false)
+    {
+        public int GetBase() => Property.GetValue(Pokemon.BaseStats) as int? ?? 0;
+        public int GetIv() => Property.GetValue(Pokemon.IVs) as int? ?? 0;
+        public int GetEv() => Property.GetValue(Pokemon.EVs) as int? ?? 0;
+
+        public void SetBase(int value) => Property.SetValue(Pokemon.BaseStats, value);
+        public void SetIv(int value) => Property.SetValue(Pokemon.IVs, value);
+        public void SetEv(int value) => Property.SetValue(Pokemon.EVs, value);
+    };
+
+    private PropertyInfo _attack = typeof(Stats).GetProperty(nameof(Stats.Attack))!;
+    private PropertyInfo _defense = typeof(Stats).GetProperty(nameof(Stats.Defense))!;
+    private PropertyInfo _specialAttack = typeof(Stats).GetProperty(nameof(Stats.SpecialAttack))!;
+    private PropertyInfo _specialDefense = typeof(Stats).GetProperty(nameof(Stats.SpecialDefense))!;
+    private PropertyInfo _health = typeof(Stats).GetProperty(nameof(Stats.Health))!;
+    private PropertyInfo _speed = typeof(Stats).GetProperty(nameof(Stats.Speed))!;
+    private PropertyInfo _total = typeof(Stats).GetProperty(nameof(Stats.Total))!;
+    private PropertyInfo _cp = typeof(Stats).GetProperty(nameof(Stats.CombatPower))!;
+}

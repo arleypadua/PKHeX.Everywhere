@@ -12,30 +12,25 @@
         EnableSearch
         EnableVirtualization>
     <LabelTemplate>
-        <Space Style="gap: 5px">
-            <ItemIcon Item="@context"/> <span>@context.Name</span>
-        </Space>
-
+        @RenderItem(context)
     </LabelTemplate>
     <ItemTemplate>
-        <Space Style="gap: 5px">
-            <ItemIcon Item="@context"/> <span>@context.Name</span>
-        </Space>
+        @RenderItem(context)
     </ItemTemplate>
 </Select>
 
 @code {
-    [Parameter] public required IEnumerable<ItemDefinition> Items { get; set; }
-    [Parameter] public HashSet<ItemDefinition> IllegalItems { get; set; } = new();
+    [Parameter] public required ISet<ItemDefinition> Items { get; set; }
+    [Parameter] public ISet<ItemDefinition>? LegalItems { get; set; } = null;
 
     [Parameter] public ushort? SelectedItemId { get; set; }
     [Parameter] public EventCallback<ItemDefinition> SelectedItemChanged { get; set; }
 
     RenderFragment RenderItem(ItemDefinition item)
     {
-        var legalItem = IllegalItems.Contains(item)
-            ? "item_selector__item_template__illegal"
-            : string.Empty;
+        var legalItem = LegalItems == null || LegalItems.Contains(item)
+            ? string.Empty
+            : "item_selector__item_template__illegal";
         
         return
             @<Space Style="gap: 5px;" Class="@legalItem">
@@ -45,9 +40,8 @@
 
 }
 
-<!--suppress CssUnresolvedCustomProperty -->
 <style>
     .item_selector__item_template__illegal {
-        background-color: var(--ant-error-color);
+        color: #5e2e24;
     }
 </style>
