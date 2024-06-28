@@ -45,7 +45,7 @@ else
 
     private async Task OpenDemo()
     {
-        var testData = await HttpClient.GetByteArrayAsync("https://raw.githubusercontent.com/arleypadua/PKheX.CLI/master/src/PKHeX.Facade.Tests/data/savedata_1.sav");
+        var testData = await HttpClient.GetByteArrayAsync("https://github.com/projectpokemon/ProjectCompleteDexSaves/raw/master/Gen%204%20-%20Pokemon%20SoulSilver%20(ENG).sav");
         GameService.Load(testData, "savedata_1.sav");
         Navigation.NavigateTo($"/");
     }
