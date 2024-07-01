@@ -1,0 +1,68 @@
+@using PKHeX.Facade.Repositories
+@inject AntdThemeService ThemeService
+
+<Space Style="gap: 20px; width: 100%" Direction="DirectionVHType.Vertical" Wrap>
+    <Descriptions Bordered Title="Move 1" Column="@ThemeService.ColumnsConfiguration" Size="small">
+        <DescriptionsItem Title="Move" Style="max-width: 250px">
+            <MoveSelect
+                Moves="PossibleMoves"
+                SelectedMoveId="Pokemon.Move1.Move.Id"
+                SelectedMoveChanged="(newMove) => HandleMoveChange(PokemonMove.MoveIndex.Move1, newMove)"/>
+        </DescriptionsItem>
+        <DescriptionsItem Title="PP">@Pokemon.Move1.PP</DescriptionsItem>
+    </Descriptions>
+
+
+    <Descriptions Bordered Title="Move 2" Column="@ThemeService.ColumnsConfiguration" Size="small">
+        <DescriptionsItem Title="Move" Style="max-width: 250px">
+            <MoveSelect
+                Moves="PossibleMoves"
+                SelectedMoveId="Pokemon.Move2.Move.Id"
+                SelectedMoveChanged="(newMove) => HandleMoveChange(PokemonMove.MoveIndex.Move2, newMove)"/>
+        </DescriptionsItem>
+        <DescriptionsItem Title="PP">@Pokemon.Move2.PP</DescriptionsItem>
+    </Descriptions>
+
+
+    <Descriptions Bordered Title="Move 3" Column="@ThemeService.ColumnsConfiguration" Size="small">
+        <DescriptionsItem Title="Move" Style="max-width: 250px">
+            <MoveSelect
+                Moves="PossibleMoves"
+                SelectedMoveId="Pokemon.Move3.Move.Id"
+                SelectedMoveChanged="(newMove) => HandleMoveChange(PokemonMove.MoveIndex.Move3, newMove)"/>
+        </DescriptionsItem>
+        <DescriptionsItem Title="PP">@Pokemon.Move3.PP</DescriptionsItem>
+    </Descriptions>
+
+    <Descriptions Bordered Title="Move 4" Column="@ThemeService.ColumnsConfiguration" Size="small">
+        <DescriptionsItem Title="Move" Style="max-width: 250px">
+            <MoveSelect
+                Moves="PossibleMoves"
+                SelectedMoveId="Pokemon.Move4.Move.Id"
+                SelectedMoveChanged="(newMove) => HandleMoveChange(PokemonMove.MoveIndex.Move4, newMove)"/>
+        </DescriptionsItem>
+        <DescriptionsItem Title="PP">@Pokemon.Move4.PP</DescriptionsItem>
+    </Descriptions>
+
+</Space>
+
+@code {
+    [Parameter] public required Pokemon Pokemon { get; set; }
+    [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
+
+    private IList<ushort> AlreadyAssigned => Pokemon.Moves
+        .Where(m => m.Value.Move != MoveDefinition.None)
+        .Select(m => m.Value.Move.Id)
+        .ToList();
+
+    private IEnumerable<MoveDefinition> PossibleMoves => MoveRepository.Instance.PossibleMovesFor(Pokemon)
+        .Where(m => !AlreadyAssigned.Contains(m.Id))
+        .Append(MoveDefinition.None);
+
+    private Task HandleMoveChange(PokemonMove.MoveIndex index, MoveDefinition move)
+    {
+        Pokemon.ChangeMove(index, move);
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+}
