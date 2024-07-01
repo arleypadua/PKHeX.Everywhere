@@ -1,0 +1,30 @@
+@using PKHeX.Core
+@using PKHeX.Facade.Repositories
+
+<Select TItem="FormDefinition"
+        TItemValue="ushort?"
+        DataSource="@Items"
+        @bind-Value="@SelectedFormId"
+        OnSelectedItemChanged="SelectedFormChanged"
+        LabelName="@nameof(FormDefinition.Name)"
+        ValueName="@nameof(FormDefinition.Id)"
+        Placeholder="Select an item"
+        DefaultActiveFirstOption="false"
+        EnableSearch
+        EnableVirtualization>
+    <LabelTemplate>
+        @context.Name
+    </LabelTemplate>
+    <ItemTemplate>
+        @context.Name
+    </ItemTemplate>
+</Select>
+
+@code {
+    [Parameter] public required Pokemon Pokemon { get; set; }
+
+    [Parameter] public ushort? SelectedFormId { get; set; }
+    [Parameter] public EventCallback<FormDefinition> SelectedFormChanged { get; set; }
+    
+    private IEnumerable<FormDefinition> Items => FormRepository.GetFor(Pokemon);
+}

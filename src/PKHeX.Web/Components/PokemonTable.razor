@@ -9,7 +9,7 @@
     Responsive
     EnableVirtualization>
     <PropertyColumn Title="" Property="@(c => c.Species)">
-        <PokemonIcon Species="@context.Species"/>
+        <PokemonIcon Species="@context.Species" Form="@context.Form.Form" />
     </PropertyColumn>
     <PropertyColumn Title="Name" Property="@(c => c.Species.Name())" Sortable Filterable/>
     <PropertyColumn Title="Level" Property="c => c.Level" Sortable Filterable></PropertyColumn>
