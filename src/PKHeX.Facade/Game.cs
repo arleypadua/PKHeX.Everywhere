@@ -1,5 +1,6 @@
 ﻿using PKHeX.Facade.Repositories;
 using PKHeX.Core;
+using PKHeX.Core.Saves.Encryption.Providers;
 
 namespace PKHeX.Facade;
 
@@ -30,9 +31,9 @@ public class Game
         return new Game(saveFile);
     }
 
-    public static Game LoadFrom(byte[] bytes, string? path = null)
+    public static Game LoadFrom(byte[] bytes, string? path = null, IAesCryptographyProvider? aesProvider = null)
     {
-        var saveFile = SaveUtil.GetVariantSAV(bytes, path)
+        var saveFile = SaveUtil.GetVariantSAV(bytes, path, (cfg) => { cfg.AesProvider = aesProvider; })
                        ?? throw new InvalidOperationException($"The file at {path} did not load into a save file.");
 
         return new Game(saveFile);

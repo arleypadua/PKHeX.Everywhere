@@ -11,6 +11,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddSingleton<GameService>();
 builder.Services.AddSingleton<JsService>();
 builder.Services.AddSingleton<AntdThemeService>();
+builder.Services.AddSingleton<BlazorAesProvider>();
 
 builder.Services.AddAntDesign();
 
