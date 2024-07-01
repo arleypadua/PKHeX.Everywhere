@@ -32,11 +32,7 @@ public class Pokemon(PKM pokemon, Game game)
     public int Level => pokemon.CurrentLevel;
     public PokemonNature Natures => new(pokemon);
 
-    public short Form
-    {
-        get => pokemon.Form;
-        set => pokemon.Form = (byte)value;
-    }
+    public PokemonForm Form => new(pokemon);
 
     public Stats EVs => Stats.EvFrom(pokemon);
     public Stats IVs => Stats.IvFrom(pokemon);

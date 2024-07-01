@@ -1,4 +1,5 @@
 @using PKHeX.Core
+@using PKHeX.Facade.Repositories
 @inject AntdThemeService ThemeService
 
 <Descriptions Bordered Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
@@ -31,15 +32,17 @@
         <NatureSelect 
             SelectedNature="Pokemon.Natures.Nature"
             SelectedNatureChanged="HandleNatureChanged"
-            />
+        />
     </DescriptionsItem>
-    <DescriptionsItem Title="Form">
-        <AntDesign.InputNumber
-            TValue="short"
-            Value="Pokemon.Form"
-            OnChange="HandleFormChanged"
-            />
-    </DescriptionsItem>
+    @if (Pokemon.Form.HasForm)
+    {
+        <DescriptionsItem Title="Form">
+            <FormSelect 
+                Pokemon="Pokemon"
+                SelectedFormId="Pokemon.Form.Form?.Id"
+                SelectedFormChanged="HandleFormChanged"/>
+        </DescriptionsItem>
+    }
     <DescriptionsItem Title="Held Item">
         @Pokemon.HeldItem.Name
     </DescriptionsItem>
@@ -137,9 +140,9 @@
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 
-    private Task HandleFormChanged(short arg)
+    private Task HandleFormChanged(FormDefinition form)
     {
-        Pokemon.Form = arg;
+        Pokemon.Form.Form = form;
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 

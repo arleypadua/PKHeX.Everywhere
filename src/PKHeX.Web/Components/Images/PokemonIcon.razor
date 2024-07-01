@@ -1,12 +1,19 @@
 @using PKHeX.Core
+@using PKHeX.Facade.Repositories
 
 <Image Src="@ContentUrl()" Preview="false"></Image>
 
 @code {
     [Parameter] public Species Species { get; set; }
-    [Parameter] public bool AnimateOnHover { get; set; } = true;
+    [Parameter] public FormDefinition? Form { get; set; }
+    
+    private string ContentUrl() => $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/{Species.Id()}{FormPostFix()}.png";
 
-    string AnimateClass => AnimateOnHover ? "hover-animate" : string.Empty;
+    private string FormPostFix() => Form switch
+    {
+        { IsAlolan: true } => "-alola",
+        { IsGalarian: true } => "-galar",
+        _ => string.Empty
+    };
 
-    private string ContentUrl() => $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/{Species.Id()}.png";
 }

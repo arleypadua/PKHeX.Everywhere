@@ -1,0 +1,45 @@
+@using PKHeX.Facade.Repositories
+
+@{
+    Console.WriteLine(SelectedMoveId);
+}
+
+<Select TItem="MoveDefinition"
+        TItemValue="ushort"
+        DataSource="@InternalMoves()"
+        @bind-Value="@SelectedMoveId"
+        OnSelectedItemChanged="SelectedMoveChanged"
+        LabelName="@nameof(MoveDefinition.Name)"
+        ValueName="@nameof(MoveDefinition.Id)"
+        Placeholder="Move"
+        DefaultActiveFirstOption="false"
+        EnableSearch
+        EnableVirtualization>
+    <LabelTemplate>
+        @context.Name
+    </LabelTemplate>
+    <ItemTemplate>
+        @context.Name
+    </ItemTemplate>
+</Select>
+
+@code {
+    [Parameter] public required IEnumerable<MoveDefinition> Moves { get; set; }
+    [Parameter] public ushort SelectedMoveId { get; set; }
+    [Parameter] public EventCallback<MoveDefinition> SelectedMoveChanged { get; set; }
+
+    private IEnumerable<MoveDefinition> InternalMoves()
+    {
+        if (SelectedMoveId == MoveDefinition.None.Id) return Moves;
+
+        var currentMove = MoveRepository.Instance.GetMove(SelectedMoveId);
+        List<MoveDefinition> listWithSelf =
+        [
+            currentMove
+        ];
+        listWithSelf.AddRange(Moves);
+
+        return listWithSelf;
+    }
+
+}
