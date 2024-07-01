@@ -62,4 +62,9 @@ public class JsService(IJSRuntime js)
 
         return bytes;
     }
+
+    public byte[] Md5Hash(byte[] toArray)
+    {
+        return SyncJs.Invoke<byte[]>("md5Hash", toArray);
+    }
 }

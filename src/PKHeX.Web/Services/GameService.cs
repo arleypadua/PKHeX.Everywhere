@@ -2,7 +2,7 @@ using PKHeX.Facade;
 
 namespace PKHeX.Web.Services;
 
-public class GameService(BlazorAesProvider aesProvider)
+public class GameService
 {
     public Game? Game { get; private set; }
     public string? FileName { get; private set; }
@@ -13,7 +13,7 @@ public class GameService(BlazorAesProvider aesProvider)
 
     public void Load(byte[] bytes, string fileName)
     {
-        Game = Game.LoadFrom(bytes, fileName, aesProvider);
+        Game = Game.LoadFrom(bytes, fileName);
         FileName = fileName;
 
         if (OnGameLoaded is not null)

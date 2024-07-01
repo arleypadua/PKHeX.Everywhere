@@ -31,9 +31,9 @@ public class Game
         return new Game(saveFile);
     }
 
-    public static Game LoadFrom(byte[] bytes, string? path = null, IAesCryptographyProvider? aesProvider = null)
+    public static Game LoadFrom(byte[] bytes, string? path = null)
     {
-        var saveFile = SaveUtil.GetVariantSAV(bytes, path, (cfg) => { cfg.AesProvider = aesProvider; })
+        var saveFile = SaveUtil.GetVariantSAV(bytes, path)
                        ?? throw new InvalidOperationException($"The file at {path} did not load into a save file.");
 
         return new Game(saveFile);
