@@ -1,0 +1,114 @@
+@page "/pokemon/{UniqueIdString}/clone"
+@inject NavigationManager Navigation
+@inject INotificationService Notification
+
+@if (_pokemon is not null)
+{
+    <Space Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
+        <PageHeader BackIcon="true" Style="max-width: 100%">
+            <TitleTemplate>Pokemon</TitleTemplate>
+
+            <PageHeaderExtra>
+                <Space Style="width: 100%;" Align="center" Direction="DirectionVHType.Vertical">
+                    <PokemonImage
+                        Species="@_pokemon.Species"
+                        IsShiny="@_pokemon.IsShiny"/>
+                </Space>
+            </PageHeaderExtra>
+        </PageHeader>
+
+        <PokemonLegalityBanner @ref="_legalityBanner" Pokemon="_pokemon"/>
+
+        <Tabs @bind-ActiveKey="@_activeTab" DefaultActiveKey="Description" Class="tab-scrollable" Animated>
+            <TabPane Tab="Description" Key="Description">
+                <PokemonDescription Pokemon="_pokemon" OnPokemonChanged="HandlePokemonChange"/>
+            </TabPane>
+            <TabPane Tab="Met Conditions" Key="Met Conditions">
+                <PokemonMetConditions Pokemon="_pokemon" OnPokemonChanged="HandlePokemonChange"/>
+            </TabPane>
+            <TabPane Tab="Stats" Key="Stats">
+                <PokemonStats
+                    Pokemon="_pokemon"
+                    OnPokemonChanged="HandlePokemonChange"/>
+            </TabPane>
+            <TabPane Tab="Moves" Key="Moves">
+                <PokemonMoves
+                    Pokemon="_pokemon"
+                    OnPokemonChanged="HandlePokemonChange"/>
+            </TabPane>
+        </Tabs>
+        <Space Align="end" Style="width: 100%" Direction="DirectionVHType.Vertical">
+            <Button
+                Type="@ButtonType.Primary"
+                OnClick="HandleAddToBoxClick">Add to box</Button>
+        </Space>
+    </Space>
+}
+
+@code {
+    [Inject] public required GameService GameService { get; set; }
+    [Inject] public required IJSRuntime Js { get; set; }
+
+    [Parameter] public required string UniqueIdString { get; set; }
+
+    private UniqueId UniqueId => UniqueId.From(UniqueIdString);
+
+    private Pokemon? _pokemon;
+
+    private string _activeTab = default!;
+    private PokemonLegalityBanner _legalityBanner = default!;
+
+    void HandlePokemonChange(Pokemon changedPokemon)
+    {
+        _legalityBanner.Refresh();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var pokemon = GameService.Game?.FindPokemon(UniqueId);
+        if (pokemon is null)
+        {
+            await Js.InvokeVoidAsync("history.back");
+            return;
+        }
+
+        _pokemon = pokemon.MakeCopy();
+    }
+
+    private async Task HandleAddToBoxClick()
+    {
+        if (_pokemon is null) return;
+        
+        var game = GameService.Game!;
+        var added = game.Trainer.PokemonBox.AddOnEmptySlot(_pokemon);
+        
+        if (added)
+        {
+            _ = Notification.Open(new NotificationConfig
+            {
+                Message = $"{_pokemon.Species.Name()} Cloned",
+                Description = $"{_pokemon.Species.Name()} added to your box",
+                NotificationType = NotificationType.Success
+            });
+            
+            Navigation.NavigateToPokemonBox(replace: true);
+            Navigation.NavigateToPokemon(PokemonSource.Box, _pokemon.UniqueId);
+        }
+        else
+        {
+            await Notification.Open(new NotificationConfig
+            {
+                Message = "Fail to add",
+                Description = "Your pokemon box is full.",
+                NotificationType = NotificationType.Error
+            });
+        }
+    }
+
+}
+
+<style>
+    .pokemon_page__heading_extra__grow .ant-page-header-heading-extra {
+        flex-grow: 1;
+    }
+</style>

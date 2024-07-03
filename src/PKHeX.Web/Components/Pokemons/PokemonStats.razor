@@ -15,6 +15,12 @@
             <DescriptionsItem Title="EV">
                 @InputFor(@description.Value.GetEv, @description.Value.SetEv, @description.Value.ReadOnly)
             </DescriptionsItem>
+            @if (Pokemon.AVs != null)
+            {
+                <DescriptionsItem Title="AV">
+                    @InputFor(@description.Value.GetAv, @description.Value.SetAv, @description.Value.ReadOnly)
+                </DescriptionsItem>   
+            }
         </Descriptions>
     }
 
@@ -27,7 +33,7 @@
                     Value="Pokemon.BaseStats.CombatPower.Value"
                     OnChange="v => HandleStatChange(_ => Pokemon.BaseStats.CombatPower = v, v)"/>
                 <Button
-                    OnClick="HandleResetCPClick">
+                    OnClick="HandleResetCpClick">
                     Re-calculate
                 </Button>
 
@@ -50,13 +56,14 @@
                  OnChange="(v) => HandleStatChange(set, v)"/>;
     }
 
-    private Task HandleStatChange(Action<int> set, int value)
+    private async Task HandleStatChange(Action<int> set, int value)
     {
         set(value);
-        return OnPokemonChanged.InvokeAsync(Pokemon);
+        await HandleResetCpClick();
+        await OnPokemonChanged.InvokeAsync(Pokemon);
     }
 
-    private Task HandleResetCPClick()
+    private Task HandleResetCpClick()
     {
         if (Pokemon.Pkm is ICombatPower combatPower)
         {
@@ -83,10 +90,12 @@
         public int GetBase() => Property.GetValue(Pokemon.BaseStats) as int? ?? 0;
         public int GetIv() => Property.GetValue(Pokemon.IVs) as int? ?? 0;
         public int GetEv() => Property.GetValue(Pokemon.EVs) as int? ?? 0;
+        public int GetAv() => Property.GetValue(Pokemon.AVs) as int? ?? 0;
 
         public void SetBase(int value) => Property.SetValue(Pokemon.BaseStats, value);
         public void SetIv(int value) => Property.SetValue(Pokemon.IVs, value);
         public void SetEv(int value) => Property.SetValue(Pokemon.EVs, value);
+        public void SetAv(int value) => Property.SetValue(Pokemon.AVs, value);
     };
 
     private PropertyInfo _attack = typeof(Stats).GetProperty(nameof(Stats.Attack))!;

@@ -38,6 +38,7 @@ public class Pokemon(PKM pokemon, Game game)
     public Stats EVs => Stats.EvFrom(pokemon);
     public Stats IVs => Stats.IvFrom(pokemon);
     public Stats BaseStats => Stats.BaseFrom(pokemon);
+    public Stats? AVs => pokemon is IAwakened ? Stats.AvFrom(pokemon) : null; 
     public PokemonMove Move1 => new(pokemon, PokemonMove.MoveIndex.Move1);
     public PokemonMove Move2 => new(pokemon, PokemonMove.MoveIndex.Move2);
     public PokemonMove Move3 => new(pokemon, PokemonMove.MoveIndex.Move3);
@@ -101,5 +102,25 @@ public class Pokemon(PKM pokemon, Game game)
 
         pokemon.SetMoves(newMoveSet);
         pokemon.FixMoves();
+    }
+
+    public Pokemon MakeCopy()
+    {
+        var underlyingPkm = Pkm.Clone();
+        underlyingPkm.ClearNickname();
+        
+        var isShiny = underlyingPkm.IsShiny;
+        
+        // re-roll the pid
+        underlyingPkm.PID = EntityPID.GetRandomPID(Random.Shared, underlyingPkm.Species, underlyingPkm.Gender,
+            underlyingPkm.Version, underlyingPkm.Nature, underlyingPkm.Form, underlyingPkm.PID);
+
+        if (isShiny)
+        {
+            // because re-rolling may void the shiny status, we are making it shiny again
+            underlyingPkm.SetIsShiny(true);
+        }
+
+        return new Pokemon(underlyingPkm, Game);
     }
 }

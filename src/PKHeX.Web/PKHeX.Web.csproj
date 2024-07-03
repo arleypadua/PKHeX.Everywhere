@@ -32,4 +32,8 @@
       <AdditionalFiles Include="Components\Selects\ItemSelect.razor" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Model\" />
+    </ItemGroup>
+
 </Project>

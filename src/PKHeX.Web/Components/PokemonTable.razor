@@ -1,4 +1,3 @@
-@using PKHeX.Web.Model
 @inject NavigationManager Navigation
 
 <Table
@@ -17,12 +16,19 @@
     <PropertyColumn Title="Name" Property="@(c => c.Species.Name())" Sortable Filterable/>
     <PropertyColumn Title="Level" Property="c => c.Level" Sortable Filterable></PropertyColumn>
     <ActionColumn Title="Action">
-        <Space Size=@("middle")>
+        <Space Size=@("small")>
             <SpaceItem>
                 <Button
                     Type="@ButtonType.Link"
                     OnClick='() => Navigation.NavigateToPokemon(Source, context.UniqueId)'>
                     View
+                </Button>
+            </SpaceItem>
+            <SpaceItem>
+                <Button
+                    Type="@ButtonType.Link"
+                    OnClick='() => Navigation.NavigateToNewCloneOf(context.UniqueId)'>
+                    Clone
                 </Button>
             </SpaceItem>
         </Space>

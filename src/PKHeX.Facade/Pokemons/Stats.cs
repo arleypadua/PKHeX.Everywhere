@@ -4,6 +4,8 @@ namespace PKHeX.Facade.Pokemons;
 
 public record Stats(PKM Pokemon, Stats.StatsType Type)
 {
+    private IAwakened? _awakened => Pokemon is IAwakened awakened ? awakened : null;
+    
     public int Attack
     {
         get => Type switch
@@ -11,6 +13,7 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
             StatsType.Base => Pokemon.Stat_ATK,
             StatsType.EV => Pokemon.EV_ATK,
             StatsType.IV => Pokemon.IV_ATK,
+            StatsType.AV => _awakened?.AV_ATK ?? 0,
             _ => throw new InvalidOperationException($"stats type {Type} not supported"),
         };
         set => _ = Type switch
@@ -18,6 +21,7 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
             StatsType.Base => Pokemon.Stat_ATK = value,
             StatsType.EV => Pokemon.EV_ATK = value,
             StatsType.IV => Pokemon.IV_ATK = value,
+            StatsType.AV => _awakened!.AV_ATK = (byte)value,
             _ => throw new InvalidOperationException($"stats type {Type} not supported"),
         };
     }
@@ -29,6 +33,7 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
             StatsType.Base => Pokemon.Stat_DEF,
             StatsType.EV => Pokemon.EV_DEF,
             StatsType.IV => Pokemon.IV_DEF,
+            StatsType.AV => _awakened?.AV_DEF ?? 0,
             _ => throw new InvalidOperationException($"stats type {Type} not supported"),
         };
         set => _ = Type switch
@@ -36,6 +41,7 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
             StatsType.Base => Pokemon.Stat_DEF = value,
             StatsType.EV => Pokemon.EV_DEF = value,
             StatsType.IV => Pokemon.IV_DEF = value,
+            StatsType.AV => _awakened!.AV_DEF = (byte)value,
             _ => throw new InvalidOperationException($"stats type {Type} not supported"),
         };
     }
@@ -47,6 +53,7 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
             StatsType.Base => Pokemon.Stat_SPA,
             StatsType.EV => Pokemon.EV_SPA,
             StatsType.IV => Pokemon.IV_SPA,
+            StatsType.AV => _awakened?.AV_SPA ?? 0,
             _ => throw new InvalidOperationException($"stats type {Type} not supported"),
         };
         set => _ = Type switch
@@ -54,6 +61,7 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
             StatsType.Base => Pokemon.Stat_SPA = value,
             StatsType.EV => Pokemon.EV_SPA = value,
             StatsType.IV => Pokemon.IV_SPA = value,
+            StatsType.AV => _awakened!.AV_SPA = (byte)value,
             _ => throw new InvalidOperationException($"stats type {Type} not supported"),
         };
     }
@@ -65,6 +73,7 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
             StatsType.Base => Pokemon.Stat_SPD,
             StatsType.EV => Pokemon.EV_SPD,
             StatsType.IV => Pokemon.IV_SPD,
+            StatsType.AV => _awakened?.AV_SPD ?? 0,
             _ => throw new InvalidOperationException($"stats type {Type} not supported"),
         };
         set => _ = Type switch
@@ -72,6 +81,7 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
             StatsType.Base => Pokemon.Stat_SPD = value,
             StatsType.EV => Pokemon.EV_SPD = value,
             StatsType.IV => Pokemon.IV_SPD = value,
+            StatsType.AV => _awakened!.AV_SPD = (byte)value,
             _ => throw new InvalidOperationException($"stats type {Type} not supported"),
         };
     }
@@ -83,6 +93,7 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
             StatsType.Base => Pokemon.Stat_HPMax,
             StatsType.EV => Pokemon.EV_HP,
             StatsType.IV => Pokemon.IV_HP,
+            StatsType.AV => _awakened?.AV_HP ?? 0,
             _ => throw new InvalidOperationException($"stats type {Type} not supported"),
         };
         set => _ = Type switch
@@ -90,6 +101,7 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
             StatsType.Base => Pokemon.Stat_HPMax = value,
             StatsType.EV => Pokemon.EV_HP = value,
             StatsType.IV => Pokemon.IV_HP = value,
+            StatsType.AV => _awakened!.AV_HP = (byte)value,
             _ => throw new InvalidOperationException($"stats type {Type} not supported"),
         };
     }
@@ -101,6 +113,7 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
             StatsType.Base => Pokemon.Stat_SPE,
             StatsType.EV => Pokemon.EV_SPE,
             StatsType.IV => Pokemon.IV_SPE,
+            StatsType.AV => _awakened?.AV_SPE ?? 0,
             _ => throw new InvalidOperationException($"stats type {Type} not supported"),
         };
         set => _ = Type switch
@@ -108,6 +121,7 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
             StatsType.Base => Pokemon.Stat_SPE = value,
             StatsType.EV => Pokemon.EV_SPE = value,
             StatsType.IV => Pokemon.IV_SPE = value,
+            StatsType.AV => _awakened!.AV_SPE = (byte)value,
             _ => throw new InvalidOperationException($"stats type {Type} not supported"),
         };
     }
@@ -137,10 +151,12 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
     {
         Base,
         EV,
-        IV
+        IV,
+        AV,
     }
 
     public static Stats EvFrom(PKM pokemon) => new (pokemon, StatsType.EV);
     public static Stats IvFrom(PKM pokemon) => new (pokemon, StatsType.IV);
+    public static Stats AvFrom(PKM pokemon) => new (pokemon, StatsType.AV);
     public static Stats BaseFrom(PKM pokemon) => new (pokemon, StatsType.Base);
 }

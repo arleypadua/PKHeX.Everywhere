@@ -1,10 +1,6 @@
-namespace PKHeX.Web.Model;
+using PKHeX.Facade.Pokemons;
 
-public enum PokemonSource
-{
-    Party,
-    Box
-}
+namespace PKHeX.Web.Extensions;
 
 public static class PokemonSourceExtensions
 {
