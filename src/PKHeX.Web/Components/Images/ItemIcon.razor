@@ -1,6 +1,9 @@
 @using PKHeX.Facade.Repositories
 
-<Image Src="@ContentUrl()" Style="width: 30px" Preview="false"></Image>
+@if (Item.Id != ItemDefinition.None)
+{
+    <Image Src="@ContentUrl()" Style="width: 30px" Preview="false"></Image>
+}
 
 @code {
     [Parameter] public required ItemDefinition Item { get; set; }

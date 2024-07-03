@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -18,40 +19,28 @@ public class JsService(IJSRuntime js)
     public ValueTask ClickOnAsync(ElementReference? element) => js.InvokeVoidAsync("HTMLElement.prototype.click.call",
         element);
 
-    public void EncryptEcb(ReadOnlySpan<byte> origin, Span<byte> destination, ReadOnlySpan<byte> key)
+    public void EncryptAes(ReadOnlySpan<byte> origin, Span<byte> destination, ReadOnlySpan<byte> key, CipherMode mode)
     {
-        if (origin.Length % 16 != 0)
-        {
-            throw new ArgumentException(
-                "Input length must be a multiple of 16 bytes for AES encryption without padding.");
-        }
-
         var originHex = BitConverter.ToString(origin.ToArray()).Replace("-", "");
         var keyHex = BitConverter.ToString(key.ToArray()).Replace("-", "");
 
-        var encryptedHex = SyncJs.Invoke<string>("encryptEcb", keyHex, originHex);
+        var encryptedHex = SyncJs.Invoke<string>("encryptAes", keyHex, originHex, mode.ToString().ToLowerInvariant());
 
         var encryptedBytes = ConvertHexStringToByteArray(encryptedHex);
         encryptedBytes.CopyTo(destination);
     }
 
-    public void DecryptEcb(ReadOnlySpan<byte> origin, Span<byte> destination, ReadOnlySpan<byte> key)
+    public void DecryptAes(ReadOnlySpan<byte> origin, Span<byte> destination, ReadOnlySpan<byte> key, CipherMode mode)
     {
-        if (origin.Length % 16 != 0)
-        {
-            throw new ArgumentException(
-                "Input length must be a multiple of 16 bytes for AES decryption without padding.");
-        }
-
         var originHex = BitConverter.ToString(origin.ToArray()).Replace("-", "");
         var keyHex = BitConverter.ToString(key.ToArray()).Replace("-", "");
 
-        var decryptedHex = SyncJs.Invoke<string>("decryptEcb", keyHex, originHex);
+        var decryptedHex = SyncJs.Invoke<string>("decryptAes", keyHex, originHex, mode.ToString().ToLowerInvariant());
 
         var decryptedBytes = ConvertHexStringToByteArray(decryptedHex);
         decryptedBytes.CopyTo(destination);
     }
-
+    
     private static byte[] ConvertHexStringToByteArray(string hex)
     {
         var bytes = new byte[hex.Length / 2];

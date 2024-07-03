@@ -10,21 +10,21 @@ window.downloadFileFromStream = async (fileName, contentStreamReference) => {
     URL.revokeObjectURL(url);
 }
 
-window.encryptEcb = function (key, data) {
+window.encryptAes = function (key, data, modeString) {
     const keyHex = CryptoJS.enc.Hex.parse(key);
     const encrypted = CryptoJS.AES.encrypt(CryptoJS.enc.Hex.parse(data), keyHex, {
-        mode: CryptoJS.mode.ECB,
+        mode: getMode(modeString),
         padding: CryptoJS.pad.NoPadding
     });
     return encrypted.ciphertext.toString(CryptoJS.enc.Hex);
 };
 
-window.decryptEcb = function (key, data) {
+window.decryptAes = function (key, data, modeString) {
     var keyHex = CryptoJS.enc.Hex.parse(key);
     var encryptedHexStr = CryptoJS.enc.Hex.parse(data);
     var encryptedBase64Str = CryptoJS.enc.Base64.stringify(encryptedHexStr);
     var decrypted = CryptoJS.AES.decrypt(encryptedBase64Str, keyHex, {
-        mode: CryptoJS.mode.ECB,
+        mode: getMode(modeString),
         padding: CryptoJS.pad.NoPadding
     });
     return decrypted.toString(CryptoJS.enc.Hex);
@@ -39,4 +39,14 @@ window.md5Hash = function (data) {
         (word >> 8) & 0xff,
         word & 0xff
     ]).flat();
+}
+
+function getMode(modeString) {
+    if (modeString === 'ecb') return CryptoJS.mode.ECB;
+    if (modeString === 'cbc') return CryptoJS.mode.CBC;
+    if (modeString === 'cfb') return CryptoJS.mode.CFB;
+    if (modeString === 'ctr') return CryptoJS.mode.CTR;
+    if (modeString === 'ofb') return CryptoJS.mode.OFB;
+    
+    throw new Error(`AES mode ${modeString} not supported.`);
 }

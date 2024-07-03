@@ -1,6 +1,5 @@
 ﻿using PKHeX.Facade.Repositories;
 using PKHeX.Core;
-using PKHeX.Core.Saves.Encryption.Providers;
 
 namespace PKHeX.Facade;
 
@@ -16,12 +15,18 @@ public class Game
         Trainer = new Trainer(this);
     }
 
-    public ItemRepository ItemRepository { get; init; }
-    public Trainer Trainer { get; init; }
+    public ItemRepository ItemRepository { get; }
+    public Trainer Trainer { get; }
 
-    public byte[] ToByteArray() => SaveFile.Write(
-        setting: SaveFile.Metadata.GetSuggestedFlags(Path.GetExtension(SaveFile.Metadata.FileName))
-    );
+    public byte[] ToByteArray()
+    {
+        // make sure pending changes make its way to the bytes of the save
+        Trainer.Commit();
+        
+        return SaveFile.Write(
+            setting: SaveFile.Metadata.GetSuggestedFlags(Path.GetExtension(SaveFile.Metadata.FileName))
+        );
+    }
 
     public static Game LoadFrom(string path)
     {

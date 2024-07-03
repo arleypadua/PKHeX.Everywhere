@@ -7,10 +7,10 @@
 
     <DescriptionsItem Title="Types">
         <Space Style="gap: 5px" Direction="DirectionVHType.Vertical" Wrap>
-            <PokemonTypeImage Types="Pokemon.Types" Index="PokemonTypeImage.TypeIndex.Primary" />
+            <PokemonTypeImage Types="Pokemon.Types" Index="PokemonTypeImage.TypeIndex.Primary"/>
             @if (Pokemon.Types.HasSecondary)
             {
-                <PokemonTypeImage Types="Pokemon.Types" Index="PokemonTypeImage.TypeIndex.Secondary" />
+                <PokemonTypeImage Types="Pokemon.Types" Index="PokemonTypeImage.TypeIndex.Secondary"/>
             }
         </Space>
     </DescriptionsItem>
@@ -23,28 +23,36 @@
         </Text>
     </DescriptionsItem>
     <DescriptionsItem Title="Shiny">
-        <Switch Value="@Pokemon.IsShiny" OnChange="HandleShinyChange" />
+        <Switch Value="@Pokemon.IsShiny" OnChange="HandleShinyChange"/>
     </DescriptionsItem>
     <DescriptionsItem Title="Level">
-        <Text Editable EditConfig="_editableLevel">@Pokemon.Level</Text>
+        <AntDesign.InputNumber
+            TValue="int"
+            Value="Pokemon.Level"
+            OnChange="HandleLevelChange"
+            Min="1"
+            Max="100"
+            DefaultValue="1"/>
     </DescriptionsItem>
     <DescriptionsItem Title="Nature">
-        <NatureSelect 
+        <NatureSelect
             SelectedNature="Pokemon.Natures.Nature"
-            SelectedNatureChanged="HandleNatureChanged"
-        />
+            SelectedNatureChanged="HandleNatureChanged"/>
     </DescriptionsItem>
     @if (Pokemon.Form.HasForm)
     {
         <DescriptionsItem Title="Form">
-            <FormSelect 
+            <FormSelect
                 Pokemon="Pokemon"
                 SelectedFormId="Pokemon.Form.Form?.Id"
                 SelectedFormChanged="HandleFormChanged"/>
         </DescriptionsItem>
     }
     <DescriptionsItem Title="Held Item">
-        @Pokemon.HeldItem.Name
+        <ItemSelect
+            Items="Pokemon.Game.ItemRepository.All"
+            SelectedItemId="Pokemon.HeldItem.Id"
+            SelectedItemChanged="HandleHeldItemChanged"/>
     </DescriptionsItem>
     <DescriptionsItem Title="Ability">
         @Pokemon.Ability.Name
@@ -54,13 +62,16 @@
             @(Egg.IsEgg ? "Hatch Counter" : "Friendship")
         </TitleTemplate>
         <ChildContent>
-            <Text Editable EditConfig="@(Egg.IsEgg ? _editableHatchCounter : _editableFriendship)">
-                @(Egg.IsEgg ? Egg.HatchCounter : Pokemon.Friendship)
-            </Text>
+            <AntDesign.InputNumber
+                TValue="int"
+                Value="@(Egg.IsEgg ? Egg.HatchCounter ?? 1 : Pokemon.Friendship)"
+                OnChange="HandleFriendshipOrHatchCounterChange"
+                Min="@(Egg.IsEgg ? Egg.MinCounter : 1)"
+                Max="@(Egg.IsEgg ? Egg.MaxCounter : 255)"
+                DefaultValue="1"/>
         </ChildContent>
     </DescriptionsItem>
     <DescriptionsItem Title="Egg">
-        @* TODO fix switch of the egg status.. weird behaviour between hatch counter and friendship values *@
         <Switch Value="Egg.IsEgg" OnChange="HandleIsEggSwitched"/>
     </DescriptionsItem>
     <DescriptionsItem Title="Infected">
@@ -78,38 +89,32 @@
     private Egg Egg => Pokemon.Egg;
 
     private TypographyEditableConfig _editableNickname = default!;
-    private TypographyEditableConfig _editableLevel = default!;
-    private TypographyEditableConfig _editableFriendship = default!;
-    private TypographyEditableConfig _editableHatchCounter = default!;
 
     protected override void OnInitialized()
     {
         _editableNickname = new() { Text = Pokemon.Nickname, OnChange = (v) => HandleNickNameChanged(v) };
-        _editableLevel = new() { Text = Pokemon.Level.ToString(), OnChange = (v) => HandleLevelChange(v) };
-        _editableFriendship = new() { Text = Pokemon.Friendship.ToString(), OnChange = (v) => HandleFriendshipChange(v) };
-        _editableHatchCounter = new() { Text = Pokemon.Egg.HatchCounter?.ToString(), OnChange = (v) => HandleHatchCounterChange(v) };
     }
 
-    private Task HandleLevelChange(string newValueString)
+    private Task HandleLevelChange(int newLevel)
     {
-        var parsed = int.TryParse(newValueString, out var newValue);
-        if (!parsed) return Task.CompletedTask;
-
-        Pokemon.ChangeLevel(newValue);
-        return OnPokemonChanged.InvokeAsync();
+        Pokemon.ChangeLevel(newLevel);
+        return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 
-    private Task HandleFriendshipChange(string newValueString)
+    private Task HandleFriendshipOrHatchCounterChange(int newValue)
     {
-        var pokemon = Pokemon;
+        if (Egg.IsEgg)
+        {
+            Egg.HatchCounter = newValue;
+        }
+        else
+        {
+            Pokemon.Friendship = newValue;
+        }
 
-        var parsed = int.TryParse(newValueString, out var newValue);
-        if (!parsed) return Task.CompletedTask;
-
-        pokemon.Friendship = newValue;
-        return OnPokemonChanged.InvokeAsync();
+        return OnPokemonChanged.InvokeAsync(Pokemon);
     }
-    
+
     private Task HandleHatchCounterChange(string newValueString)
     {
         var pokemon = Pokemon;
@@ -118,7 +123,7 @@
         if (!parsed) return Task.CompletedTask;
 
         pokemon.Egg.HatchCounter = newValue;
-        return OnPokemonChanged.InvokeAsync();
+        return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 
     private Task HandleShinyChange(bool newShinyValue)
@@ -149,6 +154,12 @@
     private Task HandleNatureChanged(Nature nature)
     {
         Pokemon.Natures.ChangeAll(nature);
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleHeldItemChanged(ItemDefinition item)
+    {
+        Pokemon.HeldItem = item;
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 

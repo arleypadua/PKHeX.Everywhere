@@ -20,7 +20,7 @@
 </Select>
 
 @code {
-    [Parameter] public required ISet<ItemDefinition> Items { get; set; }
+    [Parameter] public required IEnumerable<ItemDefinition> Items { get; set; }
     [Parameter] public ISet<ItemDefinition>? LegalItems { get; set; } = null;
 
     [Parameter] public ushort? SelectedItemId { get; set; }

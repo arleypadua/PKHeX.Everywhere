@@ -1,36 +1,28 @@
 using System.Security.Cryptography;
-using PKHeX.Core.Saves.Encryption.Providers;
+using PKHeX.Core;
 
 namespace PKHeX.Web.Services;
 
 public class BlazorAesProvider(JsService jsService) : IAesCryptographyProvider
 {
-    public IAesCryptographyProvider.IAes Create(byte[] key, IAesCryptographyProvider.Options options) =>
-        new CryptoJsAes(jsService, key, options);
+    public IAesCryptographyProvider.IAes Create(byte[] key, CipherMode mode, PaddingMode padding, byte[]? iv = null) =>
+        new CryptoJsAes(jsService, key, mode, padding, iv);
 
-    private class CryptoJsAes(JsService jsService, byte[] key, IAesCryptographyProvider.Options options)
+    private class CryptoJsAes(JsService jsService, byte[] key, CipherMode mode, PaddingMode padding, byte[]? iv = null)
         : IAesCryptographyProvider.IAes
     {
-        public void EncryptEcb(ReadOnlySpan<byte> origin, Span<byte> destination) =>
-            jsService.EncryptEcb(origin, destination, key);
+        public void EncryptEcb(ReadOnlySpan<byte> plaintext, Span<byte> destination) =>
+            jsService.EncryptAes(plaintext, destination, key, CipherMode.ECB);
 
-        public void DecryptEcb(ReadOnlySpan<byte> origin, Span<byte> destination) =>
-            jsService.DecryptEcb(origin, destination, key);
+        public void DecryptEcb(ReadOnlySpan<byte> ciphertext, Span<byte> destination) =>
+            jsService.DecryptAes(ciphertext, destination, key, CipherMode.ECB);
 
-        public ICryptoTransform CreateDecryptor(byte[] key, byte[] iv)
-        {
-            // todo: to be implemented for HOME
-            throw new NotImplementedException();
-        }
+        public void EncryptCbc(ReadOnlySpan<byte> plaintext, Span<byte> destination) =>
+            jsService.EncryptAes(plaintext, destination, key, CipherMode.CBC);
 
-        public ICryptoTransform CreateEncryptor(byte[] key, byte[] iv)
-        {
-            // todo: to be implemented for HOME
-            throw new NotImplementedException();
-        }
-
-        public void Dispose()
-        {
-        }
+        public void DecryptCbc(ReadOnlySpan<byte> ciphertext, Span<byte> destination) =>
+            jsService.DecryptAes(ciphertext, destination, key, CipherMode.CBC);
+        
+        public void Dispose() { }
     }
 }

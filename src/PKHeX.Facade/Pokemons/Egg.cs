@@ -13,15 +13,11 @@ public class Egg(PKM pokemon)
     public int? HatchCounter
     {
         get => pokemon.CurrentFriendship;
-        set
-        {
-            var min = EggStateLegality.GetMinimumEggHatchCycles(pokemon);
-            var max = EggStateLegality.GetMaximumEggHatchCycles(pokemon);
-
-            // hatch counter is the same as friendship
-            pokemon.CurrentFriendship = (byte)Math.Clamp(value ?? 0, min, max);
-        }
+        set => pokemon.CurrentFriendship = (byte)Math.Clamp(value ?? 0, MinCounter, MaxCounter);
     }
+    
+    public int MaxCounter => EggStateLegality.GetMaximumEggHatchCycles(pokemon);
+    public int MinCounter => EggStateLegality.GetMinimumEggHatchCycles(pokemon);
     
     public EggMetConditions MetConditions => new (pokemon);
 }
