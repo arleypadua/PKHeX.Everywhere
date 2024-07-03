@@ -1,9 +1,10 @@
 @page "/pokemon-box"
 @using PKHeX.Core
+@using PKHeX.Web.Model
 
 <PageTitle>Pokemon Box</PageTitle>
 
-<PokemonTable DataSource="@PokemonList" Source="PokemonTable.PokemonSource.Box" />
+<PokemonTable DataSource="@PokemonList" Source="PokemonSource.Box" />
 
 @code {
     [Inject] public required GameService GameService { get; set; }

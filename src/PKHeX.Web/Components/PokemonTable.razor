@@ -1,3 +1,4 @@
+@using PKHeX.Web.Model
 @inject NavigationManager Navigation
 
 <Table
@@ -18,7 +19,7 @@
             <SpaceItem>
                 <Button
                     Type="@ButtonType.Link"
-                    OnClick='() => Navigation.NavigateTo($"/pokemon/{Route}/{context.PID}")'>
+                    OnClick='() => Navigation.NavigateToPokemon(Source, context.UniqueId)'>
                     View
                 </Button>
             </SpaceItem>
@@ -39,10 +40,4 @@
         PokemonSource.Box => "box",
         _ => string.Empty
     };
-
-    public enum PokemonSource
-    {
-        Party,
-        Box
-    }
 }

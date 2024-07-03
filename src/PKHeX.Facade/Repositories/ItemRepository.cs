@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using PKHeX.Core;
-using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Facade.Repositories;
 
@@ -23,6 +22,8 @@ public class ItemRepository
             .Where(b => b.Name.EndsWith("ball", StringComparison.InvariantCultureIgnoreCase))
             .ToImmutableSortedSet(ItemDefinitionNameComparer.Instance);
     }
+
+    public ISet<ItemDefinition> All => _items.Values.ToHashSet();
 
     public ItemDefinition GetItem(ushort id) => _items[id];
 

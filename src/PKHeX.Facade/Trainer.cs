@@ -36,4 +36,10 @@ public class Trainer
         SAV8BS gen8 => gen8.Rival,
         _ => null
     };
+
+    internal void Commit()
+    {
+        Party.Commit();
+        PokemonBox.Commit();
+    }
 }

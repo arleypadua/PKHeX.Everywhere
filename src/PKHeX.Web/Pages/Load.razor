@@ -1,4 +1,5 @@
 @page "/load"
+@using PKHeX.Web.Model
 @layout EmptyLayout
 @inject NavigationManager Navigation
 @inject GameService GameService
@@ -34,7 +35,9 @@
     {
         var testData = await HttpClient.GetByteArrayAsync("/data/savedata.bin");
         GameService.Load(testData, "savedata.bin");
-        Navigation.NavigateTo($"/pokemon/party/{GameService.Game!.Trainer.Party.Pokemons.First().PID}");
+
+        var firstPokemon = GameService.Game!.Trainer.Party.Pokemons.First();
+        Navigation.NavigateToPokemon(PokemonSource.Party, firstPokemon.UniqueId);
     }
 #endif
 

@@ -1,4 +1,3 @@
-@using PKHeX.Facade.Repositories
 <Modal Title="@($"Add Item to \"{TargetInventory.Type}\"")"
        @bind-Visible="@Visible"
        OnOk="@HandleOkInternal"
@@ -21,21 +20,11 @@
     {
         return
             @<Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; gap: 20px;">
-                <Select TItem="ItemDefinition"
-                        TItemValue="ushort?"
-                        DataSource="@TargetInventory.CurrentSupportedItems"
-                        @bind-Value="@_itemIdToBeAdded"
-                        LabelName="@nameof(ItemDefinition.Name)"
-                        ValueName="@nameof(ItemDefinition.Id)"
-                        Placeholder="Select an item"
-                        DefaultActiveFirstOption="false"
-                        EnableSearch
-                        EnableVirtualization>
-                    <ItemTemplate>
-                        <ItemIcon Item="@context"/> @context.Name
-                    </ItemTemplate>
-                </Select>
-
+                <ItemSelect 
+                    Items="@TargetInventory.CurrentSupportedItems"
+                    SelectedItemId="_itemIdToBeAdded"
+                    SelectedItemChanged="i => _itemIdToBeAdded = i.Id"/>
+                
                 <AntDesign.InputNumber
                     TValue="uint?"
                     Style="width: 100%; max-width: 110px;"
@@ -52,13 +41,19 @@
         if (_itemIdToBeAdded is null || _itemCountToBeAdded is null) return;
 
         await OnOk.InvokeAsync(new ItemToBeAdded(_itemIdToBeAdded.Value, _itemCountToBeAdded.Value));
+        
+        ResetModal();
     }
 
-    private Task HandleCancelInternal() => OnCancel.InvokeAsync();
+    private Task HandleCancelInternal()
+    {
+        ResetModal();
+        return OnCancel.InvokeAsync();
+    }
 
     private void ResetModal()
     {
-        _itemCountToBeAdded = 0;
+        _itemCountToBeAdded = null;
     }
 
     public record ItemToBeAdded(ushort Id, uint Count);

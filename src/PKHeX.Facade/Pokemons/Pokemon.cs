@@ -11,6 +11,7 @@ public class Pokemon(PKM pokemon, Game game)
     {
     }
 
+    public UniqueId UniqueId => UniqueId.From(this);
     public PKM Pkm => pokemon;
     public Game Game => game;
 
@@ -43,7 +44,12 @@ public class Pokemon(PKM pokemon, Game game)
     public PokemonMove Move4 => new(pokemon, PokemonMove.MoveIndex.Move4);
     public Gender Gender => Gender.FromByte(pokemon.Gender);
     public bool IsShiny => pokemon.IsShiny;
-    public ItemDefinition HeldItem => game.ItemRepository.GetItem(pokemon.HeldItem);
+    public ItemDefinition HeldItem
+    {
+        get => game.ItemRepository.GetItem(pokemon.HeldItem);
+        set => pokemon.HeldItem = value.Id;
+    }
+
     public AbilityDefinition Ability => AbilityRepository.Instance.Get(pokemon.Ability);
 
     public int Friendship

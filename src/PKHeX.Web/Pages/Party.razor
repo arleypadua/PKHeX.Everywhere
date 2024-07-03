@@ -1,9 +1,10 @@
 @page "/party"
+@using PKHeX.Web.Model
 @inject GameService GameService
 
 <PageTitle>Party</PageTitle>
 
-<PokemonTable DataSource="@(GameService.Game?.Trainer.Party.Pokemons ?? [])" Source="PokemonTable.PokemonSource.Party" />
+<PokemonTable DataSource="@(GameService.Game?.Trainer.Party.Pokemons ?? [])" Source="PokemonSource.Party" />
 
 @code {
     
