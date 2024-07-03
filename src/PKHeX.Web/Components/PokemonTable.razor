@@ -4,8 +4,10 @@
 <Table
     TItem="Pokemon"
     DataSource="@DataSource"
-    @bind-PageIndex="_pageIndex"
-    @bind-PageSize="_pageSize"
+    PageIndex="@(PageIndex ?? 1)"
+    PageSize="@(PageSize ?? 10)"
+    OnPageSizeChange="HandlePagination"
+    OnPageIndexChange="HandlePagination"
     Size="TableSize.Small"
     Responsive
     EnableVirtualization>
@@ -28,11 +30,14 @@
 </Table>
 
 @code {
-    int _pageIndex = 1;
-    int _pageSize = 10;
-
     [Parameter] public IList<Pokemon> DataSource { get; set; } = [];
     [Parameter] public PokemonSource Source { get; set; }
+    
+    [SupplyParameterFromQuery(Name = "pageIndex")]
+    public int? PageIndex { get; set; } = 1;
+    
+    [SupplyParameterFromQuery(Name = "pageSize")]
+    public int? PageSize { get; set; } = 10;
 
     private string Route => Source switch
     {
@@ -40,4 +45,13 @@
         PokemonSource.Box => "box",
         _ => string.Empty
     };
+
+    private void HandlePagination(PaginationEventArgs args)
+    {
+        PageIndex = args.Page;
+        PageSize = args.PageSize;
+        
+        Navigation.StoreOnQuery(new () { { "pageIndex", PageIndex }, { "pageSize", PageSize } });
+    }
+
 }
