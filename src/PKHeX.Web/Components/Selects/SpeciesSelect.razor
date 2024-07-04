@@ -1,0 +1,60 @@
+@using PKHeX.Core
+@using PKHeX.Facade.Repositories
+@inject GameService GameService
+
+<Select TItem="SpeciesDefinition"
+        TItemValue="Species?"
+        DataSource="@_species"
+        @bind-Value="@SelectedSpecies"
+        OnSelectedItemChanged="SelectedSpeciesChanged"
+        LabelName="@nameof(SpeciesDefinition.Name)"
+        ValueName="@nameof(SpeciesDefinition.Species)"
+        Placeholder="Select a species"
+        DefaultActiveFirstOption="false"
+        EnableSearch
+        EnableVirtualization>
+    <LabelTemplate>
+        @RenderItem(context)
+    </LabelTemplate>
+    <ItemTemplate>
+        @RenderItem(context)
+    </ItemTemplate>
+</Select>
+
+@code {
+    [Parameter] public required DataSource Source { get; set; }
+
+    [Parameter] public Species? SelectedSpecies { get; set; }
+    [Parameter] public EventCallback<SpeciesDefinition> SelectedSpeciesChanged { get; set; }
+
+    private List<SpeciesDefinition> _species = [];
+
+    RenderFragment RenderItem(SpeciesDefinition item)
+    {
+        return
+            @<Space Style="gap: 5px;">
+                <Space Align="center" Style="width: 100%">
+                    <span style="transform: translateY(-20px);"><PokemonIcon Species="@item.Species"/></span> <span>@item.Name</span>
+                </Space>
+            </Space>;
+    }
+
+    protected override void OnInitialized()
+    {
+        if (!GameService.IsLoaded) return;
+
+        _species = (Source switch
+        {
+            DataSource.All => SpeciesRepository.All.Values,
+            DataSource.CurrentGame => GameService.LoadedGame.SpeciesRepository.Species.Values,
+            _ => SpeciesRepository.All.Values
+        }).Where(SpeciesDefinition.IsSome).ToList();
+    }
+
+    public enum DataSource
+    {
+        All,
+        CurrentGame,
+    }
+
+}

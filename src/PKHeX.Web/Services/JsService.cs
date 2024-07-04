@@ -56,4 +56,9 @@ public class JsService(IJSRuntime js)
     {
         return SyncJs.Invoke<byte[]>("md5Hash", toArray);
     }
+
+    public async Task NavigateBack()
+    {
+        await js.InvokeVoidAsync("history.back");
+    }
 }

@@ -10,8 +10,11 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddSingleton<GameService>();
+builder.Services.AddSingleton<EncounterService>();
+
 builder.Services.AddSingleton<JsService>();
 builder.Services.AddSingleton<AntdThemeService>();
+
 builder.Services.AddSingleton<BlazorAesProvider>();
 builder.Services.AddSingleton<BlazorMd5Provider>();
 

@@ -1,0 +1,23 @@
+@page "/pokemon/search-encounter"
+@using PKHeX.Facade.Repositories
+@inject EncounterService EncounterService
+
+<Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+    <SpeciesSelect
+        Source="SpeciesSelect.DataSource.CurrentGame"
+        SelectedSpecies="EncounterService.SelectedSpecies"
+        SelectedSpeciesChanged="HandleSelectedSpeciesChanged"/>
+
+    <PokemonEncounterTable
+        DataSource="EncounterService.Encounters"/>
+</Space>
+
+@code {
+
+    private void HandleSelectedSpeciesChanged(SpeciesDefinition definition)
+    {
+        EncounterService.SelectedSpecies = definition.Species;
+        EncounterService.Search(definition.Species);
+    }
+
+}

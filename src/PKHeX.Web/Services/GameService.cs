@@ -5,6 +5,7 @@ namespace PKHeX.Web.Services;
 public class GameService
 {
     public Game? Game { get; private set; }
+    public Game LoadedGame => Game ?? throw new NullReferenceException("Expected game to be loaded, but it was null.");
     public string? FileName { get; private set; }
     
     public bool IsLoaded => Game != null;

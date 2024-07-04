@@ -1,0 +1,72 @@
+@using PKHeX.Facade.Repositories
+@inject NavigationManager Navigation
+
+<Table
+    TItem="Encounter"
+    DataSource="@DataSource"
+    PageIndex="@(PageIndex ?? 1)"
+    PageSize="@(PageSize ?? 10)"
+    OnPageSizeChange="HandlePagination"
+    OnPageIndexChange="HandlePagination"
+    Size="TableSize.Small"
+    Responsive
+    EnableVirtualization>
+    <PropertyColumn Title="" Property="@(c => c.Species)">
+        <PokemonIcon Species="@context.Species" Form="@context.Form" />
+    </PropertyColumn>
+    <PropertyColumn Title="Name" Property="@(c => c.Species.Name())" Sortable Filterable/>
+    <PropertyColumn Title="Ball/Egg" Property="@(c => c.Ball.Name)">
+        @if (@context.Data.IsEgg)
+        {
+            <span>🥚 Egg</span>;
+        }
+        else
+        {
+            <ItemIcon Item="@context.Ball"/> @context.Ball.Name
+        }
+    </PropertyColumn>
+    <PropertyColumn Title="Name" Property="@(c => c.Data.IsEgg)" Sortable Filterable>
+        <Switch 
+            Checked="context.Data.IsEgg"
+            Disabled="true"/>
+    </PropertyColumn>
+    <PropertyColumn Title="Min. Level" Property="c => c.LevelRange.Start.Value" Sortable Filterable />
+    <PropertyColumn Title="Max. Level" Property="c => c.LevelRange.End.Value" Sortable Filterable />
+    <ActionColumn Title="Action">
+        <Space Size=@("small")>
+            <SpaceItem>
+                @* TO DO: implement the rest of the encounter *@
+                <Button
+                    Disabled
+                    Type="@ButtonType.Link"
+                    OnClick='HandleDetailsClick'>
+                    Details
+                </Button>
+            </SpaceItem>
+        </Space>
+    </ActionColumn>
+</Table>
+
+@code {
+    [Parameter] public IList<Encounter> DataSource { get; set; } = [];
+    
+    [SupplyParameterFromQuery(Name = "pageIndex")]
+    public int? PageIndex { get; set; } = 1;
+    
+    [SupplyParameterFromQuery(Name = "pageSize")]
+    public int? PageSize { get; set; } = 10;
+
+    private void HandlePagination(PaginationEventArgs args)
+    {
+        PageIndex = args.Page;
+        PageSize = args.PageSize;
+        
+        Navigation.StoreOnQuery(new () { { "pageIndex", PageIndex }, { "pageSize", PageSize } });
+    }
+
+    private Task HandleDetailsClick()
+    {
+        return Task.CompletedTask;
+    }
+
+}

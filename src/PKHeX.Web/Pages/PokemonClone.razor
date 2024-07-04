@@ -1,6 +1,7 @@
 @page "/pokemon/{UniqueIdString}/clone"
 @inject NavigationManager Navigation
 @inject INotificationService Notification
+@inject JsService Js
 
 @if (_pokemon is not null)
 {
@@ -47,8 +48,7 @@
 
 @code {
     [Inject] public required GameService GameService { get; set; }
-    [Inject] public required IJSRuntime Js { get; set; }
-
+    
     [Parameter] public required string UniqueIdString { get; set; }
 
     private UniqueId UniqueId => UniqueId.From(UniqueIdString);
@@ -68,7 +68,7 @@
         var pokemon = GameService.Game?.FindPokemon(UniqueId);
         if (pokemon is null)
         {
-            await Js.InvokeVoidAsync("history.back");
+            await Js.NavigateBack();
             return;
         }
 
@@ -96,7 +96,7 @@
         }
         else
         {
-            await Notification.Open(new NotificationConfig
+            _ = Notification.Open(new NotificationConfig
             {
                 Message = "Fail to add",
                 Description = "Your pokemon box is full.",

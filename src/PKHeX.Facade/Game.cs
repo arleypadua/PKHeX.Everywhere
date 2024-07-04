@@ -10,11 +10,17 @@ public class Game
     public Game(SaveFile saveFile)
     {
         SaveFile = saveFile;
+        SpeciesRepository = new SpeciesRepository(this);
+        PokemonRepository = new PokemonRepository(this);
+        LocationRepository = new LocationRepository(this);
         ItemRepository = new ItemRepository(saveFile);
-
+        
         Trainer = new Trainer(this);
     }
 
+    public SpeciesRepository SpeciesRepository { get; }
+    public PokemonRepository PokemonRepository { get; }
+    public LocationRepository LocationRepository { get; }
     public ItemRepository ItemRepository { get; }
     public Trainer Trainer { get; }
 
