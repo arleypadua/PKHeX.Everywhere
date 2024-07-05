@@ -1,4 +1,6 @@
 @inject NavigationManager Navigation
+@inject ClipboardService Clipboard
+@inject INotificationService Notification
 
 <Table
     TItem="Pokemon"
@@ -30,6 +32,11 @@
                     OnClick='() => Navigation.NavigateToNewCloneOf(context.UniqueId)'>
                     Clone
                 </Button>
+                <Button
+                    Type="@ButtonType.Link"
+                    OnClick="() => HandleExportShowdownClick(context)">
+                    Showdown
+                </Button>
             </SpaceItem>
         </Space>
     </ActionColumn>
@@ -60,4 +67,14 @@
         Navigation.StoreOnQuery(new () { { "pageIndex", PageIndex }, { "pageSize", PageSize } });
     }
 
+    private async Task HandleExportShowdownClick(Pokemon pokemon)
+    {
+        await Clipboard.WriteTextAsync(pokemon.Showdown());
+        _ = Notification.Open(new ()
+        {
+            Message = $"Showdown copied to clipboard",
+            Description = pokemon.Species.Name(),
+            NotificationType = NotificationType.Success,
+        });
+    }
 }

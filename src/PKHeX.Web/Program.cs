@@ -14,6 +14,7 @@ builder.Services.AddSingleton<EncounterService>();
 
 builder.Services.AddSingleton<JsService>();
 builder.Services.AddSingleton<AntdThemeService>();
+builder.Services.AddSingleton<ClipboardService>();
 
 builder.Services.AddSingleton<BlazorAesProvider>();
 builder.Services.AddSingleton<BlazorMd5Provider>();

@@ -87,7 +87,7 @@
     [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
 
     private Egg Egg => Pokemon.Egg;
-
+    
     private TypographyEditableConfig _editableNickname = default!;
 
     protected override void OnInitialized()
@@ -162,5 +162,4 @@
         Pokemon.HeldItem = item;
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
-
 }

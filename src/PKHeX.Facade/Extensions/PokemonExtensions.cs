@@ -11,6 +11,8 @@ public static class PokemonExtensions
         : $"{pokemon.Nickname} ({pokemon.Species.Name()})";
 
     public static LegalityAnalysis Legality(this Pokemon pokemon) => new (pokemon.Pkm);
+
+    public static string Showdown(this Pokemon pokemon) => ShowdownParsing.GetShowdownText(pokemon.Pkm);
 }
 
 public static partial class SpeciesExtensions
