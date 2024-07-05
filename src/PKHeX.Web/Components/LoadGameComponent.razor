@@ -1,12 +1,20 @@
 @inject JsService Js
 @inject NavigationManager Navigation
 @inject HttpClient HttpClient
+@inject AntdThemeService ThemeService
 
 @if (GameService.IsLoaded)
 {
-    <Space Direction="DirectionVHType.Vertical" Style="width: 100%; max-width: 300px; gap: 20px;">
-        <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Export" OnClick='ExportSaveAsync'>Export</Button>
-        <Button Icon="@IconType.Outline.FolderOpen" OnClick='OpenFilePickerAsync'>Open new...</Button>
+    <Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; gap: 20px;">
+        <Descriptions Title="Loaded Game" Bordered Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
+            <DescriptionsItem Title="File">@GameService.FileName</DescriptionsItem>
+            <DescriptionsItem Title="Version">@GameService.LoadedGame.SaveVersion.Name</DescriptionsItem>
+        </Descriptions>
+        
+        <Space Direction="DirectionVHType.Vertical" Style="width: 100%; max-width: 300px; gap: 20px;">
+            <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Export" OnClick='ExportSaveAsync'>Export</Button>
+            <Button Icon="@IconType.Outline.FolderOpen" OnClick='OpenFilePickerAsync'>Open new...</Button>
+        </Space>
     </Space>
 }
 else
@@ -31,14 +39,14 @@ else
         await e.File.OpenReadStream(2 * 1024 * 1000).CopyToAsync(ms);
 
         GameService.Load(ms.ToArray(), e.File.Name);
-        
+
         Navigation.NavigateTo("/");
     }
 
     private async Task ExportSaveAsync()
     {
-        if (GameService.Game is null) return;
-        
+        if (!GameService.IsLoaded) return;
+
         var stream = GameService.Export();
         await Js.DownloadFile(stream, GameService.FileName ?? string.Empty);
     }
@@ -52,3 +60,4 @@ else
 
     private async Task OpenFilePickerAsync() => await Js.ClickOnAsync(_inputGameFile.Element);
 }
+

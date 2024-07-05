@@ -15,7 +15,7 @@ public class PokemonRepository
         _saveFile = game.SaveFile;
     }
 
-    public IEnumerable<Encounter> FindEncounter(Species species, bool? shiny = null, bool? egg = null)
+    public IEnumerable<Encounter> FindEncounter(GameVersion version, Species species, bool? shiny = null, bool? egg = null)
     {
         var settings = new SearchSettings
         {
@@ -26,7 +26,7 @@ public class PokemonRepository
             SearchShiny = shiny,
             SearchEgg = egg,
 
-            Version = GameUtil.GetVersion(_saveFile.Generation), // only pokemons where OT from current game version 
+            Version = version, 
         };
 
         var personalInfo = _saveFile.Personal.GetFormEntry(settings.Species, 0);
@@ -72,7 +72,7 @@ public class Encounter
         ? _game.LocationRepository.GetBy(Data.EggLocation, true)
         : _game.LocationRepository.GetBy(Data.Location);
 
-    public ItemDefinition Ball => _game.ItemRepository.GetItem((ushort)Data.FixedBall);
+    public ItemDefinition Ball => _game.ItemRepository.GetBall(Data.FixedBall);
 
     public Range LevelRange => new(Data.LevelMin, Data.LevelMax);
 
@@ -81,5 +81,14 @@ public class Encounter
     public FormDefinition? Form => FormRepository.GetFor(Species, Data.Context)
         .FirstOrDefault(f => f.Id == Data.Form);
 
+    public GameVersionDefinition Version => GameVersionRepository.Instance.Get(Data.Version);
+
     public Pokemon ConvertToPokemon() => new(Data.ConvertToPKM(_game.SaveFile), _game);
+
+    public class Range(int min, int max)
+    {
+        public string Format => min != max
+            ? $"{min}-{max}"
+            : min.ToString();
+    }
 }

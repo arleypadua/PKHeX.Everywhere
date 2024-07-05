@@ -3,40 +3,9 @@
 
 @if (Pokemon is not null)
 {
-    <Space Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
-        <PageHeader BackIcon="true" Style="max-width: 100%">
-            <TitleTemplate>Pokemon</TitleTemplate>
-
-            <PageHeaderExtra>
-                <Space Style="width: 100%;" Align="center" Direction="DirectionVHType.Vertical">
-                    <PokemonImage
-                        Species="@Pokemon.Species"
-                        IsShiny="@Pokemon.IsShiny"/>
-                </Space>
-            </PageHeaderExtra>
-        </PageHeader>
-
-        <PokemonLegalityBanner @ref="_legalityBanner" Pokemon="Pokemon"/>
-
-        <Tabs @bind-ActiveKey="@_activeTab" DefaultActiveKey="Description" Class="tab-scrollable" Animated>
-            <TabPane Tab="Description" Key="Description">
-                <PokemonDescription Pokemon="Pokemon" OnPokemonChanged="HandlePokemonChange"/>
-            </TabPane>
-            <TabPane Tab="Met Conditions" Key="Met Conditions">
-                <PokemonMetConditions Pokemon="Pokemon" OnPokemonChanged="HandlePokemonChange"/>
-            </TabPane>
-            <TabPane Tab="Stats" Key="Stats">
-                <PokemonStats
-                    Pokemon="Pokemon"
-                    OnPokemonChanged="HandlePokemonChange"/>
-            </TabPane>
-            <TabPane Tab="Moves" Key="Moves">
-                <PokemonMoves
-                    Pokemon="Pokemon"
-                    OnPokemonChanged="HandlePokemonChange"/>
-            </TabPane>
-        </Tabs>
-    </Space>
+    <PokemonEdit 
+        Pokemon="Pokemon"
+        PokemonChanged="HandlePokemonChange"/>
 }
 
 @code {
@@ -54,22 +23,15 @@
         _ => null
     };
 
-    private string _activeTab = default!;
-    private PokemonLegalityBanner _legalityBanner = default!;
-
     private const string Party = "party";
     private const string Box = "box";
 
     void HandlePokemonChange(Pokemon changedPokemon)
     {
+        if (changedPokemon.UniqueId.Equals(UniqueId)) return;
+        
         // some changes might change the id of the Pokémon
-        if (!changedPokemon.UniqueId.Equals(UniqueId))
-        {
-            Navigation.NavigateToPokemon(PokemonSource, changedPokemon.UniqueId, replace: true);
-            return;
-        }
-
-        _legalityBanner.Refresh();
+        Navigation.NavigateToPokemon(PokemonSource, changedPokemon.UniqueId, replace: true);
     }
 
     private PokemonSource PokemonSource => PartyOrBox switch
@@ -80,9 +42,3 @@
     };
 
 }
-
-<style>
-    .pokemon_page__heading_extra__grow .ant-page-header-heading-extra {
-        flex-grow: 1;
-    }
-</style>

@@ -23,14 +23,32 @@ public class SupportedSaveFilesAttribute : DataAttribute
     public override IEnumerable<object[]> GetData(MethodInfo testMethod) =>
     [
         // [SaveFilePath.Gen1], still need to fix tests 
-        [SaveFilePath.Gen4],
-        [SaveFilePath.Gen7],
+        [SaveFilePath.HgSs],
+        [SaveFilePath.LetsGoPikachu],
     ];
+}
 
-    public static class SaveFilePath
+public class GamesAttribute(params GameVersion[] versions) : DataAttribute
+{
+    private readonly GameVersion[] _versions = versions;
+
+    public override IEnumerable<object[]> GetData(MethodInfo testMethod) => _versions.Select(v => new object[]
     {
-        public const string Gen1 = "./data/savedata_1.sav"; // yellow
-        public const string Gen4 = "./data/savedata_4hgss.dsv"; // soul silver
-        public const string Gen7 = "./data/savedata_7b.bin"; // let's go pikachu
-    }
+        Game.LoadFrom(SaveFilePath.PathFrom(v))
+    });
+}
+
+public static class SaveFilePath
+{
+    public const string Yellow = "./data/savedata_1.sav"; // yellow
+    public const string HgSs = "./data/savedata_4hgss.dsv"; // soul silver
+    public const string LetsGoPikachu = "./data/savedata_7b.bin"; // let's go pikachu
+
+    public static string PathFrom(GameVersion version) => version switch
+    {
+        GameVersion.RBY => Yellow,
+        GameVersion.HGSS or GameVersion.HG or GameVersion.SS => HgSs,
+        GameVersion.GG or GameVersion.GP or GameVersion.GE => LetsGoPikachu,
+        _ => throw new InvalidOperationException($"{version} not yet supported on tests"),
+    };
 }

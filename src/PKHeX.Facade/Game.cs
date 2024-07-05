@@ -24,6 +24,20 @@ public class Game
     public ItemRepository ItemRepository { get; }
     public Trainer Trainer { get; }
 
+    public GameVersionDefinition SaveVersion => GameVersionRepository.Instance.Get(SaveFile.Version);
+
+    /**
+     * Sometimes it is not really possible to pinpoint which version a save file is
+     * This will give a guess approximation on which actual version the game relates to
+     *
+     * If the save file yields an actual game version, it will be returned instead of an approximation.
+     */
+    public GameVersionDefinition GameVersionApproximation => SaveVersion.Aggregated
+        ? GameVersionRepository.Instance.Get(SaveFile.Context.GetSingleGameVersion())
+        : SaveVersion;
+    
+    public EntityContext Generation => SaveFile.Context;
+    
     public byte[] ToByteArray()
     {
         // make sure pending changes make its way to the bytes of the save

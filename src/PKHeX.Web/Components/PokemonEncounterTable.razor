@@ -1,5 +1,6 @@
 @using PKHeX.Facade.Repositories
 @inject NavigationManager Navigation
+@inject EncounterService EncouterService
 
 <Table
     TItem="Encounter"
@@ -12,34 +13,32 @@
     Responsive
     EnableVirtualization>
     <PropertyColumn Title="" Property="@(c => c.Species)">
-        <PokemonIcon Species="@context.Species" Form="@context.Form" />
+        <PokemonIcon Species="@context.Species" Form="@context.Form"/>
     </PropertyColumn>
-    <PropertyColumn Title="Name" Property="@(c => c.Species.Name())" Sortable Filterable/>
+    <PropertyColumn Title="Species" Property="@(c => c.Species.Name())" Sortable Filterable/>
+    <PropertyColumn Title="Encounter" Property="@(c => c.Data.LongName)" Sortable Filterable/>
     <PropertyColumn Title="Ball/Egg" Property="@(c => c.Ball.Name)">
-        @if (@context.Data.IsEgg)
+        @if (context.Data.IsEgg)
         {
-            <span>🥚 Egg</span>;
+            <Text>🥚 Egg</Text>
         }
-        else
+        @if (!context.Ball.IsNone)
         {
-            <ItemIcon Item="@context.Ball"/> @context.Ball.Name
+            <ItemIcon Item="@context.Ball"/>
         }
     </PropertyColumn>
-    <PropertyColumn Title="Name" Property="@(c => c.Data.IsEgg)" Sortable Filterable>
-        <Switch 
-            Checked="context.Data.IsEgg"
-            Disabled="true"/>
+    <PropertyColumn Title="Lvl" Property="@(c => c.LevelRange.Format)" Sortable Filterable/>
+    <PropertyColumn Title="Location" Property="@(c => c.Location.Name)" Sortable Filterable>
+        <Text>@context.Location.Name</Text>
     </PropertyColumn>
-    <PropertyColumn Title="Min. Level" Property="c => c.LevelRange.Start.Value" Sortable Filterable />
-    <PropertyColumn Title="Max. Level" Property="c => c.LevelRange.End.Value" Sortable Filterable />
+    <PropertyColumn Title="Game" Property="c => c.Version.Name"/>
+
     <ActionColumn Title="Action">
         <Space Size=@("small")>
             <SpaceItem>
-                @* TO DO: implement the rest of the encounter *@
                 <Button
-                    Disabled
                     Type="@ButtonType.Link"
-                    OnClick='HandleDetailsClick'>
+                    OnClick='() => HandleDetailsClick(context)'>
                     Details
                 </Button>
             </SpaceItem>
@@ -64,9 +63,6 @@
         Navigation.StoreOnQuery(new () { { "pageIndex", PageIndex }, { "pageSize", PageSize } });
     }
 
-    private Task HandleDetailsClick()
-    {
-        return Task.CompletedTask;
-    }
+    private void HandleDetailsClick(Encounter encounter) => EncouterService.SelectEncounter(encounter);
 
 }

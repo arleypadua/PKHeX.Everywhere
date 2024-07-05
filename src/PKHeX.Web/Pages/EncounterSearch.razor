@@ -3,6 +3,11 @@
 @inject EncounterService EncounterService
 
 <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+    <GameVersionSelect 
+        Source="GameVersionSelect.DataSource.CurrentGame"
+        SelectedGameVersion="EncounterService.SelectedGameVersion"
+        SelectedGameVersionChanged="HandleGameVersionChanged"/>
+    
     <SpeciesSelect
         Source="SpeciesSelect.DataSource.CurrentGame"
         SelectedSpecies="EncounterService.SelectedSpecies"
@@ -14,10 +19,26 @@
 
 @code {
 
-    private void HandleSelectedSpeciesChanged(SpeciesDefinition definition)
+    private void HandleSelectedSpeciesChanged(SpeciesDefinition? definition)
     {
-        EncounterService.SelectedSpecies = definition.Species;
-        EncounterService.Search(definition.Species);
+        if (definition is null) return;
+        
+        EncounterService.SelectedSpecies = definition;
+        TryToSearch();
+    }
+    
+    private void HandleGameVersionChanged(GameVersionDefinition? definition)
+    {
+        if (definition is null) return;
+        
+        EncounterService.SelectedGameVersion = definition;
+        TryToSearch();
+    }
+
+    private void TryToSearch()
+    {
+        if (!EncounterService.AllowedToSearch) return;
+        EncounterService.Search();
     }
 
 }

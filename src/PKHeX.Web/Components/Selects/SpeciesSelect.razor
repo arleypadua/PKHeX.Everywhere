@@ -5,8 +5,8 @@
 <Select TItem="SpeciesDefinition"
         TItemValue="Species?"
         DataSource="@_species"
-        @bind-Value="@SelectedSpecies"
-        OnSelectedItemChanged="SelectedSpeciesChanged"
+        Value="@SelectedValue"
+        OnSelectedItemChanged="SelectedValueChanged"
         LabelName="@nameof(SpeciesDefinition.Name)"
         ValueName="@nameof(SpeciesDefinition.Species)"
         Placeholder="Select a species"
@@ -24,10 +24,17 @@
 @code {
     [Parameter] public required DataSource Source { get; set; }
 
-    [Parameter] public Species? SelectedSpecies { get; set; }
+    [Parameter] public SpeciesDefinition? SelectedSpecies { get; set; }
     [Parameter] public EventCallback<SpeciesDefinition> SelectedSpeciesChanged { get; set; }
 
+    private Species? SelectedValue => SelectedSpecies?.Species;
+
     private List<SpeciesDefinition> _species = [];
+    
+    private Task SelectedValueChanged(SpeciesDefinition definition)
+    {
+        return SelectedSpeciesChanged.InvokeAsync(definition);
+    }
 
     RenderFragment RenderItem(SpeciesDefinition item)
     {
@@ -56,5 +63,4 @@
         All,
         CurrentGame,
     }
-
 }

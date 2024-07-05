@@ -1,20 +1,66 @@
+using System.Collections.Immutable;
+using Microsoft.AspNetCore.Components;
 using PKHeX.Core;
 using PKHeX.Facade;
 using PKHeX.Facade.Repositories;
+using PKHeX.Web.Extensions;
 
 namespace PKHeX.Web.Services;
 
-public class EncounterService(GameService gameService)
+public class EncounterService : IDisposable
 {
-    private Game Game => gameService.Game ?? throw new NullReferenceException("Expected a game to be loaded");
+    private readonly GameService _gameService;
+    private readonly NavigationManager _navigation;
+
+    public EncounterService(GameService gameService, NavigationManager navigation)
+    {
+        _gameService = gameService;
+        _navigation = navigation;
+        _gameService.OnGameLoaded += InitializeOnGameLoad;
+    }
+
+    private Game Game => _gameService.Game ?? throw new NullReferenceException("Expected a game to be loaded");
     private PokemonRepository Repository => Game.PokemonRepository;
 
     public List<Encounter> Encounters { get; private set; } = [];
-    public Species? SelectedSpecies { get; set; } = null;
-    
+    public GameVersionDefinition? SelectedGameVersion { get; set; }
+    public SpeciesDefinition? SelectedSpecies { get; set; }
+    public Encounter? SelectedEncounter { get; private set; }
 
-    public void Search(Species species, bool? shiny = null, bool? egg = null)
+    public bool AllowedToSearch => SelectedGameVersion is not null && SelectedSpecies is not null;
+
+    public void Search()
     {
-        Encounters = Repository.FindEncounter(species, shiny, egg).ToList();
+        if (!AllowedToSearch)
+            throw new InvalidOperationException("Can only execute a search when required parameters are set.");
+
+        Encounters = Repository.FindEncounter(SelectedGameVersion!.Version, SelectedSpecies!.Species).ToList();
+    }
+
+    public void SelectEncounter(Encounter encounter)
+    {
+        SelectedEncounter = encounter;
+        _navigation.NavigateToSelectedEncounter();
+    }
+
+    public void ResetSelectedEncounter()
+    {
+        SelectedEncounter = null;
+    }
+
+    private void InitializeOnGameLoad(object? sender, EventArgs e)
+    {
+        SelectedGameVersion = GameVersionRepository.Instance
+            .GetAvailableFor(_gameService.LoadedGame.Generation, _gameService.LoadedGame.SaveVersion.Version)
+            .FirstOrDefault(v => v.Equals(_gameService.LoadedGame.GameVersionApproximation));
+
+        SelectedSpecies = null;
+        SelectedEncounter = null;
+        Encounters.Clear();
+    }
+
+    public void Dispose()
+    {
+        _gameService.OnGameLoaded -= InitializeOnGameLoad;
     }
 }

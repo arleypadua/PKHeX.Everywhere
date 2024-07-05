@@ -1,0 +1,51 @@
+@using PKHeX.Core
+@using PKHeX.Facade.Repositories
+@inject GameService GameService
+
+<Select TItem="GameVersionDefinition"
+        TItemValue="GameVersion?"
+        DataSource="@Items"
+        Value="@SelectedValue"
+        OnSelectedItemChanged="SelectedValueChanged"
+        LabelName="@nameof(GameVersionDefinition.Name)"
+        ValueName="@nameof(GameVersionDefinition.Version)"
+        Placeholder="Version"
+        DefaultActiveFirstOption="true"
+        EnableSearch
+        EnableVirtualization>
+    <LabelTemplate>
+        @context.Name
+    </LabelTemplate>
+    <ItemTemplate>
+        @context.Name
+    </ItemTemplate>
+</Select>
+
+@code {
+    [Parameter] public DataSource Source { get; set; } = DataSource.All;
+
+    [Parameter] public GameVersionDefinition? SelectedGameVersion { get; set; }
+    [Parameter] public EventCallback<GameVersionDefinition> SelectedGameVersionChanged { get; set; }
+
+    private GameVersion? SelectedValue => SelectedGameVersion?.Version;
+
+    private Task SelectedValueChanged(GameVersionDefinition definition)
+    {
+        return SelectedGameVersionChanged.InvokeAsync(definition);
+    }
+
+    private IEnumerable<GameVersionDefinition> Items => Source switch
+    {
+        DataSource.All => GameVersionRepository.Instance.All,
+        DataSource.CurrentGame => GameService.IsLoaded
+            ? GameVersionRepository.Instance.GetAvailableFor(GameService.LoadedGame.Generation, GameService.LoadedGame.SaveVersion.Version)
+            : [],
+        _ => []
+    };
+
+    public enum DataSource
+    {
+        All,
+        CurrentGame,
+    }
+}

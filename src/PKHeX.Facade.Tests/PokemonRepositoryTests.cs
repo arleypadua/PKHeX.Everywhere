@@ -11,7 +11,7 @@ public class PokemonRepositoryTests
     public void ShouldEncounterPokemons(string saveFile)
     {
         var game = Game.LoadFrom(saveFile);
-        var encounters = game.PokemonRepository.FindEncounter(Species.Abra).ToList();
+        var encounters = game.PokemonRepository.FindEncounter(game.GameVersionApproximation.Version, Species.Abra).ToList();
         encounters.Should().NotBeEmpty();
     }
 }

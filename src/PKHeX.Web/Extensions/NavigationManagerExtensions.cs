@@ -19,8 +19,11 @@ public static class NavigationManagerExtensions
     public static void NavigateToPokemonBox(this NavigationManager navigation, bool replace = false) => 
         navigation.NavigateTo($"/pokemon-box", replace: replace);
     
-    public static void NavigateToSearchEncounter(this NavigationManager navigation) =>
-        navigation.NavigateTo($"/pokemon/search-encounter");
+    public static void NavigateToSearchEncounter(this NavigationManager navigation, bool replace = false) =>
+        navigation.NavigateTo($"/pokemon/search-encounter", replace);
+    
+    public static void NavigateToSelectedEncounter(this NavigationManager navigation) =>
+        navigation.NavigateTo($"/pokemon/selected-encounter");
 
     public static void StoreOnQuery(this NavigationManager navigation, Dictionary<string, object?> parameters)
     {

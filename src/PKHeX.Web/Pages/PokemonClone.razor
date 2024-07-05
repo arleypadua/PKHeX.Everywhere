@@ -5,39 +5,10 @@
 
 @if (_pokemon is not null)
 {
-    <Space Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
-        <PageHeader BackIcon="true" Style="max-width: 100%">
-            <TitleTemplate>Pokemon</TitleTemplate>
-
-            <PageHeaderExtra>
-                <Space Style="width: 100%;" Align="center" Direction="DirectionVHType.Vertical">
-                    <PokemonImage
-                        Species="@_pokemon.Species"
-                        IsShiny="@_pokemon.IsShiny"/>
-                </Space>
-            </PageHeaderExtra>
-        </PageHeader>
-
-        <PokemonLegalityBanner @ref="_legalityBanner" Pokemon="_pokemon"/>
-
-        <Tabs @bind-ActiveKey="@_activeTab" DefaultActiveKey="Description" Class="tab-scrollable" Animated>
-            <TabPane Tab="Description" Key="Description">
-                <PokemonDescription Pokemon="_pokemon" OnPokemonChanged="HandlePokemonChange"/>
-            </TabPane>
-            <TabPane Tab="Met Conditions" Key="Met Conditions">
-                <PokemonMetConditions Pokemon="_pokemon" OnPokemonChanged="HandlePokemonChange"/>
-            </TabPane>
-            <TabPane Tab="Stats" Key="Stats">
-                <PokemonStats
-                    Pokemon="_pokemon"
-                    OnPokemonChanged="HandlePokemonChange"/>
-            </TabPane>
-            <TabPane Tab="Moves" Key="Moves">
-                <PokemonMoves
-                    Pokemon="_pokemon"
-                    OnPokemonChanged="HandlePokemonChange"/>
-            </TabPane>
-        </Tabs>
+    <Space Style="width: 100%; gap: 20px;" Direction="DirectionVHType.Vertical">
+        <PokemonEdit
+            Pokemon="_pokemon"/>
+        
         <Space Align="end" Style="width: 100%" Direction="DirectionVHType.Vertical">
             <Button
                 Type="@ButtonType.Primary"
@@ -55,14 +26,6 @@
 
     private Pokemon? _pokemon;
 
-    private string _activeTab = default!;
-    private PokemonLegalityBanner _legalityBanner = default!;
-
-    void HandlePokemonChange(Pokemon changedPokemon)
-    {
-        _legalityBanner.Refresh();
-    }
-
     protected override async Task OnInitializedAsync()
     {
         var pokemon = GameService.Game?.FindPokemon(UniqueId);
@@ -75,7 +38,7 @@
         _pokemon = pokemon.MakeCopy();
     }
 
-    private async Task HandleAddToBoxClick()
+    private void HandleAddToBoxClick()
     {
         if (_pokemon is null) return;
         
@@ -106,9 +69,3 @@
     }
 
 }
-
-<style>
-    .pokemon_page__heading_extra__grow .ant-page-header-heading-extra {
-        flex-grow: 1;
-    }
-</style>

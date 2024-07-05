@@ -3,8 +3,18 @@
 
 <PageTitle>Party</PageTitle>
 
-<PokemonTable DataSource="@(GameService.Game?.Trainer.Party.Pokemons ?? [])" Source="PokemonSource.Party" />
+<Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+    <PageHeader BackIcon="true" Style="max-width: 100%">
+        <TitleTemplate>Party</TitleTemplate>
+
+        @* <PageHeaderExtra> *@
+        @*     <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Plus" OnClick="OnAddItemClick">Add</Button> *@
+        @* </PageHeaderExtra> *@
+    </PageHeader>
+
+    <PokemonTable DataSource="@(GameService.Game?.Trainer.Party.Pokemons ?? [])" Source="PokemonSource.Party"/>
+</Space>
 
 @code {
-    
+
 }

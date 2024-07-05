@@ -5,48 +5,39 @@ namespace PKHeX.Facade.Repositories;
 
 public class ItemRepository
 {
-    private readonly Dictionary<ushort, ItemDefinition> _items;
-    private readonly ISet<ItemDefinition> _allBalls;
+    private readonly Dictionary<ushort, ItemDefinition> _allItems;
+    private readonly Dictionary<ushort, ItemDefinition> _allBalls;
+    
+    private readonly Dictionary<ushort, ItemDefinition> _gameItems;
+
 
     public ItemRepository(SaveFile saveFile)
     {
-        var saveSpecificDataSource = new FilteredGameDataSource(saveFile, GameInfo.Sources);
-
-        _items = GameInfo.Strings.GetItemStrings(saveFile.Context, saveFile.Version)
+        _allItems = GameInfo.Strings.Item
             .Select((itemName, id) => (id: Convert.ToUInt16(id), itemName))
             .ToDictionary(x => Convert.ToUInt16(x.id), x => new ItemDefinition(Convert.ToUInt16(x.id), x.itemName));
-
-        _allBalls = saveSpecificDataSource.Balls
-            .Select(d => GetItem(Convert.ToUInt16(d.Value)))
-            // for whatever reason some random items are also returned, like potions and heals
-            .Where(b => b.Name.EndsWith("ball", StringComparison.InvariantCultureIgnoreCase))
-            .ToImmutableSortedSet(ItemDefinitionNameComparer.Instance);
-    }
-
-    public ISet<ItemDefinition> All => _items.Values.ToHashSet();
-
-    public ItemDefinition GetItem(ushort id) => _items[id];
-
-    public ISet<ItemDefinition> AllBalls() => _allBalls;
-
-    private class ItemDefinitionNameComparer : IComparer<ItemDefinition>
-    {
-        public static ItemDefinitionNameComparer Instance { get; } = new();
-        private ItemDefinitionNameComparer() { }
         
-        public int Compare(ItemDefinition? x, ItemDefinition? y)
-        {
-            if (ReferenceEquals(x, y)) return 0;
-            if (y is null) return 1;
-            if (x is null) return -1;
-            return string.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase);
-        }
+        _allBalls = GameInfo.Strings.balllist
+            .Select((itemName, id) => (id: Convert.ToUInt16(id), itemName))
+            .ToDictionary(x => Convert.ToUInt16(x.id), x => new ItemDefinition(Convert.ToUInt16(x.id), x.itemName));
+            
+        _gameItems = GameInfo.Strings.GetItemStrings(saveFile.Context, saveFile.Version)
+            .Select((itemName, id) => (id: Convert.ToUInt16(id), itemName))
+            .ToDictionary(x => Convert.ToUInt16(x.id), x => new ItemDefinition(Convert.ToUInt16(x.id), x.itemName));
     }
+
+    public ISet<ItemDefinition> GameItems => _gameItems.Values.ToHashSet();
+
+    public ItemDefinition GetItem(ushort id) => _allItems[id];
+
+    public ISet<ItemDefinition> AllBalls() => _allBalls.Values.ToHashSet();
+
+    public ItemDefinition? GetBall(Ball ball) => _allBalls.GetValueOrDefault((ushort)ball);
 }
 
 public record ItemDefinition(ushort Id, string Name)
 {
-    public static int None = 0;
+    public static readonly int None = 0;
 
     public bool IsNone => Id == None;
 }
