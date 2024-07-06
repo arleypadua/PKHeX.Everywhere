@@ -13,6 +13,8 @@ public static class PokemonExtensions
     public static LegalityAnalysis Legality(this Pokemon pokemon) => new (pokemon.Pkm);
 
     public static string Showdown(this Pokemon pokemon) => ShowdownParsing.GetShowdownText(pokemon.Pkm);
+    
+    public static string Showdown(this IEnumerable<Pokemon> pokemonList) => string.Join("\n\n", pokemonList.Select(Showdown));
 }
 
 public static partial class SpeciesExtensions

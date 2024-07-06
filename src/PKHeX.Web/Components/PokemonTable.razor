@@ -20,26 +20,47 @@
     <ActionColumn Title="Action">
         <Space Size=@("small")>
             <SpaceItem>
-                <Button
-                    Type="@ButtonType.Link"
-                    OnClick='() => Navigation.NavigateToPokemon(Source, context.UniqueId)'>
-                    View
-                </Button>
+                <DropdownButton OnClick='() => Navigation.NavigateToPokemon(Source, context.UniqueId)' Type="@ButtonType.Link">
+                    <Overlay>
+                        <Menu>
+                            <MenuItem>
+                                <Button
+                                    Type="@ButtonType.Link"
+                                    OnClick='() => Navigation.NavigateToNewCloneOf(context.UniqueId)'>
+                                    Clone
+                                </Button>
+                            </MenuItem>
+                            <MenuItem>
+                                <Button
+                                    Type="@ButtonType.Link"
+                                    OnClick="() => HandleExportShowdownClick(context)">
+                                    Showdown
+                                </Button>
+                            </MenuItem>
+                        </Menu>
+                    </Overlay>
+                    <ChildContent>
+                        View
+                    </ChildContent>
+                </DropdownButton>
             </SpaceItem>
-            <SpaceItem>
-                <Button
-                    Type="@ButtonType.Link"
-                    OnClick='() => Navigation.NavigateToNewCloneOf(context.UniqueId)'>
-                    Clone
-                </Button>
-            </SpaceItem>
-            <SpaceItem>
-                <Button
-                    Type="@ButtonType.Link"
-                    OnClick="() => HandleExportShowdownClick(context)">
-                    Showdown
-                </Button>
-            </SpaceItem>
+            @* <SpaceItem> *@
+            @*     <Button *@
+            @*         Type="@ButtonType.Link" *@
+            @*         OnClick='() => Navigation.NavigateToPokemon(Source, context.UniqueId)'> *@
+            @*         View *@
+            @*     </Button> *@
+            @*     <Button *@
+            @*         Type="@ButtonType.Link" *@
+            @*         OnClick='() => Navigation.NavigateToNewCloneOf(context.UniqueId)'> *@
+            @*         Clone *@
+            @*     </Button> *@
+            @*     <Button *@
+            @*         Type="@ButtonType.Link" *@
+            @*         OnClick="() => HandleExportShowdownClick(context)"> *@
+            @*         Showdown *@
+            @*     </Button> *@
+            @* </SpaceItem> *@
         </Space>
     </ActionColumn>
 </Table>

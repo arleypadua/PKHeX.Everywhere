@@ -1,6 +1,8 @@
 @page "/pokemon-box"
 @using PKHeX.Core
 @inject NavigationManager Navigate
+@inject ClipboardService Clipboard
+@inject INotificationService Notification
 
 <PageTitle>Pokemon Box</PageTitle>
 
@@ -9,10 +11,28 @@
         <TitleTemplate>Box</TitleTemplate>
 
         <PageHeaderExtra>
-            <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Plus" OnClick="OnAddItemClick">Add</Button>
+            <DropdownButton
+                Type="@ButtonType.Primary"
+                OnClick="OnAddItemClick">
+                <Overlay>
+                    <Menu>
+                        <MenuItem>
+                            <Button
+                                Type="@ButtonType.Link"
+                                Icon="@IconType.Outline.Copy"
+                                OnClick="HandleExportShowdownClick">
+                                Showdown
+                            </Button>
+                        </MenuItem>
+                    </Menu>
+                </Overlay>
+                <ChildContent>
+                    Add
+                </ChildContent>
+            </DropdownButton>
         </PageHeaderExtra>
     </PageHeader>
-    
+
     <PokemonTable DataSource="@PokemonList" Source="PokemonSource.Box"/>
 
 </Space>
@@ -27,6 +47,28 @@
     {
         Navigate.NavigateToSearchEncounter();
         return Task.CompletedTask;
+    }
+
+    private void HandleExportShowdownClick()
+    {
+        if (PokemonList.Count != 0)
+        {
+            Clipboard.WriteTextAsync(PokemonList.Showdown());
+            _ = Notification.Open(new()
+            {
+                Message = "Showdown copied to clipboard",
+                Description = $"{PokemonList.Count} entries",
+                NotificationType = NotificationType.Success,
+            });
+        }
+        else
+        {
+            _ = Notification.Open(new()
+            {
+                Message = "No pokemons found in your box",
+                NotificationType = NotificationType.Error,
+            });
+        }
     }
 
 }
