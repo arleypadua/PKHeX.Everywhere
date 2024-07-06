@@ -1,8 +1,7 @@
 @using PKHeX.Facade.Repositories
-@inject AntdThemeService ThemeService
 @inject GameService GameService
 
-<Descriptions Bordered Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
+<ResponsibleDescriptions Bordered Size="small" Style="width: 100%">
     <DescriptionsItem Title="Origin Game">@Pokemon.MetConditions.Version.Name</DescriptionsItem>
     <DescriptionsItem Title="Location">@Pokemon.MetConditions.Location.Name</DescriptionsItem>
     <DescriptionsItem Title="Captured With">
@@ -34,14 +33,14 @@
     <DescriptionsItem Title="Fateful Encounter">
         <Switch Value="Pokemon.MetConditions.FatefulEncounter" OnChange="HandleFatefulEncounterChange" />
     </DescriptionsItem>
-</Descriptions>
+</ResponsibleDescriptions>
 
 @code {
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
 
-    ISet<ItemDefinition> AllBalls => GameService.Game?.ItemRepository.AllBalls() ?? new HashSet<ItemDefinition>();
-
+    private ISet<ItemDefinition> AllBalls => GameService.Game?.ItemRepository.AllBalls() ?? new HashSet<ItemDefinition>();
+    
     private async Task HandleCapturedWithChanged(ItemDefinition item)
     {
         Pokemon.Ball = item;
@@ -65,5 +64,4 @@
         Pokemon.MetConditions.FatefulEncounter = flag;
         await OnPokemonChanged.InvokeAsync(Pokemon);
     }
-
 }

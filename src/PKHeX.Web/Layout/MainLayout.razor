@@ -1,5 +1,6 @@
-﻿@inject NavigationManager Navigation
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager Navigation
 @inject GameService GameService
 
 <Layout Style="min-height: 100vh">
@@ -84,4 +85,8 @@
 
     record MenuItem(string Route, string Label, string? Icon = null);
 
+    public void Dispose()
+    {
+        GameService.OnGameLoaded -= OnGameLoaded;
+    }
 }

@@ -1,8 +1,7 @@
 @using PKHeX.Facade.Repositories
-@inject AntdThemeService ThemeService
 
 <Space Style="gap: 20px; width: 100%" Direction="DirectionVHType.Vertical" Wrap>
-    <Descriptions Bordered Title="Move 1" Column="@ThemeService.ColumnsConfiguration" Size="small">
+    <ResponsibleDescriptions Bordered Title="Move 1" Size="small">
         <DescriptionsItem Title="Move" Style="max-width: 250px">
             <MoveSelect
                 Moves="PossibleMoves"
@@ -10,10 +9,10 @@
                 SelectedMoveChanged="(newMove) => HandleMoveChange(PokemonMove.MoveIndex.Move1, newMove)"/>
         </DescriptionsItem>
         <DescriptionsItem Title="PP">@Pokemon.Move1.PP</DescriptionsItem>
-    </Descriptions>
+    </ResponsibleDescriptions>
 
 
-    <Descriptions Bordered Title="Move 2" Column="@ThemeService.ColumnsConfiguration" Size="small">
+    <ResponsibleDescriptions Bordered Title="Move 2" Size="small">
         <DescriptionsItem Title="Move" Style="max-width: 250px">
             <MoveSelect
                 Moves="PossibleMoves"
@@ -21,10 +20,10 @@
                 SelectedMoveChanged="(newMove) => HandleMoveChange(PokemonMove.MoveIndex.Move2, newMove)"/>
         </DescriptionsItem>
         <DescriptionsItem Title="PP">@Pokemon.Move2.PP</DescriptionsItem>
-    </Descriptions>
+    </ResponsibleDescriptions>
 
 
-    <Descriptions Bordered Title="Move 3" Column="@ThemeService.ColumnsConfiguration" Size="small">
+    <ResponsibleDescriptions Bordered Title="Move 3" Size="small">
         <DescriptionsItem Title="Move" Style="max-width: 250px">
             <MoveSelect
                 Moves="PossibleMoves"
@@ -32,9 +31,9 @@
                 SelectedMoveChanged="(newMove) => HandleMoveChange(PokemonMove.MoveIndex.Move3, newMove)"/>
         </DescriptionsItem>
         <DescriptionsItem Title="PP">@Pokemon.Move3.PP</DescriptionsItem>
-    </Descriptions>
+    </ResponsibleDescriptions>
 
-    <Descriptions Bordered Title="Move 4" Column="@ThemeService.ColumnsConfiguration" Size="small">
+    <ResponsibleDescriptions Bordered Title="Move 4" Size="small">
         <DescriptionsItem Title="Move" Style="max-width: 250px">
             <MoveSelect
                 Moves="PossibleMoves"
@@ -42,7 +41,7 @@
                 SelectedMoveChanged="(newMove) => HandleMoveChange(PokemonMove.MoveIndex.Move4, newMove)"/>
         </DescriptionsItem>
         <DescriptionsItem Title="PP">@Pokemon.Move4.PP</DescriptionsItem>
-    </Descriptions>
+    </ResponsibleDescriptions>
 
 </Space>
 
@@ -58,11 +57,10 @@
     private IEnumerable<MoveDefinition> PossibleMoves => MoveRepository.Instance.PossibleMovesFor(Pokemon)
         .Where(m => !AlreadyAssigned.Contains(m.Id))
         .Append(MoveDefinition.None);
-
+    
     private Task HandleMoveChange(PokemonMove.MoveIndex index, MoveDefinition move)
     {
         Pokemon.ChangeMove(index, move);
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
-
 }

@@ -1,8 +1,10 @@
 @using PKHeX.Core
 @using PKHeX.Facade.Repositories
-@inject AntdThemeService ThemeService
 
-<Descriptions Bordered Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
+<ResponsibleDescriptions
+    Bordered
+    Size="small"
+    Style="width: 100%">
     <DescriptionsItem Title="Species">@Pokemon.Species.Name()</DescriptionsItem>
 
     <DescriptionsItem Title="Types">
@@ -80,7 +82,7 @@
     <DescriptionsItem Title="Cured">
         <Switch Disabled Value="Pokemon.Flags.IsCured" OnChange="f => Pokemon.Flags.IsCured = f"/>
     </DescriptionsItem>
-</Descriptions>
+</ResponsibleDescriptions>
 
 @code {
     [Parameter] public required Pokemon Pokemon { get; set; }
@@ -94,7 +96,7 @@
     {
         _editableNickname = new() { Text = Pokemon.Nickname, OnChange = (v) => HandleNickNameChanged(v) };
     }
-
+    
     private Task HandleLevelChange(int newLevel)
     {
         Pokemon.ChangeLevel(newLevel);

@@ -1,11 +1,10 @@
 @using System.Reflection
 @using PKHeX.Core
-@inject AntdThemeService ThemeService
 
 <Space Style="gap: 20px;" Wrap>
     @foreach (var description in Descriptions)
     {
-        <Descriptions Bordered Title="@description.Key" Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
+        <ResponsibleDescriptions Bordered Title="@description.Key" Size="small" Style="width: 100%">
             <DescriptionsItem Title="Base">
                 @InputFor(@description.Value.GetBase, @description.Value.SetBase, @description.Value.ReadOnly)
             </DescriptionsItem>
@@ -21,12 +20,12 @@
                     @InputFor(@description.Value.GetAv, @description.Value.SetAv, @description.Value.ReadOnly)
                 </DescriptionsItem>   
             }
-        </Descriptions>
+        </ResponsibleDescriptions>
     }
 
     @if (Pokemon.BaseStats.CombatPower is not null)
     {
-        <Descriptions Bordered Title="Extra" Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
+        <ResponsibleDescriptions Bordered Title="Extra" Size="small" Style="width: 100%">
             <DescriptionsItem Title="CP">
                 <AntDesign.InputNumber
                     TValue="int"
@@ -38,7 +37,7 @@
                 </Button>
 
             </DescriptionsItem>
-        </Descriptions>
+        </ResponsibleDescriptions>
     }
 </Space>
 

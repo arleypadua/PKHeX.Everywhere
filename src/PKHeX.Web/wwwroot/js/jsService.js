@@ -1,3 +1,9 @@
+window.addEventListener("resize", () => {
+    DotNet.invokeMethodAsync("PKHeX.Web", "OnWindowResized", window.innerWidth)
+});
+
+window.getWidth = () => window.innerWidth;
+
 window.downloadFileFromStream = async (fileName, contentStreamReference) => {
     const arrayBuffer = await contentStreamReference.arrayBuffer();
     const blob = new Blob([arrayBuffer]);

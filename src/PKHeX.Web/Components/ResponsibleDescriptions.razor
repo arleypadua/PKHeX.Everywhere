@@ -1,0 +1,44 @@
+@inherits Descriptions
+@implements IDisposable
+
+@inject BrowserWindowService.Instance BrowserWindow
+@inject AntdThemeService ThemeService
+
+@{
+    base.BuildRenderTree(__builder);
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        BrowserWindowService.WindowResized += HandleWindowResized;
+        Column = ThemeService.ColumnsConfiguration;
+        SetLayout();
+        
+        base.OnInitialized();
+    }
+
+    private Task HandleWindowResized(BrowserWindowService.ResizedArgs width)
+    {
+        SetLayout();
+        return Task.CompletedTask;
+    }
+
+    private void SetLayout()
+    {
+        var descriptionsLayout = BrowserWindow.IsTooSmall
+            ? DescriptionsLayout.Vertical
+            : DescriptionsLayout.Horizontal;
+
+        Layout = descriptionsLayout;
+        
+        ShouldRender();
+    }
+
+    public new void Dispose()
+    {
+        BrowserWindowService.WindowResized += HandleWindowResized;
+        base.Dispose();
+    }
+
+}
