@@ -2,6 +2,10 @@ window.addEventListener("resize", () => {
     DotNet.invokeMethodAsync("PKHeX.Web", "OnWindowResized", window.innerWidth)
 });
 
+screen.orientation.addEventListener("change", (event) => {
+  DotNet.invokeMethodAsync("PKHeX.Web", "OnWindowResized", window.innerWidth);
+});
+
 window.getWidth = () => window.innerWidth;
 
 window.downloadFileFromStream = async (fileName, contentStreamReference) => {
