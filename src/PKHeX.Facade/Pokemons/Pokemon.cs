@@ -1,4 +1,5 @@
-﻿using PKHeX.Core;
+﻿using System.Text;
+using PKHeX.Core;
 using PKHeX.Facade.Extensions;
 using PKHeX.Facade.Repositories;
 
@@ -23,12 +24,25 @@ public class Pokemon(PKM pokemon, Game game)
 
     public EntityId Id => new(Pkm.TID16, Pkm.SID16);
     public uint PID => Pkm.PID;
-    public Species Species => (Species)pokemon.Species;
+    public SpeciesDefinition Species
+    {
+        get => Game.SpeciesRepository.Species[(Species)Pkm.Species];
+        set
+        {
+            if (Pkm.Species == value.ShortId) return;
+            
+            Pkm.Species = value.ShortId;
+            Pkm.SetString(Pkm.NicknameTrash, Pkm.Nickname.AsSpan(), Pkm.Nickname.Length, StringConverterOption.None);
+            
+            if (Pkm is ICombatPower combatPower) combatPower.ResetCP();
+        }
+    }
+
     public PokemonTypes Types => new(pokemon);
     public string Nickname => pokemon.Nickname;
 
     public bool NicknameSet =>
-        !pokemon.Nickname.Equals(Species.Name(), StringComparison.InvariantCultureIgnoreCase);
+        !pokemon.Nickname.Equals(Species.Name, StringComparison.InvariantCultureIgnoreCase);
 
     public int Level => pokemon.CurrentLevel;
     public PokemonNature Natures => new(pokemon);

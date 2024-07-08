@@ -43,6 +43,7 @@ public class PokemonRepository
         template.Species = settings.Species;
         template.Form = (byte)form;
         template.SetGender(template.GetSaneGender());
+        
         EncounterMovesetGenerator.OptimizeCriteria(template, _saveFile);
         return EncounterMovesetGenerator
             .GenerateEncounters(template, settings.Moves.ToArray(), settings.GetVersions(_saveFile))
@@ -72,7 +73,8 @@ public class Encounter
         ? _game.LocationRepository.GetBy(Data.EggLocation, true)
         : _game.LocationRepository.GetBy(Data.Location);
 
-    public ItemDefinition Ball => _game.ItemRepository.GetBall(Data.FixedBall);
+    public ItemDefinition Ball => _game.ItemRepository.GetBall(Data.FixedBall)
+        ?? throw new InvalidOperationException($"Ball item not found: {Data.FixedBall}");
 
     public Range LevelRange => new(Data.LevelMin, Data.LevelMax);
 

@@ -47,7 +47,7 @@ public class PokemonBox
             .Where(p => p.Species != Species.None)
             .GroupBy(p => p.Species)
             .ToImmutableSortedDictionary(
-                key => key.Key, 
+                key => key.Key.Species, 
                 value => value.OrderByDescending(p => p.Level).ToList());
     }
 }

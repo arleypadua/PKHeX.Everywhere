@@ -15,7 +15,7 @@
     <PropertyColumn Title="" Property="@(c => c.Species)">
         <PokemonIcon Species="@context.Species" Form="@context.Form.Form" />
     </PropertyColumn>
-    <PropertyColumn Title="Name" Property="@(c => c.Species.Name())" Sortable Filterable/>
+    <PropertyColumn Title="Name" Property="@(c => c.Species.Name)" Sortable Filterable/>
     <PropertyColumn Title="Level" Property="c => c.Level" Sortable Filterable></PropertyColumn>
     <ActionColumn Title="Action">
         <Space Size=@("small")>
@@ -44,23 +44,6 @@
                     </ChildContent>
                 </DropdownButton>
             </SpaceItem>
-            @* <SpaceItem> *@
-            @*     <Button *@
-            @*         Type="@ButtonType.Link" *@
-            @*         OnClick='() => Navigation.NavigateToPokemon(Source, context.UniqueId)'> *@
-            @*         View *@
-            @*     </Button> *@
-            @*     <Button *@
-            @*         Type="@ButtonType.Link" *@
-            @*         OnClick='() => Navigation.NavigateToNewCloneOf(context.UniqueId)'> *@
-            @*         Clone *@
-            @*     </Button> *@
-            @*     <Button *@
-            @*         Type="@ButtonType.Link" *@
-            @*         OnClick="() => HandleExportShowdownClick(context)"> *@
-            @*         Showdown *@
-            @*     </Button> *@
-            @* </SpaceItem> *@
         </Space>
     </ActionColumn>
 </Table>
@@ -96,7 +79,7 @@
         _ = Notification.Open(new ()
         {
             Message = $"Showdown copied to clipboard",
-            Description = pokemon.Species.Name(),
+            Description = pokemon.Species.Name,
             NotificationType = NotificationType.Success,
         });
     }

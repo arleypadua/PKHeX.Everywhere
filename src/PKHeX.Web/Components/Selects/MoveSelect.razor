@@ -1,9 +1,5 @@
 @using PKHeX.Facade.Repositories
 
-@{
-    Console.WriteLine(SelectedMoveId);
-}
-
 <Select TItem="MoveDefinition"
         TItemValue="ushort"
         DataSource="@InternalMoves()"

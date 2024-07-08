@@ -17,6 +17,10 @@ public static class FormRepository
 
 public record FormDefinition(ushort Id, string Name)
 {
+    public byte ByteId => (byte)Id;
+
     public bool IsAlolan => Name.Equals("Alola", StringComparison.InvariantCultureIgnoreCase);
     public bool IsGalarian => Name.Equals("Galar", StringComparison.InvariantCultureIgnoreCase);
+    
+    public static readonly FormDefinition Default = new(0, string.Empty);
 }

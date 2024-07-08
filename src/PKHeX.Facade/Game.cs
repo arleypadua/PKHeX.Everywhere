@@ -5,7 +5,7 @@ namespace PKHeX.Facade;
 
 public class Game
 {
-    internal readonly SaveFile SaveFile;
+    public readonly SaveFile SaveFile;
 
     public Game(SaveFile saveFile)
     {
@@ -14,7 +14,7 @@ public class Game
         PokemonRepository = new PokemonRepository(this);
         LocationRepository = new LocationRepository(this);
         ItemRepository = new ItemRepository(saveFile);
-        
+
         Trainer = new Trainer(this);
     }
 
@@ -35,14 +35,17 @@ public class Game
     public GameVersionDefinition GameVersionApproximation => SaveVersion.Aggregated
         ? GameVersionRepository.Instance.Get(SaveFile.Context.GetSingleGameVersion())
         : SaveVersion;
-    
+
     public EntityContext Generation => SaveFile.Context;
-    
+
+    public bool IsAwareOf(Species species, byte form = 0) =>
+        SaveFile.Personal.IsPresentInGame((ushort)species, form);
+
     public byte[] ToByteArray()
     {
         // make sure pending changes make its way to the bytes of the save
         Trainer.Commit();
-        
+
         return SaveFile.Write(
             setting: SaveFile.Metadata.GetSuggestedFlags(Path.GetExtension(SaveFile.Metadata.FileName))
         );

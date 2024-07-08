@@ -11,6 +11,7 @@
         ValueName="@nameof(SpeciesDefinition.Species)"
         Placeholder="Select a species"
         DefaultActiveFirstOption="false"
+        Disabled="Disabled"
         EnableSearch
         EnableVirtualization>
     <LabelTemplate>
@@ -23,7 +24,9 @@
 
 @code {
     [Parameter] public required DataSource Source { get; set; }
-
+    [Parameter] public bool ShowIcon { get; set; } = true;
+    [Parameter] public bool Disabled { get; set; } = false;
+    
     [Parameter] public SpeciesDefinition? SelectedSpecies { get; set; }
     [Parameter] public EventCallback<SpeciesDefinition> SelectedSpeciesChanged { get; set; }
 
@@ -41,7 +44,11 @@
         return
             @<Space Style="gap: 5px;">
                 <Space Align="center" Style="width: 100%">
-                    <span style="transform: translateY(-20px);"><PokemonIcon Species="@item.Species"/></span> <span>@item.Name</span>
+                    @if (ShowIcon)
+                    {
+                        <span style="transform: translateY(-20px);"><PokemonIcon Species="@item.Species"/></span>
+                    }
+                    <span>@item.Name</span>
                 </Space>
             </Space>;
     }
@@ -54,6 +61,9 @@
         {
             DataSource.All => SpeciesRepository.All.Values,
             DataSource.CurrentGame => GameService.LoadedGame.SpeciesRepository.Species.Values,
+            DataSource.OnlySpeciesChain => SelectedSpecies is not null
+                ? GameService.LoadedGame.SpeciesRepository.GetEvolutionsFrom(SelectedSpecies)
+                : throw new ArgumentException("Selected species is required when OnlySpeciesChain DataSource is used", nameof(SelectedSpecies)),
             _ => SpeciesRepository.All.Values
         }).Where(SpeciesDefinition.IsSome).ToList();
     }
@@ -62,5 +72,6 @@
     {
         All,
         CurrentGame,
+        OnlySpeciesChain,
     }
 }

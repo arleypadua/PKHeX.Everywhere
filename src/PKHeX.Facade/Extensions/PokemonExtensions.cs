@@ -6,9 +6,9 @@ namespace PKHeX.Facade.Extensions;
 
 public static class PokemonExtensions
 {
-    public static string NameDisplay(this Pokemon pokemon) => pokemon.Nickname == pokemon.Species.Name()
-        ? pokemon.Species.Name()
-        : $"{pokemon.Nickname} ({pokemon.Species.Name()})";
+    public static string NameDisplay(this Pokemon pokemon) => pokemon.Nickname == pokemon.Species.Name
+        ? pokemon.Species.Name
+        : $"{pokemon.Nickname} ({pokemon.Species.Name})";
 
     public static LegalityAnalysis Legality(this Pokemon pokemon) => new (pokemon.Pkm);
 
