@@ -4,7 +4,7 @@
         TItemValue="ushort?"
         DataSource="@Items"
         @bind-Value="@SelectedFormId"
-        OnSelectedItemChanged="SelectedFormChanged"
+        OnSelectedItemChanged="SelectedFormChangedInternal"
         LabelName="@nameof(FormDefinition.Name)"
         ValueName="@nameof(FormDefinition.Id)"
         Placeholder="Form"
@@ -25,5 +25,19 @@
     [Parameter] public ushort? SelectedFormId { get; set; }
     [Parameter] public EventCallback<FormDefinition> SelectedFormChanged { get; set; }
     
+    private bool _dataSourceJustLoaded = true;
+    
     private IEnumerable<FormDefinition> Items => FormRepository.GetFor(Pokemon);
+
+    private Task SelectedFormChangedInternal(FormDefinition arg)
+    {
+        if (_dataSourceJustLoaded)
+        {
+            _dataSourceJustLoaded = false;
+            return Task.CompletedTask;
+        }
+        
+        return SelectedFormChanged.InvokeAsync(arg);
+    }
+
 }

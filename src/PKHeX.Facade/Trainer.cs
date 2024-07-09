@@ -1,4 +1,6 @@
 ﻿using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
+using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Facade;
 
@@ -36,6 +38,18 @@ public class Trainer
         SAV8BS gen8 => gen8.Rival,
         _ => null
     };
+
+    public void AddOrUpdate(UniqueId id, Pokemon pokemon, PokemonSource source)
+    {
+        IMutablePokemonCollection collection = source switch
+        {
+            PokemonSource.Box => PokemonBox,
+            PokemonSource.Party => Party,
+            _ => throw new InvalidOperationException($"{source} is not supported when updating pokemon"),
+        };
+        
+        collection.AddOrUpdate(id, pokemon);
+    }
 
     internal void Commit()
     {

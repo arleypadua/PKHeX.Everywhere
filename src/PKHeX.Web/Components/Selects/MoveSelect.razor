@@ -4,7 +4,7 @@
         TItemValue="ushort"
         DataSource="@InternalMoves()"
         @bind-Value="@SelectedMoveId"
-        OnSelectedItemChanged="SelectedMoveChanged"
+        OnSelectedItemChanged="SelectedMoveChangedInternal"
         LabelName="@nameof(MoveDefinition.Name)"
         ValueName="@nameof(MoveDefinition.Id)"
         Placeholder="Move"
@@ -23,6 +23,8 @@
     [Parameter] public required IEnumerable<MoveDefinition> Moves { get; set; }
     [Parameter] public ushort SelectedMoveId { get; set; }
     [Parameter] public EventCallback<MoveDefinition> SelectedMoveChanged { get; set; }
+    
+    private bool _dataSourceJustLoaded = true;
 
     private IEnumerable<MoveDefinition> InternalMoves()
     {
@@ -36,6 +38,17 @@
         listWithSelf.AddRange(Moves);
 
         return listWithSelf;
+    }
+
+    private Task SelectedMoveChangedInternal(MoveDefinition arg)
+    {
+        if (_dataSourceJustLoaded)
+        {
+            _dataSourceJustLoaded = false;
+            return Task.CompletedTask;
+        }
+        
+        return SelectedMoveChanged.InvokeAsync(arg);
     }
 
 }

@@ -30,9 +30,7 @@ public class SupportedSaveFilesAttribute : DataAttribute
 
 public class GamesAttribute(params GameVersion[] versions) : DataAttribute
 {
-    private readonly GameVersion[] _versions = versions;
-
-    public override IEnumerable<object[]> GetData(MethodInfo testMethod) => _versions.Select(v => new object[]
+    public override IEnumerable<object[]> GetData(MethodInfo testMethod) => versions.Select(v => new object[]
     {
         Game.LoadFrom(SaveFilePath.PathFrom(v))
     });

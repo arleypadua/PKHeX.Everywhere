@@ -35,10 +35,10 @@
         var testData = await HttpClient.GetByteArrayAsync("/data/savedata.bin");
         GameService.Load(testData, "savedata.bin");
 
-        // var firstPokemon = GameService.Game!.Trainer.Party.Pokemons.First();
-        // Navigation.NavigateToPokemon(PokemonSource.Party, firstPokemon.UniqueId);
+        var firstPokemon = GameService.Game!.Trainer.Party.Pokemons.First();
+        Navigation.NavigateToPokemon(PokemonSource.Party, firstPokemon.UniqueId);
         // Navigation.NavigateToSearchEncounter();
-        Navigation.NavigateToPokemonBox();
+        // Navigation.NavigateToPokemonBox();
     }
 #endif
 

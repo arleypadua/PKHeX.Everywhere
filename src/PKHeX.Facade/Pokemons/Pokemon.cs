@@ -32,9 +32,9 @@ public class Pokemon(PKM pokemon, Game game)
             if (Pkm.Species == value.ShortId) return;
             
             Pkm.Species = value.ShortId;
-            Pkm.SetString(Pkm.NicknameTrash, Pkm.Nickname.AsSpan(), Pkm.Nickname.Length, StringConverterOption.None);
             
             if (Pkm is ICombatPower combatPower) combatPower.ResetCP();
+            if (!NicknameSet) Pkm.ClearNickname();
         }
     }
 
@@ -136,5 +136,18 @@ public class Pokemon(PKM pokemon, Game game)
         }
 
         return new Pokemon(underlyingPkm, Game);
+    }
+    
+    public Pokemon Clone() => new(Pkm.Clone(), Game);
+
+    public void ApplyChangesFrom(Pokemon template, bool keepPid = true)
+    {
+        var pid = PID;
+        template.Pkm.TransferPropertiesWithReflection(Pkm);
+
+        if (keepPid)
+        {
+            Pkm.PID = pid;
+        }
     }
 }

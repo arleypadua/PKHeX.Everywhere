@@ -1,3 +1,5 @@
+@using PKHeX.Core.AutoMod
+
 <Space Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
     <PageHeader BackIcon="true" Style="max-width: 100%">
         <TitleTemplate>Pokemon</TitleTemplate>
@@ -34,14 +36,19 @@
 </Space>
 
 @code {
+    [Inject] public required AutoLegalityService AutoLegalityService { get; set; }
+    
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> PokemonChanged { get; set; }
 
     private string _activeTab = default!;
     private PokemonLegalityBanner _legalityBanner = default!;
 
-    void HandlePokemonChange(Pokemon changedPokemon)
+    private bool _loading = false;
+
+    async Task HandlePokemonChange(Pokemon changedPokemon)
     {
+        await AutoLegalityService.ApplyIfEnabledAsync(changedPokemon);
         _legalityBanner.Refresh();
     }
 }
