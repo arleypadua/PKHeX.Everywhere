@@ -1,38 +1,45 @@
 @page "/pokemon/{PartyOrBox}/{UniqueIdString}"
 @inject NavigationManager Navigation
 
-@if (Pokemon is not null)
+@if (_editingPokemon is not null)
 {
-    <PokemonEdit 
-        Pokemon="Pokemon"
-        PokemonChanged="HandlePokemonChange"/>
+    <Space Style="width: 100%; gap: 20px;" Direction="DirectionVHType.Vertical">
+        <PokemonEdit
+            Pokemon="_editingPokemon"/>
+
+        <Space Align="end" Style="width: 100%" Direction="DirectionVHType.Vertical">
+            <Button
+                Type="@ButtonType.Primary"
+                OnClick="HandleSaveClick">Save</Button>
+        </Space>
+    </Space>
 }
 
 @code {
     [Inject] public required GameService GameService { get; set; }
-    
+    [Inject] public required JsService Js { get; set; }
+
     [Parameter] public required string PartyOrBox { get; set; }
     [Parameter] public required string UniqueIdString { get; set; }
 
     private UniqueId UniqueId => UniqueId.From(UniqueIdString);
 
-    private Pokemon? Pokemon => PartyOrBox switch
+    private Pokemon? OriginalPokemon => PartyOrBox switch
     {
         Party => GameService.Game?.Trainer.Party.Pokemons.FirstOrDefault(p => p.UniqueId.Equals(UniqueId)),
         Box => GameService.Game?.Trainer.PokemonBox.All.FirstOrDefault(p => p.UniqueId.Equals(UniqueId)),
         _ => null
     };
 
+    private Pokemon? _editingPokemon;
+
+    protected override void OnInitialized()
+    {
+        _editingPokemon = OriginalPokemon?.Clone();
+    }
+
     private const string Party = "party";
     private const string Box = "box";
-
-    void HandlePokemonChange(Pokemon changedPokemon)
-    {
-        if (changedPokemon.UniqueId.Equals(UniqueId)) return;
-        
-        // some changes might change the id of the Pokémon
-        Navigation.NavigateToPokemon(PokemonSource, changedPokemon.UniqueId, replace: true);
-    }
 
     private PokemonSource PokemonSource => PartyOrBox switch
     {
@@ -40,5 +47,21 @@
         Box => PokemonSource.Box,
         _ => throw new NotSupportedException($"{PartyOrBox} not supported")
     };
+
+    private async Task HandleSaveClick()
+    {
+        if (OriginalPokemon is null || _editingPokemon is null) return;
+        var idChanged = !OriginalPokemon.UniqueId.Equals(_editingPokemon.UniqueId);
+
+        OriginalPokemon.Game.Trainer.AddOrUpdate(OriginalPokemon.UniqueId, _editingPokemon, PokemonSource);
+        
+        // some changes might change the id of the Pokémon
+        if (idChanged)
+        {
+            Navigation.NavigateToPokemon(PokemonSource, _editingPokemon.UniqueId, replace: true);
+        }
+        
+        await Js.NavigateBack();
+    }
 
 }

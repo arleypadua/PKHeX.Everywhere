@@ -4,7 +4,7 @@
         TItemValue="ushort?"
         DataSource="@Items"
         @bind-Value="@SelectedItemId"
-        OnSelectedItemChanged="SelectedItemChanged"
+        OnSelectedItemChanged="SelectedItemChangedInternal"
         LabelName="@nameof(ItemDefinition.Name)"
         ValueName="@nameof(ItemDefinition.Id)"
         Placeholder="Select an item"
@@ -25,6 +25,8 @@
 
     [Parameter] public ushort? SelectedItemId { get; set; }
     [Parameter] public EventCallback<ItemDefinition> SelectedItemChanged { get; set; }
+    
+    private bool _dataSourceJustLoaded = true;
 
     RenderFragment RenderItem(ItemDefinition item)
     {
@@ -36,6 +38,17 @@
             @<Space Style="gap: 5px;" Class="@legalItem">
                 <ItemIcon Item="@item"/> <span>@item.Name</span>
             </Space>;
+    }
+
+    private Task SelectedItemChangedInternal(ItemDefinition arg)
+    {
+        if (_dataSourceJustLoaded)
+        {
+            _dataSourceJustLoaded = false;
+            return Task.CompletedTask;
+        }
+        
+        return SelectedItemChanged.InvokeAsync(arg);
     }
 
 }

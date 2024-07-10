@@ -33,9 +33,16 @@
     private Species? SelectedValue => SelectedSpecies?.Species;
 
     private List<SpeciesDefinition> _species = [];
+    private bool _dataSourceJustLoaded = true;
     
     private Task SelectedValueChanged(SpeciesDefinition definition)
     {
+        if (_dataSourceJustLoaded)
+        {
+            _dataSourceJustLoaded = false;
+            return Task.CompletedTask;
+        }
+        
         return SelectedSpeciesChanged.InvokeAsync(definition);
     }
 
@@ -66,6 +73,8 @@
                 : throw new ArgumentException("Selected species is required when OnlySpeciesChain DataSource is used", nameof(SelectedSpecies)),
             _ => SpeciesRepository.All.Values
         }).Where(SpeciesDefinition.IsSome).ToList();
+        
+        _dataSourceJustLoaded = true;
     }
 
     public enum DataSource

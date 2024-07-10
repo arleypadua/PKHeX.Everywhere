@@ -22,7 +22,7 @@ public class SpeciesRepository
         EvolutionTree
             .GetEvolutionTree(_game.Generation)
             .GetEvolutionsAndPreEvolutions(definition.ShortId, form)
-            .Select(result => Species[(Species)result.Species])
+            .Select(result => All[(Species)result.Species])
             .Where(species => _game.IsAwareOf(species, form))
             .ToImmutableList();
 

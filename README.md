@@ -85,9 +85,10 @@ pkhex-cli /path/to/savefile.bin
 ### Steps
 
 1. Clone this repository to your local machine.
-2. Navigate to the project directory.
-3. Compile the program using `dotnet build`.
-4. Run the program using `dotnet run -- [options]`.
+2. Make sure that the submodules are also cloned: `git submodule update --init --recursive`
+3. Navigate to the project directory.
+4. Compile the program using `dotnet build`.
+5. Run the program using `dotnet run -- [options]`.
 
 Example
 

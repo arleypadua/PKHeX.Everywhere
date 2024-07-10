@@ -1,11 +1,11 @@
 @using PKHeX.Core
-@if (_analysis is not null && !_analysis.Valid)
+@if (Failures.Any())
 {
     <Alert Type="@AlertType.Error" Message="Not legal" Closable>
         <ul>
-            @foreach (var issue in _analysis.Results.Where(r => r.Judgement <= 0))
+            @foreach (var failure in Failures)
             {
-                <li>@issue.Identifier: @issue.Comment</li>
+                <li>@failure.Identifier: @failure.Comment</li>
             }
         </ul>
     </Alert>   
@@ -15,6 +15,7 @@
     [Parameter] public required Pokemon Pokemon { get; set; }
 
     private LegalityAnalysis? _analysis;
+    private IEnumerable<CheckResult> Failures => _analysis?.Results.Where(r => r.Judgement == Severity.Invalid) ?? [];
 
     protected override void OnInitialized()
     {

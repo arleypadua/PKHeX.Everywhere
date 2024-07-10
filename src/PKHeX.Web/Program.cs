@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PKHeX.Core;
+using PKHeX.Facade;
 using PKHeX.Web;
 using PKHeX.Web.Services;
 
@@ -11,6 +12,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddSingleton<GameService>();
 builder.Services.AddSingleton<EncounterService>();
+builder.Services.AddScoped<AutoLegalityService>();
 
 builder.Services.AddSingleton<JsService>();
 builder.Services.AddSingleton<AntdThemeService>();

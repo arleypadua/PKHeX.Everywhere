@@ -1,0 +1,8 @@
+@page "/settings"
+@inject AutoLegalityService AutoLegalityService
+
+<ResponsibleDescriptions Title="Auto Legality" Bordered Size="small" Style="width: 100%">
+    <DescriptionsItem Title="Enabled">
+        <Switch @bind-Value="AutoLegalityService.Enabled" />
+    </DescriptionsItem>
+</ResponsibleDescriptions>

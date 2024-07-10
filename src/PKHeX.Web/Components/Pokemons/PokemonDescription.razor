@@ -9,7 +9,6 @@
         @* Disabled for now as changing species leaves out some dirty data in the trash. *@
         @* To figure out how to make a clean evolution/devolution. *@
         <SpeciesSelect
-            Disabled="true"
             Source="SpeciesSelect.DataSource.OnlySpeciesChain"
             SelectedSpecies="Pokemon.Species"
             SelectedSpeciesChanged="HandleSelectedSpeciesChanged"
@@ -177,6 +176,7 @@
     private Task HandleSelectedSpeciesChanged(SpeciesDefinition definition)
     {
         Pokemon.Species = definition;
+        _editableNickname.Text = Pokemon.Nickname;
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 

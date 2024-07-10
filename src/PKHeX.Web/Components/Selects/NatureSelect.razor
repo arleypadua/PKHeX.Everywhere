@@ -23,6 +23,8 @@
     private NatureSelection[] _natures = Enum.GetValues<Nature>()
         .Select(n => new NatureSelection(n, n.ToString()))
         .ToArray();
+
+    private bool _dataSourceJustLoaded = true;
     
     [Parameter] public Nature? SelectedNature { get; set; }
     [Parameter] public EventCallback<Nature> SelectedNatureChanged { get; set; }
@@ -32,7 +34,16 @@
         return @<span>@item.Name</span>;
     }
     
-    private Task SelectedNatureChangedInternal(NatureSelection arg) => SelectedNatureChanged.InvokeAsync(arg.Nature);
+    private Task SelectedNatureChangedInternal(NatureSelection arg)
+    {
+        if (_dataSourceJustLoaded)
+        {
+            _dataSourceJustLoaded = false;
+            return Task.CompletedTask;
+        }
+
+        return SelectedNatureChanged.InvokeAsync(arg.Nature);
+    }
 
     record NatureSelection(Nature Nature, string Name);
 

@@ -28,9 +28,17 @@
     [Parameter] public EventCallback<GameVersionDefinition> SelectedGameVersionChanged { get; set; }
 
     private GameVersion? SelectedValue => SelectedGameVersion?.Version;
+    
+    private bool _dataSourceJustLoaded = true;
 
     private Task SelectedValueChanged(GameVersionDefinition definition)
     {
+        if (_dataSourceJustLoaded)
+        {
+            _dataSourceJustLoaded = false;
+            return Task.CompletedTask;
+        }
+        
         return SelectedGameVersionChanged.InvokeAsync(definition);
     }
 
