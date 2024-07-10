@@ -1,4 +1,5 @@
 @page "/pokemon/{PartyOrBox}/{UniqueIdString}"
+@using PKHeX.Web.Services.Plugins
 @inject NavigationManager Navigation
 
 @if (_editingPokemon is not null)
@@ -16,6 +17,7 @@
 }
 
 @code {
+    [Inject] public required PlugInSandbox PlugInSandbox { get; set; }
     [Inject] public required GameService GameService { get; set; }
     [Inject] public required JsService Js { get; set; }
 
@@ -54,6 +56,8 @@
         var idChanged = !OriginalPokemon.UniqueId.Equals(_editingPokemon.UniqueId);
 
         OriginalPokemon.Game.Trainer.AddOrUpdate(OriginalPokemon.UniqueId, _editingPokemon, PokemonSource);
+
+        await PlugInSandbox.OnPokemonSaved(_editingPokemon);
         
         // some changes might change the id of the Pokémon
         if (idChanged)

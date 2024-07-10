@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <DebugType>portable</DebugType>
+        <EmbedAllSources>true</EmbedAllSources>
+        <PublishSingleFile>true</PublishSingleFile>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <SupportedPlatform Include="browser"/>
+    </ItemGroup>
+
+<!--    <ItemGroup>-->
+<!--        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.4"/>-->
+<!--    </ItemGroup>-->
+
+    <ItemGroup>
+      <ProjectReference Include="..\PKHeX.Web.Plugins\PKHeX.Web.Plugins.csproj" />
+    </ItemGroup>
+
+</Project>

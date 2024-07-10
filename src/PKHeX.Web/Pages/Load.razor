@@ -1,4 +1,5 @@
 @page "/load"
+@using PKHeX.Web.Services.Plugins
 @layout EmptyLayout
 @inject NavigationManager Navigation
 @inject GameService GameService
@@ -30,6 +31,7 @@
     }
 
 #if DEBUG
+    [Inject] public required PlugInSandbox PlugInSandbox { get; set; }
     protected override async Task OnInitializedAsync()
     {
         var testData = await HttpClient.GetByteArrayAsync("/data/savedata.bin");
@@ -39,6 +41,13 @@
         Navigation.NavigateToPokemon(PokemonSource.Party, firstPokemon.UniqueId);
         // Navigation.NavigateToSearchEncounter();
         // Navigation.NavigateToPokemonBox();
+
+        await LoadPlugins();
+    }
+
+    private async Task LoadPlugins()
+    {
+        await PlugInSandbox.LoadFrom("/plugins/PKHeX.Web.Plugins.Demo.dll");
     }
 #endif
 

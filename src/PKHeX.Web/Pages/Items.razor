@@ -1,5 +1,6 @@
 @page "/items"
 @using PKHeX.Facade.Repositories
+@using PKHeX.Web.Services.Plugins
 
 <Space Direction="DirectionVHType.Vertical" Style="width: 100%;gap: 20px;">
     <PageHeader BackIcon="true" Style="max-width: 100%">
@@ -32,6 +33,7 @@
 }
 
 @code {
+    [Inject] public required PlugInSandbox PlugInSandbox { get; set; }
     [Inject] public required GameService GameService { get; set; }
 
     string? _activeKey;
@@ -50,9 +52,12 @@
         _addItemModalVisible = true;
     }
 
-    void HandleOk(AddItemModal.ItemToBeAdded itemToBeAdded)
+    async Task HandleOk(AddItemModal.ItemToBeAdded itemToBeAdded)
     {
+        if (ActiveInventory is null) return;
         ActiveInventory?.Set(itemToBeAdded.Id, itemToBeAdded.Count);
+        
+        await PlugInSandbox.OnItemChanged(itemToBeAdded.Id, itemToBeAdded.Count);
         _addItemModalVisible = false;
     }
     

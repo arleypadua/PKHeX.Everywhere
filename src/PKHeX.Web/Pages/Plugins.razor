@@ -1,0 +1,29 @@
+@page "/plugins"
+@using PKHeX.Web.Plugins
+@using PKHeX.Web.Services.Plugins
+@inject PlugInSandbox PlugInSandbox
+
+<Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; gap: 20px;">
+    @foreach (var plugin in AllPlugins)
+    {
+        <ResponsibleDescriptions Title="@plugin.Manifest.PlugInName" Bordered Size="small" Style="width: 100%">
+            <DescriptionsItem Title="Description">@plugin.Manifest.Description</DescriptionsItem>
+            <DescriptionsItem Title="Enabled">
+                <Switch
+                    @bind-Value="@plugin.Enabled"/>
+            </DescriptionsItem>
+            <DescriptionsItem Title="Features">
+                <ul>
+                    @foreach (var hook in PlugInSandbox.GetAllHooksOf(plugin))
+                    {
+                        <li>@hook.Description</li>
+                    }
+                </ul>
+            </DescriptionsItem>
+        </ResponsibleDescriptions>
+    }
+</Space>
+
+@code {
+    private IEnumerable<Settings> AllPlugins => PlugInSandbox.GetAllSettings();
+}

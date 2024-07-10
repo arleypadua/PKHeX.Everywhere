@@ -3,17 +3,20 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PKHeX.Core;
 using PKHeX.Facade;
 using PKHeX.Web;
+using PKHeX.Web.Plugins;
 using PKHeX.Web.Services;
+using PKHeX.Web.Services.Plugins;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddSingleton<GameService>();
 builder.Services.AddSingleton<EncounterService>();
 builder.Services.AddScoped<AutoLegalityService>();
 
+builder.Services.AddSingleton<PlugInSandbox>();
 builder.Services.AddSingleton<JsService>();
 builder.Services.AddSingleton<AntdThemeService>();
 builder.Services.AddSingleton<ClipboardService>();

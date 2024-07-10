@@ -1,4 +1,6 @@
 @using PKHeX.Core.AutoMod
+@using PKHeX.Web.Plugins
+@using PKHeX.Web.Services.Plugins
 
 <Space Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
     <PageHeader BackIcon="true" Style="max-width: 100%">
@@ -37,6 +39,7 @@
 
 @code {
     [Inject] public required AutoLegalityService AutoLegalityService { get; set; }
+    [Inject] public required PlugInSandbox PlugInSandbox { get; set; }
     
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> PokemonChanged { get; set; }
@@ -50,7 +53,10 @@
     {
         await AutoLegalityService.ApplyIfEnabledAsync(changedPokemon);
         _legalityBanner.Refresh();
+
+        await PlugInSandbox.OnPokemonChanged(changedPokemon);
     }
+
 }
 
 <style>
