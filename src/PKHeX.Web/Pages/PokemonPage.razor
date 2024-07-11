@@ -10,15 +10,42 @@
             Pokemon="_editingPokemon"/>
 
         <Space Align="end" Style="width: 100%" Direction="DirectionVHType.Vertical">
-            <Button
-                Type="@ButtonType.Primary"
-                OnClick="HandleSaveClick">Save</Button>
+            @{ var actions = PlugInRegistry.GetAllEnabledHooks<IPokemonEditAction>().ToList(); }
+            @if (actions.Any())
+            {
+                <DropdownButton
+                    Type="@ButtonType.Primary"
+                    OnClick="HandleSaveClick">
+                    <Overlay>
+                        <Menu>
+                            @foreach (var action in actions)
+                            {   
+                                <MenuItem>
+                                    @RenderActionButton(action)
+                                </MenuItem>
+                            }
+                        </Menu>
+                    </Overlay>
+                    <ChildContent>
+                        Save
+                    </ChildContent>
+                </DropdownButton>
+            }
+            else
+            {
+                <Button
+                    Type="@ButtonType.Primary"
+                    OnClick="HandleSaveClick">
+                    Save
+                </Button>
+            }
         </Space>
     </Space>
 }
 
 @code {
     [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
+    [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
     [Inject] public required GameService GameService { get; set; }
     [Inject] public required JsService Js { get; set; }
 
@@ -59,14 +86,26 @@
         OriginalPokemon.Game.Trainer.AddOrUpdate(OriginalPokemon.UniqueId, _editingPokemon, PokemonSource);
 
         await PlugInRuntime.RunAll<IRunOnPokemonSave>(h => h.OnPokemonSaved(_editingPokemon));
-        
+
         // some changes might change the id of the Pokémon
         if (idChanged)
         {
             Navigation.NavigateToPokemon(PokemonSource, _editingPokemon.UniqueId, replace: true);
         }
-        
+
         await Js.NavigateBack();
+    }
+
+    private RenderFragment? RenderActionButton(IPokemonEditAction action)
+    {
+        if (_editingPokemon is null) return null;
+
+        return
+            @<Button
+                 Type="@ButtonType.Link"
+                 OnClick="() => action.OnActionRequested(_editingPokemon)">
+                @action.Label
+            </Button>;
     }
 
 }

@@ -48,6 +48,9 @@ internal static class ServiceCollectionExtensions
 
         foreach (var type in plugin.Hooks.Implementing<IRunOnItemChanged>())
             services.AddTransient(typeof(IRunOnItemChanged), type);
+        
+        foreach (var type in plugin.Hooks.Implementing<IPokemonEditAction>())
+            services.AddTransient(typeof(IPokemonEditAction), type);
 
         services.AddKeyedSingleton(plugin.Assembly.SettingKeyName(), plugin.Settings);
         services.AddSingleton(plugin.Settings.GetType(), plugin.Settings);

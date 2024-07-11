@@ -24,28 +24,36 @@ public class LoadedPlugIn(string sourceUrl, Settings settings, Assembly assembly
     public string PublicKeyToken => BitConverter.ToString(Assembly.GetName().GetPublicKeyToken() ?? [])
         .Replace("-", string.Empty).ToLowerInvariant();
 
-    public void Toggle(IPluginHook hook)
+    public void SetToggle(IPluginHook hook, bool toggle)
     {
         var type = hook.GetType();
-        _hookToggles.TryAdd(type.GetFullNameOrName(), false);
-        _hookToggles[type.GetFullNameOrName()] = !_hookToggles[type.GetFullNameOrName()];
+        SetToggle(type.GetFullNameOrName(), toggle);
     }
     
-    public void SetToggle(string typeName, bool toggle)
+    internal void SetToggle(string typeName, bool toggle)
     {
         _hookToggles.TryAdd(typeName, false);
-        _hookToggles[typeName] = !_hookToggles[typeName];
+        _hookToggles[typeName] = toggle;
     }
 
     public bool IsPlugInAndHookEnabled(IPluginHook hook) =>
         Enabled && IsHookEnabled(hook.GetType());
 
-    // enabled by default
     public bool IsHookEnabled(Type hookType) =>
-        !_hookToggles.ContainsKey(hookType.GetFullNameOrName()) || _hookToggles[hookType.GetFullNameOrName()];
+        _hookToggles.ContainsKey(hookType.GetFullNameOrName()) && _hookToggles[hookType.GetFullNameOrName()];
 
     public bool IsHookEnabled(IPluginHook hook) => IsHookEnabled(hook.GetType());
 
-    public static LoadedPlugIn From(string sourceUrl, Assembly assembly, byte[] assemblyRawBytes) =>
-        new(sourceUrl, assembly.GetSettings(), assembly, assemblyRawBytes);
+    public static LoadedPlugIn From(
+        string sourceUrl, 
+        Assembly assembly, 
+        byte[] assemblyRawBytes)
+    {
+        var settings = assembly.GetSettings();
+        var plugIn = new LoadedPlugIn(sourceUrl, settings, assembly, assemblyRawBytes);
+        foreach (var (type, toggle) in settings.DefaultFeatureToggles)
+            plugIn.SetToggle(type.GetFullNameOrName(), toggle);
+
+        return plugIn;
+    }
 }

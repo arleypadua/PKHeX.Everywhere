@@ -59,7 +59,9 @@ public class PlugInRegistry
     
     public IEnumerable<IPluginHook> GetAllHooksOf(LoadedPlugIn plugin)
     {
-        return plugin.Hooks.Select(t => _pluginServiceProvider.GetFromImplementation(t) as IPluginHook)!;
+        return plugin.Hooks
+            .Select(t => _pluginServiceProvider.GetFromImplementation(t) as IPluginHook)
+            .Where(t => t != null)!;
     }
     public IEnumerable<T> GetAllHooks<T>() where T : IPluginHook => _pluginServiceProvider.GetServices<T>();
     public IEnumerable<T> GetAllEnabledHooks<T>() where T : IPluginHook => _pluginServiceProvider.GetServices<T>()

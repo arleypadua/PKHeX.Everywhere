@@ -21,14 +21,31 @@
         </PageHeader>
 
         <ResponsibleDescriptions Bordered Size="small" Style="width: 100%">
+            <DescriptionsItem Title="Name">
+                @if (string.IsNullOrWhiteSpace(_plugIn.Settings.Manifest.ProjectUrl))
+                {
+                    @_plugIn.Settings.Manifest.PlugInName
+                }
+                else
+                {
+                    <a href="@_plugIn.Settings.Manifest.ProjectUrl" target="_blank">
+                        @_plugIn.Settings.Manifest.PlugInName
+                    </a>
+                    <Icon Type="link" Theme="outline"/>
+                }
+            </DescriptionsItem>
             <DescriptionsItem Title="Description">@_plugIn.Settings.Manifest.Description</DescriptionsItem>
             <DescriptionsItem Title="Version">@_plugIn.Version</DescriptionsItem>
             <DescriptionsItem Title="Enabled">
                 <Switch
                     @bind-Value="@_plugIn.Enabled"/>
             </DescriptionsItem>
-            <DescriptionsItem Title="Public Key">@_plugIn.PublicKeyToken</DescriptionsItem>
-
+            
+            @if (!string.IsNullOrWhiteSpace(_plugIn.PublicKeyToken))
+            {
+                <DescriptionsItem Title="Public Key">@_plugIn.PublicKeyToken</DescriptionsItem>
+            }
+            
             @foreach (var (key, _) in _plugIn.Settings.All)
             {
                 <DescriptionsItem Title="@key">
@@ -51,7 +68,7 @@
                     <SpaceItem>
                         <Switch
                             Value="@_plugIn.IsHookEnabled(context.Hook)" 
-                            OnChange="v => ToggleFeature(context.Hook)"/>
+                            OnChange="newValue => ToggleFeature(context.Hook, newValue)"/>
                     </SpaceItem>
                 </Space>
             </ActionColumn>
@@ -63,7 +80,7 @@
     [Parameter] public required string Id { get; set; }
 
     private LoadedPlugIn? _plugIn;
-    private IEnumerable<PlugInFeatures> _features = [];
+    private List<PlugInFeatures> _features = [];
 
     private int _pageIndex = 1;
     private int _pageSize = 20;
@@ -73,7 +90,8 @@
         _plugIn = PlugInRegistry.GetBy(Id);
         _features = PlugInRegistry
             .GetAllHooksOf(_plugIn)
-            .Select(p => new PlugInFeatures { Hook = p });
+            .Select(p => new PlugInFeatures { Hook = p })
+            .ToList();
     }
 
     private RenderFragment RenderSettings(string key, Settings.SettingValue value) =>
@@ -115,10 +133,10 @@
         PlugInStorage.Persist(_plugIn);
     }
 
-    private void ToggleFeature(IPluginHook hook)
+    private void ToggleFeature(IPluginHook hook, bool newValue)
     {
         ArgumentNullException.ThrowIfNull(_plugIn, nameof(_plugIn));
-        _plugIn.Toggle(hook);
+        _plugIn.SetToggle(hook, newValue);
         PlugInStorage.Persist(_plugIn);
     }
     

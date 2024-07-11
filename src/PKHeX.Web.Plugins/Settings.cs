@@ -7,7 +7,10 @@ namespace PKHeX.Web.Plugins;
 /// </summary>
 public abstract class Settings(PlugInManifest manifest)
 {
+    private readonly IDictionary<Type, bool> _defaultFeatureToggles = new Dictionary<Type, bool>();
     public PlugInManifest Manifest { get; } = manifest ?? throw new ArgumentNullException(nameof(manifest));
+    
+    public IReadOnlyDictionary<Type, bool> DefaultFeatureToggles => _defaultFeatureToggles.AsReadOnly();
 
     private readonly Dictionary<string, SettingValue> _settings = new();
 
@@ -29,6 +32,11 @@ public abstract class Settings(PlugInManifest manifest)
 
             _settings[key] = value;
         }
+    }
+
+    protected void EnabledByDefault<THook>() where THook : IPluginHook
+    {
+        _defaultFeatureToggles[typeof(THook)] = true;
     }
 
     public abstract record SettingValue(bool ReadOnly)
