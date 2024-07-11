@@ -13,8 +13,6 @@ public abstract class Settings(PlugInManifest manifest)
 
     public IEnumerable<KeyValuePair<string, SettingValue>> All => _settings;
 
-    public bool Enabled { get; set; } = true;
-
     public SettingValue this[string key]
     {
         get => _settings[key];
@@ -26,24 +24,49 @@ public abstract class Settings(PlugInManifest manifest)
                     $"Setting {key} exists with type {value.GetType().Name}. Cannot set it to value {value}.");
             }
 
+            if (_settings.ContainsKey(key) && _settings[key].ReadOnly)
+                throw new InvalidOperationException($"Setting {key} is read-only. Cannot set it.");
+
             _settings[key] = value;
         }
     }
 
-    public abstract record SettingValue
+    public abstract record SettingValue(bool ReadOnly)
     {
-        public record StringValue(String Value) : SettingValue;
+        public record StringValue(String Value, bool ReadOnly = false) : SettingValue(ReadOnly);
 
-        public record BooleanValue(bool Value) : SettingValue;
+        public record BooleanValue(bool Value, bool ReadOnly = false) : SettingValue(ReadOnly);
 
-        public record IntegerValue(int Value) : SettingValue;
+        public record IntegerValue(int Value, bool ReadOnly = false) : SettingValue(ReadOnly);
+        
+        public string GetString()
+        {
+            if (this is not StringValue str) throw new InvalidOperationException($"{this} is not a string value.");
+            return str.Value;
+        }
+        
+        public bool GetBoolean()
+        {
+            if (this is not BooleanValue boolean) throw new InvalidOperationException($"{this} is not a boolean value.");
+            return boolean.Value;
+        }
+        
+        public int GetInteger()
+        {
+            if (this is not IntegerValue integer) throw new InvalidOperationException($"{this} is not a integer value.");
+            return integer.Value;
+        }
     }
 }
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public record PlugInManifest(string PlugInName, string? Description = null)
+public record PlugInManifest(
+    string PlugInName, 
+    string? Description = null, 
+    string? ProjectUrl = null,
+    string? Information = null)
 {
-    public string PlugInName { get; init; } = string.IsNullOrWhiteSpace(PlugInName)
+    public string PlugInName { get; } = string.IsNullOrWhiteSpace(PlugInName)
         ? throw new ArgumentNullException(nameof(PlugInName))
         : PlugInName;
 }

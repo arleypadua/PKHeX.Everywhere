@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@using PKHeX.Web.Services.Plugins
 @implements IDisposable
 @inject NavigationManager Navigation
 @inject GameService GameService
@@ -11,23 +12,35 @@
 
         <div class="logo">PKHeX.Web</div>
 
-        <Menu 
-            Theme="MenuTheme.Dark" 
-            Mode="MenuMode.Inline" 
-            DefaultSelectedKeys="@([SelectedMenuItem?.Route ?? string.Empty])"
-            SelectedKeys="@([SelectedMenuItem?.Route ?? string.Empty])">
-            @foreach (var item in _menuItems)
+        <Menu
+            Theme="MenuTheme.Dark"
+            Mode="MenuMode.Inline"
+            DefaultSelectedKeys="@( [SelectedMenuItem?.Route ?? string.Empty])"
+            SelectedKeys="@( [SelectedMenuItem?.Route ?? string.Empty])">
+            @foreach (var item in MenuItems)
             {
-                <MenuItem Key="@item.Route">
-                    @if (item.Icon is not null)
-                    {
-                        <Icon Type="@item.Icon" Theme="outline"/>
-                    }
+                @if (item.Nested is null || item.Nested.Count == 0)
+                {
+                    @RenderMenu(item)
+                }
+                else
+                {
+                    RenderFragment subtitle =
+                        @<span>
+                            @if (item.Icon is not null)
+                            {
+                                <Icon Type="@item.Icon" Theme="outline"/>
+                            }
+                            <span>@item.Label</span>
+                        </span>;
 
-                    <span class="nav-text">
-                        <a href="@item.Route">@item.Label</a>
-                    </span>
-                </MenuItem>
+                    <SubMenu Key="@item.Route" TitleTemplate="subtitle">
+                        @foreach (var sub in item.Nested)
+                        {
+                            @RenderMenu(sub)
+                        }
+                    </SubMenu>
+                }
             }
         </Menu>
     </Sider>
@@ -43,30 +56,47 @@
                 @Body
             </div>
         </Content>
-        <PkHexFooter />
+        <PkHexFooter/>
     </Layout>
 
 </Layout>
 
 @code {
-    bool _collapsed;
-    MenuItem? SelectedMenuItem => _menuItems.SingleOrDefault(m => m.Route == Navigation.CurrentRoute());
+    [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
 
-    readonly IEnumerable<MenuItem> _menuItems =
+    bool _collapsed;
+    MenuItem? SelectedMenuItem => MenuItems.SingleOrDefault(m => m.Route == Navigation.CurrentRoute());
+
+    IEnumerable<MenuItem> MenuItems =>
     [
         new("", "Home", "home"),
         new("party", "Party", "team"),
         new("pokemon-box", "Pokemon Box", "inbox"),
         new("items", "Items", "shop"),
-        
-        new ("save", "Save", "save"),
-        new ("plugins", "Plug-Ins", "api"),
-        new ("settings", "Settings", "setting"),
+
+        new("save", "Save", "save"),
+        new("plugins", "Plug-Ins", "api", PluginMenuItems),
+        new("settings", "Settings", "setting"),
     ];
-    
+
+    List<MenuItem> PluginMenuItems
+    {
+        get
+        {
+            var plugIns = PlugInRegistry.GetAllPlugins()
+                .Select(p => new MenuItem($"plugins/{p.Id}", p.Settings.Manifest.PlugInName))
+                .ToList();
+            
+            if (plugIns.Any()) plugIns.Add(new MenuItem("plugins", "Manage Plug-Ins"));
+
+            return plugIns;
+        }
+    }
+
     protected override void OnInitialized()
     {
         GameService.OnGameLoaded += OnGameLoaded;
+        PlugInRegistry.OnPlugInChanged += OnPlugInChanged;
         ToLoadIfNotLoaded();
     }
 
@@ -85,10 +115,30 @@
         Navigation.NavigateTo("/");
     }
 
-    record MenuItem(string Route, string Label, string? Icon = null);
+
+    private void OnPlugInChanged(LoadedPlugIn plugin, PlugInRegistry.ChangeType type)
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    private RenderFragment RenderMenu(MenuItem item) =>
+        @<MenuItem Key="@item.Route">
+            @if (item.Icon is not null)
+            {
+                <Icon Type="@item.Icon" Theme="outline"/>
+            }
+
+            <span class="nav-text">
+                <a href="@item.Route">@item.Label</a>
+            </span>
+        </MenuItem>;
+
+    record MenuItem(string Route, string Label, string? Icon = null, List<MenuItem>? Nested = null);
 
     public void Dispose()
     {
         GameService.OnGameLoaded -= OnGameLoaded;
+        PlugInRegistry.OnPlugInChanged -= OnPlugInChanged;
     }
+
 }

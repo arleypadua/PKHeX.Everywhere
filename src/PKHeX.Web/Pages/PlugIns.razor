@@ -1,0 +1,67 @@
+@page "/plugins"
+@using PKHeX.Web.Services.Plugins
+
+<Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+    <PageHeader BackIcon="true" Style="max-width: 100%">
+        <TitleTemplate>Manage Plug-Ins</TitleTemplate>
+    </PageHeader>
+    
+    @if (Registry.GetAllPlugins().Any())
+    {
+        <Title Level="2">Installed</Title>
+        <ul>
+            @foreach (var plugin in Registry.GetAllPlugins())
+            {
+                <li>
+                    <span>@plugin.Id</span>
+                    <Button
+                        OnClick="() => HandleUninstallClick(plugin)"
+                        Type="@ButtonType.Link"
+                        Danger>
+                        Uninstall
+                    </Button>
+                </li>
+            }
+        </ul>
+    }
+    
+    @{ var trusted = TrustedPlugins.ToList(); }
+    @if (trusted.Any())
+    {
+        <Title Level="2">Install from trusted source</Title>
+        <ul>
+            @foreach (var plugin in trusted)
+            {
+                <li>
+                    <span>@plugin.Id</span>
+                    <Button
+                        OnClick="() => HandleInstallClick(plugin)"
+                        Type="@ButtonType.Link">
+                        Install
+                    </Button>
+                </li>
+            }
+        </ul>
+    }
+    
+</Space>
+
+@code {
+    [Inject] public required PlugInRegistry Registry { get; set; }
+    [Inject] public required PlugInService Service { get; set; }
+
+    private IEnumerable<PlugInRegistry.TrustedPlugins> TrustedPlugins => PlugInRegistry.TrustedSources
+        .Where(t => Registry.GetAllPlugins().All(p => p.Id != t.Id));
+
+    private Task HandleUninstallClick(LoadedPlugIn plugin)
+    {
+        Service.Uninstall(plugin);
+        return Task.CompletedTask;
+    }
+
+    private Task HandleInstallClick(PlugInRegistry.TrustedPlugins plugin)
+    {
+        return Service.InstallFrom(plugin.SourceUrl);
+    }
+
+}

@@ -38,8 +38,7 @@
 </Space>
 
 @code {
-    [Inject] public required AutoLegalityService AutoLegalityService { get; set; }
-    [Inject] public required PlugInSandbox PlugInSandbox { get; set; }
+    [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
     
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> PokemonChanged { get; set; }
@@ -47,14 +46,10 @@
     private string _activeTab = default!;
     private PokemonLegalityBanner _legalityBanner = default!;
 
-    private bool _loading = false;
-
     async Task HandlePokemonChange(Pokemon changedPokemon)
     {
-        await AutoLegalityService.ApplyIfEnabledAsync(changedPokemon);
+        await PlugInRuntime.RunAll<IRunOnPokemonChange>(h => h.OnPokemonChange(changedPokemon));
         _legalityBanner.Refresh();
-
-        await PlugInSandbox.OnPokemonChanged(changedPokemon);
     }
 
 }

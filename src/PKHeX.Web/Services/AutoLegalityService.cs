@@ -6,6 +6,7 @@ using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Web.Services;
 
+[Obsolete("Use the plugin")]
 public class AutoLegalityService(INotificationService notification)
 {
     static AutoLegalityService()

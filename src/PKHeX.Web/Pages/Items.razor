@@ -1,5 +1,6 @@
 @page "/items"
 @using PKHeX.Facade.Repositories
+@using PKHeX.Web.Plugins
 @using PKHeX.Web.Services.Plugins
 
 <Space Direction="DirectionVHType.Vertical" Style="width: 100%;gap: 20px;">
@@ -10,7 +11,7 @@
             <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Plus" OnClick="OnAddItemClick">Add</Button>
         </PageHeaderExtra>
     </PageHeader>
-    
+
     <Tabs @bind-ActiveKey="@_activeKey" DefaultActiveKey="@DefaultActiveKey" Class="tab-scrollable" Animated>
         @foreach (var inventoryType in InventoryTypes)
         {
@@ -29,24 +30,24 @@
         @bind-Visible="@_addItemModalVisible"
         TargetInventory="ActiveInventory"
         OnOk="@HandleOk"
-        OnCancel="@HandleCancel"/>   
+        OnCancel="@HandleCancel"/>
 }
 
 @code {
-    [Inject] public required PlugInSandbox PlugInSandbox { get; set; }
+    [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
     [Inject] public required GameService GameService { get; set; }
 
     string? _activeKey;
-    
+
     Inventories? Inventories => GameService.Game?.Trainer.Inventories;
     Inventory? ActiveInventory => string.IsNullOrWhiteSpace(_activeKey) ? null : Inventories?[_activeKey];
     string[] InventoryTypes => Inventories?.InventoryTypes.OrderBy(t => t).ToArray() ?? [];
     string? DefaultActiveKey => InventoryTypes.FirstOrDefault();
 
     #region Add Item Modal
-    
+
     bool _addItemModalVisible;
-    
+
     void OnAddItemClick()
     {
         _addItemModalVisible = true;
@@ -56,11 +57,11 @@
     {
         if (ActiveInventory is null) return;
         ActiveInventory?.Set(itemToBeAdded.Id, itemToBeAdded.Count);
-        
-        await PlugInSandbox.OnItemChanged(itemToBeAdded.Id, itemToBeAdded.Count);
+
+        await PlugInRuntime.RunAll<IRunOnItemChanged>(h => h.OnItemChanged(new(itemToBeAdded.Id, itemToBeAdded.Count)));
         _addItemModalVisible = false;
     }
-    
+
     private void HandleCancel()
     {
         _addItemModalVisible = false;

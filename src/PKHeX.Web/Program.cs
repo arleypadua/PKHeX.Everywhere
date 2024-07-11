@@ -1,9 +1,10 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PKHeX.Core;
-using PKHeX.Facade;
 using PKHeX.Web;
-using PKHeX.Web.Plugins;
 using PKHeX.Web.Services;
 using PKHeX.Web.Services.Plugins;
 
@@ -11,21 +12,37 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-builder.Services.AddSingleton<GameService>();
-builder.Services.AddSingleton<EncounterService>();
-builder.Services.AddScoped<AutoLegalityService>();
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddScoped<GameService>();
+builder.Services.AddScoped<EncounterService>();
 
-builder.Services.AddSingleton<PlugInSandbox>();
-builder.Services.AddSingleton<JsService>();
-builder.Services.AddSingleton<AntdThemeService>();
-builder.Services.AddSingleton<ClipboardService>();
-builder.Services.AddSingleton<BrowserWindowService.Instance>();
+builder.Services.AddScoped<PlugInService>();
+builder.Services.AddScoped<PlugInRegistry>();
+builder.Services.AddScoped<PlugInRuntime>();
+builder.Services.AddScoped<PlugInRegistry>();
+builder.Services.AddScoped<PlugInLocalStorage>();
+builder.Services.AddScoped<PlugInLocalStorageLoader>();
 
-builder.Services.AddSingleton<BlazorAesProvider>();
-builder.Services.AddSingleton<BlazorMd5Provider>();
+builder.Services.AddScoped<JsService>();
+builder.Services.AddScoped<AntdThemeService>();
+builder.Services.AddScoped<ClipboardService>();
+builder.Services.AddScoped<BrowserWindowService.Instance>();
+
+builder.Services.AddScoped<BlazorAesProvider>();
+builder.Services.AddScoped<BlazorMd5Provider>();
 
 builder.Services.AddAntDesign();
+
+builder.Services.AddBlazoredLocalStorage(config =>
+{
+    config.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    config.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+    config.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
+    config.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    config.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
+    config.JsonSerializerOptions.WriteIndented = false;
+});
 
 var app = builder.Build();
 
@@ -34,5 +51,8 @@ var app = builder.Build();
 // During startup we replace PKHeX unsupported cryptography APIs with a javascript-based alternative 
 RuntimeCryptographyProvider.Aes = app.Services.GetRequiredService<BlazorAesProvider>();
 RuntimeCryptographyProvider.Md5 = app.Services.GetRequiredService<BlazorMd5Provider>();
+
+app.Services.GetRequiredService<PlugInLocalStorageLoader>()
+    .InitializePlugIns();
 
 await app.RunAsync();

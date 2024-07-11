@@ -31,23 +31,24 @@
     }
 
 #if DEBUG
-    [Inject] public required PlugInSandbox PlugInSandbox { get; set; }
+    [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
     protected override async Task OnInitializedAsync()
     {
         var testData = await HttpClient.GetByteArrayAsync("/data/savedata.bin");
         GameService.Load(testData, "savedata.bin");
 
-        var firstPokemon = GameService.Game!.Trainer.Party.Pokemons.First();
-        Navigation.NavigateToPokemon(PokemonSource.Party, firstPokemon.UniqueId);
+        // var firstPokemon = GameService.Game!.Trainer.Party.Pokemons.First();
+        // Navigation.NavigateToPokemon(PokemonSource.Party, firstPokemon.UniqueId);
         // Navigation.NavigateToSearchEncounter();
         // Navigation.NavigateToPokemonBox();
+        Navigation.NavigateToPlugIns();
 
-        await LoadPlugins();
+        // await LoadPlugins();
     }
 
     private async Task LoadPlugins()
     {
-        await PlugInSandbox.LoadFrom("/plugins/PKHeX.Web.Plugins.Demo.dll");
+        await PlugInRegistry.RegisterFrom("/plugins/PKHeX.Web.Plugins.Demo.dll");
     }
 #endif
 

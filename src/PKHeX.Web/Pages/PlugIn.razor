@@ -1,0 +1,129 @@
+@page "/plugins/{Id}"
+@using PKHeX.Web.Plugins
+@using PKHeX.Web.Services.Plugins
+@inject PlugInRegistry PlugInRegistry
+@inject PlugInLocalStorage PlugInStorage
+
+@if (_plugIn != null)
+{
+    <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+        <PageHeader BackIcon="true" Style="max-width: 100%">
+            <TitleTemplate>@_plugIn.Settings.Manifest.PlugInName</TitleTemplate>
+
+            <PageHeaderExtra>
+                @if (_plugIn.HasNewerVersion)
+                {
+                    <Button Type="@ButtonType.Primary">
+                        Update
+                    </Button>
+                }
+            </PageHeaderExtra>
+        </PageHeader>
+
+        <ResponsibleDescriptions Bordered Size="small" Style="width: 100%">
+            <DescriptionsItem Title="Description">@_plugIn.Settings.Manifest.Description</DescriptionsItem>
+            <DescriptionsItem Title="Version">@_plugIn.Version</DescriptionsItem>
+            <DescriptionsItem Title="Enabled">
+                <Switch
+                    @bind-Value="@_plugIn.Enabled"/>
+            </DescriptionsItem>
+            <DescriptionsItem Title="Public Key">@_plugIn.PublicKeyToken</DescriptionsItem>
+
+            @foreach (var (key, _) in _plugIn.Settings.All)
+            {
+                <DescriptionsItem Title="@key">
+                    @RenderSettings(key, _plugIn.Settings[key])
+                </DescriptionsItem>
+            }
+        </ResponsibleDescriptions>
+
+        <Table
+            TItem="PlugInFeatures"
+            DataSource="@_features"
+            @bind-PageIndex="_pageIndex"
+            @bind-PageSize="_pageSize"
+            Size="TableSize.Small"
+            Responsive
+            EnableVirtualization>
+            <PropertyColumn Title="Description" Property="@(c => c.Hook.Description)" Sortable Filterable/>
+            <ActionColumn Title="Enabled">
+                <Space Size=@("middle")>
+                    <SpaceItem>
+                        <Switch
+                            Value="@_plugIn.IsHookEnabled(context.Hook)" 
+                            OnChange="v => ToggleFeature(context.Hook)"/>
+                    </SpaceItem>
+                </Space>
+            </ActionColumn>
+        </Table>
+    </Space>
+}
+
+@code {
+    [Parameter] public required string Id { get; set; }
+
+    private LoadedPlugIn? _plugIn;
+    private IEnumerable<PlugInFeatures> _features = [];
+
+    private int _pageIndex = 1;
+    private int _pageSize = 20;
+
+    protected override void OnInitialized()
+    {
+        _plugIn = PlugInRegistry.GetBy(Id);
+        _features = PlugInRegistry
+            .GetAllHooksOf(_plugIn)
+            .Select(p => new PlugInFeatures { Hook = p });
+    }
+
+    private RenderFragment RenderSettings(string key, Settings.SettingValue value) =>
+        value switch
+        {
+            Settings.SettingValue.StringValue stringValue => RenderStringSettings(key, stringValue),
+            Settings.SettingValue.BooleanValue booleanValue => RenderBooleanSettings(key, booleanValue),
+            Settings.SettingValue.IntegerValue integerValue => RenderIntegerSettings(key, integerValue),
+            _ => @<span></span>
+        };
+
+    private RenderFragment RenderStringSettings(string key, Settings.SettingValue.StringValue stringValue) =>
+        @<Input
+             TValue="string"
+             ReadOnly="@stringValue.ReadOnly"
+             Value="@stringValue.Value"
+             ValueChanged="newValue => SetSettingValue(key, stringValue with { Value = newValue })"/>;
+
+    private RenderFragment RenderBooleanSettings(string key, Settings.SettingValue.BooleanValue booleanValue) =>
+        @<Switch
+             Disabled="@booleanValue.ReadOnly"
+             Value="@booleanValue.Value"
+             OnChange="newValue => SetSettingValue(key, booleanValue with { Value = newValue })"/>;
+
+
+    private RenderFragment RenderIntegerSettings(string key, Settings.SettingValue.IntegerValue integerValue) =>
+        @<AntDesign.InputNumber
+             TValue="int"
+             Disabled="@integerValue.ReadOnly"
+             Value="@integerValue.Value"
+             OnChange="newValue => SetSettingValue(key, integerValue with { Value = newValue })"/>;
+
+    private void SetSettingValue(string key, Settings.SettingValue value)
+    {
+        ArgumentNullException.ThrowIfNull(_plugIn, nameof(_plugIn));
+
+        _plugIn.Settings[key] = value;
+        
+        PlugInStorage.Persist(_plugIn);
+    }
+
+    private void ToggleFeature(IPluginHook hook)
+    {
+        ArgumentNullException.ThrowIfNull(_plugIn, nameof(_plugIn));
+        _plugIn.Toggle(hook);
+        PlugInStorage.Persist(_plugIn);
+    }
+    
+    public class PlugInFeatures
+    {
+        public IPluginHook Hook { get; init; } = default!;
+    }
+}

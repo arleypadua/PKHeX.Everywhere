@@ -4,6 +4,10 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <DebugType>portable</DebugType>
+        <EmbedAllSources>true</EmbedAllSources>
+        <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
 
 
@@ -12,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PKHeX.Facade\PKHeX.Facade.csproj" />
+        <ProjectReference Include="..\PKHeX.Web.Plugins\PKHeX.Web.Plugins.csproj" />
     </ItemGroup>
+
 </Project>

@@ -14,11 +14,7 @@
     <ItemGroup>
         <SupportedPlatform Include="browser"/>
     </ItemGroup>
-
-<!--    <ItemGroup>-->
-<!--        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.4"/>-->
-<!--    </ItemGroup>-->
-
+    
     <ItemGroup>
       <ProjectReference Include="..\PKHeX.Web.Plugins\PKHeX.Web.Plugins.csproj" />
     </ItemGroup>
