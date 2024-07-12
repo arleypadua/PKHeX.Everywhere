@@ -9,20 +9,28 @@
     @if (Registry.GetAllPlugins().Any())
     {
         <Title Level="2">Installed</Title>
-        <ul>
-            @foreach (var plugin in Registry.GetAllPlugins())
-            {
-                <li>
-                    <span>@plugin.Id</span>
-                    <Button
-                        OnClick="() => HandleUninstallClick(plugin)"
-                        Type="@ButtonType.Link"
-                        Danger>
-                        Uninstall
-                    </Button>
-                </li>
-            }
-        </ul>
+        <Table
+            TItem="InstalledPlugIn"
+            DataSource="@InstalledPlugIns"
+            @bind-PageIndex="_installedPlugInsPageIndex"
+            @bind-PageSize="_installedPlugInsPageSize"
+            Size="TableSize.Small"
+            Responsive
+            EnableVirtualization>
+            <PropertyColumn Title="Id" Property="@(c => c.PlugIn.Id)" Sortable Filterable/>
+            <ActionColumn Title="Actions">
+                <Space Size=@("middle")>
+                    <SpaceItem>
+                        <Button
+                            OnClick="() => HandleUninstallClick(context.PlugIn)"
+                            Type="@ButtonType.Link"
+                            Danger>
+                            Uninstall
+                        </Button>
+                    </SpaceItem>
+                </Space>
+            </ActionColumn>
+        </Table>
     }
 
     @if (_availablePlugIns.Any())
@@ -36,9 +44,22 @@
             Size="TableSize.Small"
             Responsive
             EnableVirtualization>
-            <PropertyColumn Title="Id" Property="@(c => c.PlugIn.Id)" Sortable Filterable/>
+            <PropertyColumn Title="Id" Property="@(c => c.PlugIn.Id)" Sortable Filterable>
+                @if (string.IsNullOrWhiteSpace(context.PlugIn.ProjectUrl))
+                {
+                    @context.PlugIn.Name
+                }
+                else
+                {
+                    <a href="@context.PlugIn.ProjectUrl" target="_blank">
+                        @context.PlugIn.Name
+                    </a>
+                    <Icon Type="link" Theme="outline"/>
+                }
+            </PropertyColumn>
+            <PropertyColumn Title="Source" Property="@(c => c.Source.Name)" Sortable Filterable/>
             <PropertyColumn Title="Name" Property="@(c => c.PlugIn.Name)" Sortable Filterable/>
-            <ActionColumn Title="Enabled">
+            <ActionColumn Title="Actions">
                 <Space Size=@("middle")>
                     <SpaceItem>
                         <Button
@@ -60,8 +81,16 @@
     [Inject] public required PlugInSourceService PlugInSourceService { get; set; }
 
     private List<PlugInAndSource> _availablePlugIns = [];
+
+    private List<InstalledPlugIn> InstalledPlugIns => Registry.GetAllPlugins()
+        .Select(p => new InstalledPlugIn { PlugIn = p })
+        .ToList();
+
     private int _availablePlugInsPageIndex = 1;
     private int _availablePlugInsPageSize = 20;
+
+    private int _installedPlugInsPageIndex = 1;
+    private int _installedPlugInsPageSize = 20;
 
     private Task HandleUninstallClick(LoadedPlugIn plugin)
     {
@@ -93,6 +122,11 @@
     {
         public required PlugInSource Source { get; set; }
         public required PlugInSource.PlugIn PlugIn { get; set; }
+    }
+
+    class InstalledPlugIn
+    {
+        public required LoadedPlugIn PlugIn { get; set; }
     }
 
 }
