@@ -1,0 +1,25 @@
+{
+    "SourceUrl": "/plugins",
+    "Name": "Default",
+    "SourceDescription": "Default set of plug-ins supported by PKHeX.Web",
+    "PlugIns": [
+        {
+            "Id": "PKHeX.Web.Plugins.AutoLegality",
+            "FileName": "PKHeX.Web.Plugins.AutoLegality.dll",
+            "Name": "Auto-legality mode",
+            "Description": "Best effort to make your pokemon legal when editing them.",
+            "ProjectUrl": "https://github.com/santacrab2/PKHeX-Plugins",
+            "Summary": "A proxy for the auto legality mode hosted at: https://github.com/santacrab2/PKHeX-Plugins",
+            "PublishedVersions": ["1.0.0"]
+        },
+        {
+            "Id": "PKHeX.Web.Plugins.Demo",
+            "FileName": "PKHeX.Web.Plugins.Demo.dll",
+            "Name": "Demo Plugin",
+            "Description": "This is just for demo purposes.",
+            "ProjectUrl": "https://github.com/arleypadua/PKHeX.Everywhere",
+            "Summary": null,
+            "PublishedVersions": ["1.0.0"]
+        }
+    ]
+}

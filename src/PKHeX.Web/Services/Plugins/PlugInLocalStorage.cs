@@ -108,7 +108,7 @@ public class PlugInLocalStorage(
 
     private string LocalStorageKey(LoadedPlugIn plugIn) => $"{PlugInPrefix}{plugIn.Id}";
 
-    private const string PlugInPrefix = "__plug_in__";
+    private const string PlugInPrefix = "__plug_in__#";
 
     public class PlugInStorageRepresentation
     {

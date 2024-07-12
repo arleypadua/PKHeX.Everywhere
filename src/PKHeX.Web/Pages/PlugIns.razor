@@ -5,7 +5,7 @@
     <PageHeader BackIcon="true" Style="max-width: 100%">
         <TitleTemplate>Manage Plug-Ins</TitleTemplate>
     </PageHeader>
-    
+
     @if (Registry.GetAllPlugins().Any())
     {
         <Title Level="2">Installed</Title>
@@ -24,44 +24,75 @@
             }
         </ul>
     }
-    
-    @{ var trusted = TrustedPlugins.ToList(); }
-    @if (trusted.Any())
+
+    @if (_availablePlugIns.Any())
     {
-        <Title Level="2">Install from trusted source</Title>
-        <ul>
-            @foreach (var plugin in trusted)
-            {
-                <li>
-                    <span>@plugin.Id</span>
-                    <Button
-                        OnClick="() => HandleInstallClick(plugin)"
-                        Type="@ButtonType.Link">
-                        Install
-                    </Button>
-                </li>
-            }
-        </ul>
+        <Title Level="2">Discover</Title>
+        <Table
+            TItem="PlugInAndSource"
+            DataSource="@_availablePlugIns"
+            @bind-PageIndex="_availablePlugInsPageIndex"
+            @bind-PageSize="_availablePlugInsPageSize"
+            Size="TableSize.Small"
+            Responsive
+            EnableVirtualization>
+            <PropertyColumn Title="Id" Property="@(c => c.PlugIn.Id)" Sortable Filterable/>
+            <PropertyColumn Title="Name" Property="@(c => c.PlugIn.Name)" Sortable Filterable/>
+            <ActionColumn Title="Enabled">
+                <Space Size=@("middle")>
+                    <SpaceItem>
+                        <Button
+                            Type="@ButtonType.Link"
+                            OnClick="() => HandleInstallClick(context.Source, context.PlugIn)">
+                            Install
+                        </Button>
+                    </SpaceItem>
+                </Space>
+            </ActionColumn>
+        </Table>
     }
-    
+
 </Space>
 
 @code {
     [Inject] public required PlugInRegistry Registry { get; set; }
-    [Inject] public required PlugInService Service { get; set; }
+    [Inject] public required PlugInService PlugInService { get; set; }
+    [Inject] public required PlugInSourceService PlugInSourceService { get; set; }
 
-    private IEnumerable<PlugInRegistry.TrustedPlugins> TrustedPlugins => PlugInRegistry.TrustedSources
-        .Where(t => Registry.GetAllPlugins().All(p => p.Id != t.Id));
+    private List<PlugInAndSource> _availablePlugIns = [];
+    private int _availablePlugInsPageIndex = 1;
+    private int _availablePlugInsPageSize = 20;
 
     private Task HandleUninstallClick(LoadedPlugIn plugin)
     {
-        Service.Uninstall(plugin);
+        PlugInService.Uninstall(plugin);
         return Task.CompletedTask;
     }
 
-    private Task HandleInstallClick(PlugInRegistry.TrustedPlugins plugin)
+    private Task HandleInstallClick(PlugInSource source, PlugInSource.PlugIn plugin)
     {
-        return Service.InstallFrom(plugin.SourceUrl);
+        return PlugInService.InstallFrom(source.GetLatestDownloadUrl(plugin));
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        return RefreshAvailablePlugIns();
+    }
+
+    private async Task RefreshAvailablePlugIns()
+    {
+        _availablePlugIns = (await PlugInSourceService.GetPlugInSources())
+            .SelectMany(
+                p => p.PlugIns,
+                (source, plugin) => new PlugInAndSource { Source = source, PlugIn = plugin })
+            .Where(p => !Registry.IsRegistered(p.PlugIn.Id))
+            .ToList();
+    }
+
+    class PlugInAndSource
+    {
+        public required PlugInSource Source { get; set; }
+        public required PlugInSource.PlugIn PlugIn { get; set; }
     }
 
 }

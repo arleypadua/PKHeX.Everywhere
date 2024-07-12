@@ -51,6 +51,8 @@ public class PlugInRegistry
     }
 
     public LoadedPlugIn GetBy(string id) => _loadedPlugins[id];
+    public LoadedPlugIn? GetByOrNull(string id) => _loadedPlugins.GetValueOrDefault(id);
+    public bool IsRegistered(string id) => _loadedPlugins.ContainsKey(id);
     
     public IEnumerable<LoadedPlugIn> GetAllPlugins() => _loadedPlugins.Values;
 
@@ -94,12 +96,4 @@ public class PlugInRegistry
         return services
             .RegisterPluginAt(_loadedPlugins.Values);
     }
-
-    public static readonly IEnumerable<TrustedPlugins> TrustedSources = [
-        new TrustedPlugins("PKHeX.Web.Plugins.AutoLegality", "Auto Legality Mode", "/plugins/PKHeX.Web.Plugins.AutoLegality.dll"),
-    #if DEBUG
-        new TrustedPlugins("PKHeX.Web.Plugins.Demo", "My Demo Plugin", "/plugins/PKHeX.Web.Plugins.Demo.dll"),
-    #endif
-    ];
-    public record TrustedPlugins(String Id, String Name, String SourceUrl);
 }

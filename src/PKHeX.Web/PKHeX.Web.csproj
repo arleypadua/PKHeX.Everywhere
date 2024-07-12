@@ -22,6 +22,15 @@
       <Content Update="wwwroot\data\savedata.bin">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+      <Content Update="wwwroot\plugins\pkhexwebplugins.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Update="wwwroot\plugins\PKHeX.Web.Plugins.AutoLegality\1.0.0\PKHeX.Web.Plugins.AutoLegality.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Update="wwwroot\plugins\PKHeX.Web.Plugins.Demo\1.0.0\PKHeX.Web.Plugins.Demo.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>
@@ -36,6 +45,7 @@
 
     <ItemGroup>
       <Folder Include="Model\" />
+      <Folder Include="obj\" />
     </ItemGroup>
 
 </Project>
