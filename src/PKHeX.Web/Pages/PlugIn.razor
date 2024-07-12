@@ -68,6 +68,7 @@
                     <SpaceItem>
                         <Switch
                             Value="@_plugIn.IsHookEnabled(context.Hook)" 
+                            Disabled="@(!_plugIn.Enabled)"
                             OnChange="newValue => ToggleFeature(context.Hook, newValue)"/>
                     </SpaceItem>
                 </Space>
