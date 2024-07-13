@@ -13,6 +13,11 @@ on:
         type: boolean
         required: false
         default: true
+      pushNugetPackages:
+        description: 'push nuget packages'
+        type: boolean
+        required: false
+        default: true
       manualTrigger:
         description: 'To target a manual triggered job '
         type: boolean
@@ -208,6 +213,7 @@ jobs:
       - name: Push the Chocolatey package
         run: choco push pkhex-cli.${{ steps.fetch_parse_metadata.outputs.version }}.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
   publishNugetPackages:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || (inputs.manualTrigger && inputs.pushNugetPackages) }}
     runs-on: ubuntu-latest
     
     steps:
