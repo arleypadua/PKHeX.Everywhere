@@ -129,7 +129,7 @@ jobs:
       - name: Fetch latest release metadata
         id: fetch_parse_metadata
         run: |
-          $latest_release = Invoke-RestMethod -Uri https://api.github.com/repos/arleypadua/PKHeX.CLI/releases/latest
+          $latest_release = Invoke-RestMethod -Uri https://api.github.com/repos/arleypadua/PKHeX.Everywhere/releases/latest
           $version = $latest_release.tag_name -replace '^v'
           $windows_asset = $latest_release.assets | Where-Object { $_.name -like "pkhex-cli-win-x64.zip" }
           $windows_url = $windows_asset.browser_download_url
@@ -207,3 +207,80 @@ jobs:
 
       - name: Push the Chocolatey package
         run: choco push pkhex-cli.${{ steps.fetch_parse_metadata.outputs.version }}.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
+  publishNugetPackages:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Fetch latest release metadata
+        id: fetch_parse_metadata
+        run: |
+          $latest_release = Invoke-RestMethod -Uri https://api.github.com/repos/arleypadua/PKHeX.Everywhere/releases/latest
+          $version = $latest_release.tag_name -replace '^v'
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+        
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Generate PKHeX.Facade .nuspec file
+        run: |
+          cat > src/PKHeX.Facade/PKHeX.Facade.nuspec <<EOF
+          <?xml version="1.0"?>
+          <package>
+            <metadata>
+              <id>PKHeX.Facade</id>
+              <version>${{ steps.fetch_parse_metadata.outputs.version }}</version>
+              <description>A seamless facade to work with Pokemon save files based on PKHeX.Core.</description>
+              <authors>Arley Páudua</authors>
+              
+              <owners>Arley Páudua</owners>
+              <projectUrl>https://github.com/arleypadua/PKHeX.Everywhere</projectUrl>
+              <licenseUrl>https://github.com/arleypadua/PKHeX.Everywhere?tab=MIT-1-ov-file#readme</licenseUrl>
+              <requireLicenseAcceptance>false</requireLicenseAcceptance>
+              <tags>pokemon;pkhex</tags>
+            </metadata>
+          </package>
+          EOF
+
+      - name: Build and pack PKHeX.Facade
+        run: |
+          dotnet restore src/PKHeX.Facade
+          dotnet build src/PKHeX.Facade -c Release --no-restore
+          dotnet pack src/PKHeX.Facade -c Release --no-build -o .
+          dotnet nuget push src/PKHeX.Facade/PKHeX.Facade.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+
+      - name: Generate PKHeX.Web.Plugins .nuspec file
+        run: |
+          cat > src/PKHeX.Web.Plugins/PKHeX.Web.Plugins.nuspec <<EOF
+          <?xml version="1.0"?>
+          <package>
+            <metadata>
+              <id>PKHeX.Web.Plugins</id>
+              <version>${{ steps.fetch_parse_metadata.outputs.version }}</version>
+              <description>An SDK to build plugi-ins to be used at https://pkhex-web.github.io.</description>
+              <authors>Arley Páudua</authors>
+          
+              <owners>Arley Páudua</owners>
+              <projectUrl>https://github.com/arleypadua/PKHeX.Everywhere</projectUrl>
+              <licenseUrl>https://github.com/arleypadua/PKHeX.Everywhere?tab=MIT-1-ov-file#readme</licenseUrl>
+              <requireLicenseAcceptance>false</requireLicenseAcceptance>
+              <tags>pokemon;pkhex</tags>
+          
+              <dependencies>
+                <dependency id="PKHeX.Facade" version="${{ steps.fetch_parse_metadata.outputs.version }}" />
+              </dependencies>
+            </metadata>
+          </package>
+          EOF
+
+      - name: Build and pack PKHeX.Web.Plugins
+        run: |
+          dotnet restore src/PKHeX.Web.Plugins
+          dotnet build src/PKHeX.Web.Plugins -c Release --no-restore
+          dotnet pack src/PKHeX.Web.Plugins -c Release --no-build -o .
+          dotnet nuget push src/PKHeX.Web.Plugins/PKHeX.Web.Plugins.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+        
