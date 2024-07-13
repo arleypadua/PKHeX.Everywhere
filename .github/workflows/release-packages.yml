@@ -254,6 +254,8 @@ jobs:
             </metadata>
           </package>
           EOF
+          
+          cat src/PKHeX.Facade/PKHeX.Facade.nuspec
 
       - name: Build and pack PKHeX.Facade
         run: |
@@ -285,6 +287,8 @@ jobs:
             </metadata>
           </package>
           EOF
+          
+          cat src/PKHeX.Web.Plugins/PKHeX.Web.Plugins.nuspec
 
       - name: Build and pack PKHeX.Web.Plugins
         run: |
