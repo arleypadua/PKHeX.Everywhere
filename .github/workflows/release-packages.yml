@@ -226,8 +226,8 @@ jobs:
       - name: Fetch latest release metadata
         id: fetch_parse_metadata
         run: |
-          curl -s https://api.github.com/repos/arleypadua/PKHeX.CLI/releases/latest > latest_release.json
-          VERSION=$(jq -r .tag_name latest_release.json)
+          curl -s https://api.github.com/repos/arleypadua/PKHeX.Everywhere/releases/latest > latest_release.json
+          VERSION=$(jq -r .tag_name latest_release.json | sed 's/^v//')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
         
       - name: Setup .NET
