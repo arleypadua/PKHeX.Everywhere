@@ -223,9 +223,9 @@ jobs:
       - name: Fetch latest release metadata
         id: fetch_parse_metadata
         run: |
-          $latest_release = Invoke-RestMethod -Uri https://api.github.com/repos/arleypadua/PKHeX.Everywhere/releases/latest
-          $version = $latest_release.tag_name -replace '^v'
-          echo "version=$version" >> $env:GITHUB_OUTPUT
+          curl -s https://api.github.com/repos/arleypadua/PKHeX.CLI/releases/latest > latest_release.json
+          VERSION=$(jq -r .tag_name latest_release.json)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
         
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
