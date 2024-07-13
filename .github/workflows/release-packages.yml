@@ -219,6 +219,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
 
       - name: Fetch latest release metadata
         id: fetch_parse_metadata
