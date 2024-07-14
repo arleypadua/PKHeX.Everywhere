@@ -2,7 +2,7 @@
 
 # Variables
 GITHUB_REPO="arleypadua/PKHeX.Everywhere"
-INSTALL_DIR="~/.local/bin/pkhex-cli"
+INSTALL_DIR="$HOME/.local/bin/pkhex-cli"
 EXECUTABLE_NAME="pkhex-cli"
 
 # Determine the platform and architecture
