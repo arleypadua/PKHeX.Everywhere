@@ -2,7 +2,7 @@
 
 # Variables
 GITHUB_REPO="arleypadua/PKHeX.Everywhere"
-INSTALL_DIR="/usr/local/bin"
+INSTALL_DIR="~/.local/bin/pkhex-cli"
 EXECUTABLE_NAME="pkhex-cli"
 
 # Determine the platform and architecture
@@ -57,11 +57,5 @@ fi
 # Clean up
 echo "Cleaning up..."
 rm $ZIP_NAME &> /dev/null
-
-# Check if the command batocera-save-overlay exists and execute it
-if command -v batocera-save-overlay &> /dev/null; then
-    echo "Executing batocera-save-overlay..."
-    batocera-save-overlay &> /dev/null
-fi
 
 echo "Installation complete. You can now use $EXECUTABLE_NAME from anywhere."
