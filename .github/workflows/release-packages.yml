@@ -82,7 +82,7 @@ jobs:
           class PkhexCli < Formula
             version "${{ steps.parse_metadata.outputs.version }}"
             desc "A CLI to manipulate pokemon game save files."
-            homepage "https://github.com/arleypadua/PKHeX.CLI"
+            homepage "https://github.com/arleypadua/PKHeX.Everywhere"
 
             if OS.mac? && Hardware::CPU.arm?
               url "${{ steps.parse_metadata.outputs.osx_arm64_url }}"
