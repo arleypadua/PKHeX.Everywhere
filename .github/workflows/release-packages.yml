@@ -259,9 +259,8 @@ jobs:
         run: |
           dotnet restore src/PKHeX.Facade
           dotnet build src/PKHeX.Facade -c Release --no-restore
-          dotnet pack src/PKHeX.Facade/PKHeX.Facade.csproj -p:NuspecFile=PKHeX.Facade.nuspec
           dotnet pack src/PKHeX.Facade/PKHeX.Facade.csproj -p:NuspecFile=PKHeX.Facade.nuspec -c Release --no-build -o src/PKHeX.Facade/
-          dotnet nuget push src/PKHeX.Facade/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push src/PKHeX.Facade/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Generate PKHeX.Web.Plugins .nuspec file
         run: |
@@ -291,5 +290,5 @@ jobs:
         run: |
           dotnet restore src/PKHeX.Web.Plugins
           dotnet build src/PKHeX.Web.Plugins -c Release --no-restore
-          dotnet pack src/PKHeX.Web.Plugins/PKHeX.Web.Plugins.nuspec -p:NuspecFile=PKHeX.Web.Plugins.nuspec -c Release --no-build -o src/PKHeX.Web.Plugins/
-          dotnet nuget push src/PKHeX.Web.Plugins/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+          dotnet pack src/PKHeX.Web.Plugins/PKHeX.Web.Plugins.csproj -p:NuspecFile=PKHeX.Web.Plugins.nuspec -c Release --no-build -o src/PKHeX.Web.Plugins/
+          dotnet nuget push src/PKHeX.Web.Plugins/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
