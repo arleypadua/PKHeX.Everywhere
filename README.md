@@ -25,7 +25,7 @@ brew install pkhex-cli
 ### Script (MacOS/Linux)
 
 ```bash
-curl -sL https://raw.githubusercontent.com/arleypadua/PKHeX.CLI/main/install.sh | sudo bash
+curl -sL https://raw.githubusercontent.com/arleypadua/PKHeX.Everywhere/main/install.sh | sudo bash
 ```
 
 #### Compatibility with batocera
@@ -34,9 +34,9 @@ PKHeX.CLI is compatible with batocera:
 
 1. Make sure you can access batocera with SSH. [(Details here)](https://wiki.batocera.org/access_the_batocera_via_ssh).
 2. Open an ssh session: `ssh root@batocera` the default password is usually `linux`
-3. run `curl -sL https://raw.githubusercontent.com/arleypadua/PKHeX.CLI/main/install.sh | bash`
+3. run `curl -sL https://raw.githubusercontent.com/arleypadua/PKHeX.Everywhere/main/install.sh | bash`
    * _note that because we are accessing as `root` there's **no need** to run `sudo bash`_
-4. You should be able to use it as stated [here](https://github.com/arleypadua/PKHeX.CLI?tab=readme-ov-file#usage).
+4. You should be able to use it as stated [here](https://github.com/arleypadua/PKHeX.Everywhere?tab=readme-ov-file#usage).
 
 ### Chocolatey (Windows)
 
@@ -50,7 +50,7 @@ choco install pkhex-cli
 
 ### Manual download
 
-1. Download the latest version for your system [here](https://github.com/arleypadua/PKHeX.CLI/releases)
+1. Download the latest version for your system [here](https://github.com/arleypadua/PKHeX.Everywhere/releases)
 2. Put the file somewhere that's visible from your PATH directory
 
 ### Verify the installation with
@@ -98,10 +98,10 @@ dotnet run --project ./src/PKHeX.CLI ./src/PKHeX.CLI/data/savedata.bin
 
 ## Releasing
 
-1. Go to the [Release](https://github.com/arleypadua/PKHeX.CLI/actions/workflows/release.yml) workflow
+1. Go to the [Release](https://github.com/arleypadua/PKHeX.Everywhere/actions/workflows/release.yml) workflow
 2. Choose whether it is a `major`, `minor` or `patch` bump
 3. Run it
-4. By the end of the workflow, you should have a new [Release](https://github.com/arleypadua/PKHeX.CLI/releases/latest)
+4. By the end of the workflow, you should have a new [Release](https://github.com/arleypadua/PKHeX.Everywhere/releases/latest)
 
 # Credits
 
