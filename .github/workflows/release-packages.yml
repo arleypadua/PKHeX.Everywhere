@@ -237,6 +237,9 @@ jobs:
 
       - name: Generate PKHeX.Facade .nuspec file
         run: |
+          pkhex_version=$(grep 'PackageReference Include="PKHeX.Core"' ./src/PKHeX.Facade/PKHeX.Facade.csproj \
+            | sed -n 's/.*Version="\([^"]*\)".*/\1/p')
+          
           cat > src/PKHeX.Facade/PKHeX.Facade.nuspec <<EOF
           <?xml version="1.0"?>
           <package>
@@ -251,6 +254,10 @@ jobs:
               <licenseUrl>https://github.com/arleypadua/PKHeX.Everywhere?tab=MIT-1-ov-file#readme</licenseUrl>
               <requireLicenseAcceptance>false</requireLicenseAcceptance>
               <tags>pokemon;pkhex</tags>
+          
+              <dependencies>
+                <dependency id="PKHeX.Core" version="$pkhex_version" />
+              </dependencies>
             </metadata>
           </package>
           EOF
