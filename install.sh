@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables
-GITHUB_REPO="arleypadua/pkhex.cli"
+GITHUB_REPO="arleypadua/PKHeX.Everywhere"
 INSTALL_DIR="/usr/local/bin"
 EXECUTABLE_NAME="pkhex-cli"
 
