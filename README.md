@@ -21,4 +21,4 @@ The PKHeX Command Line Interface (CLI) version allows users to interact with PKH
    brew tap arleypadua/homebrew-pkhex-cli
    brew install pkhex-cli
    ```
-3. For more information, refer to the documentation at `./src/PKHeX.CLI`.
+3. For more information, refer to the documentation at [./src/PKHeX.CLI](./src/PKHeX.CLI).
