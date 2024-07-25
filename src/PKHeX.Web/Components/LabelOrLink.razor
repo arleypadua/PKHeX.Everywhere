@@ -1,0 +1,16 @@
+@if (string.IsNullOrWhiteSpace(Href))
+{
+    @Label
+}
+else
+{
+    <a href="@Href" target="_blank">
+        @Label
+    </a>
+    <Icon Type="link" Theme="outline"/>
+}
+
+@code {
+    [Parameter] public required string Label { get; set; }
+    [Parameter] public string? Href { get; set; }
+}

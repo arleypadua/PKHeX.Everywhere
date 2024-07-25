@@ -22,17 +22,9 @@
 
         <ResponsibleDescriptions Bordered Size="small" Style="width: 100%">
             <DescriptionsItem Title="Name">
-                @if (string.IsNullOrWhiteSpace(_plugIn.Settings.Manifest.ProjectUrl))
-                {
-                    @_plugIn.Settings.Manifest.PlugInName
-                }
-                else
-                {
-                    <a href="@_plugIn.Settings.Manifest.ProjectUrl" target="_blank">
-                        @_plugIn.Settings.Manifest.PlugInName
-                    </a>
-                    <Icon Type="link" Theme="outline"/>
-                }
+                <LabelOrLink 
+                    Label="@_plugIn.Settings.Manifest.PlugInName"
+                    Href="@_plugIn.Settings.Manifest.ProjectUrl"/>
             </DescriptionsItem>
             <DescriptionsItem Title="Description">@_plugIn.Settings.Manifest.Description</DescriptionsItem>
             <DescriptionsItem Title="Version">@_plugIn.Version</DescriptionsItem>

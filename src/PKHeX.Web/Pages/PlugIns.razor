@@ -17,7 +17,12 @@
             Size="TableSize.Small"
             Responsive
             EnableVirtualization>
-            <PropertyColumn Title="Id" Property="@(c => c.PlugIn.Id)" Sortable Filterable/>
+            <PropertyColumn Title="Name" Property="@(c => c.PlugIn.Settings.Manifest.PlugInName)" Sortable Filterable>
+                <LabelOrLink 
+                    Label="@context.PlugIn.Settings.Manifest.PlugInName"
+                    Href="@context.PlugIn.Settings.Manifest.ProjectUrl"/>
+            </PropertyColumn>
+            <PropertyColumn Title="Version" Property="@(c => c.PlugIn.Version.ToString())" Sortable Filterable/>
             <ActionColumn Title="Actions">
                 <Space Size=@("middle")>
                     <SpaceItem>
@@ -44,21 +49,13 @@
             Size="TableSize.Small"
             Responsive
             EnableVirtualization>
-            <PropertyColumn Title="Id" Property="@(c => c.PlugIn.Id)" Sortable Filterable>
-                @if (string.IsNullOrWhiteSpace(context.PlugIn.ProjectUrl))
-                {
-                    @context.PlugIn.Name
-                }
-                else
-                {
-                    <a href="@context.PlugIn.ProjectUrl" target="_blank">
-                        @context.PlugIn.Name
-                    </a>
-                    <Icon Type="link" Theme="outline"/>
-                }
+            <PropertyColumn Title="Name" Property="@(c => c.PlugIn.Id)" Sortable Filterable>
+                <LabelOrLink
+                    Label="@context.PlugIn.Name"
+                    Href="@context.PlugIn.ProjectUrl"/>
             </PropertyColumn>
+            <PropertyColumn Title="Version" Property="@(c => c.PlugIn.PublishedVersions.LastOrDefault())" Sortable Filterable/>
             <PropertyColumn Title="Source" Property="@(c => c.Source.Name)" Sortable Filterable/>
-            <PropertyColumn Title="Name" Property="@(c => c.PlugIn.Name)" Sortable Filterable/>
             <ActionColumn Title="Actions">
                 <Space Size=@("middle")>
                     <SpaceItem>
