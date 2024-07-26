@@ -116,7 +116,10 @@
 
     private void OnPlugInChanged(LoadedPlugIn plugin, PlugInRegistry.ChangeType type)
     {
-        Navigation.NavigateTo("/");
+        if (type == PlugInRegistry.ChangeType.Deregistered)
+            Navigation.NavigateToPlugIns();
+        else
+            Navigation.NavigateToPlugIn(plugin);
     }
 
     private RenderFragment RenderMenu(MenuItem item) =>
