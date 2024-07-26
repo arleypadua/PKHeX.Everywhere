@@ -1,6 +1,9 @@
 using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using PKHeX.Facade.Extensions;
+using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Web.Services;
 
@@ -60,5 +63,21 @@ public class JsService(IJSRuntime js)
     public async Task NavigateBack()
     {
         await js.InvokeVoidAsync("history.back");
+    }
+    
+    public async Task OpenNewTab(string url)
+    {
+        await js.InvokeVoidAsync("eval", $"window.open('{url}', '_blank')");
+    }
+}
+
+public static class JsServiceExtensions
+{
+    public static Task OpenSmogonDamageCalc(this JsService js, IEnumerable<Pokemon> pokemonList)
+    {
+        var showdown = pokemonList.Showdown();
+        var bytes = Encoding.UTF8.GetBytes(showdown);
+        var base64 = Convert.ToBase64String(bytes);
+        return js.OpenNewTab($"https://calc.pokemonshowdown.com/?import={base64}");
     }
 }

@@ -8,7 +8,7 @@
         <TitleTemplate>Items</TitleTemplate>
 
         <PageHeaderExtra>
-            <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Plus" OnClick="OnAddItemClick">Add</Button>
+            <ButtonOrMenu Actions="ExtraActions" />
         </PageHeaderExtra>
     </PageHeader>
 
@@ -37,6 +37,17 @@
     [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
     [Inject] public required GameService GameService { get; set; }
 
+    List<ButtonOrMenu.ButtonAction> ExtraActions => new List<ButtonOrMenu.ButtonAction>
+    {
+        new ()
+        {
+            Type = ButtonType.Primary,
+            Icon = IconType.Outline.Plus,
+            Label = "Add",
+            OnClickAsync = OnAddItemClick
+        }
+    };
+
     string? _activeKey;
 
     Inventories? Inventories => GameService.Game?.Trainer.Inventories;
@@ -48,9 +59,10 @@
 
     bool _addItemModalVisible;
 
-    void OnAddItemClick()
+    Task OnAddItemClick()
     {
         _addItemModalVisible = true;
+        return Task.CompletedTask;
     }
 
     async Task HandleOk(AddItemModal.ItemToBeAdded itemToBeAdded)

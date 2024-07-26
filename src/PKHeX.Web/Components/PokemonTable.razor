@@ -2,61 +2,80 @@
 @inject ClipboardService Clipboard
 @inject INotificationService Notification
 
-<Table
-    TItem="Pokemon"
-    DataSource="@DataSource"
-    PageIndex="@(PageIndex ?? 1)"
-    PageSize="@(PageSize ?? 10)"
-    OnPageSizeChange="HandlePagination"
-    OnPageIndexChange="HandlePagination"
-    Size="TableSize.Small"
-    Responsive
-    EnableVirtualization>
-    <PropertyColumn Title="" Property="@(c => c.Species)">
-        <PokemonIcon Species="@context.Species" Form="@context.Form.Form" />
-    </PropertyColumn>
-    <PropertyColumn Title="Name" Property="@(c => c.Species.Name)" Sortable Filterable/>
-    <PropertyColumn Title="Level" Property="c => c.Level" Sortable Filterable></PropertyColumn>
-    <ActionColumn Title="Action">
-        <Space Size=@("small")>
-            <SpaceItem>
-                <DropdownButton OnClick='() => Navigation.NavigateToPokemon(Source, context.UniqueId)' Type="@ButtonType.Link">
-                    <Overlay>
-                        <Menu>
-                            <MenuItem>
-                                <Button
-                                    Type="@ButtonType.Link"
-                                    OnClick='() => Navigation.NavigateToNewCloneOf(context.UniqueId)'>
-                                    Clone
-                                </Button>
-                            </MenuItem>
-                            <MenuItem>
-                                <Button
-                                    Type="@ButtonType.Link"
-                                    OnClick="() => HandleExportShowdownClick(context)">
-                                    Showdown
-                                </Button>
-                            </MenuItem>
-                        </Menu>
-                    </Overlay>
-                    <ChildContent>
-                        View
-                    </ChildContent>
-                </DropdownButton>
-            </SpaceItem>
-        </Space>
-    </ActionColumn>
-</Table>
+@if (_pokemonRows.Any())
+{
+    <Table
+        TItem="PokemonRow"
+        DataSource="@_pokemonRows"
+        PageIndex="@(PageIndex ?? 1)"
+        PageSize="@(PageSize ?? 10)"
+        OnPageSizeChange="HandlePagination"
+        OnPageIndexChange="HandlePagination"
+        SelectedRows="_selectedPokemons"
+        SelectedRowsChanged="HandleSelectedRowsChanged"
+        RowKey="@(x => x.UniqueId?.Value ?? string.Empty)"
+        Size="TableSize.Small"
+        Responsive
+        EnableVirtualization>
+
+        @if (Selectable)
+        {
+            <Selection Key="@context.UniqueId?.Value" Type="checkbox"/>
+        }
+
+        <PropertyColumn Title="" Property="@(c => c.Pokemon.Species)">
+            <PokemonIcon Species="@context.Pokemon.Species" Form="@context.Pokemon.Form.Form"/>
+        </PropertyColumn>
+        <PropertyColumn Title="Name" Property="@(c => c.Pokemon.Species.Name)" Sortable Filterable/>
+        <PropertyColumn Title="Level" Property="c => c.Pokemon.Level" Sortable Filterable></PropertyColumn>
+        <ActionColumn Title="Action">
+            <Space Size=@("small")>
+                <SpaceItem>
+                    <DropdownButton OnClick='() => Navigation.NavigateToPokemon(Source, context.Pokemon.UniqueId)' Type="@ButtonType.Link">
+                        <Overlay>
+                            <Menu>
+                                <MenuItem>
+                                    <Button
+                                        Type="@ButtonType.Link"
+                                        OnClick='() => Navigation.NavigateToNewCloneOf(context.Pokemon.UniqueId)'>
+                                        Clone
+                                    </Button>
+                                </MenuItem>
+                                <MenuItem>
+                                    <Button
+                                        Type="@ButtonType.Link"
+                                        OnClick="() => HandleExportShowdownClick(context.Pokemon)">
+                                        Showdown
+                                    </Button>
+                                </MenuItem>
+                            </Menu>
+                        </Overlay>
+                        <ChildContent>
+                            View
+                        </ChildContent>
+                    </DropdownButton>
+                </SpaceItem>
+            </Space>
+        </ActionColumn>
+    </Table>
+}
 
 @code {
     [Parameter] public IList<Pokemon> DataSource { get; set; } = [];
     [Parameter] public PokemonSource Source { get; set; }
-    
+
+    [Parameter] public bool Selectable { get; set; }
+    [Parameter] public IList<Pokemon> SelectedPokemons { get; set; } = [];
+    [Parameter] public EventCallback<IList<Pokemon>> SelectedPokemonsChanged { get; set; }
+
     [SupplyParameterFromQuery(Name = "pageIndex")]
     public int? PageIndex { get; set; } = 1;
-    
+
     [SupplyParameterFromQuery(Name = "pageSize")]
     public int? PageSize { get; set; } = 10;
+
+    private IEnumerable<PokemonRow> _pokemonRows = [];
+    private IEnumerable<PokemonRow> _selectedPokemons = [];
 
     private string Route => Source switch
     {
@@ -65,22 +84,56 @@
         _ => string.Empty
     };
 
+    protected override void OnInitialized()
+    {
+        _pokemonRows = DataSource.Select(p => new PokemonRow { Pokemon = p });
+        _selectedPokemons = SelectedPokemons.Select(p => new PokemonRow { Pokemon = p });
+    }
+
     private void HandlePagination(PaginationEventArgs args)
     {
         PageIndex = args.Page;
         PageSize = args.PageSize;
-        
-        Navigation.StoreOnQuery(new () { { "pageIndex", PageIndex }, { "pageSize", PageSize } });
+
+        Navigation.StoreOnQuery(new() { { "pageIndex", PageIndex }, { "pageSize", PageSize } });
     }
 
     private async Task HandleExportShowdownClick(Pokemon pokemon)
     {
         await Clipboard.WriteTextAsync(pokemon.Showdown());
-        _ = Notification.Open(new ()
+        _ = Notification.Open(new()
         {
             Message = $"Showdown copied to clipboard",
             Description = pokemon.Species.Name,
             NotificationType = NotificationType.Success,
         });
     }
+
+    public class PokemonRow
+    {
+        public required Pokemon Pokemon { get; set; }
+
+        public UniqueId? UniqueId
+        {
+            get
+            {
+                try
+                {
+                    return Pokemon.UniqueId;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+    }
+
+    private Task HandleSelectedRowsChanged(IEnumerable<PokemonRow> changed)
+    {
+        _selectedPokemons = changed; 
+        SelectedPokemons = _selectedPokemons.Select(p => p.Pokemon).ToList();
+        return SelectedPokemonsChanged.InvokeAsync(SelectedPokemons);
+    }
+
 }

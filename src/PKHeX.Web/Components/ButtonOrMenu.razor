@@ -1,0 +1,54 @@
+@if (Actions.Count == 1)
+{
+    var single = Actions.Single();
+    @RenderButton(single)
+}
+else if (Actions.Count > 1)
+{
+    var first = Actions.First();
+    var others = Actions.Skip(1);
+    
+    <DropdownButton
+        Type="first.Type"
+        OnClick="first.OnClickAsync"
+        Icon="@(first.Icon ?? "ellipsis")">
+        <ChildContent>
+            @first.Label
+        </ChildContent>
+        
+        <Overlay>
+            <Menu>
+                @foreach (var action in others)
+                {
+                    <MenuItem>
+                        @RenderButton(action)
+                    </MenuItem>
+                }
+            </Menu>
+        </Overlay>
+    </DropdownButton>
+}
+
+@code {
+    [Parameter] public required IList<ButtonAction> Actions { get; set; }
+
+    RenderFragment RenderButton(ButtonAction action) => 
+        @<Button
+             Type="@action.Type"
+             Icon="@action.Icon"
+             Disabled="@action.Disabled"
+             OnClick="@action.OnClickAsync">
+            @action.Label
+        </Button>;
+
+    public class ButtonAction
+    {
+        public required string Type { get; init; } = ButtonType.Primary;
+        public required string Label { get; init; }
+        public Func<Task> OnClickAsync { get; init; } = () => Task.CompletedTask;
+        public bool Disabled { get; init; }
+        
+        public string? Icon { get; init; }
+    }
+
+}

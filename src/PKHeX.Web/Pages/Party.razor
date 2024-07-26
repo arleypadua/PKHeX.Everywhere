@@ -2,6 +2,7 @@
 @inject GameService GameService
 @inject ClipboardService Clipboard
 @inject INotificationService Notification
+@inject JsService Js
 
 <PageTitle>Party</PageTitle>
 
@@ -12,7 +13,8 @@
             <TitleTemplate>Party</TitleTemplate>
 
             <PageHeaderExtra>
-                <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Copy" OnClick="HandleExportShowdownClick">Showdown</Button>
+                @* <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Copy" OnClick="HandleExportShowdownClick">Showdown</Button> *@
+                <ButtonOrMenu Actions="ExtraActions" />
             </PageHeaderExtra>
         </PageHeader>
 
@@ -22,7 +24,29 @@
 
 @code {
 
-    private void HandleExportShowdownClick()
+    private IList<ButtonOrMenu.ButtonAction> ExtraActions => new List<ButtonOrMenu.ButtonAction>
+    {
+        new ()
+        {
+            Type = ButtonType.Primary,
+            Label = "Calculator",
+            OnClickAsync = HandleCalculatorClick,
+        },
+        new ()
+        {
+            Type = ButtonType.Link,
+            Icon = IconType.Outline.Copy,
+            Label = "Showdown",
+            OnClickAsync = HandleExportShowdownClick,
+        },
+    };
+    
+    private Task HandleCalculatorClick()
+    {
+        return Js.OpenSmogonDamageCalc(GameService.LoadedGame.Trainer.Party.Pokemons);
+    }
+
+    private Task HandleExportShowdownClick()
     {
         var party = GameService.LoadedGame.Trainer.Party.Pokemons;
         Clipboard.WriteTextAsync(GameService.LoadedGame.Trainer.Party.Pokemons.Showdown());
@@ -32,6 +56,8 @@
             Description = $"{party.Count} entries",
             NotificationType = NotificationType.Success,
         });
+
+        return Task.CompletedTask;
     }
 
 }

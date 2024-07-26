@@ -11,45 +11,58 @@
         <TitleTemplate>Box</TitleTemplate>
 
         <PageHeaderExtra>
-            <DropdownButton
-                Type="@ButtonType.Primary"
-                OnClick="OnAddItemClick">
-                <Overlay>
-                    <Menu>
-                        <MenuItem>
-                            <Button
-                                Type="@ButtonType.Link"
-                                Icon="@IconType.Outline.Copy"
-                                OnClick="HandleExportShowdownClick">
-                                Showdown
-                            </Button>
-                        </MenuItem>
-                    </Menu>
-                </Overlay>
-                <ChildContent>
-                    Add
-                </ChildContent>
-            </DropdownButton>
+            <ButtonOrMenu Actions="ExtraActions" />
         </PageHeaderExtra>
     </PageHeader>
 
-    <PokemonTable DataSource="@PokemonList" Source="PokemonSource.Box"/>
+    <PokemonTable 
+        DataSource="@PokemonList" 
+        Source="PokemonSource.Box" 
+        Selectable
+        @bind-SelectedPokemons="_selectedPokemonList" />
 
 </Space>
 
 @code {
     [Inject] public required GameService GameService { get; set; }
+    [Inject] public required JsService Js { get; set; }
+
+    private IList<ButtonOrMenu.ButtonAction> ExtraActions => new List<ButtonOrMenu.ButtonAction>
+    {
+        new ()
+        {
+            Type = ButtonType.Primary,
+            Label = "Add",
+            OnClickAsync = OnAddItemClick,
+        },
+        new ()
+        {
+            Type = ButtonType.Link,
+            Icon = IconType.Outline.Calculator,
+            Label = "Calculator",
+            OnClickAsync = HandleCalculatorClick,
+        },
+        new ()
+        {
+            Type = ButtonType.Link,
+            Icon = IconType.Outline.Copy,
+            Label = "Showdown",
+            OnClickAsync = HandleExportShowdownClick,
+        },
+    };
 
     private IList<Pokemon> PokemonList => GameService.Game?.Trainer.PokemonBox.All
         .Where(p => p.Species != Species.None).ToList() ?? [];
 
-    private Task OnAddItemClick(MouseEventArgs arg)
+    private IList<Pokemon> _selectedPokemonList = [];
+
+    private Task OnAddItemClick()
     {
         Navigate.NavigateToSearchEncounter();
         return Task.CompletedTask;
     }
 
-    private void HandleExportShowdownClick()
+    private Task HandleExportShowdownClick()
     {
         if (PokemonList.Count != 0)
         {
@@ -69,6 +82,13 @@
                 NotificationType = NotificationType.Error,
             });
         }
+
+        return Task.CompletedTask;
     }
 
+    private Task HandleCalculatorClick()
+    {
+        var toBeExported = _selectedPokemonList.Any() ? _selectedPokemonList : PokemonList;
+        return Js.OpenSmogonDamageCalc(toBeExported);
+    }
 }
