@@ -4,7 +4,23 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>PKHeX.Web</title>
+
+    <meta name="description"
+          content="PKHeX for Web: A versatile Pokémon save file editor that runs on Windows, Linux, MacOS, Steam Deck, or anywhere a browser is supported.">
+    <meta name="keywords" content="PKHeX, Pokémon, save file editor, cross-platform, Windows, Linux, MacOS, Steam Deck">
+    <meta name="robots" content="index, follow">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="PKHeX for Web - Run Anywhere">
+    <meta property="og:description"
+          content="PKHeX for Web: A versatile Pokémon save file editor that runs on Windows, Linux, MacOS, Steam Deck, or anywhere a browser is supported.">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="PKHeX for Web - Run Anywhere">
+    <meta name="twitter:description"
+          content="PKHeX for Web: A versatile Pokémon save file editor that runs on Windows, Linux, MacOS, Steam Deck, or anywhere a browser is supported.">
+
+    <title>PKHeX for Web</title>
+
     <base href="/"/>
     <link rel="stylesheet" href="css/app.css"/>
     <link rel="stylesheet" href="css/antd-extensions.css"/>
@@ -29,6 +45,10 @@
             <circle r="40%" cx="50%" cy="50%"/>
         </svg>
         <div class="loading-progress-text"></div>
+        <div style="display: flex; flex-direction: column; gap: 10px; justify-items: center; margin-top: 5px; width: 100%;">
+            <div class="loading-text">Loading...</div>
+            <h1 class="loading-text">PKHeX for Web - A Cross-Platform Pokémon Save File Editor</h1>
+        </div>
     </div>
     
     <div id="blazor-error-ui">

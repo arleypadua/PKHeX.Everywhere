@@ -7,6 +7,13 @@ html, body {
     font-family: 'Pokemon GB', "Lucida Console", sans-serif;
 }
 
+.loading-text {
+    font-size: 15px; 
+    color: slategrey; 
+    text-align: center; 
+    width: 100%;
+}
+
 .validation-message {
     color: red;
 }
