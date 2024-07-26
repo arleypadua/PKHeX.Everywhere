@@ -7,12 +7,13 @@ namespace PKHeX.Web.Services.Plugins;
 public partial class PlugInRuntime(
     PlugInRegistry registry, 
     IMessageService message,
-    NavigationManager navigation)
+    NavigationManager navigation,
+    INotificationService notificationService)
 {
     private readonly FixedSizeQueue<Failure> _failures = new(20);
     public IEnumerable<Failure> RecentFailures => _failures.GetItems();
         
-    public async Task RunAll<T>(Func<T, Task> action) where T : IPluginHook
+    public async Task RunAll<T>(Func<T, Task<Outcome>> action) where T : IPluginHook
     {
         var failed = false;
         var hooks = registry.GetAllEnabledHooks<T>();
@@ -20,7 +21,8 @@ public partial class PlugInRuntime(
         {
             try
             {
-                await action(hook);
+                var outcome = await action(hook);
+                Handle(outcome);
             }
             catch (Exception e)
             {
@@ -34,6 +36,29 @@ public partial class PlugInRuntime(
             var showMessage = message.Error(RenderErrorMessage());
             showMessage.Start();
         }
+    }
+
+    public async Task RunOn<T>(T hook, Func<T, Task<Outcome>> action) where T : IPluginHook
+    {
+        var outcome = await action(hook);
+        Handle(outcome);
+    }
+
+    private void Handle(Outcome outcome) => _ = outcome switch
+    {
+        Outcome.Notification notification => HandleNotification(notification),
+        _ => Task.CompletedTask
+    };
+
+    private Task HandleNotification(Outcome.Notification notification)
+    {
+        Console.WriteLine("result completed");
+        return notificationService.Open(new()
+        {
+            Message = notification.Message,
+            Description = notification.Description,
+            NotificationType = (NotificationType)notification.Type,
+        });
     }
 
     public record Failure(LoadedPlugIn PlugIn, Exception Exception);

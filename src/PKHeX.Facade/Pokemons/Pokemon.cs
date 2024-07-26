@@ -45,6 +45,12 @@ public class Pokemon(PKM pokemon, Game game)
         !pokemon.Nickname.Equals(Species.Name, StringComparison.InvariantCultureIgnoreCase);
 
     public int Level => pokemon.CurrentLevel;
+
+    public uint Experience
+    {
+        get => pokemon.EXP;
+        set => pokemon.EXP = value;
+    }
     public PokemonNature Natures => new(pokemon);
 
     public PokemonForm Form => new(pokemon);

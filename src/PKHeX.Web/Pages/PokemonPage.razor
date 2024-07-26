@@ -103,9 +103,14 @@
         return
             @<Button
                  Type="@ButtonType.Link"
-                 OnClick="() => action.OnActionRequested(_editingPokemon)">
+                 OnClick="() => HandleActionButtonClick(action)">
                 @action.Label
             </Button>;
     }
+    
+    private async Task HandleActionButtonClick(IPokemonEditAction action)
+    {
+        await PlugInRuntime.RunOn(action, (_) => action.OnActionRequested(_editingPokemon!));
+    }   
 
 }

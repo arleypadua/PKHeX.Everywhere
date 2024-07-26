@@ -13,6 +13,15 @@
             "PublishedVersions": ["1.0.0"]
         },
         {
+            "Id": "PKHeX.Web.Plugins.Nuzlocking",
+            "FileName": "PKHeX.Web.Plugins.Nuzlocking.dll",
+            "Name": "Nuzlocking Helper",
+            "Description": "This adds functionality that helps on Nuzlocking.",
+            "ProjectUrl": "https://github.com/arleypadua/PKHeX.Everywhere",
+            "Summary": null,
+            "PublishedVersions": ["1.0.0"]
+        },
+        {
             "Id": "PKHeX.Web.Plugins.Demo",
             "FileName": "PKHeX.Web.Plugins.Demo.dll",
             "Name": "Demo Plugin",

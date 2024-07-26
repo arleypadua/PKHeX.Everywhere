@@ -8,9 +8,12 @@ public class MakeLegalOnClick(AutoLegalityModePlugin settings) : IPokemonEditAct
     public string Description => "Adds a button to legalize a pokemon when editing it.";
     public string Label => "Legalize";
     
-    public async Task OnActionRequested(Pokemon pokemon)
+    public async Task<Outcome> OnActionRequested(Pokemon pokemon)
     {
         settings.ConfigureAutoLegalityMode();
         await pokemon.ApplyLegalAsync();
+        return Outcome.Notify(
+            message: "Applied legality",
+            type: Outcome.Notification.NotificationType.Info);
     }
 }

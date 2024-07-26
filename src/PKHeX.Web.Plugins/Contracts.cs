@@ -16,7 +16,7 @@ public interface IPluginHook
 /// </summary>
 public interface IRunOnPokemonChange : IPluginHook
 {
-    Task OnPokemonChange(Pokemon pokemon);
+    Task<Outcome> OnPokemonChange(Pokemon pokemon);
 }
 
 /// <summary>
@@ -24,7 +24,7 @@ public interface IRunOnPokemonChange : IPluginHook
 /// </summary>
 public interface IRunOnPokemonSave : IPluginHook
 {
-    Task OnPokemonSaved(Pokemon pokemon);
+    Task<Outcome> OnPokemonSaved(Pokemon pokemon);
 }
 
 /// <summary>
@@ -32,7 +32,7 @@ public interface IRunOnPokemonSave : IPluginHook
 /// </summary>
 public interface IRunOnItemChanged : IPluginHook
 {
-    Task OnItemChanged(ItemChanged item);
+    Task<Outcome> OnItemChanged(ItemChanged item);
     
     public record ItemChanged(ushort Id, uint Count);
 }
@@ -43,5 +43,5 @@ public interface IRunOnItemChanged : IPluginHook
 public interface IPokemonEditAction : IPluginHook
 {
     string Label { get; }
-    Task OnActionRequested(Pokemon pokemon);
+    Task<Outcome> OnActionRequested(Pokemon pokemon);
 }

@@ -7,45 +7,48 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AntDesign" Version="0.19.2" />
-        <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.4" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.4" PrivateAssets="all" />
+        <PackageReference Include="AntDesign" Version="0.19.2"/>
+        <PackageReference Include="Blazored.LocalStorage" Version="4.5.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.4"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.4" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PKHeX.Facade\PKHeX.Facade.csproj" />
-      <ProjectReference Include="..\PKHeX.Web.Plugins\PKHeX.Web.Plugins.csproj" />
+        <ProjectReference Include="..\PKHeX.Facade\PKHeX.Facade.csproj"/>
+        <ProjectReference Include="..\PKHeX.Web.Plugins\PKHeX.Web.Plugins.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Content Update="wwwroot\data\savedata.bin">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Update="wwwroot\plugins\pkhexwebplugins.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Update="wwwroot\plugins\PKHeX.Web.Plugins.AutoLegality\1.0.0\PKHeX.Web.Plugins.AutoLegality.dll">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <Content Update="wwwroot\plugins\PKHeX.Web.Plugins.Demo\1.0.0\PKHeX.Web.Plugins.Demo.dll">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
+        <Content Update="wwwroot\data\savedata.bin">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Update="wwwroot\plugins\pkhexwebplugins.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Update="wwwroot\plugins\PKHeX.Web.Plugins.AutoLegality\1.0.0\PKHeX.Web.Plugins.AutoLegality.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="wwwroot\plugins\PKHeX.Web.Plugins.Demo\1.0.0\PKHeX.Web.Plugins.Demo.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="wwwroot\plugins\PKHeX.Web.Plugins.Nuzlocking\1.0.0\PKHeX.Web.Plugins.Nuzlocking.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Include="Components\Images\ItemIcon.razor" />
-      <AdditionalFiles Include="Components\Images\PokemonIcon.razor" />
-      <AdditionalFiles Include="Components\Images\PokemonImage.razor" />
-      <AdditionalFiles Include="Components\Pokemons\PokemonDescription.razor" />
-      <AdditionalFiles Include="Components\Pokemons\PokemonLegalityBanner.razor" />
-      <AdditionalFiles Include="Components\Pokemons\PokemonMetConditions.razor" />
-      <AdditionalFiles Include="Components\Selects\ItemSelect.razor" />
+        <AdditionalFiles Include="Components\Images\ItemIcon.razor"/>
+        <AdditionalFiles Include="Components\Images\PokemonIcon.razor"/>
+        <AdditionalFiles Include="Components\Images\PokemonImage.razor"/>
+        <AdditionalFiles Include="Components\Pokemons\PokemonDescription.razor"/>
+        <AdditionalFiles Include="Components\Pokemons\PokemonLegalityBanner.razor"/>
+        <AdditionalFiles Include="Components\Pokemons\PokemonMetConditions.razor"/>
+        <AdditionalFiles Include="Components\Selects\ItemSelect.razor"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Model\" />
-      <Folder Include="obj\" />
+        <Folder Include="Model\"/>
+        <Folder Include="obj\"/>
     </ItemGroup>
 
 </Project>

@@ -39,6 +39,10 @@ public abstract class Settings(PlugInManifest manifest)
         _defaultFeatureToggles[typeof(THook)] = true;
     }
 
+    public string GetString(string key) => this[key].GetString();
+    public int GetInteger(string key) => this[key].GetInteger();
+    public bool GetBoolean(string key) => this[key].GetBoolean();
+
     public abstract record SettingValue(bool ReadOnly)
     {
         public record StringValue(String Value, bool ReadOnly = false) : SettingValue(ReadOnly);
