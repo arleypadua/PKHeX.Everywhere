@@ -1,6 +1,7 @@
 @inject NavigationManager Navigation
 @inject ClipboardService Clipboard
 @inject INotificationService Notification
+@inject JsService Js
 
 @if (_pokemonRows.Any())
 {
@@ -39,6 +40,13 @@
                                         Type="@ButtonType.Link"
                                         OnClick='() => Navigation.NavigateToNewCloneOf(context.Pokemon.UniqueId)'>
                                         Clone
+                                    </Button>
+                                </MenuItem>
+                                <MenuItem>
+                                    <Button
+                                        Type="@ButtonType.Link"
+                                        OnClick="() => HandleExportShowdownClick(context.Pokemon)">
+                                        Calculator
                                     </Button>
                                 </MenuItem>
                                 <MenuItem>
@@ -98,6 +106,8 @@
         Navigation.StoreOnQuery(new() { { "pageIndex", PageIndex }, { "pageSize", PageSize } });
     }
 
+    private Task HandleCalculatorClick(Pokemon pokemon) => Js.OpenSmogonDamageCalc(pokemon);
+
     private async Task HandleExportShowdownClick(Pokemon pokemon)
     {
         await Clipboard.WriteTextAsync(pokemon.Showdown());
@@ -108,6 +118,7 @@
             NotificationType = NotificationType.Success,
         });
     }
+
 
     public class PokemonRow
     {

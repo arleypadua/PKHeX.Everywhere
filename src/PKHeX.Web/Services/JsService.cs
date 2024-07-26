@@ -43,7 +43,7 @@ public class JsService(IJSRuntime js)
         var decryptedBytes = ConvertHexStringToByteArray(decryptedHex);
         decryptedBytes.CopyTo(destination);
     }
-    
+
     private static byte[] ConvertHexStringToByteArray(string hex)
     {
         var bytes = new byte[hex.Length / 2];
@@ -64,7 +64,7 @@ public class JsService(IJSRuntime js)
     {
         await js.InvokeVoidAsync("history.back");
     }
-    
+
     public async Task OpenNewTab(string url)
     {
         await js.InvokeVoidAsync("eval", $"window.open('{url}', '_blank')");
@@ -73,6 +73,9 @@ public class JsService(IJSRuntime js)
 
 public static class JsServiceExtensions
 {
+    public static Task OpenSmogonDamageCalc(this JsService js, Pokemon pokemon) =>
+        js.OpenSmogonDamageCalc(new List<Pokemon> { pokemon });
+
     public static Task OpenSmogonDamageCalc(this JsService js, IEnumerable<Pokemon> pokemonList)
     {
         var showdown = pokemonList.Showdown();
