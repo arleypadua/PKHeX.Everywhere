@@ -6,7 +6,7 @@ This repository offers 2 different ways of accessing PKHex features in any opera
 The PKHeX Web version provides a user-friendly interface accessible via any web browser. This version supports plug-ins and includes built-in auto legality mode for ensuring the legality of Pokémon data.
 
 ### Access:
-Visit [PKHeX Web](https://pkhex-web.github.io) to start using the web interface.
+Visit [pkhex-web.github.io](https://pkhex-web.github.io) to start using the web interface.
 
 ## PKHeX.CLI
 The PKHeX Command Line Interface (CLI) version allows users to interact with PKHeX via the terminal. It provides a streamlined way to use PKHeX features directly from the command line.
