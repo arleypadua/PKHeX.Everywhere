@@ -15,6 +15,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<EncounterService>();
+builder.Services.AddScoped<LoadPokemonService>();
 
 builder.Services.AddScoped<PlugInService>();
 builder.Services.AddScoped<PlugInRegistry>();

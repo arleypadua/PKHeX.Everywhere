@@ -3,6 +3,7 @@
 @inject NavigationManager Navigate
 @inject ClipboardService Clipboard
 @inject INotificationService Notification
+@inject LoadPokemonService LoadPokemonService
 
 <PageTitle>Pokemon Box</PageTitle>
 
@@ -12,6 +13,9 @@
 
         <PageHeaderExtra>
             <ButtonOrMenu Actions="ExtraActions" />
+
+            @* Helper for loading *.pk files *@
+            <InputFile OnChange="LoadPokemon" @ref="_inputGameFile" style="display: none;"></InputFile>
         </PageHeaderExtra>
     </PageHeader>
 
@@ -26,6 +30,8 @@
 @code {
     [Inject] public required GameService GameService { get; set; }
     [Inject] public required JsService Js { get; set; }
+    
+    private InputFile _inputGameFile = default!;
 
     private IList<ButtonOrMenu.ButtonAction> ExtraActions => new List<ButtonOrMenu.ButtonAction>
     {
@@ -39,7 +45,8 @@
         {
             Type = ButtonType.Link,
             Icon = IconType.Outline.FolderOpen,
-            Label = "Load *.pk"
+            Label = "Load *.pk",
+            OnClickAsync = async () => await Js.ClickOnAsync(_inputGameFile.Element)
         },
         new ()
         {
@@ -97,4 +104,13 @@
         var toBeExported = _selectedPokemonList.Any() ? _selectedPokemonList : PokemonList;
         return Js.OpenSmogonDamageCalc(toBeExported);
     }
+
+    private async Task LoadPokemon(InputFileChangeEventArgs e)
+    {
+        using MemoryStream ms = new MemoryStream();
+        await e.File.OpenReadStream(2 * 1024 * 1000).CopyToAsync(ms);
+        
+        LoadPokemonService.Load(ms.ToArray());
+    }
+
 }

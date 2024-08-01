@@ -26,6 +26,9 @@ public static class NavigationManagerExtensions
     public static void NavigateToSelectedEncounter(this NavigationManager navigation) =>
         navigation.NavigateTo($"/pokemon/selected-encounter");
     
+    public static void NavigateToLoadedPokemon(this NavigationManager navigation) =>
+        navigation.NavigateTo($"/pokemon/loaded-file");
+    
     public static void NavigateToPlugInErrors(this NavigationManager navigation) =>
         navigation.NavigateTo($"/plugins/errors");
     

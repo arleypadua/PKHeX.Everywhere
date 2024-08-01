@@ -173,12 +173,10 @@ public class Pokemon(PKM pokemon, Game game)
 
     public static Pokemon LoadFrom(
         byte[] bytes, 
-        string? extension = null, 
-        EntityContext? generation = null,
         Game? game = null)
     {
         var format =
-            EntityFileExtension.GetContextFromExtension(extension ?? string.Empty, generation ?? EntityContext.Gen6);
+            EntityFileExtension.GetContextFromExtension(string.Empty, game?.Generation ?? EntityContext.Gen6);
         var pkm = EntityFormat.GetFromBytes(bytes, prefer: format)
                   ?? throw new InvalidOperationException("The file did not load into a valid pokemon file.");
 

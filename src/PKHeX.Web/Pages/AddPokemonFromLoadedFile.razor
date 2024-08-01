@@ -1,0 +1,60 @@
+@page "/pokemon/loaded-file"
+@inject INotificationService Notification
+@inject NavigationManager Navigation
+@inject LoadPokemonService LoadPokemonService
+@inject GameService GameService
+
+@if (_pokemon is not null)
+{
+    <Space Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
+        <PokemonEdit
+            Pokemon="_pokemon"/>
+
+        <Space Align="end" Style="width: 100%" Direction="DirectionVHType.Vertical">
+            <Button
+                Type="@ButtonType.Primary"
+                OnClick="HandleAddToBoxClick">
+                Add to box
+            </Button>
+        </Space>
+    </Space>
+}
+
+@code {
+    private Pokemon? _pokemon;
+
+    protected override void OnInitialized()
+    {
+        _pokemon = LoadPokemonService.Pokemon;
+        if (_pokemon is null) Navigation.NavigateToPokemonBox(replace: true);
+    }
+    
+    private void HandleAddToBoxClick()
+    {
+        if (_pokemon is null) return;
+        
+        var added = GameService.LoadedGame.Trainer.PokemonBox.AddOnEmptySlot(_pokemon);
+        
+        if (added)
+        {
+            _ = Notification.Open(new NotificationConfig
+            {
+                Message = $"{_pokemon.Species.Name} Created",
+                Description = $"{_pokemon.Species.Name} added to your box",
+                NotificationType = NotificationType.Success
+            });
+            
+            Navigation.NavigateToPokemon(PokemonSource.Box, _pokemon.UniqueId, replace: true);
+        }
+        else
+        {
+            _ = Notification.Open(new NotificationConfig
+            {
+                Message = "Fail to add",
+                Description = "Your pokemon box is full.",
+                NotificationType = NotificationType.Error
+            });
+        }
+    }
+
+}
