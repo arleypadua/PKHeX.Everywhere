@@ -3,6 +3,7 @@
 @inject NavigationManager Navigation
 @inject EncounterService EncounterService
 @inject GameService GameService
+@inject AnalyticsService Analytics
 
 @if (_pokemon is not null)
 {
@@ -45,6 +46,7 @@
             });
             
             Navigation.NavigateToPokemon(PokemonSource.Box, _pokemon.UniqueId, replace: true);
+            Analytics.TrackPokemon("pokemon_loaded_from_encounter", _pokemon);
         }
         else
         {

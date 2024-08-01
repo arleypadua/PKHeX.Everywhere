@@ -46,6 +46,7 @@
     [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
     [Inject] public required GameService GameService { get; set; }
     [Inject] public required JsService Js { get; set; }
+    [Inject] public required AnalyticsService Analytics { get; set; }
 
     [Parameter] public required string PartyOrBox { get; set; }
     [Parameter] public required string UniqueIdString { get; set; }
@@ -91,7 +92,14 @@
             Navigation.NavigateToPokemon(PokemonSource, _editingPokemon.UniqueId, replace: true);
         }
 
+        TrackSaved(_editingPokemon);
+
         await Js.NavigateBack();
+    }
+
+    private void TrackSaved(Pokemon pokemon)
+    {
+        Analytics.TrackPokemon("pokemon_saved", pokemon, PokemonSource);
     }
 
     private RenderFragment? RenderActionButton(IPokemonEditAction action)

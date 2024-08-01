@@ -1,4 +1,3 @@
-@using PKHeX.Core.AutoMod
 @using PKHeX.Web.Plugins
 @using PKHeX.Web.Services.Plugins
 
@@ -51,7 +50,6 @@
         await PlugInRuntime.RunAll<IRunOnPokemonChange>(h => h.OnPokemonChange(changedPokemon));
         _legalityBanner.Refresh();
     }
-
 }
 
 <style>

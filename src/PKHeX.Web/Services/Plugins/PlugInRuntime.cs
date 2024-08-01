@@ -1,4 +1,5 @@
 using AntDesign;
+using Blazor.Analytics;
 using Microsoft.AspNetCore.Components;
 using PKHeX.Web.Plugins;
 
@@ -8,7 +9,8 @@ public partial class PlugInRuntime(
     PlugInRegistry registry, 
     IMessageService message,
     NavigationManager navigation,
-    INotificationService notificationService)
+    INotificationService notificationService,
+    IAnalytics analytics)
 {
     private readonly FixedSizeQueue<Failure> _failures = new(20);
     public IEnumerable<Failure> RecentFailures => _failures.GetItems();
@@ -23,12 +25,14 @@ public partial class PlugInRuntime(
             {
                 var outcome = await action(hook);
                 Handle(outcome);
+                Track(hook);
             }
             catch (Exception e)
             {
                 failed = true;
                 _failures.Enqueue(new (registry.GetPlugInOwningHook(hook), e));
-            }   
+                Track(hook, e);
+            }
         }
 
         if (failed)
@@ -40,8 +44,18 @@ public partial class PlugInRuntime(
 
     public async Task RunOn<T>(T hook, Func<T, Task<Outcome>> action) where T : IPluginHook
     {
-        var outcome = await action(hook);
-        Handle(outcome);
+        try
+        {
+            var outcome = await action(hook);
+            Handle(outcome);
+            Track(hook);
+        }
+        catch (Exception e)
+        {
+            Track(hook, e);
+            throw;
+        }
+        
     }
 
     private void Handle(Outcome outcome) => _ = outcome switch
@@ -57,6 +71,16 @@ public partial class PlugInRuntime(
             Message = notification.Message,
             Description = notification.Description,
             NotificationType = (NotificationType)notification.Type,
+        });
+    }
+    
+    private void Track<T>(T hook, Exception? failure = null) where T : IPluginHook
+    {
+        analytics.TrackEvent("plugin_hook_executed", new
+        {
+            hook_name = hook.GetType().Name,
+            exception_type = failure?.GetType().Name,
+            exception_message = failure?.Message,
         });
     }
 

@@ -27,6 +27,7 @@ builder.Services.AddScoped<PlugInLocalStorageLoader>();
 builder.Services.AddScoped<PlugInSourceService>();
 builder.Services.AddScoped<PlugInSourceLocalStorage>();
 
+builder.Services.AddScoped<AnalyticsService>();
 builder.Services.AddScoped<JsService>();
 builder.Services.AddScoped<AntdThemeService>();
 builder.Services.AddScoped<ClipboardService>();

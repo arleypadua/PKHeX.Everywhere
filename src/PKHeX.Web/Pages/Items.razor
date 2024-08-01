@@ -36,6 +36,7 @@
 @code {
     [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
     [Inject] public required GameService GameService { get; set; }
+    [Inject] public required AnalyticsService Analytics { get; set; }
 
     List<ButtonOrMenu.ButtonAction> ExtraActions => new List<ButtonOrMenu.ButtonAction>
     {
@@ -72,6 +73,13 @@
 
         await PlugInRuntime.RunAll<IRunOnItemChanged>(h => h.OnItemChanged(new(itemToBeAdded.Id, itemToBeAdded.Count)));
         _addItemModalVisible = false;
+
+        Track(itemToBeAdded);
+    }
+
+    private void Track(AddItemModal.ItemToBeAdded itemToBeAdded)
+    {
+        Analytics.TrackItemModified(itemToBeAdded);
     }
 
     private void HandleCancel()
