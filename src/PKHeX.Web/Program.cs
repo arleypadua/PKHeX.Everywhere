@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Blazor.Analytics;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -35,6 +36,7 @@ builder.Services.AddScoped<BlazorAesProvider>();
 builder.Services.AddScoped<BlazorMd5Provider>();
 
 builder.Services.AddAntDesign();
+builder.Services.AddGoogleAnalytics("G-BV586KEZM9");
 
 builder.Services.AddBlazoredLocalStorage(config =>
 {
