@@ -10,7 +10,7 @@ public partial class PlugInRuntime(
     IMessageService message,
     NavigationManager navigation,
     INotificationService notificationService,
-    IAnalytics analytics)
+    AnalyticsService analyticsService)
 {
     private readonly FixedSizeQueue<Failure> _failures = new(20);
     public IEnumerable<Failure> RecentFailures => _failures.GetItems();
@@ -74,14 +74,9 @@ public partial class PlugInRuntime(
         });
     }
     
-    private void Track<T>(T hook, Exception? failure = null) where T : IPluginHook
+    private void Track(IPluginHook hook, Exception? failure = null)
     {
-        analytics.TrackEvent("plugin_hook_executed", new
-        {
-            hook_name = hook.GetType().Name,
-            exception_type = failure?.GetType().Name,
-            exception_message = failure?.Message,
-        });
+        analyticsService.TrackPlugInHookExecuted(hook, failure);
     }
 
     public record Failure(LoadedPlugIn PlugIn, Exception Exception);

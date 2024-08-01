@@ -2,6 +2,7 @@ using Blazor.Analytics;
 using PKHeX.Facade;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Web.Components;
+using PKHeX.Web.Plugins;
 
 namespace PKHeX.Web.Services;
 
@@ -59,6 +60,16 @@ public class AnalyticsService(
         {
             item_id = itemToBeAdded.Id,
             quantity = itemToBeAdded.Count,
+        });
+    }
+
+    public void TrackPlugInHookExecuted(IPluginHook hook, Exception? failure)
+    {
+        analytics.TrackEvent("plugin_hook_executed", new
+        {
+            hook_name = hook.GetType().Name,
+            exception_type = failure?.GetType().Name,
+            exception_message = failure?.Message,
         });
     }
 }
