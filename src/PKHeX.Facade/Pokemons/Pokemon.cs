@@ -24,15 +24,16 @@ public class Pokemon(PKM pokemon, Game game)
 
     public EntityId Id => new(Pkm.TID16, Pkm.SID16);
     public uint PID => Pkm.PID;
+
     public SpeciesDefinition Species
     {
         get => Game.SpeciesRepository.Species[(Species)Pkm.Species];
         set
         {
             if (Pkm.Species == value.ShortId) return;
-            
+
             Pkm.Species = value.ShortId;
-            
+
             if (Pkm is ICombatPower combatPower) combatPower.ResetCP();
             if (!NicknameSet) Pkm.ClearNickname();
         }
@@ -51,6 +52,7 @@ public class Pokemon(PKM pokemon, Game game)
         get => pokemon.EXP;
         set => pokemon.EXP = value;
     }
+
     public PokemonNature Natures => new(pokemon);
 
     public PokemonForm Form => new(pokemon);
@@ -58,13 +60,14 @@ public class Pokemon(PKM pokemon, Game game)
     public Stats EVs => Stats.EvFrom(pokemon);
     public Stats IVs => Stats.IvFrom(pokemon);
     public Stats BaseStats => Stats.BaseFrom(pokemon);
-    public Stats? AVs => pokemon is IAwakened ? Stats.AvFrom(pokemon) : null; 
+    public Stats? AVs => pokemon is IAwakened ? Stats.AvFrom(pokemon) : null;
     public PokemonMove Move1 => new(pokemon, PokemonMove.MoveIndex.Move1);
     public PokemonMove Move2 => new(pokemon, PokemonMove.MoveIndex.Move2);
     public PokemonMove Move3 => new(pokemon, PokemonMove.MoveIndex.Move3);
     public PokemonMove Move4 => new(pokemon, PokemonMove.MoveIndex.Move4);
     public Gender Gender => Gender.FromByte(pokemon.Gender);
     public bool IsShiny => pokemon.IsShiny;
+
     public ItemDefinition HeldItem
     {
         get => game.ItemRepository.GetItem(pokemon.HeldItem);
@@ -128,9 +131,9 @@ public class Pokemon(PKM pokemon, Game game)
     {
         var underlyingPkm = Pkm.Clone();
         underlyingPkm.ClearNickname();
-        
+
         var isShiny = underlyingPkm.IsShiny;
-        
+
         // re-roll the pid
         underlyingPkm.PID = EntityPID.GetRandomPID(Random.Shared, underlyingPkm.Species, underlyingPkm.Gender,
             underlyingPkm.Version, underlyingPkm.Nature, underlyingPkm.Form, underlyingPkm.PID);
@@ -143,7 +146,7 @@ public class Pokemon(PKM pokemon, Game game)
 
         return new Pokemon(underlyingPkm, Game);
     }
-    
+
     public Pokemon Clone() => new(Pkm.Clone(), Game);
 
     public void ApplyChangesFrom(Pokemon template, bool keepPid = true)
@@ -155,5 +158,38 @@ public class Pokemon(PKM pokemon, Game game)
         {
             Pkm.PID = pid;
         }
+    }
+
+    public File ToFile(bool encrypted = false)
+    {
+        return new File
+        {
+            Name = Pkm.FileName,
+            Bytes = encrypted
+                ? Pkm.EncryptedPartyData
+                : Pkm.DecryptedPartyData
+        };
+    }
+
+    public static Pokemon LoadFrom(
+        byte[] bytes, 
+        string? extension = null, 
+        EntityContext? generation = null,
+        Game? game = null)
+    {
+        var format =
+            EntityFileExtension.GetContextFromExtension(extension ?? string.Empty, generation ?? EntityContext.Gen6);
+        var pkm = EntityFormat.GetFromBytes(bytes, prefer: format)
+                  ?? throw new InvalidOperationException("The file did not load into a valid pokemon file.");
+
+        var version = GameVersionRepository.Instance.Get(pkm.Version);
+
+        return new Pokemon(pkm, game ?? Game.EmptyOf(version));
+    }
+
+    public class File
+    {
+        public required string Name { get; init; }
+        public required byte[] Bytes { get; init; }
     }
 }

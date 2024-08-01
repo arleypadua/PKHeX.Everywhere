@@ -1,3 +1,5 @@
+@using PKHeX.Core
+@using PKHeX.Facade.Repositories
 @inject JsService Js
 @inject NavigationManager Navigation
 @inject HttpClient HttpClient
@@ -10,7 +12,7 @@
             <DescriptionsItem Title="File">@GameService.FileName</DescriptionsItem>
             <DescriptionsItem Title="Version">@GameService.LoadedGame.SaveVersion.Name</DescriptionsItem>
         </Descriptions>
-        
+
         <Space Direction="DirectionVHType.Vertical" Style="width: 100%; max-width: 300px; gap: 20px;">
             <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Export" OnClick='ExportSaveAsync'>Export</Button>
             <Button Icon="@IconType.Outline.FolderOpen" OnClick='OpenFilePickerAsync'>Open new...</Button>
@@ -19,9 +21,22 @@
 }
 else
 {
-    <Space Direction="DirectionVHType.Vertical" Style="width: 100%; max-width: 300px; gap: 20px;">
-        <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.FolderOpen" OnClick="OpenFilePickerAsync">Open</Button>
-        <Button OnClick='OpenDemo'>Demo</Button>
+    <Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; max-width: 300px; gap: 20px;">
+        <Button 
+            Type="@ButtonType.Primary" 
+            Icon="@IconType.Outline.FolderOpen" 
+            OnClick="OpenFilePickerAsync"
+            Style="min-width: 150px">Open</Button>
+
+        <ButtonOrMenu
+            Actions="EmptyActions"
+            Style="min-width: 150px" />
+
+        <Button
+            OnClick='OpenDemo'
+            Style="min-width: 150px">
+            Demo
+        </Button>
     </Space>
 }
 
@@ -29,9 +44,38 @@ else
 
 
 @code {
+    [Inject] public required GameService GameService { get; set; }
+
     private InputFile _inputGameFile = default!;
 
-    [Inject] public required GameService GameService { get; set; }
+    private List<ButtonOrMenu.ButtonAction> EmptyActions => new[]
+        {
+            new ButtonOrMenu.ButtonAction
+            {
+                Type = ButtonType.Default,
+                Label = "Empty",
+                OnClickAsync = () => LoadEmpty(GameVersionRepository.Instance.Get(GameVersion.SW))
+            }
+        }
+        .Concat(GameVersionRepository.Instance
+            .All
+            .OrderBy(v => v.Name)
+            .Where(a => !a.Aggregated)
+            .Select(v => new ButtonOrMenu.ButtonAction
+            {
+                Type = ButtonType.Link,
+                Label = v.Name,
+                OnClickAsync = () => LoadEmpty(v)
+            }))
+        .ToList();
+
+    private Task LoadEmpty(GameVersionDefinition version)
+    {
+        GameService.LoadBlank(version);
+        Navigation.NavigateTo("/");
+
+        return Task.CompletedTask;
+    }
 
     private async Task LoadSave(InputFileChangeEventArgs e)
     {
@@ -60,4 +104,3 @@ else
 
     private async Task OpenFilePickerAsync() => await Js.ClickOnAsync(_inputGameFile.Element);
 }
-

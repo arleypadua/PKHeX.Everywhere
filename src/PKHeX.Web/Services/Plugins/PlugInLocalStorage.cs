@@ -112,7 +112,7 @@ public class PlugInLocalStorage(
 
     public class PlugInStorageRepresentation
     {
-        public string Id { get; set; }
+        public required string Id { get; set; }
         public bool HasNewerVersion { get; set; }
         public string SourceUrl { get; set; } = default!;
         public byte[] AssemblyBytes { get; set; } = [];

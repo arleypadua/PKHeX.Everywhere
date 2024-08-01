@@ -68,4 +68,6 @@ public class Game
 
         return new Game(saveFile);
     }
+
+    public static Game EmptyOf(GameVersionDefinition version) => new(SaveUtil.GetBlankSAV(version.Version, "PKHeXWeb"));
 }

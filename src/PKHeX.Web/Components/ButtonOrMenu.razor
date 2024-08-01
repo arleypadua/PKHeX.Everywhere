@@ -1,7 +1,7 @@
 @if (Actions.Count == 1)
 {
     var single = Actions.Single();
-    @RenderButton(single)
+    @RenderButton(single, Style)
 }
 else if (Actions.Count > 1)
 {
@@ -11,13 +11,16 @@ else if (Actions.Count > 1)
     <DropdownButton
         Type="first.Type"
         OnClick="first.OnClickAsync"
-        Icon="@(first.Icon ?? "ellipsis")">
+        Icon="@(first.Icon ?? "ellipsis")"
+        Class="button_or_menu"
+        Style="@Style">
         <ChildContent>
             @first.Label
         </ChildContent>
         
         <Overlay>
-            <Menu>
+            <Menu
+                Class="button_or_menu__dropdown_items">
                 @foreach (var action in others)
                 {
                     <MenuItem>
@@ -31,13 +34,15 @@ else if (Actions.Count > 1)
 
 @code {
     [Parameter] public required IList<ButtonAction> Actions { get; set; }
+    [Parameter] public string? Style { get; set; }
 
-    RenderFragment RenderButton(ButtonAction action) => 
+    RenderFragment RenderButton(ButtonAction action, string? style = null) => 
         @<Button
              Type="@action.Type"
              Icon="@action.Icon"
              Disabled="@action.Disabled"
-             OnClick="@action.OnClickAsync">
+             OnClick="@action.OnClickAsync"
+             Style="@style">
             @action.Label
         </Button>;
 
@@ -52,3 +57,20 @@ else if (Actions.Count > 1)
     }
 
 }
+
+<style>
+    .button_or_menu .ant-btn-group {
+        width: 100%;
+    }
+    .button_or_menu .ant-btn-group button {
+        flex-grow: 1;
+    }
+    
+    .button_or_menu__dropdown_items {
+        max-height: 250px;
+        overflow: scroll;
+
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>

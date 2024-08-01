@@ -1,6 +1,4 @@
-using System.Collections.Immutable;
 using Microsoft.AspNetCore.Components;
-using PKHeX.Core;
 using PKHeX.Facade;
 using PKHeX.Facade.Repositories;
 using PKHeX.Web.Extensions;

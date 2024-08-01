@@ -11,34 +11,32 @@
 
         <Space Align="end" Style="width: 100%" Direction="DirectionVHType.Vertical">
             @{ var actions = PlugInRegistry.GetAllEnabledHooks<IPokemonEditAction>().ToList(); }
-            @if (actions.Any())
-            {
-                <DropdownButton
-                    Type="@ButtonType.Primary"
-                    OnClick="HandleSaveClick">
-                    <Overlay>
-                        <Menu>
-                            @foreach (var action in actions)
-                            {   
-                                <MenuItem>
-                                    @RenderActionButton(action)
-                                </MenuItem>
-                            }
-                        </Menu>
-                    </Overlay>
-                    <ChildContent>
-                        Save
-                    </ChildContent>
-                </DropdownButton>
-            }
-            else
-            {
-                <Button
-                    Type="@ButtonType.Primary"
-                    OnClick="HandleSaveClick">
+            
+            <DropdownButton
+                Type="@ButtonType.Primary"
+                OnClick="HandleSaveClick">
+                <Overlay>
+                    <Menu>
+                        <MenuItem>
+                            <Button
+                                Type="@ButtonType.Link"
+                                OnClick="ExportPokemonToFile">
+                                Export *.pk
+                            </Button>
+                        </MenuItem>
+
+                        @foreach (var action in actions)
+                        {
+                            <MenuItem>
+                                @RenderActionButton(action)
+                            </MenuItem>
+                        }
+                    </Menu>
+                </Overlay>
+                <ChildContent>
                     Save
-                </Button>
-            }
+                </ChildContent>
+            </DropdownButton>
         </Space>
     </Space>
 }
@@ -107,10 +105,19 @@
                 @action.Label
             </Button>;
     }
-    
+
     private async Task HandleActionButtonClick(IPokemonEditAction action)
     {
         await PlugInRuntime.RunOn(action, (_) => action.OnActionRequested(_editingPokemon!));
-    }   
+    }
+
+    private async Task ExportPokemonToFile()
+    {
+        if (_editingPokemon is null) return;
+
+        var file = _editingPokemon.ToFile();
+        var memoryStream = new MemoryStream(file.Bytes);
+        await Js.DownloadFile(memoryStream, file.Name);
+    }
 
 }

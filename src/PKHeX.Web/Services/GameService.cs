@@ -1,4 +1,5 @@
 using PKHeX.Facade;
+using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Web.Services;
 
@@ -17,10 +18,15 @@ public class GameService
         Game = Game.LoadFrom(bytes, fileName);
         FileName = fileName;
 
-        if (OnGameLoaded is not null)
-        {
-            OnGameLoaded.Invoke(this, EventArgs.Empty);
-        }
+        OnGameLoaded?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void LoadBlank(GameVersionDefinition version)
+    {
+        Game = Game.EmptyOf(version);
+        FileName = version.Name;
+        
+        OnGameLoaded?.Invoke(this, EventArgs.Empty);
     }
 
     public Stream Export()
