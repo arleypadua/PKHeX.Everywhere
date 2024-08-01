@@ -52,7 +52,6 @@ public partial class PlugInRuntime(
 
     private Task HandleNotification(Outcome.Notification notification)
     {
-        Console.WriteLine("result completed");
         return notificationService.Open(new()
         {
             Message = notification.Message,

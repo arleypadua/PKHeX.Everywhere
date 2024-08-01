@@ -24,6 +24,7 @@
 
     [Parameter] public ushort? SelectedFormId { get; set; }
     [Parameter] public EventCallback<FormDefinition> SelectedFormChanged { get; set; }
+    [Parameter] public bool IgnoreRenderingEvents { get; set; }
     
     private bool _dataSourceJustLoaded = true;
     
@@ -38,6 +39,11 @@
         }
         
         return SelectedFormChanged.InvokeAsync(arg);
+    }
+
+    protected override void OnInitialized()
+    {
+        _dataSourceJustLoaded = IgnoreRenderingEvents;
     }
 
 }

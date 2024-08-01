@@ -28,6 +28,7 @@
     
     [Parameter] public Nature? SelectedNature { get; set; }
     [Parameter] public EventCallback<Nature> SelectedNatureChanged { get; set; }
+    [Parameter] public bool IgnoreRenderingEvents { get; set; }
 
     RenderFragment RenderItem(NatureSelection item)
     {
@@ -43,6 +44,11 @@
         }
 
         return SelectedNatureChanged.InvokeAsync(arg.Nature);
+    }
+    
+    protected override void OnInitialized()
+    {
+        _dataSourceJustLoaded = IgnoreRenderingEvents;
     }
 
     record NatureSelection(Nature Nature, string Name);

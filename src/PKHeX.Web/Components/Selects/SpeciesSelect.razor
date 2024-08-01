@@ -29,20 +29,21 @@
     
     [Parameter] public SpeciesDefinition? SelectedSpecies { get; set; }
     [Parameter] public EventCallback<SpeciesDefinition> SelectedSpeciesChanged { get; set; }
+    [Parameter] public bool IgnoreRenderingEvents { get; set; }
 
     private Species? SelectedValue => SelectedSpecies?.Species;
 
     private List<SpeciesDefinition> _species = [];
     private bool _dataSourceJustLoaded = true;
-    
-    private Task SelectedValueChanged(SpeciesDefinition definition)
+
+    private Task SelectedValueChanged(SpeciesDefinition? definition)
     {
         if (_dataSourceJustLoaded)
         {
             _dataSourceJustLoaded = false;
             return Task.CompletedTask;
         }
-        
+
         return SelectedSpeciesChanged.InvokeAsync(definition);
     }
 
@@ -74,7 +75,7 @@
             _ => SpeciesRepository.All.Values
         }).Where(SpeciesDefinition.IsSome).ToList();
         
-        _dataSourceJustLoaded = true;
+        _dataSourceJustLoaded = IgnoreRenderingEvents;
     }
 
     public enum DataSource

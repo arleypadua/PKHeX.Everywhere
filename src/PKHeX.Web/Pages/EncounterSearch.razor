@@ -5,12 +5,12 @@
 <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
     <GameVersionSelect 
         Source="GameVersionSelect.DataSource.CurrentGame"
-        SelectedGameVersion="EncounterService.SelectedGameVersion"
+        SelectedGameVersion="_version"
         SelectedGameVersionChanged="HandleGameVersionChanged"/>
     
     <SpeciesSelect
         Source="SpeciesSelect.DataSource.CurrentGame"
-        SelectedSpecies="EncounterService.SelectedSpecies"
+        SelectedSpecies="_species"
         SelectedSpeciesChanged="HandleSelectedSpeciesChanged"/>
 
     <PokemonEncounterTable
@@ -18,11 +18,20 @@
 </Space>
 
 @code {
+    private GameVersionDefinition? _version = null;
+    private SpeciesDefinition? _species = null;
 
+    protected override void OnInitialized()
+    {
+        _version = EncounterService.SelectedGameVersion;
+        _species = EncounterService.SelectedSpecies;
+    }
+    
     private void HandleSelectedSpeciesChanged(SpeciesDefinition? definition)
     {
         if (definition is null) return;
         
+        _species = definition;
         EncounterService.SelectedSpecies = definition;
         TryToSearch();
     }
@@ -31,6 +40,7 @@
     {
         if (definition is null) return;
         
+        _version = definition;
         EncounterService.SelectedGameVersion = definition;
         TryToSearch();
     }

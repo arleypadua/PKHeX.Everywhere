@@ -23,6 +23,7 @@
     [Parameter] public required IEnumerable<MoveDefinition> Moves { get; set; }
     [Parameter] public ushort SelectedMoveId { get; set; }
     [Parameter] public EventCallback<MoveDefinition> SelectedMoveChanged { get; set; }
+    [Parameter] public bool IgnoreRenderingEvents { get; set; }
     
     private bool _dataSourceJustLoaded = true;
 
@@ -49,6 +50,11 @@
         }
         
         return SelectedMoveChanged.InvokeAsync(arg);
+    }
+    
+    protected override void OnInitialized()
+    {
+        _dataSourceJustLoaded = IgnoreRenderingEvents;
     }
 
 }
