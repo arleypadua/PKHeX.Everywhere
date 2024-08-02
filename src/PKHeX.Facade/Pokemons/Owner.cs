@@ -6,7 +6,7 @@ public class Owner(PKM pokemon)
 {
     public uint TID
     {
-        get => pokemon.DisplayTID;
+        get => pokemon.TrainerTID7;
         set => pokemon.DisplayTID = value;
     }
 
@@ -45,20 +45,6 @@ public class Owner(PKM pokemon)
         get => (Handler)pokemon.CurrentHandler;
         set => pokemon.CurrentHandler = (byte)value;
     }
-
-    public void InheritFrom(Game game)
-    {
-        TID = game.Trainer.Id.TID;
-        SID = game.Trainer.Id.SID;
-        Name = game.Trainer.Name;
-        Gender = game.Trainer.Gender;
-    }
-
-    public bool BelongsTo(Trainer trainer) =>
-        trainer.Id.TID == TID
-        && trainer.Id.SID == SID
-        && trainer.Name == Name
-        && trainer.Gender.Equals(Gender);
 
     public enum Handler : byte
     {

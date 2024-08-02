@@ -55,20 +55,6 @@
                 Gender="Pokemon.Owner.Gender"
                 OnGenderChanged="HandleGenderChanged"/>
         </DescriptionsItem>
-
-        @if (!Pokemon.Owner.BelongsTo(Pokemon.Game.Trainer))
-        {
-            <DescriptionsItem
-                Title="Actions">
-                <Paragraph>
-                    This pokemon is not owned by the current loaded save OT
-                    (@Pokemon.Game.Trainer.Id - @Pokemon.Game.Trainer.Name @Pokemon.Game.Trainer.Gender.Symbol)
-                </Paragraph>
-                <Button OnClick="HandleSetOTFromGameClick">
-                    Set as @Pokemon.Game.Trainer.Name
-                </Button>
-            </DescriptionsItem>
-        }
     </ResponsibleDescriptions>
 
     <ResponsibleDescriptions
@@ -96,11 +82,11 @@
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
 
-    public string OTTitle => Pokemon.Owner.CurrentHandler == Owner.Handler.OriginalTrainer
+    private string OTTitle => Pokemon.Owner.CurrentHandler == Owner.Handler.OriginalTrainer
         ? "Original Trainer ✅"
         : "Original Trainer";
-    
-    public string HandlerTitle => Pokemon.Owner.CurrentHandler == Owner.Handler.SomeoneElse
+
+    private string HandlerTitle => Pokemon.Owner.CurrentHandler == Owner.Handler.SomeoneElse
         ? "Current Handler ✅"
         : "Current Handler";
 
@@ -137,12 +123,6 @@
     private Task HandleHandlingTrainerGenderChanged(Gender value)
     {
         Pokemon.Owner.HandlingTrainerGender = value;
-        return OnPokemonChanged.InvokeAsync(Pokemon);
-    }
-
-    private Task HandleSetOTFromGameClick()
-    {
-        Pokemon.Owner.InheritFrom(Pokemon.Game);
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 

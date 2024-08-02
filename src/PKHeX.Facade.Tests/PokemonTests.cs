@@ -20,10 +20,8 @@ public class PokemonTests
         var pokemon = PokemonFile.LoadFor(GameVersion.SL, game);
         
         pokemon.Owner.Name.Should().NotBe(game.Trainer.Name);
-        
-        pokemon.Owner.InheritFrom(game);
-
-        pokemon.Owner.BelongsTo(game.Trainer).Should().BeTrue();
+        pokemon.Owner.Name = game.Trainer.Name;
+        pokemon.Owner.Name.Should().Be(game.Trainer.Name);
     }
 
     private Game AGame(GameVersion version, string trainerName) =>
