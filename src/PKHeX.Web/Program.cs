@@ -57,6 +57,11 @@ var app = builder.Build();
 RuntimeCryptographyProvider.Aes = app.Services.GetRequiredService<BlazorAesProvider>();
 RuntimeCryptographyProvider.Md5 = app.Services.GetRequiredService<BlazorMd5Provider>();
 
+#if DEBUG
+app.Services.GetRequiredService<IAnalytics>()
+    .Disable();
+#endif
+
 app.Services.GetRequiredService<PlugInLocalStorageLoader>()
     .InitializePlugIns();
 
