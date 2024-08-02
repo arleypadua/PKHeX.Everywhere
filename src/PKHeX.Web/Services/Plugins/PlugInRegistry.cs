@@ -30,10 +30,10 @@ public class PlugInRegistry
         RefreshServiceProvider();
     }
 
-    public async Task<LoadedPlugIn> RegisterFrom(string url)
+    public async Task<LoadedPlugIn> RegisterFrom(string sourceId, string fileUrl)
     {
-        var assembly = await _httpClientFactory.GetByteArrayAsync(url);
-        return LoadPlugInFrom(url, assembly);
+        var assembly = await _httpClientFactory.GetByteArrayAsync(fileUrl);
+        return LoadPlugInFrom(sourceId, fileUrl, assembly);
     }
 
     public void Register(LoadedPlugIn plugIn)
@@ -69,12 +69,12 @@ public class PlugInRegistry
     public IEnumerable<T> GetAllEnabledHooks<T>() where T : IPluginHook => _pluginServiceProvider.GetServices<T>()
         .Where(h => GetPlugInOwningHook(h).IsPlugInAndHookEnabled(h));
 
-    private LoadedPlugIn LoadPlugInFrom(string url, byte[] assemblyBytes)
+    private LoadedPlugIn LoadPlugInFrom(string sourceId, string fileUrl, byte[] assemblyBytes)
     {
         if (assemblyBytes.Length == 0) throw new InvalidOperationException("No plugin found in this assembly");
-
+        
         var assembly = Assembly.Load(assemblyBytes);
-        var loadedPlugIn = LoadedPlugIn.From(url, assembly, assemblyBytes);
+        var loadedPlugIn = LoadedPlugIn.From(sourceId, fileUrl, assembly, assemblyBytes);
         
         Register(loadedPlugIn);
 

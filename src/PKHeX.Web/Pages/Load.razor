@@ -48,7 +48,7 @@
 
     private async Task LoadPlugins()
     {
-        await PlugInRegistry.RegisterFrom("/plugins/PKHeX.Web.Plugins.Demo.dll");
+        await PlugInRegistry.RegisterFrom(PlugInSource.DefaultSourceUrl, "/plugins/PKHeX.Web.Plugins.Demo.dll");
     }
 #endif
 

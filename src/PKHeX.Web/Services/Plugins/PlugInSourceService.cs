@@ -32,10 +32,22 @@ public class PlugInSourceService(
         var latest = await httpClient.GetFromJsonAsync<PlugInSource>(source.SourceManifestUrl);
         return latest;
     }
+    
+    public async Task<PlugInSource?> FetchFrom(LoadedPlugIn plugIn)
+    {
+        var source = await httpClient.GetFromJsonAsync<PlugInSource>(plugIn.SourceManifestUrl());
+        return source;
+    }
 
     public async Task<PlugInSource?> FetchFrom(string url)
     {
         var source = await httpClient.GetFromJsonAsync<PlugInSource>(url);
+        return source;
+    }
+
+    public async Task<PlugInSource?> FetchFrom(Uri uri)
+    {
+        var source = await httpClient.GetFromJsonAsync<PlugInSource>(uri);
         return source;
     }
 

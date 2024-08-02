@@ -10,7 +10,7 @@
             "Description": "Best effort to make your pokemon legal when editing them.",
             "ProjectUrl": "https://github.com/santacrab2/PKHeX-Plugins",
             "Summary": "A proxy for the auto legality mode hosted at: https://github.com/santacrab2/PKHeX-Plugins",
-            "PublishedVersions": ["1.0.0"]
+            "PublishedVersions": ["1.0.0", "1.0.1"]
         },
         {
             "Id": "PKHeX.Web.Plugins.Nuzlocking",

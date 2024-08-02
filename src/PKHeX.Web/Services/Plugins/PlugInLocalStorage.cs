@@ -19,7 +19,8 @@ public class PlugInLocalStorage(
         {
             Id = plugIn.Id,
             HasNewerVersion = plugIn.HasNewerVersion,
-            SourceUrl = plugIn.SourceUrl,
+            PlugInSourceId = plugIn.SourceId,
+            FileUrl = plugIn.FileUrl,
             AssemblyBytes = plugIn.AssemblyRawBytes,
             Enabled = plugIn.Enabled,
             FeatureToggles = plugIn.Hooks
@@ -63,7 +64,7 @@ public class PlugInLocalStorage(
             })
             .Where(r => r is not null);
 
-        return representations!
+        return representations
             .Select(r =>
             {
                 try
@@ -86,8 +87,11 @@ public class PlugInLocalStorage(
                                 new Settings.SettingValue.IntegerValue(setting.IntegerValue.Value, setting.ReadOnly);
                     }
 
-                    var plugIn = new LoadedPlugIn(r.SourceUrl, settings, assembly, r.AssemblyBytes);
-                    
+                    var plugIn = new LoadedPlugIn(r.PlugInSourceId, r.FileUrl, settings, assembly, r.AssemblyBytes)
+                    {
+                        HasNewerVersion = r.HasNewerVersion
+                    };
+
                     foreach (var (typeName, active) in r.FeatureToggles)
                     {
                         plugIn.SetToggle(typeName, active);
@@ -114,7 +118,25 @@ public class PlugInLocalStorage(
     {
         public required string Id { get; set; }
         public bool HasNewerVersion { get; set; }
-        public string SourceUrl { get; set; } = default!;
+
+        private string? _plugInSourceId;
+
+        public string PlugInSourceId
+        {
+            get => _plugInSourceId ?? PlugInSource.DefaultSourceUrl;
+            set => _plugInSourceId = value;
+        }
+
+        [Obsolete("Replaced by FileUrl")] public string SourceUrl { get; set; } = default!;
+
+        private string? _fileUrl;
+
+        public string FileUrl
+        {
+            get => _fileUrl ?? SourceUrl;
+            set => _fileUrl = value;
+        }
+
         public byte[] AssemblyBytes { get; set; } = [];
         public bool Enabled { get; set; }
         public Dictionary<string, bool> FeatureToggles { get; set; } = [];

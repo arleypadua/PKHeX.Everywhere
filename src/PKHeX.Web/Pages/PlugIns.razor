@@ -1,5 +1,6 @@
 @page "/plugins"
 @using PKHeX.Web.Services.Plugins
+@inject INotificationService Notification
 
 <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
     <PageHeader BackIcon="true" Style="max-width: 100%">
@@ -33,6 +34,18 @@
                             Uninstall
                         </Button>
                     </SpaceItem>
+
+                    @if (context.PlugIn.HasNewerVersion)
+                    {
+                        <SpaceItem>
+                            <Button
+                                OnClick="() => HandleUpdateClick(context.PlugIn)"
+                                Type="@ButtonType.Link"
+                                Danger>
+                                Update
+                            </Button>
+                        </SpaceItem>   
+                    }
                 </Space>
             </ActionColumn>
         </Table>
@@ -95,9 +108,20 @@
         return Task.CompletedTask;
     }
 
-    private Task HandleInstallClick(PlugInSource source, PlugInSource.PlugIn plugin)
+    private async Task HandleInstallClick(PlugInSource source, PlugInSource.PlugIn plugin)
     {
-        return PlugInService.InstallFrom(source.GetLatestDownloadUrl(plugin));
+        await PlugInService.InstallFrom(source.SourceUrl, source.GetLatestDownloadUrl(plugin));
+        
+        _ = Notification.Open(new NotificationConfig
+        {
+            Message = "Plug-in updated with success",
+            NotificationType = NotificationType.Success
+        });
+    }
+    
+    private Task HandleUpdateClick(LoadedPlugIn plugIn)
+    {
+        return PlugInService.Update(plugIn);
     }
 
     protected override Task OnInitializedAsync()

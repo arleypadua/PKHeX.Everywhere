@@ -26,5 +26,5 @@ public class AutoLegalityModePlugin : Settings
         Information: "A proxy for the auto legality mode hosted at: https://github.com/santacrab2/PKHeX-Plugins");
     
     private const string Timeout = "Timeout (seconds)";
-    private const string ForceLevel100 = "Force lvl 100 for 50";
+    private const string ForceLevel100 = "Force lvl 100 from 50";
 }

@@ -3,6 +3,8 @@
 @using PKHeX.Web.Services.Plugins
 @inject PlugInRegistry PlugInRegistry
 @inject PlugInLocalStorage PlugInStorage
+@inject PlugInService PlugInService
+@inject INotificationService Notification
 
 @if (_plugIn != null && _plugIn.Id == Id)
 {
@@ -13,7 +15,9 @@
             <PageHeaderExtra>
                 @if (_plugIn.HasNewerVersion)
                 {
-                    <Button Type="@ButtonType.Primary">
+                    <Button 
+                        Type="@ButtonType.Primary"
+                        OnClick="HandleUpdateClick">
                         Update
                     </Button>
                 }
@@ -136,6 +140,20 @@
         ArgumentNullException.ThrowIfNull(_plugIn, nameof(_plugIn));
         _plugIn.SetToggle(hook, newValue);
         PlugInStorage.Persist(_plugIn);
+    }
+    
+    private async Task HandleUpdateClick()
+    {
+        if (_plugIn is null) return;
+        await PlugInService.Update(_plugIn);
+        
+        LoadPlugin();
+        
+        _ = Notification.Open(new NotificationConfig
+        {
+            Message = "Plug-in updated with success",
+            NotificationType = NotificationType.Success
+        });
     }
     
     public class PlugInFeatures
