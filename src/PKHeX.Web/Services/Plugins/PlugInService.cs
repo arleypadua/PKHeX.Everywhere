@@ -3,12 +3,16 @@ namespace PKHeX.Web.Services.Plugins;
 public class PlugInService(
     PlugInRegistry registry,
     PlugInLocalStorage localStorage,
-    PlugInSourceService sourceService)
+    PlugInSourceService sourceService,
+    AnalyticsService analyticsService)
 {
-    public async Task InstallFrom(string sourceId, string fileUrl)
+    public async Task<LoadedPlugIn> InstallFrom(string sourceId, string fileUrl)
     {
         var result = await registry.RegisterFrom(sourceId, fileUrl);
         localStorage.Persist(result);
+
+        analyticsService.TrackInstalled(result);
+        return result;
     }
 
     public async Task Update(LoadedPlugIn plugIn)
@@ -20,7 +24,9 @@ public class PlugInService(
         if (sourcePlugIn is null) return;
 
         var downloadUrl = source.GetLatestDownloadUrl(sourcePlugIn);
-        await InstallFrom(source.SourceUrl, downloadUrl);
+        var updatedPlugIn = await InstallFrom(source.SourceUrl, downloadUrl);
+
+        analyticsService.TrackUpdated(updatedPlugIn);
     }
 
     public void Uninstall(LoadedPlugIn plugIn)
