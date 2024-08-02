@@ -1,6 +1,6 @@
 namespace PKHeX.Facade;
 
-public record EntityId(ushort TID, ushort SID)
+public record EntityId(uint TID, uint SID)
 {
     public override string ToString() => $"{TID}/{SID}";
 }

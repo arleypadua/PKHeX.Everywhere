@@ -68,7 +68,7 @@
         _species = (Source switch
         {
             DataSource.All => SpeciesRepository.All.Values,
-            DataSource.CurrentGame => GameService.LoadedGame.SpeciesRepository.Species.Values,
+            DataSource.CurrentGame => GameService.LoadedGame.SpeciesRepository.AllGameSpecies,
             DataSource.OnlySpeciesChain => SelectedSpecies is not null
                 ? GameService.LoadedGame.SpeciesRepository.GetEvolutionsFrom(SelectedSpecies)
                 : throw new ArgumentException("Selected species is required when OnlySpeciesChain DataSource is used", nameof(SelectedSpecies)),

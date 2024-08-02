@@ -10,6 +10,8 @@ public sealed class Gender : Enumeration
     }
 
     public string Symbol { get; private set; }
+    
+    public byte ToByte() => Convert.ToByte(Id);
 
     public static readonly Gender Male = new (0, "Male", "♂");
     public static readonly Gender Female = new (1, "Female", "♀");

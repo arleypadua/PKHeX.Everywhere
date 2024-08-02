@@ -38,9 +38,9 @@ public class GamesAttribute(params GameVersion[] versions) : DataAttribute
 
 public static class SaveFilePath
 {
-    public const string Yellow = "./data/savedata_1.sav"; // yellow
-    public const string HgSs = "./data/savedata_4hgss.dsv"; // soul silver
-    public const string LetsGoPikachu = "./data/savedata_7b.bin"; // let's go pikachu
+    public const string Yellow = "./data/save/savedata_1.sav"; // yellow
+    public const string HgSs = "./data/save/savedata_4hgss.dsv"; // soul silver
+    public const string LetsGoPikachu = "./data/save/savedata_7b.bin"; // let's go pikachu
 
     public static string PathFrom(GameVersion version) => version switch
     {

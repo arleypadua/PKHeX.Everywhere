@@ -1,0 +1,1 @@
+﻿global using static PKHeX.Facade.Extensions.IdiomaticFunctions;

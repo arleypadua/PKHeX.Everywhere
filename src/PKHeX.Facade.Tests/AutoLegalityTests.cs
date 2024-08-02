@@ -31,7 +31,7 @@ public class AutoLegalityTests
         AutoLegality.ApplyDefaultConfiguration();
         
         var gloom = game.Trainer.Party.Pokemons.Single(p => p.Species == Species.Gloom);
-        gloom.Species = game.SpeciesRepository.Species[Species.Vileplume];
+        gloom.Species = game.SpeciesRepository.Get(Species.Vileplume);
 
         await gloom.ApplyLegalAsync();
         
@@ -68,7 +68,7 @@ public class AutoLegalityTests
         var pid = goldeen.PID;
         
         goldeen.ChangeLevel(30);
-        goldeen.Species = game.SpeciesRepository.Species[Species.Seaking];
+        goldeen.Species = game.SpeciesRepository.Get(Species.Seaking);
         
         goldeen.Level.Should().Be(30);
         goldeen.Species.Species.Should().Be(Species.Seaking);

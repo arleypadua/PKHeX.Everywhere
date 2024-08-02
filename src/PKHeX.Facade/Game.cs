@@ -69,5 +69,7 @@ public class Game
         return new Game(saveFile);
     }
 
-    public static Game EmptyOf(GameVersionDefinition version) => new(SaveUtil.GetBlankSAV(version.Version, "PKHeXWeb"));
+    public static Game EmptyOf(
+        GameVersionDefinition version,
+        string? trainerName = null) => new(SaveUtil.GetBlankSAV(version.Version, trainerName?? "PKHeXWeb"));
 }

@@ -1,0 +1,155 @@
+<Space Style="gap: 20px; width: 100%" Direction="DirectionVHType.Vertical" Wrap>
+    <ResponsibleDescriptions
+        Bordered
+        Size="small"
+        Style="width: 100%">
+        <DescriptionsItem
+            Title="Handler">
+            <RadioGroup
+                TValue="Owner.Handler"
+                Value="Pokemon.Owner.CurrentHandler" 
+                ValueChanged="@(v => OnCurrentHandlerChanged(v))" 
+                ButtonStyle="@RadioButtonStyle.Solid">
+                <Radio RadioButton Value="@(Owner.Handler.OriginalTrainer)">OT</Radio>
+                <Radio RadioButton Value="@(Owner.Handler.SomeoneElse)">Other</Radio>
+            </RadioGroup>
+        </DescriptionsItem>
+    </ResponsibleDescriptions>
+
+    <ResponsibleDescriptions
+        Bordered
+        Title="@OTTitle"
+        Size="small"
+        Style="width: 100%">
+        <DescriptionsItem Title="TID">
+            <AntDesign.InputNumber
+                TValue="uint"
+                Value="Pokemon.Owner.TID"
+                OnChange="HandleTIDChanged"
+                PlaceHolder="TID"
+                Min="0"
+                Max="uint.MaxValue"/>
+        </DescriptionsItem>
+
+        <DescriptionsItem Title="SID">
+            <AntDesign.InputNumber
+                TValue="uint"
+                Value="Pokemon.Owner.SID"
+                OnChange="HandleSIDChanged"
+                PlaceHolder="SID"
+                Min="0"
+                Max="uint.MaxValue"/>
+        </DescriptionsItem>
+
+        <DescriptionsItem Title="Name">
+            <Input
+                TValue="string"
+                Value="Pokemon.Owner.Name"
+                OnChange="HandleNameChanged"
+                PlaceHolder="Name"
+                Style="max-width: 200px;"/>
+        </DescriptionsItem>
+
+        <DescriptionsItem Title="Gender">
+            <GenderSelector
+                Gender="Pokemon.Owner.Gender"
+                OnGenderChanged="HandleGenderChanged"/>
+        </DescriptionsItem>
+
+        @if (!Pokemon.Owner.BelongsTo(Pokemon.Game.Trainer))
+        {
+            <DescriptionsItem
+                Title="Actions">
+                <Paragraph>
+                    This pokemon is not owned by the current loaded save OT
+                    (@Pokemon.Game.Trainer.Id - @Pokemon.Game.Trainer.Name @Pokemon.Game.Trainer.Gender.Symbol)
+                </Paragraph>
+                <Button OnClick="HandleSetOTFromGameClick">
+                    Set as @Pokemon.Game.Trainer.Name
+                </Button>
+            </DescriptionsItem>
+        }
+    </ResponsibleDescriptions>
+
+    <ResponsibleDescriptions
+        Bordered
+        Title="@HandlerTitle"
+        Size="small"
+        Style="width: 100%">
+        <DescriptionsItem Title="Name">
+            <Input
+                TValue="string"
+                Value="Pokemon.Owner.HandlingTrainerName"
+                OnChange="HandleHandlingTrainerNameChanged"
+                PlaceHolder="Name"/>
+        </DescriptionsItem>
+
+        <DescriptionsItem Title="Gender">
+            <GenderSelector
+                Gender="Pokemon.Owner.HandlingTrainerGender"
+                OnGenderChanged="HandleHandlingTrainerGenderChanged"/>
+        </DescriptionsItem>
+    </ResponsibleDescriptions>
+</Space>
+
+@code {
+    [Parameter] public required Pokemon Pokemon { get; set; }
+    [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
+
+    public string OTTitle => Pokemon.Owner.CurrentHandler == Owner.Handler.OriginalTrainer
+        ? "Original Trainer ✅"
+        : "Original Trainer";
+    
+    public string HandlerTitle => Pokemon.Owner.CurrentHandler == Owner.Handler.SomeoneElse
+        ? "Current Handler ✅"
+        : "Current Handler";
+
+    private Task HandleTIDChanged(uint value)
+    {
+        Pokemon.Owner.TID = value;
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleSIDChanged(uint value)
+    {
+        Pokemon.Owner.SID = value;
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleNameChanged(string value)
+    {
+        Pokemon.Owner.Name = value;
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleGenderChanged(Gender value)
+    {
+        Pokemon.Owner.Gender = value;
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleHandlingTrainerNameChanged(string value)
+    {
+        Pokemon.Owner.HandlingTrainerName = value;
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleHandlingTrainerGenderChanged(Gender value)
+    {
+        Pokemon.Owner.HandlingTrainerGender = value;
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleSetOTFromGameClick()
+    {
+        Pokemon.Owner.InheritFrom(Pokemon.Game);
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task OnCurrentHandlerChanged(Owner.Handler value)
+    {
+        Pokemon.Owner.CurrentHandler = value;
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+}

@@ -1,0 +1,38 @@
+<RadioGroup Value="Gender" ValueChanged="OnGenderChanged" ButtonStyle="@RadioButtonStyle.Solid">
+    <Radio RadioButton Class="gender_selector__male" Value="@(Gender.Male)">@Gender.Male.Symbol</Radio>
+    <Radio RadioButton Class="gender_selector__female" Value="@(Gender.Female)">@Gender.Female.Symbol</Radio>
+    @if (Genderless)
+    {
+        <Radio RadioButton Class="gender_selector__genderless" Value="@(Gender.Genderless)">@Gender.Genderless.Symbol</Radio>
+    }
+</RadioGroup>
+
+@code {
+    [Parameter] public required Gender Gender { get; set; } = Gender.Male;
+    [Parameter] public EventCallback<Gender> OnGenderChanged { get; set; }
+    
+    [Parameter] public bool Genderless { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Genderless = Genderless || Gender.Equals(Gender.Genderless);
+    }
+
+}
+
+<style>
+    .gender_selector__male.ant-radio-button-wrapper-checked {
+        background: #1890ff !important;
+        border-color: #1890ff !important;
+    }
+
+    .gender_selector__female.ant-radio-button-wrapper-checked {
+        background: #b218ff !important;
+        border-color: #b218ff !important;
+    }
+
+    .gender_selector__genderless.ant-radio-button-wrapper-checked {
+        background: #5b5e5b !important;
+        border-color: #5b5e5b !important;
+    }
+</style>

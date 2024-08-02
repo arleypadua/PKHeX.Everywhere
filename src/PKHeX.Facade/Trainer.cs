@@ -12,7 +12,7 @@ public class Trainer
     {
         _game = game;
 
-        Id = new EntityId(_game.SaveFile.TID16, _game.SaveFile.SID16);
+        Id = new EntityId(_game.SaveFile.DisplayTID, _game.SaveFile.DisplaySID);
         Money = new Money(_game);
         Inventories = new Inventories(_game);
         Party = new PokemonParty(_game);

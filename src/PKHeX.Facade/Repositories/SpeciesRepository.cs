@@ -6,17 +6,24 @@ namespace PKHeX.Facade.Repositories;
 public class SpeciesRepository
 {
     private readonly Game _game;
+    private readonly IImmutableDictionary<Species, SpeciesDefinition> _species;
 
     internal SpeciesRepository(Game game)
     {
         _game = game;
         var saveSpecificDataSource = new FilteredGameDataSource(game.SaveFile, GameInfo.Sources);
-        Species = saveSpecificDataSource.Species.ToImmutableDictionary(
+        _species = saveSpecificDataSource.Species.ToImmutableDictionary(
             k => (Species)k.Value,
             v => new SpeciesDefinition((Species)v.Value, v.Text));
     }
 
-    public IImmutableDictionary<Species, SpeciesDefinition> Species { get; }
+    public IEnumerable<SpeciesDefinition> AllGameSpecies => _species.Values;
+
+    public SpeciesDefinition Get(Species species)
+    {
+        if (species == Species.None) return SpeciesDefinition.None;
+        return _species[species];
+    }
 
     public IImmutableList<SpeciesDefinition> GetEvolutionsFrom(SpeciesDefinition definition, byte form = 0) =>
         EvolutionTree
@@ -41,4 +48,6 @@ public record SpeciesDefinition(Species Species, string Name)
     public static bool IsSome(SpeciesDefinition species) => species.Species != Species.None;
     
     public static implicit operator Species(SpeciesDefinition d) => d.Species;
+    
+    public static SpeciesDefinition None => new(Species.None, "None");
 }

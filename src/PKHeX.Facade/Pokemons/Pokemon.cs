@@ -22,12 +22,14 @@ public class Pokemon(PKM pokemon, Game game)
         set => pokemon.Ball = Convert.ToByte(value.Id);
     }
 
-    public EntityId Id => new(Pkm.TID16, Pkm.SID16);
+    public EntityId Id => new(Pkm.DisplayTID, Pkm.DisplaySID);
+    public Owner Owner => new(pokemon);
+    
     public uint PID => Pkm.PID;
 
     public SpeciesDefinition Species
     {
-        get => Game.SpeciesRepository.Species[(Species)Pkm.Species];
+        get => Game.SpeciesRepository.Get((Species)Pkm.Species);
         set
         {
             if (Pkm.Species == value.ShortId) return;
