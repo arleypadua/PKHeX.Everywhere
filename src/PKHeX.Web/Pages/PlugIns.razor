@@ -101,10 +101,10 @@
     private int _installedPlugInsPageIndex = 1;
     private int _installedPlugInsPageSize = 20;
 
-    private Task HandleUninstallClick(LoadedPlugIn plugin)
+    private async Task HandleUninstallClick(LoadedPlugIn plugin)
     {
         PlugInService.Uninstall(plugin);
-        return Task.CompletedTask;
+        await RefreshAvailablePlugIns();
     }
 
     private async Task HandleInstallClick(PlugInSource source, PlugInSource.PlugIn plugin)
@@ -116,11 +116,14 @@
             Message = "Plug-in updated with success",
             NotificationType = NotificationType.Success
         });
+        
+        await RefreshAvailablePlugIns();
     }
     
-    private Task HandleUpdateClick(LoadedPlugIn plugIn)
+    private async Task HandleUpdateClick(LoadedPlugIn plugIn)
     {
-        return PlugInService.Update(plugIn);
+        await PlugInService.Update(plugIn);
+        await RefreshAvailablePlugIns();
     }
 
     protected override Task OnInitializedAsync()
