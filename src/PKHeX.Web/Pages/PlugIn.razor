@@ -4,7 +4,7 @@
 @inject PlugInRegistry PlugInRegistry
 @inject PlugInLocalStorage PlugInStorage
 
-@if (_plugIn != null)
+@if (_plugIn != null && _plugIn.Id == Id)
 {
     <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
         <PageHeader BackIcon="true" Style="max-width: 100%">
@@ -41,7 +41,7 @@
             @foreach (var (key, _) in _plugIn.Settings.All)
             {
                 <DescriptionsItem Title="@key">
-                    @RenderSettings(key, _plugIn.Settings[key])
+                    @RenderSettings(key, _plugIn.Settings.GetOrDefault(key))
                 </DescriptionsItem>
             }
         </ResponsibleDescriptions>
@@ -78,7 +78,12 @@
     private int _pageIndex = 1;
     private int _pageSize = 20;
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
+    {
+        LoadPlugin();
+    }
+
+    private void LoadPlugin()
     {
         _plugIn = PlugInRegistry.GetBy(Id);
         _features = PlugInRegistry
@@ -87,7 +92,7 @@
             .ToList();
     }
 
-    private RenderFragment RenderSettings(string key, Settings.SettingValue value) =>
+    private RenderFragment RenderSettings(string key, Settings.SettingValue? value) =>
         value switch
         {
             Settings.SettingValue.StringValue stringValue => RenderStringSettings(key, stringValue),

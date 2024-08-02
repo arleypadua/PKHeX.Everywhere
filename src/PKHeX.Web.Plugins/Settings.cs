@@ -39,6 +39,14 @@ public abstract class Settings(PlugInManifest manifest)
         _defaultFeatureToggles[typeof(THook)] = true;
     }
 
+    public SettingValue? GetOrDefault(string key, Func<SettingValue?>? defaultValue = null)
+    {
+        defaultValue ??= () => null;
+        return _settings!.GetValueOrDefault(key, defaultValue());
+    }
+
+    public bool ContainsKey(string key) => _settings.ContainsKey(key);
+
     public string GetString(string key) => this[key].GetString();
     public int GetInteger(string key) => this[key].GetInteger();
     public bool GetBoolean(string key) => this[key].GetBoolean();
