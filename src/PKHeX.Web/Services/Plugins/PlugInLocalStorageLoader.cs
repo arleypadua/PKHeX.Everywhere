@@ -7,6 +7,7 @@ public class PlugInLocalStorageLoader(
     PlugInLocalStorage plugInStorage,
     PlugInRegistry registry,
     PlugInSourceService sourceService,
+    PlugInSourceLocalStorage plugInSourceLocalStorage,
     PlugInLocalStorage plugInLocalStorage,
     INotificationService notification,
     ILogger<PlugInLocalStorageLoader> logger)
@@ -23,6 +24,34 @@ public class PlugInLocalStorageLoader(
     }
 
     private async Task CheckNewVersions()
+    {
+        await UpdatePlugInSources();
+        await CheckPlugInVersions();
+    }
+
+    private async Task UpdatePlugInSources()
+    {
+        try
+        {
+            var sourceTasks = plugInSourceLocalStorage.GetSources()
+                .Select(s => s.SourceManifestUrl)
+                .Select(sourceService.FetchFrom);
+        
+            var updatedSources = await Task.WhenAll(sourceTasks);
+            foreach (var source in updatedSources)
+            {
+                if (source is null) continue;
+            
+                plugInSourceLocalStorage.PersistSource(source);
+            }
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to check updates");   
+        }
+    }
+
+    private Task CheckPlugInVersions()
     {
         try
         {
@@ -43,11 +72,10 @@ public class PlugInLocalStorageLoader(
                 .GroupBy(p => p.SourceId)
                 .ToDictionary(p => p.Key, p => p.ToList());
             
-            var sourceManifestUrls = uncheckedRegisteredPlugIns.Keys.Select(LoadedPlugInExtensions.SourceManifestUrl);
-
-            var sources = (await Task.WhenAll(sourceManifestUrls.Select(sourceService.FetchFrom)))
-                .Where(s => s != null)
-                .ToDictionary(s => s!.SourceUrl, s => s!);
+            var sources = plugInSourceLocalStorage
+                .GetSources()
+                .Where(s => uncheckedRegisteredPlugIns.Keys.Contains(s.SourceUrl))
+                .ToDictionary(s => s.SourceUrl, s => s);
 
             foreach (var sourceKey in uncheckedRegisteredPlugIns.Keys)
             {
@@ -107,5 +135,7 @@ public class PlugInLocalStorageLoader(
         {
             logger.LogError(e, "Failed to check updates");
         }
+
+        return Task.CompletedTask;
     }
 }

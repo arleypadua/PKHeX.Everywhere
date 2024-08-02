@@ -17,15 +17,7 @@ public class PlugInSource
 
     public PlugIn[] PlugIns { get; init; } = [];
     
-    public string SourceManifestUrl
-    {
-        get
-        {
-            var source = new Uri(SourceUrl);
-            var resource = new Uri(source, new Uri(ManifestFileName));
-            return resource.ToString();
-        }
-    }
+    public string SourceManifestUrl => $"{SourceUrl}/{ManifestFileName}".Replace("//", "/");
 
     public string GetLatestDownloadUrl(PlugIn plugIn)
     {
