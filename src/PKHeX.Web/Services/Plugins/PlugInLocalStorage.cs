@@ -123,7 +123,7 @@ public class PlugInLocalStorage(
 
         public string PlugInSourceId
         {
-            get => _plugInSourceId ?? PlugInSource.DefaultSourceUrl;
+            get => _plugInSourceId ?? PlugInSource.DefaultSourcePath;
             set => _plugInSourceId = value;
         }
 

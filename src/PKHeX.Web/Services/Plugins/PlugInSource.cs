@@ -104,7 +104,12 @@ public class PlugInSource
     public const string ManifestFileName = "pkhexwebplugins.json";
 
     /// <summary>
+    /// The default path where the default plug-in source is stored
+    /// </summary>
+    public const string DefaultSourcePath = "/plugins";
+
+    /// <summary>
     /// This is PKHeX web default source of plugins
     /// </summary>
-    public static readonly string DefaultSourceUrl = $"/plugins/{ManifestFileName}";
+    public static readonly string DefaultSourceUrl = $"${DefaultSourcePath}/{ManifestFileName}";
 }
