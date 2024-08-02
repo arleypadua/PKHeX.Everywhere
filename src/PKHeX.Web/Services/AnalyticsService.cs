@@ -11,8 +11,18 @@ public class AnalyticsService(
 {
     public void TrackGameLoaded(Game game)
     {
+        analytics.TrackEvent("game_loaded", GetPayloadFrom(game));
+    }
+    
+    public void TrackGameExported(Game game)
+    {
+        analytics.TrackEvent("game_exported", GetPayloadFrom(game));
+    }
+
+    private object GetPayloadFrom(Game game)
+    {
         var party = game.Trainer.Party.Pokemons;
-        analytics.TrackEvent("game_loaded", new
+        return new
         {
             version_name = game.GameVersionApproximation.Name,
             version_id = game.GameVersionApproximation.Id,
@@ -38,7 +48,7 @@ public class AnalyticsService(
             party_species_id_06 = party.ElementAtOrDefault(5)?.Species.Id,
             party_species_name_06 = party.ElementAtOrDefault(5)?.Species.Name,
             party_level_06 = party.ElementAtOrDefault(5)?.Level,
-        });
+        };
     }
 
     public void TrackPokemon(string eventType, Pokemon pokemon, PokemonSource? source = null)

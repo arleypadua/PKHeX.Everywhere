@@ -45,6 +45,7 @@ else
 
 @code {
     [Inject] public required GameService GameService { get; set; }
+    [Inject] public required AnalyticsService Analytics { get; set; }
 
     private InputFile _inputGameFile = default!;
 
@@ -93,6 +94,8 @@ else
 
         var stream = GameService.Export();
         await Js.DownloadFile(stream, GameService.FileName ?? string.Empty);
+        
+        Analytics.TrackGameExported(GameService.LoadedGame);
     }
 
     private async Task OpenDemo()
