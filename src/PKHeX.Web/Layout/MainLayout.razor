@@ -3,6 +3,7 @@
 @implements IDisposable
 @inject NavigationManager Navigation
 @inject GameService GameService
+@inject AntdThemeService ThemeService
 
 <Layout Style="min-height: 100vh">
     <Sider Collapsible
@@ -45,11 +46,20 @@
         </Menu>
     </Sider>
     <Layout>
-        <Header Class="site-layout-sub-header-background" Style="padding: 0; display: flex; justify-content: center;">
-            @if (_collapsed)
-            {
-                <span class="layout-header">@SelectedMenuItem?.Label</span>
-            }
+        <Header Style="display: flex; justify-items: center; align-items: center; width: 100%">
+
+            @* Flex has a bug here, as it does not show in the center. To be fixed. *@
+            @* @if (_collapsed) *@
+            @* { *@
+            @*     <span class="layout-header">@SelectedMenuItem?.Label</span> *@
+            @* } *@
+
+            <Switch
+                Style="margin-left: auto; margin-right: 15px;"
+                Value="ThemeService.IsDarkTheme"
+                OnChange="HandleThemeChanged"
+                CheckedChildren="Dark"
+                UnCheckedChildren="Light"/>
         </Header>
         <Content Style=" margin: 24px 16px 0;">
             <div class="site-layout-background" style="padding: 24px; min-height: 360px">
@@ -84,7 +94,7 @@
             var plugIns = PlugInRegistry.GetAllPlugins()
                 .Select(p => new MenuItem($"plugins/{p.Id}", p.Settings.Manifest.PlugInName))
                 .ToList();
-            
+
             if (plugIns.Any()) plugIns.Add(new MenuItem("plugins", "Manage Plug-Ins"));
 
             return plugIns;
@@ -140,6 +150,14 @@
     {
         GameService.OnGameLoaded -= OnGameLoaded;
         PlugInRegistry.OnPlugInChanged -= OnPlugInChanged;
+    }
+
+    private async Task HandleThemeChanged(bool isDark)
+    {
+        if (isDark)
+            await ThemeService.SetDarkTheme();
+        else
+            await ThemeService.SetLightTheme();
     }
 
 }

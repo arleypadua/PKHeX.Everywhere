@@ -8,6 +8,8 @@ screen.orientation.addEventListener("change", (event) => {
 
 window.getWidth = () => window.innerWidth;
 
+window.hasPreferenceForDarkTheme = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+
 window.downloadFileFromStream = async (fileName, contentStreamReference) => {
     const arrayBuffer = await contentStreamReference.arrayBuffer();
     const blob = new Blob([arrayBuffer]);
