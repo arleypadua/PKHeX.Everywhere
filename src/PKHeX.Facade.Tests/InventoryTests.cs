@@ -1,4 +1,5 @@
 using FluentAssertions;
+using PKHeX.Facade.Repositories;
 using PKHeX.Facade.Tests.Base;
 
 namespace PKHeX.Facade.Tests;
@@ -10,7 +11,7 @@ public class InventoryTests
     public void InventoryRepository_ShouldReturnExpectedItem(string saveFile)
     {
         var game = Game.LoadFrom(saveFile);
-        var masterball = game.ItemRepository.GetItem(1);
+        var masterball = ItemRepository.GetItem(1);
         masterball.Should().Be(MasterBall);
     }
 

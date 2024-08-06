@@ -39,7 +39,7 @@
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
 
-    private ISet<ItemDefinition> AllBalls => GameService.Game?.ItemRepository.AllBalls() ?? new HashSet<ItemDefinition>();
+    private ISet<ItemDefinition> AllBalls => ItemRepository.AllBalls();
     
     private async Task HandleCapturedWithChanged(ItemDefinition item)
     {

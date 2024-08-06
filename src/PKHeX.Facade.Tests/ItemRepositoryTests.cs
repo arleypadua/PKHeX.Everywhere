@@ -1,5 +1,6 @@
 using FluentAssertions;
 using PKHeX.Core;
+using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade.Tests;
 
@@ -9,6 +10,6 @@ public class ItemRepositoryTests
     [Games(GameVersion.HG)]
     public void ShouldLoadGameSpecificBalls(Game game)
     {
-        game.ItemRepository.GetBall(Ball.Sport).Should().NotBeNull();
+        ItemRepository.GetBall(Ball.Sport).Should().NotBeNull();
     }
 }

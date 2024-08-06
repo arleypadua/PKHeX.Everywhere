@@ -1,5 +1,6 @@
 ﻿using PKHeX.CLI.Base;
 using PKHeX.Facade;
+using PKHeX.Facade.Repositories;
 using Spectre.Console;
 
 namespace PKHeX.CLI.Commands;
@@ -7,7 +8,7 @@ namespace PKHeX.CLI.Commands;
 public static class EditInventoryItem
 {
     public static Result Handle(Game game, string inventoryType, ushort itemId) => SafeHandle(() => {
-        var itemDefinition = game.ItemRepository.GetItem(itemId);
+        var itemDefinition = ItemRepository.GetItem(itemId);
         var inventory = game.Trainer.Inventories[inventoryType];
         var item = inventory.Items.FirstOrDefault(i => i.Id == itemId);
 

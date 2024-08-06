@@ -1,8 +1,9 @@
 @page "/analytics"
+@using PKHeX.Facade.Repositories
 @using PKHeX.Web.Services.AnalyticsResults
 @inject AnalyticsResultsService AnalyticsResultService
 
-<Space Wrap="true" Style="width: 100%; gap: 20px;" Size="@("small")">
+<Space Wrap="true" Class="chart_deck" Size="@("small")">
     @if (_gameLoads.Any())
     {
         <SpaceItem Class="chart_card">
@@ -19,8 +20,30 @@
     }
 </Space>
 
+<Space Wrap="true" Class="chart_deck" Size="@("small")" Style="margin-top: 20px;">
+    @if (_speciesCount.Any())
+    {
+        <SpaceItem Class="chart_card">
+            <Card Bordered="false" Title=@("Species changed")>
+                <Treemap Data="SpeciesCountData" Config="_treemapConfig"/>
+            </Card>
+        </SpaceItem>
+    }
+    
+    @if (_itemsCount.Any())
+    {
+        <SpaceItem Class="chart_card">
+            <Card Bordered="false" Title=@("Items changed")>
+                <Treemap Data="ItemsCountData" Config="_treemapConfig"/>
+            </Card>
+        </SpaceItem>
+    }
+</Space>
+
 @code {
-    private Dictionary<string, List<GameLoadedByCountry>> _gameLoads = [];
+    private Dictionary<string, List<GameLoadedByCountryRepresentation>> _gameLoads = [];
+    private List<(SpeciesDefinition Definition, int Count)> _speciesCount = [];
+    private List<(ItemDefinition Definition, int Count)> _itemsCount = [];
 
     IEnumerable<object> GameLoadCountByCountry => _gameLoads
         .Select(l => new
@@ -37,6 +60,34 @@
             type = g.Key,
             value = g.Sum(l => l.CountNumber)
         });
+    
+    Data SpeciesCountData => new()
+    {
+        Name = "root",
+        Children = _speciesCount
+            .Select(s => new TreemapDataItem
+            {
+                Name = s.Definition.Name,
+                Value = s.Count
+            })
+            .ToList(),
+        Value = _speciesCount
+            .Sum(s => s.Count)
+    };
+    
+    Data ItemsCountData => new()
+    {
+        Name = "root",
+        Children = _itemsCount
+            .Select(s => new TreemapDataItem
+            {
+                Name = s.Definition.Name,
+                Value = s.Count
+            })
+            .ToList(),
+        Value = _speciesCount
+            .Sum(s => s.Count)
+    };
 
     readonly PieConfig _pieConfig = new()
     {
@@ -53,17 +104,43 @@
         },
         AutoFit = true
     };
+    
+    readonly TreemapConfig _treemapConfig = new()
+    {
+        ColorField = "name",
+    };
 
     protected override async Task OnInitializedAsync()
     {
         _gameLoads = await AnalyticsResultService.GetGameLoadsByCountry();
+        _speciesCount = (await AnalyticsResultService.GetSpeciesSavedCount()).ToList();
+        _itemsCount = (await AnalyticsResultService.GetItemChangedCount()).ToList();
+    }
+    
+    public class Data : ITreemapData<TreemapDataItem>
+    {
+        public required string Name { get; set; }
+        public required IEnumerable<TreemapDataItem> Children { get; set; }
+        public int Value { get; set; }
+    }
+
+    public class TreemapDataItem
+    {
+        public required string Name { get; set; }
+        public decimal Value { get; set; }
     }
 
 }
 
 <style>
+    .chart_deck {
+        display: flex;
+        width: 100%; 
+        gap: 20px;
+    }
+    
     .chart_card {
-        min-width: 250px; 
-        max-width: 430px;
+        min-width: 250px;
+        flex: 1;
     }
 </style>

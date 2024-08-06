@@ -73,7 +73,7 @@ public class Encounter
         ? _game.LocationRepository.GetBy(Data.EggLocation, true)
         : _game.LocationRepository.GetBy(Data.Location);
 
-    public ItemDefinition Ball => _game.ItemRepository.GetBall(Data.FixedBall)
+    public ItemDefinition Ball => ItemRepository.GetBall(Data.FixedBall)
         ?? throw new InvalidOperationException($"Ball item not found: {Data.FixedBall}");
 
     public Range LevelRange => new(Data.LevelMin, Data.LevelMax);
