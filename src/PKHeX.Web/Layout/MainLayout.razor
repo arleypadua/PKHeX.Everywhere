@@ -84,6 +84,7 @@
         new("pokemon-box", "Pokemon Box", "inbox"),
         new("items", "Items", "shop"),
         new("plugins", "Plug-Ins", "api", PluginMenuItems),
+        new ("analytics", "Analytics", "line-chart", AnalyticsMenuItems),
         new("save", "Save", "save"),
     ];
 
@@ -100,6 +101,11 @@
             return plugIns;
         }
     }
+
+    List<MenuItem> AnalyticsMenuItems => new()
+    {
+
+    };
 
     protected override void OnInitialized()
     {

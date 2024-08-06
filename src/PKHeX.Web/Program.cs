@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PKHeX.Core;
 using PKHeX.Web;
 using PKHeX.Web.Services;
+using PKHeX.Web.Services.AnalyticsResults;
 using PKHeX.Web.Services.Plugins;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -17,6 +18,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<EncounterService>();
 builder.Services.AddScoped<LoadPokemonService>();
+builder.Services.AddScoped<AnalyticsResultsService>();
 
 builder.Services.AddScoped<PlugInService>();
 builder.Services.AddScoped<PlugInRegistry>();

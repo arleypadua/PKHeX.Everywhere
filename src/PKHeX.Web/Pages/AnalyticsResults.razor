@@ -1,0 +1,69 @@
+@page "/analytics"
+@using PKHeX.Web.Services.AnalyticsResults
+@inject AnalyticsResultsService AnalyticsResultService
+
+<Space Wrap="true" Style="width: 100%; gap: 20px;" Size="@("small")">
+    @if (_gameLoads.Any())
+    {
+        <SpaceItem Class="chart_card">
+            <Card Bordered="false" Title=@("Edits by country")>
+                <Pie Data="GameLoadCountByCountry" Config="_pieConfig"/>
+            </Card>
+        </SpaceItem>
+
+        <SpaceItem Class="chart_card">
+            <Card Bordered="false" Title=@("Edits by version")>
+                <Pie Data="GameLoadByVersion" Config="_pieConfig"/>
+            </Card>
+        </SpaceItem>
+    }
+</Space>
+
+@code {
+    private Dictionary<string, List<GameLoadedByCountry>> _gameLoads = [];
+
+    IEnumerable<object> GameLoadCountByCountry => _gameLoads
+        .Select(l => new
+        {
+            type = l.Key,
+            value = l.Value.Sum(c => c.CountNumber)
+        });
+
+    IEnumerable<object> GameLoadByVersion => _gameLoads.Values
+        .SelectMany(v => v)
+        .GroupBy(g => g.VersionName)
+        .Select(g => new
+        {
+            type = g.Key,
+            value = g.Sum(l => l.CountNumber)
+        });
+
+    readonly PieConfig _pieConfig = new()
+    {
+        Radius = 0.8,
+        AngleField = "value",
+        ColorField = "type",
+        Label = new PieLabelConfig
+        {
+            Visible = true,
+            Type = "inner",
+            Offset = 20,
+            AutoRotate = false,
+            Field = "type"
+        },
+        AutoFit = true
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        _gameLoads = await AnalyticsResultService.GetGameLoadsByCountry();
+    }
+
+}
+
+<style>
+    .chart_card {
+        min-width: 250px; 
+        max-width: 430px;
+    }
+</style>

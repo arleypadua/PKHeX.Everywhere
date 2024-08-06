@@ -37,6 +37,9 @@ public static class NavigationManagerExtensions
     
     public static void NavigateToPlugIn(this NavigationManager navigation, LoadedPlugIn plugIn) =>
         navigation.NavigateTo($"/plugins/{plugIn.Id}");
+    
+    public static void NavigateToAnalyticsResults(this NavigationManager navigation) =>
+        navigation.NavigateTo($"/analytics");
 
     public static void StoreOnQuery(this NavigationManager navigation, Dictionary<string, object?> parameters)
     {
