@@ -34,17 +34,16 @@
     [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        var testData = await HttpClient.GetByteArrayAsync("/data/savedata.bin");
-        GameService.Load(testData, "savedata.bin");
+        // var testData = await HttpClient.GetByteArrayAsync("/data/savedata.bin");
+        // GameService.Load(testData, "savedata.bin");
 
         // var firstPokemon = GameService.Game!.Trainer.Party.Pokemons.First();
         // Navigation.NavigateToPokemon(PokemonSource.Party, firstPokemon.UniqueId);
         // Navigation.NavigateToSearchEncounter();
         // Navigation.NavigateToPokemonBox();
         // Navigation.NavigateToPlugIns();
-        Navigation.NavigateToAnalyticsResults();
+        // Navigation.NavigateToAnalyticsResults();
         
-
         // await LoadPlugins();
     }
 

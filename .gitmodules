@@ -1,4 +1,4 @@
 [submodule "external/PKHeX-Plugins"]
 	path = external/PKHeX-Plugins
 	url = https://github.com/arleypadua/PKHeX-Plugins.git
-	branch = rollback-pkhex-core
+	branch = cherrytree

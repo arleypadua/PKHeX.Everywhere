@@ -20,6 +20,8 @@
             SelectedKeys="@( [SelectedMenuItem?.Route ?? string.Empty])">
             @foreach (var item in MenuItems)
             {
+                @if(!item.VisibleWithoutGame && !GameService.IsLoaded) continue;
+                
                 @if (item.Nested is null || item.Nested.Count == 0)
                 {
                     @RenderMenu(item)
@@ -83,9 +85,9 @@
         new("party", "Party", "team"),
         new("pokemon-box", "Pokemon Box", "inbox"),
         new("items", "Items", "shop"),
-        new("plugins", "Plug-Ins", "api", PluginMenuItems),
-        new ("analytics", "Analytics", "line-chart", AnalyticsMenuItems),
-        new("save", "Save", "save"),
+        new("plugins", "Plug-Ins", "api", true, PluginMenuItems),
+        new ("analytics", "Analytics", "line-chart", true),
+        new("save", "Save", "save", true),
     ];
 
     List<MenuItem> PluginMenuItems
@@ -102,11 +104,6 @@
         }
     }
 
-    List<MenuItem> AnalyticsMenuItems => new()
-    {
-
-    };
-
     protected override void OnInitialized()
     {
         GameService.OnGameLoaded += OnGameLoaded;
@@ -118,7 +115,8 @@
 
     private void ToLoadIfNotLoaded()
     {
-        if (!GameService.IsLoaded)
+        var currentRoute = Navigation.CurrentRoute();
+        if (!GameService.IsLoaded && string.IsNullOrWhiteSpace(currentRoute) || currentRoute == "/")
         {
             Navigation.NavigateTo("/load");
         }
@@ -150,7 +148,7 @@
             </span>
         </MenuItem>;
 
-    record MenuItem(string Route, string Label, string? Icon = null, List<MenuItem>? Nested = null);
+    record MenuItem(string Route, string Label, string? Icon = null, bool VisibleWithoutGame = false, List<MenuItem>? Nested = null);
 
     public void Dispose()
     {

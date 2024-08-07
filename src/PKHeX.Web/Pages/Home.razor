@@ -4,29 +4,32 @@
 
 <PageTitle>Home</PageTitle>
 
-<Descriptions Title="Trainer" Bordered Column="@ThemeService.ColumnsConfiguration" Size="small">
-    <DescriptionsItem Title="TID/SID">@_game.Trainer.Id</DescriptionsItem>
-    <DescriptionsItem Title="Name">@_game.Trainer.Name</DescriptionsItem>
-    <DescriptionsItem Title="Gender">@_game.Trainer.Gender.Symbol</DescriptionsItem>
-    <DescriptionsItem Title="Cash">
-        <AntDesign.InputNumber
-            TValue="uint"
-            Formatter='value => $"$ {value}"'
-            Value="@_game.Trainer.Money.Amount"
-            OnChange="newValue => _game.Trainer.Money.Set(newValue)"
-            Style="width: 100%; max-width: 170px;"
-            Min="0" Max="999999"
+@if (_game is not null)
+{
+    <Descriptions Title="Trainer" Bordered Column="@ThemeService.ColumnsConfiguration" Size="small">
+        <DescriptionsItem Title="TID/SID">@_game.Trainer.Id</DescriptionsItem>
+        <DescriptionsItem Title="Name">@_game.Trainer.Name</DescriptionsItem>
+        <DescriptionsItem Title="Gender">@_game.Trainer.Gender.Symbol</DescriptionsItem>
+        <DescriptionsItem Title="Cash">
+            <AntDesign.InputNumber
+                TValue="uint"
+                Formatter='value => $"$ {value}"'
+                Value="@_game.Trainer.Money.Amount"
+                OnChange="newValue => _game.Trainer.Money.Set(newValue)"
+                Style="width: 100%; max-width: 170px;"
+                Min="0" Max="999999"
             />
-    </DescriptionsItem>
-    <DescriptionsItem Title="Rival">@_game.Trainer.RivalName</DescriptionsItem>
-</Descriptions>
+        </DescriptionsItem>
+        <DescriptionsItem Title="Rival">@_game.Trainer.RivalName</DescriptionsItem>
+    </Descriptions>
+}
 
 @code {
-    private Game _game = default!;
+    private Game? _game;
 
     protected override void OnInitialized()
     {
-        _game = GameService.Game!;
+        _game = GameService.Game;
     }
 
 }

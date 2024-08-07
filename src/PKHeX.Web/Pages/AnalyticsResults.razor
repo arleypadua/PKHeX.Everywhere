@@ -50,7 +50,8 @@
         {
             type = l.Key,
             value = l.Value.Sum(c => c.CountNumber)
-        });
+        })
+        .Where(v => v.value > 1);
 
     IEnumerable<object> GameLoadByVersion => _gameLoads.Values
         .SelectMany(v => v)
@@ -59,7 +60,8 @@
         {
             type = g.Key,
             value = g.Sum(l => l.CountNumber)
-        });
+        })
+        .Where(v => v.value > 1);
     
     Data SpeciesCountData => new()
     {
@@ -113,8 +115,13 @@
     protected override async Task OnInitializedAsync()
     {
         _gameLoads = await AnalyticsResultService.GetGameLoadsByCountry();
-        _speciesCount = (await AnalyticsResultService.GetSpeciesSavedCount()).ToList();
-        _itemsCount = (await AnalyticsResultService.GetItemChangedCount()).ToList();
+        _speciesCount = (await AnalyticsResultService.GetSpeciesSavedCount())
+            .Where(s => s.Count > 1)
+            .ToList();
+        
+        _itemsCount = (await AnalyticsResultService.GetItemChangedCount())
+            .Where(s => s.Count > 1)
+            .ToList();
     }
     
     public class Data : ITreemapData<TreemapDataItem>

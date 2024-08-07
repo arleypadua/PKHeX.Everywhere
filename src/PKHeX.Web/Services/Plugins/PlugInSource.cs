@@ -103,5 +103,5 @@ public class PlugInSource
     /// <summary>
     /// This is PKHeX web default source of plugins
     /// </summary>
-    public static readonly string DefaultSourceUrl = $"${DefaultSourcePath}/{ManifestFileName}";
+    public static readonly string DefaultSourceUrl = $"{DefaultSourcePath}/{ManifestFileName}";
 }
