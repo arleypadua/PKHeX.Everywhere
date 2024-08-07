@@ -12,7 +12,7 @@ internal class CapturedWith(Pokemon pokemon) : EditPokemonAttribute.SimpleAttrib
     {
         var balls = BallApplicator
             .GetLegalBalls(Pokemon.Pkm)
-            .Select(b => Pokemon.Game.ItemRepository.GetItem((ushort)b));
+            .Select(b => ItemRepository.GetItem((ushort)b));
 
         var ball = AnsiConsole.Prompt(new SelectionPrompt<OptionOrBack>()
             .Title(Display)
