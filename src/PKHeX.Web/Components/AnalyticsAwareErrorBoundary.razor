@@ -1,5 +1,7 @@
 @inherits ErrorBoundary
 @inject AnalyticsService Analytics
+@inject GameService GameService
+@inject NavigationManager Navigation
 
 @{
     base.BuildRenderTree(__builder);
@@ -8,7 +10,7 @@
 @code {
     protected override Task OnErrorAsync(Exception exception)
     {
-        Analytics.TrackError(exception);
+        Analytics.TrackError(exception, Navigation.CurrentRoute(), GameService.Game);
         return base.OnErrorAsync(exception);
     }
 }

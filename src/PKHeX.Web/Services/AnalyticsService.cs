@@ -10,9 +10,7 @@ using PKHeX.Web.Services.Plugins;
 namespace PKHeX.Web.Services;
 
 public class AnalyticsService(
-    IAnalytics analytics,
-    NavigationManager navigation,
-    GameService gameService)
+    IAnalytics analytics)
 {
     public void TrackGameLoaded(Game game)
     {
@@ -106,20 +104,19 @@ public class AnalyticsService(
         version = plugIn.Version.ToString(),
     };
 
-    public void TrackError(Exception exception)
+    public void TrackError(Exception exception, string? currentRoute = null, Game? currentGame = null)
     {
-        var game = gameService.Game;
         analytics.TrackEvent("unexpected_error", new
         {
-            current_route = navigation.CurrentRoute(),
+            current_route = currentRoute,
             exception_message = exception.Message,
             exception_stack_trace = exception.StackTrace,
             exception_type = exception.GetType().Name,
             exception_id = exception.GetExceptionTrackingId(),
-            version_name = game?.GameVersionApproximation.Name,
-            version_id = game?.GameVersionApproximation.Id,
-            generation_name = game?.Generation.ToString(),
-            generation_id = (int?)game?.Generation,
+            version_name = currentGame?.GameVersionApproximation.Name,
+            version_id = currentGame?.GameVersionApproximation.Id,
+            generation_name = currentGame?.Generation.ToString(),
+            generation_id = (int?)currentGame?.Generation,
         });
     }
 }
