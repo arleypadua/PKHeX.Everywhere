@@ -18,7 +18,7 @@ public class Pokemon(PKM pokemon, Game game)
 
     public ItemDefinition Ball
     {
-        get => game.ItemRepository.GetItem(pokemon.Ball);
+        get => ItemRepository.GetItem(pokemon.Ball);
         set => pokemon.Ball = Convert.ToByte(value.Id);
     }
 
@@ -72,7 +72,7 @@ public class Pokemon(PKM pokemon, Game game)
 
     public ItemDefinition HeldItem
     {
-        get => game.ItemRepository.GetItem(pokemon.HeldItem);
+        get => ItemRepository.GetItem(Convert.ToUInt16(pokemon.HeldItem));
         set => pokemon.HeldItem = value.Id;
     }
 
