@@ -109,7 +109,7 @@ public class AnalyticsService(
     public void TrackError(Exception exception)
     {
         var game = gameService.Game;
-        analytics.TrackEvent("unhandled_exception", new
+        analytics.TrackEvent("unexpected_error", new
         {
             current_route = navigation.CurrentRoute(),
             exception_message = exception.Message,

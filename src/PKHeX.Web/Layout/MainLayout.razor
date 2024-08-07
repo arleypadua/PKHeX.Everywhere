@@ -61,16 +61,11 @@
                 <AnalyticsAwareErrorBoundary>
                     <ChildContent>
                         @Body
-
-                        <Button
-                            OnClick="@(() => throw new InvalidOperationException("Boo"))">
-                            Boo
-                        </Button>
                     </ChildContent>
                     <ErrorContent>
                         <Alert Type="@AlertType.Error" Message="Error" Closable>
                             <Paragraph>
-                                Whops, some unknown error happened.
+                                Whops, some unexpected error happened.
                             </Paragraph>
                             
                             <Paragraph>
