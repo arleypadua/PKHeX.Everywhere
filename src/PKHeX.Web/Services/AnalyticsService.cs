@@ -1,14 +1,18 @@
 using Blazor.Analytics;
+using Microsoft.AspNetCore.Components;
 using PKHeX.Facade;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Web.Components;
+using PKHeX.Web.Extensions;
 using PKHeX.Web.Plugins;
 using PKHeX.Web.Services.Plugins;
 
 namespace PKHeX.Web.Services;
 
 public class AnalyticsService(
-    IAnalytics analytics)
+    IAnalytics analytics,
+    NavigationManager navigation,
+    GameService gameService)
 {
     public void TrackGameLoaded(Game game)
     {
@@ -101,4 +105,21 @@ public class AnalyticsService(
         file_url = plugIn.FileUrl,
         version = plugIn.Version.ToString(),
     };
+
+    public void TrackError(Exception exception)
+    {
+        var game = gameService.Game;
+        analytics.TrackEvent("unhandled_exception", new
+        {
+            current_route = navigation.CurrentRoute(),
+            exception_message = exception.Message,
+            exception_stack_trace = exception.StackTrace,
+            exception_type = exception.GetType().Name,
+            exception_id = exception.GetExceptionTrackingId(),
+            version_name = game?.GameVersionApproximation.Name,
+            version_id = game?.GameVersionApproximation.Id,
+            generation_name = game?.Generation.ToString(),
+            generation_id = (int?)game?.Generation,
+        });
+    }
 }

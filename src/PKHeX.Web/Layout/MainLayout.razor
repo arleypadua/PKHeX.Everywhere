@@ -20,8 +20,8 @@
             SelectedKeys="@( [SelectedMenuItem?.Route ?? string.Empty])">
             @foreach (var item in MenuItems)
             {
-                @if(!item.VisibleWithoutGame && !GameService.IsLoaded) continue;
-                
+                @if (!item.VisibleWithoutGame && !GameService.IsLoaded) continue;
+
                 @if (item.Nested is null || item.Nested.Count == 0)
                 {
                     @RenderMenu(item)
@@ -49,13 +49,6 @@
     </Sider>
     <Layout>
         <Header Style="display: flex; justify-items: center; align-items: center; width: 100%">
-
-            @* Flex has a bug here, as it does not show in the center. To be fixed. *@
-            @* @if (_collapsed) *@
-            @* { *@
-            @*     <span class="layout-header">@SelectedMenuItem?.Label</span> *@
-            @* } *@
-
             <Switch
                 Style="margin-left: auto; margin-right: 15px;"
                 Value="ThemeService.IsDarkTheme"
@@ -65,7 +58,33 @@
         </Header>
         <Content Style=" margin: 24px 16px 0;">
             <div class="site-layout-background" style="padding: 24px; min-height: 360px">
-                @Body
+                <AnalyticsAwareErrorBoundary>
+                    <ChildContent>
+                        @Body
+
+                        <Button
+                            OnClick="@(() => throw new InvalidOperationException("Boo"))">
+                            Boo
+                        </Button>
+                    </ChildContent>
+                    <ErrorContent>
+                        <Alert Type="@AlertType.Error" Message="Error" Closable>
+                            <Paragraph>
+                                Whops, some unknown error happened.
+                            </Paragraph>
+                            
+                            <Paragraph>
+                                <a href="@GetIssueLink(context)" target="_blank">Click here</a> to file an issue in GitHub.
+                            </Paragraph>
+
+                            <ResponsibleDescriptions Bordered Size="small">
+                                <DescriptionsItem Title="Id">@context.GetExceptionTrackingId()</DescriptionsItem>
+                                <DescriptionsItem Title="Type">@context.GetType().Name</DescriptionsItem>
+                                <DescriptionsItem Title="Message">@context.Message</DescriptionsItem>
+                            </ResponsibleDescriptions>
+                        </Alert>
+                    </ErrorContent>
+                </AnalyticsAwareErrorBoundary>
             </div>
         </Content>
         <PkHexFooter/>
@@ -86,7 +105,7 @@
         new("pokemon-box", "Pokemon Box", "inbox"),
         new("items", "Items", "shop"),
         new("plugins", "Plug-Ins", "api", true, PluginMenuItems),
-        new ("analytics", "Analytics", "line-chart", true),
+        new("analytics", "Analytics", "line-chart", true),
         new("save", "Save", "save", true),
     ];
 
@@ -163,5 +182,28 @@
         else
             await ThemeService.SetLightTheme();
     }
+
+    private string GetIssueLink(Exception context) => GitHubRepositoryNewIssue(
+            title: $"Error on {ApplicationName}: {context.Message}",
+            body: $@"# Error on {ApplicationName}
+
+* **Id**: {context.GetExceptionTrackingId()}
+* **Game version**: {GameService.Game?.GameVersionApproximation.Name}
+* **Generation**: {GameService.Game?.Generation.ToString()}
+## Type
+```
+{context.GetType().Name}
+```
+
+## Message
+```
+{context.Message}
+```
+
+## Stack trace
+```
+{context.StackTrace}
+```",
+            labels: ["bug"]);
 
 }

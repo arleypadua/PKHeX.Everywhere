@@ -1,0 +1,14 @@
+@inherits ErrorBoundary
+@inject AnalyticsService Analytics
+
+@{
+    base.BuildRenderTree(__builder);
+}
+
+@code {
+    protected override Task OnErrorAsync(Exception exception)
+    {
+        Analytics.TrackError(exception);
+        return base.OnErrorAsync(exception);
+    }
+}
