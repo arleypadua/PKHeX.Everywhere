@@ -36,9 +36,3 @@ public record ItemDefinition(ushort Id, string Name)
 
     public bool IsNone => Id == None;
 }
-
-// public static class ItemRepositoryExtensions
-// {
-//     public static ItemDefinition GetItem(this ItemRepository repository, int id) =>
-//         repository.GetItem(Convert.ToUInt16(id));
-// }
