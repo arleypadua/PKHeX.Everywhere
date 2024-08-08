@@ -22,7 +22,6 @@
         </DescriptionsItem>
         <DescriptionsItem Title="Rival">@_game.Trainer.RivalName</DescriptionsItem>
     </Descriptions>
-    <Button OnClick="Test">Test</Button>
 }
 
 @code {
@@ -32,10 +31,4 @@
     {
         _game = GameService.Game;
     }
-
-    private void Test(MouseEventArgs obj)
-    {
-        throw new InvalidOperationException("Something bad happened");
-    }
-
 }
