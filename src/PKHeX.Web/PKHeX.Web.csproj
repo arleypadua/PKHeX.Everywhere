@@ -13,6 +13,7 @@
         <PackageReference Include="Blazored.LocalStorage" Version="4.5.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.4"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.4" PrivateAssets="all"/>
+        <PackageReference Include="Sentry.AspNetCore.Blazor.WebAssembly" Version="4.8.0-preview.1"/>
     </ItemGroup>
 
     <ItemGroup>

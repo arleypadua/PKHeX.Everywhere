@@ -106,7 +106,7 @@ public class AnalyticsService(
 
     public void TrackError(Exception exception, string? currentRoute = null, Game? currentGame = null)
     {
-        analytics.TrackEvent("unexpected_error", new
+        var details = new
         {
             current_route = currentRoute,
             exception_message = exception.Message,
@@ -117,6 +117,21 @@ public class AnalyticsService(
             version_id = currentGame?.GameVersionApproximation.Id,
             generation_name = currentGame?.Generation.ToString(),
             generation_id = (int?)currentGame?.Generation,
+        };
+        
+        analytics.TrackEvent("unexpected_error", details);
+        
+        SentrySdk.CaptureException(exception, scope =>
+        {
+            scope.Contexts["game_context"] = new
+            {
+                current_route = currentRoute,
+                exception_id = exception.GetExceptionTrackingId(),
+                version_name = currentGame?.GameVersionApproximation.Name,
+                version_id = currentGame?.GameVersionApproximation.Id,
+                generation_name = currentGame?.Generation.ToString(),
+                generation_id = (int?)currentGame?.Generation,
+            };
         });
     }
 }

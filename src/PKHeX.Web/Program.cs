@@ -51,6 +51,14 @@ builder.Services.AddBlazoredLocalStorage(config =>
     config.JsonSerializerOptions.WriteIndented = false;
 });
 
+builder.UseSentry(options =>
+{
+    options.Dsn = "https://48a86c94313f2f1c2066dee9be6add57@o4507742210949120.ingest.de.sentry.io/4507742217175120";
+    options.TracesSampleRate = 0.1;
+});
+
+builder.Logging.AddSentry(o => o.InitializeSdk = false);
+
 var app = builder.Build();
 
 // Although Blazor WASM can target the whole .NET Framework API surface,
