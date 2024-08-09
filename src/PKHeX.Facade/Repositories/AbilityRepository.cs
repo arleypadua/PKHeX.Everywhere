@@ -13,12 +13,17 @@ public class AbilityRepository
         _abilities = GameInfo.Strings.Ability
             .Select((moveName, id) => (id, moveName))
             .ToDictionary(x => x.id, x => new AbilityDefinition(x.id, x.moveName));
+        
+        Console.WriteLine(Get((int)Ability.None).Name);
     }
     
-    public AbilityDefinition Get(int id) => _abilities[id];
+    public AbilityDefinition Get(int id) => _abilities.GetValueOrDefault(id)
+        ?? AbilityDefinition.None;
 }
 
 public record AbilityDefinition(int Id, string Name)
 {
     public Ability Ability => (Ability)Id;
+    
+    public static readonly AbilityDefinition None = new((int)Ability.None, "(None)");
 }
