@@ -19,9 +19,7 @@
             Responsive
             EnableVirtualization>
             <PropertyColumn Title="Name" Property="@(c => c.PlugIn.Settings.Manifest.PlugInName)" Sortable Filterable>
-                <LabelOrLink 
-                    Label="@context.PlugIn.Settings.Manifest.PlugInName"
-                    Href="@context.PlugIn.Settings.Manifest.ProjectUrl"/>
+                <a href="@($"/plugins/{context.PlugIn.Id}")">@context.PlugIn.Settings.Manifest.PlugInName</a>
             </PropertyColumn>
             <PropertyColumn Title="Version" Property="@(c => c.PlugIn.Version.ToString())" Sortable Filterable/>
             <ActionColumn Title="Actions">
