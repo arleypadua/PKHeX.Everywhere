@@ -8,6 +8,7 @@ public class NuzlockingPlugin : Settings
         this[EdgeOnPreviousLevel] = new SettingValue.BooleanValue(true);
         
         EnabledByDefault<EdgeLevelClick>();
+        EnabledByDefault<MaxRareCandies>();
     }
 
     private static readonly PlugInManifest Manifest = new PlugInManifest(

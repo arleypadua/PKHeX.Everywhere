@@ -45,3 +45,21 @@ public interface IPokemonEditAction : IPluginHook
     string Label { get; }
     Task<Outcome> OnActionRequested(Pokemon pokemon);
 }
+
+/// <summary>
+/// Adds an action button onto the Pokemon edit UI (stats tab)
+/// </summary>
+public interface IPokemonStatsEditAction : IPluginHook
+{
+    string Label { get; }
+    Task<Outcome> OnActionRequested(Pokemon pokemon);
+}
+
+/// <summary>
+/// Adds a quick action button onto the home page
+/// </summary>
+public interface IQuickAction : IPluginHook
+{
+    string Label { get; }
+    Task<Outcome> OnActionRequested();
+}

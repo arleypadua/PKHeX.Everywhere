@@ -1,5 +1,9 @@
 @using System.Reflection
 @using PKHeX.Core
+@using PKHeX.Web.Plugins
+@using PKHeX.Web.Services.Plugins
+@inject PlugInRegistry PlugInRegistry
+@inject PlugInRuntime PlugInRuntime
 
 <Space Style="gap: 20px;" Wrap>
     @foreach (var description in Descriptions)
@@ -18,7 +22,7 @@
             {
                 <DescriptionsItem Title="AV">
                     @InputFor(@description.Value.GetAv, @description.Value.SetAv, @description.Value.ReadOnly)
-                </DescriptionsItem>   
+                </DescriptionsItem>
             }
         </ResponsibleDescriptions>
     }
@@ -40,6 +44,31 @@
         </ResponsibleDescriptions>
     }
 </Space>
+
+@{ var actions = PlugInRegistry.GetAllEnabledHooks<IPokemonStatsEditAction>().ToList(); }
+@if (actions.Any())
+{
+    <div class="stat_actions">
+        @foreach (var action in actions)
+        {
+            @RenderActionButton(action)
+        }
+    </div>
+}
+
+<style>
+    .stat_actions {
+        margin-top: 20px;
+        display: flex; 
+        gap: 20px; 
+        align-items: center; 
+        justify-items: center;
+    }
+    
+    .stat_actions > * {
+        flex-shrink: 0;
+    }
+</style>
 
 @code {
     [Parameter] public required Pokemon Pokemon { get; set; }
@@ -105,4 +134,20 @@
     private PropertyInfo _speed = typeof(Stats).GetProperty(nameof(Stats.Speed))!;
     private PropertyInfo _total = typeof(Stats).GetProperty(nameof(Stats.Total))!;
     private PropertyInfo _cp = typeof(Stats).GetProperty(nameof(Stats.CombatPower))!;
+
+    private RenderFragment RenderActionButton(IPokemonStatsEditAction action)
+    {
+        return
+            @<Button
+                 Type="@ButtonType.Link"
+                 OnClick="() => HandleActionButtonClick(action)">
+                @action.Label
+            </Button>;
+    }
+
+    private async Task HandleActionButtonClick(IPokemonStatsEditAction action)
+    {
+        await PlugInRuntime.RunOn(action, _ => action.OnActionRequested(Pokemon));
+    }
+
 }

@@ -42,6 +42,9 @@ internal static class ServiceCollectionExtensions
     {
         services.AddSingleton(services);
 
+        foreach (var type in plugin.Hooks.Implementing<IQuickAction>())
+            services.AddTransient(typeof(IQuickAction), type);
+
         foreach (var type in plugin.Hooks.Implementing<IRunOnPokemonChange>())
             services.AddTransient(typeof(IRunOnPokemonChange), type);
 
@@ -53,6 +56,9 @@ internal static class ServiceCollectionExtensions
         
         foreach (var type in plugin.Hooks.Implementing<IPokemonEditAction>())
             services.AddTransient(typeof(IPokemonEditAction), type);
+        
+        foreach (var type in plugin.Hooks.Implementing<IPokemonStatsEditAction>())
+            services.AddTransient(typeof(IPokemonStatsEditAction), type);
 
         services.AddKeyedSingleton(plugin.Assembly.SettingKeyName(), plugin.Settings);
         services.AddSingleton(plugin.Settings.GetType(), plugin.Settings);

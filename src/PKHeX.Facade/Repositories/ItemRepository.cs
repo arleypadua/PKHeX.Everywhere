@@ -26,6 +26,8 @@ public class ItemRepository
     public ISet<ItemDefinition> GameItems => _gameItems.Values.ToHashSet();
 
     public static ItemDefinition GetItem(ushort id) => AllItemsById[id];
+    public static ItemDefinition? GetItemByName(string name) => AllItemsById.Values
+        .FirstOrDefault(i => i.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
     public static ISet<ItemDefinition> AllBalls() => AllBallsById.Values.ToHashSet();
     public static ItemDefinition? GetBall(Ball ball) => AllBallsById.GetValueOrDefault((ushort)ball);
 }

@@ -25,6 +25,11 @@ public class Inventory : IEnumerable<Inventory.Item>
 
     public string Type { get; init; }
     public ImmutableList<Item> Items => GetItems();
+
+    /// <summary>
+    /// Returns the max count a single item can have
+    /// </summary>
+    public int MaxItemCountAllowed => _pouch.MaxCount;
     
     /// <summary>
     /// Returns a list of all items supported in this inventory
@@ -40,6 +45,9 @@ public class Inventory : IEnumerable<Inventory.Item>
     public ImmutableList<ItemDefinition> CurrentSupportedItems => AllSupportedItems
         .Except(Items.Select(i => i.Definition))
         .ToImmutableList();
+    
+    public bool Supports(ItemDefinition item) =>
+        AllSupportedItems.Any(i => i.Id == item.Id);
 
     public void Remove(ushort itemId)
     {
