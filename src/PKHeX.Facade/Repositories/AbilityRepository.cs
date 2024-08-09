@@ -13,8 +13,6 @@ public class AbilityRepository
         _abilities = GameInfo.Strings.Ability
             .Select((moveName, id) => (id, moveName))
             .ToDictionary(x => x.id, x => new AbilityDefinition(x.id, x.moveName));
-        
-        Console.WriteLine(Get((int)Ability.None).Name);
     }
     
     public AbilityDefinition Get(int id) => _abilities.GetValueOrDefault(id)
