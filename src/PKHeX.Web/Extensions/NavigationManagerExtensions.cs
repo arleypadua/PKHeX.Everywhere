@@ -40,6 +40,9 @@ public static class NavigationManagerExtensions
     
     public static void NavigateToAnalyticsResults(this NavigationManager navigation) =>
         navigation.NavigateTo($"/analytics");
+    
+    public static void NavigateToSave(this NavigationManager navigation) =>
+        navigation.NavigateTo($"/save");
 
     public static void StoreOnQuery(this NavigationManager navigation, Dictionary<string, object?> parameters)
     {

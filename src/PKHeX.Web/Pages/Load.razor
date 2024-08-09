@@ -34,7 +34,7 @@
     [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        var testData = await HttpClient.GetByteArrayAsync("/data/savedata.bin");
+        var testData = await HttpClient.GetByteArrayAsync("/data/brilliantdiamond.bin");
         GameService.Load(testData, "savedata.bin");
 
         // var firstPokemon = GameService.Game!.Trainer.Party.Pokemons.First();
@@ -43,6 +43,7 @@
         // Navigation.NavigateToPokemonBox();
         // Navigation.NavigateToPlugIns();
         // Navigation.NavigateToAnalyticsResults();
+        Navigation.NavigateToSave();
         
         // await LoadPlugins();
     }

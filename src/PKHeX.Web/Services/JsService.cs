@@ -57,7 +57,9 @@ public class JsService(IJSRuntime js)
 
     public byte[] Md5Hash(byte[] toArray)
     {
-        return SyncJs.Invoke<byte[]>("md5Hash", toArray);
+        var toBeHashedHexString = BitConverter.ToString(toArray.ToArray()).Replace("-", "");
+        var hashedHexString = SyncJs.Invoke<string>("md5Hash", toBeHashedHexString);
+        return ConvertHexStringToByteArray(hashedHexString);
     }
 
     public async Task NavigateBack()

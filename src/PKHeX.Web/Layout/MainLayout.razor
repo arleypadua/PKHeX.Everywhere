@@ -58,12 +58,18 @@
         </Header>
         <Content Style=" margin: 24px 16px 0;">
             <div class="site-layout-background" style="padding: 24px; min-height: 360px">
-                <AnalyticsAwareErrorBoundary>
+                <AnalyticsAwareErrorBoundary
+                    @ref="_errorBoundary">
                     <ChildContent>
                         @Body
                     </ChildContent>
                     <ErrorContent>
-                        <Alert Type="@AlertType.Error" Message="Error" Closable>
+                        <Alert 
+                            Type="@AlertType.Error" 
+                            Message="Error"
+                            CloseText="Dismiss"
+                            OnClose="DismissError"
+                            Closable>
                             <Paragraph>
                                 Whops, some unexpected error happened.
                             </Paragraph>
@@ -91,6 +97,7 @@
     [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
 
     bool _collapsed;
+    AnalyticsAwareErrorBoundary _errorBoundary = default!;
     MenuItem? SelectedMenuItem => MenuItems.SingleOrDefault(m => m.Route == Navigation.CurrentRoute());
 
     IEnumerable<MenuItem> MenuItems =>
@@ -177,6 +184,11 @@
         else
             await ThemeService.SetLightTheme();
     }
+    
+    private void DismissError()
+    {
+        _errorBoundary.Recover();
+    }
 
     private string GetIssueLink(Exception context) => GitHubRepositoryNewIssue(
             title: $"Error on {ApplicationName}: {context.Message}",
@@ -200,5 +212,4 @@
 {context.StackTrace}
 ```",
             labels: ["bug"]);
-
 }

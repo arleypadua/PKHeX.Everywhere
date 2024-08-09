@@ -43,14 +43,9 @@ window.decryptAes = function (key, data, modeString) {
 };
 
 window.md5Hash = function (data) {
-    var wordArray = CryptoJS.lib.WordArray.create(data);
-    var hash = CryptoJS.MD5(wordArray);
-    return hash.words.map(word => [
-        (word >> 24) & 0xff,
-        (word >> 16) & 0xff,
-        (word >> 8) & 0xff,
-        word & 0xff
-    ]).flat();
+    const parsedHexString =  CryptoJS.enc.Hex.parse(data);
+    var hash = CryptoJS.MD5(parsedHexString);
+    return hash.toString(CryptoJS.enc.Hex);
 }
 
 function getMode(modeString) {

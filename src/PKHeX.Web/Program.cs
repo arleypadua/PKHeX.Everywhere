@@ -51,6 +51,7 @@ builder.Services.AddBlazoredLocalStorage(config =>
     config.JsonSerializerOptions.WriteIndented = false;
 });
 
+#if !DEBUG
 builder.UseSentry(options =>
 {
     options.Dsn = "https://48a86c94313f2f1c2066dee9be6add57@o4507742210949120.ingest.de.sentry.io/4507742217175120";
@@ -58,6 +59,7 @@ builder.UseSentry(options =>
 });
 
 builder.Logging.AddSentry(o => o.InitializeSdk = false);
+#endif
 
 var app = builder.Build();
 
