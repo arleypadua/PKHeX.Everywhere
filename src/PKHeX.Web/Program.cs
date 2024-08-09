@@ -64,9 +64,17 @@ builder.UseSentry(options =>
         // it has been observed that very often ant is not yet ready and throws a lot of exceptions during the render time
         // but eventually the UI just works
         // so we simply skip these issues
+        var exception = e.Exception;
+        var innerException = e.Exception?.InnerException;
+        var data = exception?.Data ?? new Dictionary<string, object>();
+        if (innerException is not null)
+        {
+            var mechanism = innerException.Data[Mechanism.MechanismKey];
+            if (mechanism is not null) data.Add(Mechanism.MechanismKey, mechanism);
+        }
+        
         var skipException = e.Exception is not null
-                            && e.Exception.Data.Contains(Mechanism.MechanismKey)
-                            && e.Exception.Data[Mechanism.MechanismKey]?.Equals("UnobservedTaskException") == true
+                            && data[Mechanism.MechanismKey]?.Equals("UnobservedTaskException") == true
                             && (
                                 e.Exception.StackTrace?.Contains("ant-design-blazor.js") == true
                                 || e.Exception.ToString().Contains("ant-design-blazor.js")
