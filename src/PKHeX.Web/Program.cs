@@ -5,10 +5,12 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PKHeX.Core;
-using PKHeX.Web;
 using PKHeX.Web.Services;
 using PKHeX.Web.Services.AnalyticsResults;
 using PKHeX.Web.Services.Plugins;
+using Sentry.Extensions.Logging;
+using Sentry.Protocol;
+using App = PKHeX.Web.App;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -51,15 +53,31 @@ builder.Services.AddBlazoredLocalStorage(config =>
     config.JsonSerializerOptions.WriteIndented = false;
 });
 
-#if !DEBUG
+// #if !DEBUG
 builder.UseSentry(options =>
 {
     options.Dsn = "https://48a86c94313f2f1c2066dee9be6add57@o4507742210949120.ingest.de.sentry.io/4507742217175120";
     options.TracesSampleRate = 0.1;
+
+    options.SetBeforeSend((e, hint) =>
+    {
+        // it has been observed that very often ant is not yet ready and throws a lot of exceptions during the render time
+        // but eventually the UI just works
+        // so we simply skip these issues
+        var skipException = e.Exception is not null
+                            && e.Exception.Data.Contains(Mechanism.MechanismKey)
+                            && e.Exception.Data[Mechanism.MechanismKey]?.Equals("UnobservedTaskException") == true
+                            && e.Exception.StackTrace is not null
+                            && e.Exception.StackTrace.Contains("ant-design-blazor.js");
+
+        return skipException
+            ? null
+            : e;
+    });
 });
 
 builder.Logging.AddSentry(o => o.InitializeSdk = false);
-#endif
+// #endif
 
 var app = builder.Build();
 
