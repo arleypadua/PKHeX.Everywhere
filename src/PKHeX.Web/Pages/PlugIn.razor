@@ -6,7 +6,7 @@
 @inject PlugInService PlugInService
 @inject INotificationService Notification
 
-@if (_plugIn != null && _plugIn.Id == Id)
+@if (_plugIn != null)
 {
     <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
         <PageHeader BackIcon="true" Style="max-width: 100%">
@@ -15,7 +15,7 @@
             <PageHeaderExtra>
                 @if (_plugIn.HasNewerVersion)
                 {
-                    <Button 
+                    <Button
                         Type="@ButtonType.Primary"
                         OnClick="HandleUpdateClick">
                         Update
@@ -24,9 +24,9 @@
             </PageHeaderExtra>
         </PageHeader>
 
-        <ResponsibleDescriptions Bordered Size="small" Style="width: 100%">
+        <ResponsibleDescriptions @key="_plugIn" Bordered Size="small" Style="width: 100%">
             <DescriptionsItem Title="Name">
-                <LabelOrLink 
+                <LabelOrLink
                     Label="@_plugIn.Settings.Manifest.PlugInName"
                     Href="@_plugIn.Settings.Manifest.ProjectUrl"/>
             </DescriptionsItem>
@@ -36,15 +36,15 @@
                 <Switch
                     @bind-Value="@_plugIn.Enabled"/>
             </DescriptionsItem>
-            
+
             @if (!string.IsNullOrWhiteSpace(_plugIn.PublicKeyToken))
             {
                 <DescriptionsItem Title="Public Key">@_plugIn.PublicKeyToken</DescriptionsItem>
             }
-            
+
             @foreach (var (key, _) in _plugIn.Settings.All)
             {
-                <DescriptionsItem Title="@key">
+                <DescriptionsItem Title="@key" @key="key">
                     @RenderSettings(key, _plugIn.Settings.GetOrDefault(key))
                 </DescriptionsItem>
             }
@@ -55,6 +55,7 @@
             DataSource="@_features"
             @bind-PageIndex="_pageIndex"
             @bind-PageSize="_pageSize"
+            RowKey="@(x => x.Hook.GetType().Name)"
             Size="TableSize.Small"
             Responsive
             EnableVirtualization>
@@ -63,7 +64,7 @@
                 <Space Size=@("middle")>
                     <SpaceItem>
                         <Switch
-                            Value="@_plugIn.IsHookEnabled(context.Hook)" 
+                            Value="@_plugIn.IsHookEnabled(context.Hook)"
                             Disabled="@(!_plugIn.Enabled)"
                             OnChange="newValue => ToggleFeature(context.Hook, newValue)"/>
                     </SpaceItem>
@@ -87,6 +88,11 @@
         LoadPlugin();
     }
 
+    protected override void OnInitialized()
+    {
+        LoadPlugin();
+    }
+
     private void LoadPlugin()
     {
         _plugIn = PlugInRegistry.GetBy(Id);
@@ -94,6 +100,8 @@
             .GetAllHooksOf(_plugIn)
             .Select(p => new PlugInFeatures { Hook = p })
             .ToList();
+
+        ShouldRender();
     }
 
     private RenderFragment RenderSettings(string key, Settings.SettingValue? value) =>
@@ -131,7 +139,7 @@
         ArgumentNullException.ThrowIfNull(_plugIn, nameof(_plugIn));
 
         _plugIn.Settings[key] = value;
-        
+
         PlugInStorage.Persist(_plugIn);
     }
 
@@ -141,23 +149,24 @@
         _plugIn.SetToggle(hook, newValue);
         PlugInStorage.Persist(_plugIn);
     }
-    
+
     private async Task HandleUpdateClick()
     {
         if (_plugIn is null) return;
         await PlugInService.Update(_plugIn);
-        
+
         LoadPlugin();
-        
+
         _ = Notification.Open(new NotificationConfig
         {
             Message = "Plug-in updated with success",
             NotificationType = NotificationType.Success
         });
     }
-    
+
     public class PlugInFeatures
     {
         public IPluginHook Hook { get; init; } = default!;
     }
+
 }

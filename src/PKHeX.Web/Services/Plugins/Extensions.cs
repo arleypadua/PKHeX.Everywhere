@@ -14,15 +14,17 @@ internal static class ServiceCollectionExtensions
             .OfType<Settings>() ?? [];
     }
 
-    internal static object GetFromImplementation(this IServiceProvider serviceProvider, Type implementation)
+    internal static object? GetFromImplementation(this IServiceProvider serviceProvider, Type implementation)
     {
         var services = serviceProvider.GetService<IServiceCollection>();
         var byImplementation = services?
             .FirstOrDefault(s => !s.IsKeyedService && s.ImplementationType == implementation);
 
-        if (byImplementation == null) return Array.Empty<Settings>();
+        if (byImplementation == null) return null;
 
-        return serviceProvider.GetRequiredService(byImplementation.ServiceType);
+        return serviceProvider
+            .GetServices(byImplementation.ServiceType)
+            .FirstOrDefault(s => s?.GetType() == implementation);
     }
 
     internal static IServiceCollection RegisterPluginAt(this IServiceCollection services,

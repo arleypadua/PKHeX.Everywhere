@@ -10,7 +10,7 @@ public class PlugInRegistry
     private readonly Dictionary<string, LoadedPlugIn> _loadedPlugins = new();
 
     private ServiceProvider _pluginServiceProvider = null!;
-    
+
     public event Action<LoadedPlugIn, ChangeType>? OnPlugInChanged;
 
     public enum ChangeType
@@ -53,29 +53,32 @@ public class PlugInRegistry
     public LoadedPlugIn GetBy(string id) => _loadedPlugins[id];
     public LoadedPlugIn? GetByOrNull(string id) => _loadedPlugins.GetValueOrDefault(id);
     public bool IsRegistered(string id) => _loadedPlugins.ContainsKey(id);
-    
+
     public IEnumerable<LoadedPlugIn> GetAllPlugins() => _loadedPlugins.Values;
 
     public LoadedPlugIn GetPlugInOwningHook<T>(T hook) where T : IPluginHook =>
         _loadedPlugins.Values.Single(p => p.Hooks.Any(t => t == hook.GetType()));
-    
+
     public IEnumerable<IPluginHook> GetAllHooksOf(LoadedPlugIn plugin)
     {
         return plugin.Hooks
             .Select(t => _pluginServiceProvider.GetFromImplementation(t) as IPluginHook)
-            .Where(t => t != null)!;
+            .Where(t => t != null)
+            .ToList()!;
     }
+
     public IEnumerable<T> GetAllHooks<T>() where T : IPluginHook => _pluginServiceProvider.GetServices<T>();
+
     public IEnumerable<T> GetAllEnabledHooks<T>() where T : IPluginHook => _pluginServiceProvider.GetServices<T>()
         .Where(h => GetPlugInOwningHook(h).IsPlugInAndHookEnabled(h));
 
     private LoadedPlugIn LoadPlugInFrom(string sourceId, string fileUrl, byte[] assemblyBytes)
     {
         if (assemblyBytes.Length == 0) throw new InvalidOperationException("No plugin found in this assembly");
-        
+
         var assembly = Assembly.Load(assemblyBytes);
         var loadedPlugIn = LoadedPlugIn.From(sourceId, fileUrl, assembly, assemblyBytes);
-        
+
         Register(loadedPlugIn);
 
         return loadedPlugIn;
