@@ -4,6 +4,7 @@
 @inject NavigationManager Navigation
 @inject HttpClient HttpClient
 @inject AntdThemeService ThemeService
+@inject INotificationService Notification
 
 @if (GameService.IsLoaded)
 {
@@ -81,9 +82,31 @@ else
     private async Task LoadSave(InputFileChangeEventArgs e)
     {
         using MemoryStream ms = new MemoryStream();
-        await e.File.OpenReadStream(2 * 1024 * 1000).CopyToAsync(ms);
 
-        GameService.Load(ms.ToArray(), e.File.Name);
+        try
+        {
+            await e.File.OpenReadStream(MaxFileSize).CopyToAsync(ms);
+            GameService.Load(ms.ToArray(), e.File.Name);
+        }
+        catch (IOException ioException)
+            when (ioException.Message.Contains("exceeds the maximum"))
+        {
+            _ = Notification.Open(new()
+            {
+                Message = "File is too large",
+                Description = "The file should not exceed 2Mb.",
+                NotificationType = NotificationType.Error,
+            });
+        }
+        catch (GameNotLoadedException notLoaded)
+        {
+            _ = Notification.Open(new()
+            {
+                Message = notLoaded.Message,
+                Description = "The file is not a valid save file.",
+                NotificationType = NotificationType.Error,
+            });
+        }
 
         Navigation.NavigateTo("/");
     }
@@ -106,4 +129,6 @@ else
     }
 
     private async Task OpenFilePickerAsync() => await Js.ClickOnAsync(_inputGameFile.Element);
+
+    private const int MaxFileSize = 2 * 1024 * 1000;
 }

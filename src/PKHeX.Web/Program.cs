@@ -59,7 +59,7 @@ builder.UseSentry(options =>
     options.Dsn = "https://48a86c94313f2f1c2066dee9be6add57@o4507742210949120.ingest.de.sentry.io/4507742217175120";
     options.TracesSampleRate = 0.1;
 
-    options.SetBeforeSend((e, hint) =>
+    options.SetBeforeSend((e, _) =>
     {
         // it has been observed that very often ant is not yet ready and throws a lot of exceptions during the render time
         // but eventually the UI just works
@@ -67,8 +67,10 @@ builder.UseSentry(options =>
         var skipException = e.Exception is not null
                             && e.Exception.Data.Contains(Mechanism.MechanismKey)
                             && e.Exception.Data[Mechanism.MechanismKey]?.Equals("UnobservedTaskException") == true
-                            && e.Exception.StackTrace is not null
-                            && e.Exception.StackTrace.Contains("ant-design-blazor.js");
+                            && (
+                                e.Exception.StackTrace?.Contains("ant-design-blazor.js") == true
+                                || e.Exception.ToString().Contains("ant-design-blazor.js")
+                            );
 
         return skipException
             ? null

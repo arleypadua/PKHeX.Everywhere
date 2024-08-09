@@ -45,7 +45,7 @@ public class Game
     {
         // make sure pending changes make its way to the bytes of the save
         Trainer.Commit();
-        
+
         if (SaveFile is SAV7b _7b) _7b.FixPreWrite();
 
         return SaveFile.Write(
@@ -56,7 +56,7 @@ public class Game
     public static Game LoadFrom(string path)
     {
         var saveFile = SaveUtil.GetVariantSAV(path)
-                       ?? throw new InvalidOperationException($"The file at {path} did not load into a save file.");
+                       ?? throw new GameNotLoadedException(path);
 
         return new Game(saveFile);
     }
@@ -64,12 +64,15 @@ public class Game
     public static Game LoadFrom(byte[] bytes, string? path = null)
     {
         var saveFile = SaveUtil.GetVariantSAV(bytes, path)
-                       ?? throw new InvalidOperationException($"The file at {path} did not load into a save file.");
+                       ?? throw new GameNotLoadedException(path);
 
         return new Game(saveFile);
     }
 
     public static Game EmptyOf(
         GameVersionDefinition version,
-        string? trainerName = null) => new(SaveUtil.GetBlankSAV(version.Version, trainerName?? "PKHeXWeb"));
+        string? trainerName = null) => new(SaveUtil.GetBlankSAV(version.Version, trainerName ?? "PKHeXWeb"));
 }
+
+public class GameNotLoadedException(string? path = null)
+    : Exception($"The file {path ?? "N/A"} did not load into a save file.");
