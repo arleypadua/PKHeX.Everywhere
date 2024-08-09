@@ -19,7 +19,7 @@
             "Description": "This adds functionality that helps on Nuzlocking.",
             "ProjectUrl": "https://github.com/arleypadua/PKHeX.Everywhere",
             "Summary": null,
-            "PublishedVersions": ["1.0.0", "1.1.0"]
+            "PublishedVersions": ["1.0.0", "1.1.0", "1.1.1"]
         },
         {
             "Id": "PKHeX.Web.Plugins.Demo",

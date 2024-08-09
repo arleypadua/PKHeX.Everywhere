@@ -31,6 +31,8 @@ public class MaxRareCandies(IGameProvider gameProvider) : IQuickAction
             rareCandyDefinition.Id, 
             (uint)inventorySupportingRareCandies.MaxItemCountAllowed);
 
-        return Outcome.Void.Completed();
+        return Outcome.Notify(
+            $"{inventorySupportingRareCandies.MaxItemCountAllowed} Rare candies set")
+            .Completed();
     }
 }
