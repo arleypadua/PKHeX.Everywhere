@@ -59,11 +59,6 @@ jobs:
             artifact:
               from: PKHeX.CLI
               to: pkhex-cli
-          - os: ubuntu-latest
-            rid: linux-arm32
-            artifact:
-              from: PKHeX.CLI
-              to: pkhex-cli
           - os: windows-latest
             rid: win-x64
             artifact:
@@ -112,7 +107,6 @@ jobs:
       osx_arm64_sha256: ${{ steps.sha256.outputs.osx_arm64_sha256 }}
       osx_x64_sha256: ${{ steps.sha256.outputs.osx_x64_sha256 }}
       linux_x64_sha256: ${{ steps.sha256.outputs.linux_x64_sha256 }}
-      linux_arm32_sha256: ${{ steps.sha256.outputs.linux_arm32_sha256 }}
       win_x64_sha256: ${{ steps.sha256.outputs.win_x64_sha256 }}
 
     permissions:
@@ -129,7 +123,6 @@ jobs:
       - name: Zip artifacts
         run: |
           zip -j pkhex-cli-linux-x64.zip artifacts/artifact-linux-x64/pkhex-cli
-          zip -j pkhex-cli-linux-arm32.zip artifacts/artifact-linux-arm32/pkhex-cli
           zip -j pkhex-cli-win-x64.zip artifacts/artifact-win-x64/pkhex-cli.exe
           zip -j pkhex-cli-osx-arm64.zip artifacts/artifact-osx-arm64/pkhex-cli
           zip -j pkhex-cli-osx-x64.zip artifacts/artifact-osx-x64/pkhex-cli
@@ -142,7 +135,6 @@ jobs:
           tag_name: ${{ needs.versionBump.outputs.new_version }}
           files: |
             pkhex-cli-linux-x64.zip
-            pkhex-cli-linux-arm32.zip
             pkhex-cli-win-x64.zip
             pkhex-cli-osx-arm64.zip
             pkhex-cli-osx-x64.zip
@@ -154,12 +146,10 @@ jobs:
           OSX_ARM64_SHA256=$(sha256sum pkhex-cli-osx-arm64.zip | awk '{ print $1 }')
           OSX_X64_SHA256=$(sha256sum pkhex-cli-osx-x64.zip | awk '{ print $1 }')
           LINUX_X64_SHA256=$(sha256sum pkhex-cli-linux-x64.zip | awk '{ print $1 }')
-          LINUX_ARM32_SHA256=$(sha256sum pkhex-cli-linux-arm32.zip | awk '{ print $1 }')
           WIN_X64_SHA256=$(sha256sum pkhex-cli-win-x64.zip | awk '{ print $1 }')
   
           # Export checksums as environment variables
           echo "osx_arm64_sha256=${OSX_ARM64_SHA256}" >> $GITHUB_ENV
           echo "osx_x64_sha256=${OSX_X64_SHA256}" >> $GITHUB_ENV
           echo "linux_x64_sha256=${LINUX_X64_SHA256}" >> $GITHUB_ENV
-          echo "linux_arm32_sha256=${LINUX_ARM32_SHA256}" >> $GITHUB_ENV
           echo "win_x64_sha256=${WIN_X64_SHA256}" >> $GITHUB_ENV
