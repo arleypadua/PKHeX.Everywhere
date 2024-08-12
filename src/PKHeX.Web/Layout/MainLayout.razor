@@ -3,7 +3,6 @@
 @implements IDisposable
 @inject NavigationManager Navigation
 @inject GameService GameService
-@inject AntdThemeService ThemeService
 
 <Layout Style="min-height: 100vh">
     <Sider Collapsible
@@ -49,12 +48,14 @@
     </Sider>
     <Layout>
         <Header Style="display: flex; justify-items: center; align-items: center; width: 100%">
-            <Switch
-                Style="margin-left: auto; margin-right: 15px;"
-                Value="ThemeService.IsDarkTheme"
-                OnChange="HandleThemeChanged"
-                CheckedChildren="Dark"
-                UnCheckedChildren="Light"/>
+            <div style="flex-grow: 1"></div>
+            <Button
+                Style="flex-shrink: 1"
+                Type="@ButtonType.Default"
+                Icon="@IconType.Outline.Setting"
+                Size="@AntSizeLDSType.Large"
+                Shape="@ButtonShape.Round"
+                OnClick="HandleSettingsClick"></Button>
         </Header>
         <Content Style=" margin: 24px 16px 0;">
             <div class="site-layout-background" style="padding: 24px; min-height: 360px">
@@ -177,12 +178,9 @@
         PlugInRegistry.OnPlugInChanged -= OnPlugInChanged;
     }
 
-    private async Task HandleThemeChanged(bool isDark)
+    private void HandleSettingsClick()
     {
-        if (isDark)
-            await ThemeService.SetDarkTheme();
-        else
-            await ThemeService.SetLightTheme();
+        Navigation.NavigateToSettings();
     }
     
     private void DismissError()
@@ -212,4 +210,5 @@
 {context.StackTrace}
 ```",
             labels: ["bug"]);
+
 }

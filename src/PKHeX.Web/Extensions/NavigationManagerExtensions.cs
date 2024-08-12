@@ -43,6 +43,9 @@ public static class NavigationManagerExtensions
     
     public static void NavigateToSave(this NavigationManager navigation) =>
         navigation.NavigateTo($"/save");
+    
+    public static void NavigateToSettings(this NavigationManager navigation) =>
+        navigation.NavigateTo($"/settings");
 
     public static void StoreOnQuery(this NavigationManager navigation, Dictionary<string, object?> parameters)
     {
