@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PKHeX.Facade.Extensions;
 using PKHeX.Facade.Pokemons;
+using PKHeX.Web.Services.GeneralSettings;
 
 namespace PKHeX.Web.Services;
 
-public class JsService(IJSRuntime js)
+public class JsService(IJSRuntime js,
+    GeneralSettingsService generalSettings)
 {
     private IJSInProcessRuntime SyncJs => js as IJSInProcessRuntime ??
                                           throw new NotSupportedException(
@@ -61,7 +63,15 @@ public class JsService(IJSRuntime js)
         var hashedHexString = SyncJs.Invoke<string>("md5Hash", toBeHashedHexString);
         return ConvertHexStringToByteArray(hashedHexString);
     }
-
+    
+    public Task OpenSmogonDamageCalc(IEnumerable<Pokemon> pokemonList)
+    {
+        var showdown = pokemonList.Showdown();
+        var bytes = Encoding.UTF8.GetBytes(showdown);
+        var base64 = Convert.ToBase64String(bytes);
+        return OpenNewTab($"{generalSettings.CalculatorUrlOrDefault}/?import={base64}");
+    }
+    
     public async Task NavigateBack()
     {
         await js.InvokeVoidAsync("history.back");
@@ -77,12 +87,4 @@ public static class JsServiceExtensions
 {
     public static Task OpenSmogonDamageCalc(this JsService js, Pokemon pokemon) =>
         js.OpenSmogonDamageCalc(new List<Pokemon> { pokemon });
-
-    public static Task OpenSmogonDamageCalc(this JsService js, IEnumerable<Pokemon> pokemonList)
-    {
-        var showdown = pokemonList.Showdown();
-        var bytes = Encoding.UTF8.GetBytes(showdown);
-        var base64 = Convert.ToBase64String(bytes);
-        return js.OpenNewTab($"https://calc.pokemonshowdown.com/?import={base64}");
-    }
 }

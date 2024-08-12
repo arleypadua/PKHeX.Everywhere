@@ -1,0 +1,78 @@
+@page "/settings"
+@using PKHeX.Web.Services.GeneralSettings
+
+@inject AntdThemeService ThemeService
+@inject GeneralSettingsService GeneralSettings
+
+<ResponsibleDescriptions
+    Title="General"
+    Bordered
+    Size="small"
+    Style="width: 100%">
+
+    <DescriptionsItem Title="Calculator">
+        <AutoComplete
+            @ref="_calculatorElement"
+            TOption="CalculatorRepository.Calculator"
+            Value="@SelectedCalculator"
+            ValueChanged="HandleCalculatorUrlChanged"
+            Options="CalculatorRepository.Instance.GetAll()"
+            OptionFormat="o => o.Value.Name"
+            OnSelectionChange="OnCalculatorPresetChanged"
+            Placeholder="Calculator or URL (Default: Showdown)"
+            DefaultActiveFirstOption="true"
+            FilterExpression="@((_, _) => true)"/>
+    </DescriptionsItem>
+
+</ResponsibleDescriptions>
+
+<ResponsibleDescriptions
+    Title="Appearance"
+    Bordered
+    Size="small"
+    Style="width: 100%">
+
+    <DescriptionsItem Title="Theme">
+        <Switch
+            Style="margin-left: auto; margin-right: 15px;"
+            Value="ThemeService.IsDarkTheme"
+            OnChange="HandleThemeChanged"
+            CheckedChildren="Dark"
+            UnCheckedChildren="Light"/>
+    </DescriptionsItem>
+
+</ResponsibleDescriptions>
+
+@code {
+    private AutoComplete<CalculatorRepository.Calculator> _calculatorElement = default!;
+
+    private string? SelectedCalculator =>
+        CalculatorRepository.Instance
+            .GetAll()
+            .FirstOrDefault(u => u.Url == GeneralSettings.CalculatorUrl)?.Name;
+
+    private async Task HandleThemeChanged(bool isDark)
+    {
+        if (isDark)
+            await ThemeService.SetDarkTheme();
+        else
+            await ThemeService.SetLightTheme();
+    }
+
+    private Task HandleCalculatorUrlChanged(string? calculatorUrl)
+    {
+        GeneralSettings.CalculatorUrl = calculatorUrl;
+
+        return Task.CompletedTask;
+    }
+
+    private Task OnCalculatorPresetChanged(AutoCompleteOption preset)
+    {
+        if (preset.Value is not CalculatorRepository.Calculator calc)
+            return Task.CompletedTask;
+
+        GeneralSettings.CalculatorUrl = calc.Url;
+
+        return Task.CompletedTask;
+    }
+}
