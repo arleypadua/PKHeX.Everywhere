@@ -29,6 +29,15 @@
             "ProjectUrl": "https://github.com/arleypadua/PKHeX.Everywhere",
             "Summary": null,
             "PublishedVersions": ["1.0.0"]
+        },
+        {
+            "Id": "PKHeX.Web.Plugins.LiveRun",
+            "FileName": "PKHeX.Web.Plugins.LiveRun.dll",
+            "Name": "Live Run (Browser Emulator)",
+            "Description": "Allows to use the save file in an emulator in the browser.",
+            "ProjectUrl": "https://github.com/arleypadua/PKHeX.Everywhere",
+            "Summary": null,
+            "PublishedVersions": ["1.0.0"]
         }
     ]
 }

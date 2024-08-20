@@ -6,6 +6,7 @@ public class MaxRareCandies(IGameProvider gameProvider) : IQuickAction
 {
     public string Description => "Adds a button on the home page to give max rare candies";
     public string Label => "Max Rare Candies";
+    public IDisable.DisableInfo DisabledInfo => IDisable.Enabled;
     
     private static ItemDefinition? RareCandyDefinition => 
         ItemRepository.GetItemByName("Rare Candy");

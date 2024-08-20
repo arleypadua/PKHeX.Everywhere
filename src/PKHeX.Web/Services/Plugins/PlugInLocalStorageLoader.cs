@@ -12,9 +12,9 @@ public class PlugInLocalStorageLoader(
     INotificationService notification,
     ILogger<PlugInLocalStorageLoader> logger)
 {
-    public void InitializePlugIns()
+    public async Task InitializePlugIns()
     {
-        var installed = plugInStorage.RestoreAll();
+        var installed = await plugInStorage.RestoreAll();
         foreach (var plugIn in installed)
         {
             registry.Register(plugIn);
@@ -51,7 +51,7 @@ public class PlugInLocalStorageLoader(
         }
     }
 
-    private Task CheckPlugInVersions()
+    private async Task CheckPlugInVersions()
     {
         try
         {
@@ -116,7 +116,7 @@ public class PlugInLocalStorageLoader(
                         logger.LogInformation(
                             $"Plug-In {installedPlugIn.Id} ({installedPlugIn.Version}) has a new version: {latestVersionString}");
                         installedPlugIn.HasNewerVersion = true;
-                        plugInLocalStorage.Persist(installedPlugIn);
+                        await plugInLocalStorage.Persist(installedPlugIn);
                     }
                 }
             }
@@ -135,7 +135,5 @@ public class PlugInLocalStorageLoader(
         {
             logger.LogError(e, "Failed to check updates");
         }
-
-        return Task.CompletedTask;
     }
 }

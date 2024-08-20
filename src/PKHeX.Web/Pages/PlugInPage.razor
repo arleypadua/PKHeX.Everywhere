@@ -1,0 +1,49 @@
+@page "/plugins/{Id}/{Path}"
+@using PKHeX.Web.Plugins
+@using PKHeX.Web.Services.Plugins
+@inject PlugInPageRegistry PageRegistry
+
+@if (_page != null)
+{
+    <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+        @if (_page.PageHeader != null)
+        {
+            <PageHeader BackIcon="true" Style="max-width: 100%">
+                <TitleTemplate>@_page.PageHeader.Title</TitleTemplate>
+
+                <PageHeaderExtra>
+                    @if (_page.PageHeader.Extra != null)
+                    {
+                        @_page.PageHeader.Extra
+                    }
+                </PageHeaderExtra>
+            </PageHeader>
+        }
+
+        @_page.Page
+    </Space>
+}
+
+@code {
+    [Parameter] public required string Id { get; set; }
+    [Parameter] public required string Path { get; set; }
+
+    private Outcome.PlugInPage? _page;
+
+    protected override void OnParametersSet()
+    {
+        LoadPluginPage();
+    }
+
+    protected override void OnInitialized()
+    {
+        LoadPluginPage();
+    }
+
+    private void LoadPluginPage()
+    {
+        _page = PageRegistry.GetPageFor(Id, Path);
+        ShouldRender();
+    }
+
+}

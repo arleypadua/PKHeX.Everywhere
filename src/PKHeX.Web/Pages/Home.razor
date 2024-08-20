@@ -59,7 +59,8 @@
         return
             @<Button
                  Type="@ButtonType.Link"
-                 OnClick="() => HandleActionButtonClick(action)">
+                 OnClick="() => HandleActionButtonClick(action)"
+                 Disabled="@action.DisabledInfo.Disabled">
                 @action.Label
             </Button>;
     }

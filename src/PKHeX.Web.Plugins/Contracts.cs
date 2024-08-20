@@ -58,8 +58,20 @@ public interface IPokemonStatsEditAction : IPluginHook
 /// <summary>
 /// Adds a quick action button onto the home page
 /// </summary>
-public interface IQuickAction : IPluginHook
+public interface IQuickAction : IPluginHook, IDisable
 {
     string Label { get; }
     Task<Outcome> OnActionRequested();
+}
+
+public interface IDisable
+{
+    DisableInfo DisabledInfo { get; }
+    public record DisableInfo(bool Disabled, string? Reason = null);
+    
+    public static readonly DisableInfo Enabled = new(false);
+    public static DisableInfo Disabled(string? reason = null) => string.IsNullOrEmpty(reason)
+        ? DisabledNoReason
+        : new(true, reason);
+    private static DisableInfo DisabledNoReason => new(false);
 }

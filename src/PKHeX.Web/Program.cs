@@ -11,6 +11,7 @@ using PKHeX.Web.Services.GeneralSettings;
 using PKHeX.Web.Services.Plugins;
 using Sentry.Extensions.Logging;
 using Sentry.Protocol;
+using TG.Blazor.IndexedDB;
 using App = PKHeX.Web.App;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -31,6 +32,8 @@ builder.Services.AddScoped<PlugInLocalStorage>();
 builder.Services.AddScoped<PlugInLocalStorageLoader>();
 builder.Services.AddScoped<PlugInSourceService>();
 builder.Services.AddScoped<PlugInSourceLocalStorage>();
+builder.Services.AddScoped<PlugInPageRegistry>();
+builder.Services.AddScoped<PlugInFilesRepository>();
 
 builder.Services.AddScoped<GeneralSettingsService>();
 builder.Services.AddScoped<AnalyticsService>();
@@ -53,6 +56,14 @@ builder.Services.AddBlazoredLocalStorage(config =>
     config.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
     config.JsonSerializerOptions.WriteIndented = false;
+});
+
+builder.Services.AddIndexedDB(store =>
+{
+    store.DbName = "pkhex-web-db";
+    store.Version = 1;
+    
+    store.Stores.Add(PlugInFilesRepository.Schema);
 });
 
 #if !DEBUG
@@ -104,7 +115,7 @@ app.Services.GetRequiredService<IAnalytics>()
     .Disable();
 #endif
 
-app.Services.GetRequiredService<PlugInLocalStorageLoader>()
+await app.Services.GetRequiredService<PlugInLocalStorageLoader>()
     .InitializePlugIns();
 
 await app.RunAsync();

@@ -101,7 +101,7 @@
 
     private async Task HandleUninstallClick(LoadedPlugIn plugin)
     {
-        PlugInService.Uninstall(plugin);
+        await PlugInService.Uninstall(plugin);
         await RefreshAvailablePlugIns();
     }
 

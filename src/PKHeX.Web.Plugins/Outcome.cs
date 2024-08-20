@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components;
+
 namespace PKHeX.Web.Plugins;
 
 public abstract class Outcome
@@ -16,6 +18,8 @@ public abstract class Outcome
         Description = description,
         Type = type
     };
+    
+    public static PlugInPage Page(string path, RenderFragment page) => new () { Path = path, Page = page };
 
     public class Notification : Outcome
     {
@@ -31,6 +35,15 @@ public abstract class Outcome
             Warning = 3,
             Error = 4
         }
+    }
+
+    public class PlugInPage : Outcome
+    {
+        public required string Path { get; set; }
+        public required RenderFragment Page { get; set; }
+        public Header? PageHeader { get; set; }
+
+        public record Header(string Title, RenderFragment? Extra);
     }
 
     private class VoidOutcome : Outcome
