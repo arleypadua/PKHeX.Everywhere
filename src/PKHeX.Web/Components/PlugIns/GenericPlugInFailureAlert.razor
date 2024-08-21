@@ -1,0 +1,24 @@
+@if (Error is not null)
+{
+    <Alert
+        Type="@AlertType.Error"
+        Message="Error"
+        CloseText="Dismiss"
+        OnClose="DismissQuickActionError"
+        Closable>
+        Whops! Rendering quick actions provided by the plugins installed in @ApplicationName failed.
+        In most of scenarios, this is due to an outdated version that needs update.
+        Click <a href="/plugins">here to check for updates,</a> otherwise uninstall and install them again..
+    </Alert>
+}
+
+@code {
+    [Parameter] public Exception? Error { get; set; }
+    [Parameter] public EventCallback<Exception?> ErrorChanged { get; set; }
+
+    private Task DismissQuickActionError()
+    {
+        Error = null;
+        return ErrorChanged.InvokeAsync(null);
+    }
+}

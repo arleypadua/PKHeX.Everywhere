@@ -8,6 +8,7 @@
         <DebugType>portable</DebugType>
         <EmbedAllSources>true</EmbedAllSources>
         <PublishSingleFile>true</PublishSingleFile>
+        <Version>0.0.1</Version>
     </PropertyGroup>
 
 
@@ -21,6 +22,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PKHeX.Web.Plugins\PKHeX.Web.Plugins.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\iframe.js" />
+      <EmbeddedResource Include="Resources\iframe.js" />
     </ItemGroup>
 
 </Project>

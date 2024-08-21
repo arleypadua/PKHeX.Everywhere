@@ -15,9 +15,9 @@ public class LiveRunPlugin : Settings
 
     private static readonly PlugInManifest PlugInManifest = new(
         "Live Run (Browser Emulator)", 
-        Description: "Allows to use the save file in an emulator in the browser.",
+        Description: "Allows to use the save file in an emulator in the browser. This is still in preview and may contain several bugs.",
         ProjectUrl: "https://github.com/arleypadua/PKHeX.Everywhere",
-        Information: "To run it you should provide your own legal ROM files.");
+        Information: "To run it you should provide your own legal ROM files / Only supports keyboard");
     
     public const string EmeraldRomFile = "Emerald ROM File";
     public const string FireRedRomFile = "FireRed ROM File";

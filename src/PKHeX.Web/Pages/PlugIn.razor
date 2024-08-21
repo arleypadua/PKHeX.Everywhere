@@ -73,8 +73,20 @@
                 </Space>
             </ActionColumn>
         </Table>
+        
+        @if (!string.IsNullOrWhiteSpace(_plugIn.Settings.Manifest.Information))
+        {
+            <Alert
+                Type="@AlertType.Info"
+                ShowIcon="true">
+                @_plugIn.Settings.Manifest.Information
+            </Alert>
+        }
     </Space>
 }
+
+<GenericPlugInFailureAlert
+    @bind-Error="_plugInLoadError"/>
 
 @code {
     [Parameter] public required string Id { get; set; }
@@ -91,6 +103,7 @@
 
     private int _pageIndex = 1;
     private int _pageSize = 20;
+    private Exception? _plugInLoadError;
 
     protected override void OnParametersSet()
     {
@@ -104,13 +117,22 @@
 
     private void LoadPlugin()
     {
-        _plugIn = PlugInRegistry.GetBy(Id);
-        _features = PlugInRegistry
-            .GetAllHooksOf(_plugIn)
-            .Select(p => new PlugInFeatures { Hook = p })
-            .ToList();
+        try
+        {
+            _plugIn = PlugInRegistry.GetBy(Id);
+            _features = PlugInRegistry
+                .GetAllHooksOf(_plugIn)
+                .Select(p => new PlugInFeatures { Hook = p })
+                .ToList();
 
-        ShouldRender();
+            ShouldRender();
+        }
+        catch (Exception e)
+        {
+            _plugIn = null;
+            _features = [];
+            _plugInLoadError = e;
+        }
     }
 
     private RenderFragment RenderSettings(string key, Settings.SettingValue? value) =>

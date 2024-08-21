@@ -1,4 +1,5 @@
 using PKHeX.Core;
+using PKHeX.Facade;
 
 namespace PKHeX.Web.Plugins.LiveRun;
 
@@ -26,6 +27,27 @@ public static class Extensions
             GameVersion.BD => NotSupported,
             _ => NotSupported,
         };
+    }
+
+    public static Settings.SettingValue.FileValue? GetFileSettings(this Game game, Settings settings)
+    {
+        var version = game.GameVersionApproximation;
+        return version.Version switch
+        {
+            GameVersion.E => settings[LiveRunPlugin.EmeraldRomFile],
+            GameVersion.FR => settings[LiveRunPlugin.FireRedRomFile],
+            GameVersion.C => null,
+            GameVersion.SS => null,
+            GameVersion.W2 => null,
+            GameVersion.AS => null,
+            GameVersion.UM => null,
+            GameVersion.SH => null,
+            GameVersion.VL => null,
+            GameVersion.GP => null,
+            GameVersion.PLA => null,
+            GameVersion.BD => null,
+            _ => null,
+        } as Settings.SettingValue.FileValue;
     }
 
     private static IDisable.DisableInfo GetDisabled(this LiveRunPlugin settings, string key,
