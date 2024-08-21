@@ -1,20 +1,39 @@
 using System.Reflection;
 using Blazored.LocalStorage;
 using PKHeX.Web.Plugins;
+using TG.Blazor.IndexedDB;
 
 namespace PKHeX.Web.Services.Plugins;
 
 public class PlugInLocalStorage(
+    ILocalStorageService localStorageAsync,
     ISyncLocalStorageService localStorage,
+    PlugInFilesRepository plugInFilesRepository,
     ILogger<PlugInLocalStorage> logger)
 {
-    public void Remove(LoadedPlugIn plugIn)
+    public async Task Remove(LoadedPlugIn plugIn)
     {
-        localStorage.RemoveItem(LocalStorageKey(plugIn));
+        await localStorageAsync.RemoveItemAsync(LocalStorageKey(plugIn));
+        await plugInFilesRepository.RemoveAllFrom(plugIn);
     }
 
-    public void Persist(LoadedPlugIn plugIn)
+    public async Task Persist(LoadedPlugIn plugIn)
     {
+        var plugInSettings = plugIn.Settings.All.Select(s => s.Value switch
+        {
+            Settings.SettingValue.StringValue setting => new PlugInStorageRepresentation.PlugInSetting
+                { Key = s.Key, ReadOnly = setting.ReadOnly, StringValue = setting.Value },
+            Settings.SettingValue.BooleanValue setting => new PlugInStorageRepresentation.PlugInSetting
+                { Key = s.Key, ReadOnly = setting.ReadOnly, BooleanValue = setting.Value },
+            Settings.SettingValue.IntegerValue setting => new PlugInStorageRepresentation.PlugInSetting
+                { Key = s.Key, ReadOnly = setting.ReadOnly, IntegerValue = setting.Value },
+            Settings.SettingValue.FileValue setting => new PlugInStorageRepresentation.PlugInSetting
+            {
+                Key = s.Key, ReadOnly = setting.ReadOnly, FileName = setting.FileName, FilePlugInId = plugIn.Id
+            },
+            _ => throw new InvalidOperationException($"{s.Value} not supported")
+        }).ToList();
+
         var representation = new PlugInStorageRepresentation
         {
             Id = plugIn.Id,
@@ -28,24 +47,30 @@ public class PlugInLocalStorage(
                 .ToDictionary(
                     key => key.hook.GetFullNameOrName(),
                     value => value.enabled),
-            PlugInSettings = plugIn.Settings.All.Select(s => s.Value switch
-            {
-                Settings.SettingValue.StringValue str => new PlugInStorageRepresentation.PlugInSetting
-                    { Key = s.Key, ReadOnly = str.ReadOnly, StringValue = str.Value },
-                Settings.SettingValue.BooleanValue str => new PlugInStorageRepresentation.PlugInSetting
-                    { Key = s.Key, ReadOnly = str.ReadOnly, BooleanValue = str.Value },
-                Settings.SettingValue.IntegerValue str => new PlugInStorageRepresentation.PlugInSetting
-                    { Key = s.Key, ReadOnly = str.ReadOnly, IntegerValue = str.Value },
-                _ => throw new InvalidOperationException($"{s.Value} not supported")
-            }).ToList()
+            PlugInSettings = plugInSettings
         };
 
-        localStorage.SetItem(LocalStorageKey(plugIn), representation);
+        await localStorageAsync.SetItemAsync(LocalStorageKey(plugIn), representation);
+        await PersistAllFilesFrom(plugIn);
 
         logger.LogInformation("Saved plug-in {p} locally", plugIn.Id);
     }
 
-    public IEnumerable<LoadedPlugIn> RestoreAll()
+    private async Task PersistAllFilesFrom(LoadedPlugIn plugIn)
+    {
+        var saveTasks = plugIn.Settings.All
+            .Select(p => p.Value)
+            .OfType<Settings.SettingValue.FileValue>()
+            .Select(async f =>
+            {
+                await plugInFilesRepository.CreateOrUpdate(plugIn,
+                    new PlugInFilesRepository.File(f.Value, f.FileName));
+            });
+        
+        await Task.WhenAll(saveTasks);
+    }
+
+    public async Task<IEnumerable<LoadedPlugIn>> RestoreAll()
     {
         var representations = localStorage.Keys()
             .Where(k => k.StartsWith(PlugInPrefix))
@@ -64,8 +89,8 @@ public class PlugInLocalStorage(
             })
             .Where(r => r is not null);
 
-        return representations
-            .Select(r =>
+        var settingTasks = representations
+            .Select(async r =>
             {
                 try
                 {
@@ -85,6 +110,15 @@ public class PlugInLocalStorage(
                         if (setting.IntegerValue is not null)
                             settings[setting.Key] =
                                 new Settings.SettingValue.IntegerValue(setting.IntegerValue.Value, setting.ReadOnly);
+
+                        if (setting.FileName is not null && setting.FilePlugInId is not null)
+                        {
+                            var file = await plugInFilesRepository.GetFile(setting.FilePlugInId, setting.FileName);
+
+                            settings[setting.Key] =
+                                new Settings.SettingValue.FileValue(file?.Data ?? [],
+                                    setting.FileName ?? string.Empty, setting.ReadOnly);
+                        }
                     }
 
                     var plugIn = new LoadedPlugIn(r.PlugInSourceId, r.FileUrl, settings, assembly, r.AssemblyBytes)
@@ -106,8 +140,10 @@ public class PlugInLocalStorage(
                     Console.WriteLine(e);
                     return null;
                 }
-            })
-            .Where(p => p is not null)!;
+            });
+
+        var settings = await Task.WhenAll(settingTasks);
+        return settings.Where(p => p is not null)!;
     }
 
     private string LocalStorageKey(LoadedPlugIn plugIn) => $"{PlugInPrefix}{plugIn.Id}";
@@ -149,6 +185,9 @@ public class PlugInLocalStorage(
             public string? StringValue { get; init; }
             public bool? BooleanValue { get; init; }
             public int? IntegerValue { get; init; }
+
+            public string? FileName { get; init; }
+            public string? FilePlugInId { get; init; }
         }
     }
 }

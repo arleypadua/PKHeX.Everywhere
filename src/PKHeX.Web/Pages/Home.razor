@@ -27,27 +27,32 @@
     </Descriptions>
 }
 
-@{ var actions = PlugInRegistry.GetAllEnabledHooks<IQuickAction>().ToList(); }
-@if (actions.Any())
-{
-    <Space
-        Style="width: 100%; gap: 20px; align-items: center; margin-top: 20px"
-        Direction="DirectionVHType.Vertical">
+<Space
+    Style="width: 100%; gap: 20px; align-items: center; margin-top: 20px"
+    Direction="DirectionVHType.Vertical">
+    @{ FetchPlugInQuickActions(); }
+    @if (_actions.Any())
+    {
         <h1>Quick Actions</h1>
         <Space
             Style="gap: 20px; align-items: center; justify-items: center;"
             Direction="DirectionVHType.Horizontal"
             Wrap>
-            @foreach (var action in actions)
+            @foreach (var action in _actions)
             {
                 @RenderActionButton(action)
             }
         </Space>
-    </Space>
-}
+    }
+
+    <GenericPlugInFailureAlert
+        @bind-Error="_quickActionsFailure"/>
+</Space>
 
 @code {
     private Game? _game;
+    private List<IQuickAction> _actions = [];
+    private Exception? _quickActionsFailure;
 
     protected override void OnInitialized()
     {
@@ -56,17 +61,51 @@
 
     private RenderFragment RenderActionButton(IQuickAction action)
     {
-        return
-            @<Button
-                 Type="@ButtonType.Link"
-                 OnClick="() => HandleActionButtonClick(action)">
-                @action.Label
-            </Button>;
+        @* var button = @<Button *@
+        @*                   Type="@ButtonType.Link" *@
+        @*                   OnClick="@(() => HandleActionButtonClick(action))" *@
+        @*                   Disabled="@action.DisabledInfo.Disabled"> *@
+        @*                  @action.Label *@
+        @*              </Button>; *@
+        @* *@
+        @* return action.DisabledInfo.Disabled && !string.IsNullOrWhiteSpace(action.DisabledInfo.Reason) *@
+        @*     ? @<Tooltip Title="@action.DisabledInfo.Reason">@button</Tooltip> *@
+        @*     : button; *@
+        if (action.DisabledInfo.Disabled && !string.IsNullOrWhiteSpace(action.DisabledInfo.Reason))
+        {
+            return @<Tooltip Title="@action.DisabledInfo.Reason">
+                       <Button
+                           Type="@ButtonType.Link"
+                           OnClick="@(() => HandleActionButtonClick(action))"
+                           Disabled="@action.DisabledInfo.Disabled">
+                           @action.Label
+                       </Button>
+                   </Tooltip>;
+        }
+
+        return @<Button
+                    Type="@ButtonType.Link"
+                    OnClick="@(() => HandleActionButtonClick(action))"
+                    Disabled="@action.DisabledInfo.Disabled">
+                   @action.Label
+               </Button>;
     }
 
     private async Task HandleActionButtonClick(IQuickAction action)
     {
         await PlugInRuntime.RunOn(action, _ => action.OnActionRequested());
+    }
+
+    private void FetchPlugInQuickActions()
+    {
+        try
+        {
+            _actions = PlugInRegistry.GetAllEnabledHooks<IQuickAction>().ToList();
+        }
+        catch (Exception e)
+        {
+            _quickActionsFailure = e;
+        }
     }
 
 }

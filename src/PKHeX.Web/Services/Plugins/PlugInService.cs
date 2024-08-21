@@ -9,7 +9,7 @@ public class PlugInService(
     public async Task<LoadedPlugIn> InstallFrom(string sourceId, string fileUrl)
     {
         var result = await registry.RegisterFrom(sourceId, fileUrl);
-        localStorage.Persist(result);
+        await localStorage.Persist(result);
 
         analyticsService.TrackInstalled(result);
         return result;
@@ -29,9 +29,9 @@ public class PlugInService(
         analyticsService.TrackUpdated(updatedPlugIn);
     }
 
-    public void Uninstall(LoadedPlugIn plugIn)
+    public async Task Uninstall(LoadedPlugIn plugIn)
     {
         registry.Deregister(plugIn);
-        localStorage.Remove(plugIn);
+        await localStorage.Remove(plugIn);
     }
 }

@@ -1,12 +1,14 @@
 using AntDesign;
 using Blazor.Analytics;
 using Microsoft.AspNetCore.Components;
+using PKHeX.Web.Extensions;
 using PKHeX.Web.Plugins;
 
 namespace PKHeX.Web.Services.Plugins;
 
 public partial class PlugInRuntime(
     PlugInRegistry registry, 
+    PlugInPageRegistry pageRegistry,
     IMessageService message,
     NavigationManager navigation,
     INotificationService notificationService,
@@ -24,7 +26,7 @@ public partial class PlugInRuntime(
             try
             {
                 var outcome = await action(hook);
-                Handle(outcome);
+                Handle(hook, outcome);
                 Track(hook);
             }
             catch (Exception e)
@@ -47,7 +49,7 @@ public partial class PlugInRuntime(
         try
         {
             var outcome = await action(hook);
-            Handle(outcome);
+            Handle(hook, outcome);
             Track(hook);
         }
         catch (Exception e)
@@ -58,11 +60,20 @@ public partial class PlugInRuntime(
         
     }
 
-    private void Handle(Outcome outcome) => _ = outcome switch
+    private void Handle(IPluginHook hook, Outcome outcome) => _ = outcome switch
     {
         Outcome.Notification notification => HandleNotification(notification),
+        Outcome.PlugInPage goToPage => HandleGoToPlugInPage(hook, goToPage),
         _ => Task.CompletedTask
     };
+
+    private Task HandleGoToPlugInPage(IPluginHook hook, Outcome.PlugInPage goToPage)
+    {
+        var plugin = registry.GetPlugInOwningHook(hook);
+        pageRegistry.Register(plugin.Id, goToPage);
+        navigation.NavigateToPlugInPage(plugin.Id, goToPage.Path);
+        return Task.CompletedTask;
+    }
 
     private Task HandleNotification(Outcome.Notification notification)
     {

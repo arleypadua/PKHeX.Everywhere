@@ -1,0 +1,64 @@
+@using System.Reflection
+@using Microsoft.JSInterop
+@inherits PkHexWebPlugInComponent
+@inject IJSRuntime Js
+
+<div id="webretro-container"></div>
+
+@code
+{
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Js.InvokeVoidAsync(
+                "eval",
+                GetScript());
+
+            await Js.InvokeVoidAsync(
+                "open", 
+                new
+                {
+                    RomFile = GetRomFile(),
+                    SaveFile = GetSaveFile(),
+                });
+        }
+    }
+
+    private File? GetSaveFile()
+    {
+        var bytes = Game?.ToByteArray();
+        if (bytes == null || bytes.Length == 0) return null;
+        
+        return new(FileName ?? String.Empty, bytes);
+    }
+
+    private File? GetRomFile()
+    {
+        var fileSettings = Game?.GetFileSettings(PlugInSettings);
+        if (fileSettings == null || fileSettings.Value.Length == 0) return null;
+
+        return new(fileSettings.FileName, fileSettings.Value);
+    }
+
+    private string GetScript()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceName = "PKHeX.Web.Plugins.LiveRun.Resources.iframe.js";
+
+        using Stream stream = assembly.GetManifestResourceStream(resourceName)!;
+        using StreamReader reader = new StreamReader(stream);
+
+        return reader.ReadToEnd();
+    }
+
+    private record File(string Name, byte[] Bytes);
+}
+
+<style>
+	#webretro-container {
+		width: 100%;
+		height: 80vh;
+	}
+    
+</style>

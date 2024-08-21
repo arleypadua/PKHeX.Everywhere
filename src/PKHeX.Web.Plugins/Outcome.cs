@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components;
+
 namespace PKHeX.Web.Plugins;
 
 public abstract class Outcome
@@ -16,6 +18,8 @@ public abstract class Outcome
         Description = description,
         Type = type
     };
+    
+    public static PlugInPage Page(string path, Type pageComponentType) => new () { Path = path, ComponentType = pageComponentType };
 
     public class Notification : Outcome
     {
@@ -31,6 +35,33 @@ public abstract class Outcome
             Warning = 3,
             Error = 4
         }
+    }
+
+    public class PlugInPage : Outcome
+    {
+        /// <summary>
+        /// The URL path that this page responds to
+        /// </summary>
+        public required string Path { get; set; }
+        
+        /// <summary>
+        /// The type of component to be rendered
+        /// </summary>
+        public required Type ComponentType { get; set; }
+        
+        /// <summary>
+        /// The page header to be rendered
+        ///
+        /// If null, no page header is present
+        /// </summary>
+        public Header? PageHeader { get; set; }
+
+        /// <summary>
+        /// Page header definition
+        /// </summary>
+        /// <param name="Title">The title of the page</param>
+        /// <param name="ComponentType">The type of the component to be rendered</param>
+        public record Header(string Title, Type? ComponentType);
     }
 
     private class VoidOutcome : Outcome

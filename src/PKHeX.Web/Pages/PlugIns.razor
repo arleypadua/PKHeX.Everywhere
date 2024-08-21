@@ -64,6 +64,7 @@
                     Label="@context.PlugIn.Name"
                     Href="@context.PlugIn.ProjectUrl"/>
             </PropertyColumn>
+            <PropertyColumn Title="Description" Property="@(c => c.PlugIn.Description)"/>
             <PropertyColumn Title="Version" Property="@(c => c.PlugIn.PublishedVersions.LastOrDefault())" Sortable Filterable/>
             <PropertyColumn Title="Source" Property="@(c => c.Source.Name)" Sortable Filterable/>
             <ActionColumn Title="Actions">
@@ -101,7 +102,7 @@
 
     private async Task HandleUninstallClick(LoadedPlugIn plugin)
     {
-        PlugInService.Uninstall(plugin);
+        await PlugInService.Uninstall(plugin);
         await RefreshAvailablePlugIns();
     }
 

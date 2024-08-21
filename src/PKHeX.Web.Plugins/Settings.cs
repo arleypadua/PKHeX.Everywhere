@@ -50,6 +50,7 @@ public abstract class Settings(PlugInManifest manifest)
     public string GetString(string key) => this[key].GetString();
     public int GetInteger(string key) => this[key].GetInteger();
     public bool GetBoolean(string key) => this[key].GetBoolean();
+    public byte[] GetFile(string key) => this[key].GetFile();
 
     public abstract record SettingValue(bool ReadOnly)
     {
@@ -58,7 +59,12 @@ public abstract class Settings(PlugInManifest manifest)
         public record BooleanValue(bool Value, bool ReadOnly = false) : SettingValue(ReadOnly);
 
         public record IntegerValue(int Value, bool ReadOnly = false) : SettingValue(ReadOnly);
-        
+
+        public record FileValue(byte[] Value, string FileName, bool ReadOnly = false) : SettingValue(ReadOnly)
+        {
+            public static readonly FileValue Empty = new FileValue([], string.Empty);
+        };
+
         public string GetString()
         {
             if (this is not StringValue str) throw new InvalidOperationException($"{this} is not a string value.");
@@ -75,6 +81,12 @@ public abstract class Settings(PlugInManifest manifest)
         {
             if (this is not IntegerValue integer) throw new InvalidOperationException($"{this} is not a integer value.");
             return integer.Value;
+        }
+        
+        public byte[] GetFile()
+        {
+            if (this is not FileValue file) throw new InvalidOperationException($"{this} is not a file value.");
+            return file.Value;
         }
     }
 }
