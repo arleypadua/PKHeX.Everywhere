@@ -1,6 +1,7 @@
 using System.Web;
 using Microsoft.AspNetCore.Components;
 using PKHeX.Facade.Pokemons;
+using PKHeX.Web.Plugins;
 using PKHeX.Web.Services.Plugins;
 
 namespace PKHeX.Web.Extensions;
@@ -38,8 +39,9 @@ public static class NavigationManagerExtensions
     public static void NavigateToPlugIn(this NavigationManager navigation, LoadedPlugIn plugIn) =>
         navigation.NavigateTo($"/plugins/{plugIn.Id}");
     
-    public static void NavigateToPlugInPage(this NavigationManager navigation, string plugInId, string path) =>
-        navigation.NavigateTo($"/plugins/{plugInId}/{path}");
+    public static void NavigateToPlugInPage(this NavigationManager navigation, string plugInId, string path,
+        Outcome.PlugInPage.PageLayout layout) =>
+        navigation.NavigateTo($"/plugins/{plugInId}/{path}/{layout.ToString().ToLowerInvariant()}");
     
     public static void NavigateToAnalyticsResults(this NavigationManager navigation) =>
         navigation.NavigateTo($"/analytics");

@@ -1,0 +1,45 @@
+@inherits LayoutComponentBase
+@inject JsService Js
+
+@* <div class="close-button" @onclick="Back"></div> *@
+
+@Body
+
+@code {
+    private Task Back()
+    {
+        return Js.NavigateBack();
+    }
+}
+
+<style>
+    .close-button {
+        width: 25px;
+        height: 25px;
+        padding: 10px;
+
+        color: white;
+
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0.5;
+        z-index: 9999;
+
+        cursor: pointer;
+
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .close-button:hover {
+        opacity: 1;
+    }
+
+    .close-button::after {
+        content: "✖";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+</style>

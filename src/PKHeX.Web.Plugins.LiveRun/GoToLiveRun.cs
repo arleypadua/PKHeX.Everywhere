@@ -1,3 +1,5 @@
+using static PKHeX.Web.Plugins.Outcome.PlugInPage.PageLayout;
+
 namespace PKHeX.Web.Plugins.LiveRun;
 
 public class GoToLiveRun(
@@ -9,5 +11,6 @@ public class GoToLiveRun(
     
     public IDisable.DisableInfo DisabledInfo => gameProvider.GetDisabled(settings);
 
-    public Task<Outcome> OnActionRequested() => Outcome.Page("live-run", typeof(LiveRun)).Completed();
+    public Task<Outcome> OnActionRequested() => Outcome.Page("live-run", typeof(LiveRun), layout: Empty)
+        .Completed();
 }

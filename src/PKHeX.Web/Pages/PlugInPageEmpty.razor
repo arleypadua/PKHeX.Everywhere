@@ -1,0 +1,52 @@
+@page "/plugins/{Id}/{Path}/empty"
+@using PKHeX.Web.Plugins
+@using PKHeX.Web.Services.Plugins
+@layout EmptyPlugInLayout
+@inject PlugInPageRegistry PageRegistry
+@inject GameService GameService
+@inject PlugInRegistry PlugInRegistry
+
+@if (_page != null)
+{
+    <DynamicComponent
+        Type="_page.ComponentType"
+        Parameters="@AssembleComponentParams()"/>
+}
+
+@code {
+    [Parameter] public required string Id { get; set; }
+    [Parameter] public required string Path { get; set; }
+
+    private Outcome.PlugInPage? _page;
+    private LoadedPlugIn? _plugIn;
+
+    protected override void OnParametersSet()
+    {
+        LoadPluginPage();
+    }
+
+    protected override void OnInitialized()
+    {
+        LoadPluginPage();
+    }
+
+    private void LoadPluginPage()
+    {
+        _plugIn = PlugInRegistry.GetBy(Id);
+        _page = PageRegistry.GetPageFor(Id, Path);
+        ShouldRender();
+    }
+
+    private Dictionary<string, object?> AssembleComponentParams()
+    {
+        if (_page is null || _plugIn is null) return [];
+
+        return new()
+        {
+            { nameof(PkHexWebPlugInComponent.PlugInSettings), _plugIn.Settings },
+            { nameof(PkHexWebPlugInComponent.Game), GameService.Game },
+            { nameof(PkHexWebPlugInComponent.FileName), GameService.FileName },
+        };
+    }
+
+}

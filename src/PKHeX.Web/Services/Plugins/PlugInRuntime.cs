@@ -71,7 +71,7 @@ public partial class PlugInRuntime(
     {
         var plugin = registry.GetPlugInOwningHook(hook);
         pageRegistry.Register(plugin.Id, goToPage);
-        navigation.NavigateToPlugInPage(plugin.Id, goToPage.Path);
+        navigation.NavigateToPlugInPage(plugin.Id, goToPage.Path, goToPage.Layout);
         return Task.CompletedTask;
     }
 

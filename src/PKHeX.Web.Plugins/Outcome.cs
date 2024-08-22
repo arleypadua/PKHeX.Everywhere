@@ -19,7 +19,14 @@ public abstract class Outcome
         Type = type
     };
     
-    public static PlugInPage Page(string path, Type pageComponentType) => new () { Path = path, ComponentType = pageComponentType };
+    public static PlugInPage Page(string path, 
+        Type pageComponentType, 
+        PlugInPage.PageLayout layout = PlugInPage.PageLayout.Standard) => new ()
+    {
+        Path = path, 
+        ComponentType = pageComponentType,
+        Layout = layout,
+    };
 
     public class Notification : Outcome
     {
@@ -48,6 +55,11 @@ public abstract class Outcome
         /// The type of component to be rendered
         /// </summary>
         public required Type ComponentType { get; set; }
+
+        /// <summary>
+        /// The layout in which the plugin will be rendered at
+        /// </summary>
+        public required PageLayout Layout { get; set; }
         
         /// <summary>
         /// The page header to be rendered
@@ -62,6 +74,12 @@ public abstract class Outcome
         /// <param name="Title">The title of the page</param>
         /// <param name="ComponentType">The type of the component to be rendered</param>
         public record Header(string Title, Type? ComponentType);
+
+        public enum PageLayout
+        {
+            Standard,
+            Empty
+        }
     }
 
     private class VoidOutcome : Outcome

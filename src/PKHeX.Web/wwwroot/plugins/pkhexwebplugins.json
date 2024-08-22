@@ -28,7 +28,7 @@
             "Description": "Allows to use the save file in an emulator in the browser. This is still in preview and may contain several bugs.",
             "ProjectUrl": "https://github.com/arleypadua/PKHeX.Everywhere",
             "Summary": null,
-            "PublishedVersions": ["0.0.1"]
+            "PublishedVersions": ["0.0.1", "0.0.2"]
         }
     ]
 }

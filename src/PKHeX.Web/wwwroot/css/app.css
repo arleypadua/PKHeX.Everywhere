@@ -7,6 +7,10 @@ html, body {
     font-family: 'Pokemon GB', "Lucida Console", sans-serif;
 }
 
+#app {
+    height: 100%;
+}
+
 .loading-text {
     font-size: 15px; 
     color: slategrey; 

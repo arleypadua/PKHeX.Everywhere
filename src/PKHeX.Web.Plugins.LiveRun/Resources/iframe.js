@@ -1,7 +1,23 @@
+document.addEventListener('message', receiveMessage);
+
 const config = {
     webretroUrl: window.location.href.includes("//localhost:")
         ? "http://127.0.0.1:5500/"
         : "https://pkhex-web.github.io/webretro/"
+}
+
+function receiveMessage(event) {
+    const data = event.data;
+
+    if (typeof data !== 'object') return;
+    if (!("type" in data)) return;
+
+    switch (data.type) {
+        case 'leave':
+            // todo: prompt to use the last save game state from the emulator
+            history.back()
+            break;
+    }
 }
 
 function webretroEmbed(node, path, queries) {
@@ -30,11 +46,7 @@ async function open(openOptions) {
     
     await waitForIframeReady(iframe)
     
-    iframe.contentWindow.postMessage({
-        type: 'load_game',
-        saveFile: openOptions.saveFile,
-        romFile: openOptions.romFile
-    }, '*')
+    iframe.contentWindow.postMessage(loadGameMessage(openOptions), '*')
 }
 
 async function waitForIframeReady(iframe) {
@@ -48,4 +60,12 @@ async function waitForIframeReady(iframe) {
 
         window.addEventListener('message', onMessage);
     });
+}
+
+function loadGameMessage(openOptions) {
+    return {
+        type: 'load_game',
+        saveFile: openOptions.saveFile,
+        romFile: openOptions.romFile
+    }
 }
