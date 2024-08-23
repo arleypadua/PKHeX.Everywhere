@@ -8,7 +8,10 @@ public class LiveRunPlugin : Settings
     {
         // default settings
         this[EmeraldRomFile] = new SettingValue.FileValue([], string.Empty);
-        this[FireRedRomFile] = new SettingValue.FileValue([], string.Empty);
+        this[FireredLeafgreen] = new SettingValue.FileValue([], string.Empty);
+        this[RedBlueYellow] = new SettingValue.FileValue([], string.Empty);
+        this[GoldSilverCrystal] = new SettingValue.FileValue([], string.Empty);
+        this[RubySapphire] = new SettingValue.FileValue([], string.Empty);
         
         EnabledByDefault<GoToLiveRun>();
     }
@@ -17,8 +20,11 @@ public class LiveRunPlugin : Settings
         "Live Run (Browser Emulator)", 
         Description: "Allows to use the save file in an emulator in the browser. This is still in preview and may contain several bugs.",
         ProjectUrl: "https://github.com/arleypadua/PKHeX.Everywhere",
-        Information: "To run it you should provide your own legal ROM files / Only supports keyboard");
+        Information: "To run it you should provide your own legal ROM files");
     
-    public const string EmeraldRomFile = "Emerald ROM File";
-    public const string FireRedRomFile = "FireRed ROM File";
+    public const string EmeraldRomFile = "Emerald ROM";
+    public const string FireredLeafgreen = "FireRed/LeafGreen ROM";
+    public const string RedBlueYellow = "Red/Blue/Yellow ROM";
+    public const string GoldSilverCrystal = "Gold/Silver/Crystal ROM";
+    public const string RubySapphire = "Rubby/Sapphire ROM";
 }

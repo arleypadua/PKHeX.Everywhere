@@ -1,6 +1,7 @@
 @using System.Reflection
 @using Microsoft.JSInterop
 @inherits PkHexWebPlugInComponent
+@implements IAsyncDisposable
 @inject IJSRuntime Js
 
 <div id="webretro-container"></div>
@@ -21,16 +22,29 @@
                 {
                     RomFile = GetRomFile(),
                     SaveFile = GetSaveFile(),
+                    Core = Game?.GetEmulatorCore() ?? throw new ArgumentOutOfRangeException("core", "No core available for current game")
                 });
         }
     }
 
+    public async ValueTask DisposeAsync()
+    {
+        await Js.InvokeVoidAsync("unload");
+    }
+
     private File? GetSaveFile()
     {
-        var bytes = Game?.ToByteArray();
-        if (bytes == null || bytes.Length == 0) return null;
-        
-        return new(FileName ?? String.Empty, bytes);
+        try
+        {
+            var bytes = Game?.ToByteArray();
+            if (bytes == null || bytes.Length == 0) return null;
+            
+            return new(FileName ?? String.Empty, bytes);
+        }
+        catch
+        {
+            return new(FileName ?? String.Empty, []);
+        }
     }
 
     private File? GetRomFile()

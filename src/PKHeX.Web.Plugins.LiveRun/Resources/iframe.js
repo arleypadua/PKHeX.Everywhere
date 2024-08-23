@@ -33,7 +33,7 @@ async function open(openOptions) {
     var iframe = webretroEmbed(
         document.getElementById("webretro-container"),
         openOptions.webRetroUrlOverride ?? config.webretroUrl,
-        {core: "mgba"});
+        {core: openOptions.core});
     
     await waitForIframeReady(iframe)
     
@@ -42,11 +42,14 @@ async function open(openOptions) {
 
 function initialize() {
     if (config.initialized) return
-    
+
     window.addEventListener('message', receiveMessage);
-    window.addEventListener('beforeunload', receiveMessage);
     
     config.initialized = true;
+}
+
+function unload() {
+    window.removeEventListener('message', receiveMessage);
 }
 
 function receiveMessage(event) {
