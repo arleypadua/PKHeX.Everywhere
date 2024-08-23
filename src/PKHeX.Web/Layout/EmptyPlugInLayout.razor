@@ -1,14 +1,35 @@
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject JsService Js
+@inject GameService GameService
+@inject NavigationManager Navigation
 
-@* <div class="close-button" @onclick="Back"></div> *@
+<div class="close-button" @onclick="Back"></div>
 
 @Body
 
 @code {
+    protected override void OnInitialized()
+    {
+        BrowserWindowService.LoadRequested += OnLoadRequested;
+    }
+    
     private Task Back()
     {
         return Js.NavigateBack();
+    }
+    
+    private Task OnLoadRequested(BrowserWindowService.SaveLoadedRequested arg)
+    {
+        GameService.Load(arg.Bytes, arg.FileName);
+        Navigation.NavigateToHomePage();
+
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        BrowserWindowService.LoadRequested -= OnLoadRequested;
     }
 }
 

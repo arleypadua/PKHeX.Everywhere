@@ -1,0 +1,27 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject GameService GameService
+@inject NavigationManager Navigation
+
+@Body
+
+@code
+{
+    protected override void OnInitialized()
+    {
+        BrowserWindowService.LoadRequested += OnLoadRequested;
+    }
+
+    private Task OnLoadRequested(BrowserWindowService.SaveLoadedRequested arg)
+    {
+        GameService.Load(arg.Bytes, arg.FileName);
+        Navigation.NavigateToHomePage();
+
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        BrowserWindowService.LoadRequested -= OnLoadRequested;
+    }
+}

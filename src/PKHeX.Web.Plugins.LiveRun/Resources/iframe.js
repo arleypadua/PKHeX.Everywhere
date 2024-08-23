@@ -1,22 +1,10 @@
-document.addEventListener('message', receiveMessage);
-
 const config = {
+    initialized: false,
     webretroUrl: window.location.href.includes("//localhost:")
         ? "http://127.0.0.1:5500/"
-        : "https://pkhex-web.github.io/webretro/"
-}
-
-function receiveMessage(event) {
-    const data = event.data;
-
-    if (typeof data !== 'object') return;
-    if (!("type" in data)) return;
-
-    switch (data.type) {
-        case 'leave':
-            // todo: prompt to use the last save game state from the emulator
-            history.back()
-            break;
+        : "https://pkhex-web.github.io/webretro/",
+    currentGame: {
+        saveFile: undefined, // { name: string, bytes: UInt8Array }
     }
 }
 
@@ -39,6 +27,9 @@ function webretroEmbed(node, path, queries) {
 }
 
 async function open(openOptions) {
+    initialize()
+    
+    config.currentGame.saveFile = openOptions.saveFile
     var iframe = webretroEmbed(
         document.getElementById("webretro-container"),
         openOptions.webRetroUrlOverride ?? config.webretroUrl,
@@ -47,6 +38,35 @@ async function open(openOptions) {
     await waitForIframeReady(iframe)
     
     iframe.contentWindow.postMessage(loadGameMessage(openOptions), '*')
+}
+
+function initialize() {
+    if (config.initialized) return
+    
+    window.addEventListener('message', receiveMessage);
+    window.addEventListener('beforeunload', receiveMessage);
+    
+    config.initialized = true;
+}
+
+function receiveMessage(event) {
+    const data = event.data;
+
+    if (typeof data !== 'object') return;
+    if (!("type" in data)) return;
+
+    switch (data.type) {
+        case 'new_save_available':
+            const yes = confirm('A new save has been detected, do you want to override PKHeX.Web currently loaded save?')
+            if (yes) {
+                DotNet.invokeMethodAsync("PKHeX.Web", "OnLoadRequested", {
+                    bytes: data.bytes,
+                    fileName: config.currentGame.saveFile?.name
+                })
+            }
+
+            break;
+    }
 }
 
 async function waitForIframeReady(iframe) {

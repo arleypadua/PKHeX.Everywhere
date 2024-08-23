@@ -17,6 +17,9 @@ public class GameService(
     public void Load(byte[] bytes, string fileName)
     {
         Game = Game.LoadFrom(bytes, fileName);
+        if(string.IsNullOrWhiteSpace(fileName))
+            Console.WriteLine("file name is null or empty.");
+        
         FileName = fileName;
 
         OnGameLoaded?.Invoke(this, EventArgs.Empty);

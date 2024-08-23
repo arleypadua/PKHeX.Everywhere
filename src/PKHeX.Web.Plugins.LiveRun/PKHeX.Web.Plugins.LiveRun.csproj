@@ -8,7 +8,7 @@
         <DebugType>portable</DebugType>
         <EmbedAllSources>true</EmbedAllSources>
         <PublishSingleFile>true</PublishSingleFile>
-        <Version>0.0.2</Version>
+        <Version>0.0.3</Version>
     </PropertyGroup>
 
 

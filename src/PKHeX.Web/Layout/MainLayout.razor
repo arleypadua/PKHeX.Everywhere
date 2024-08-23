@@ -130,6 +130,8 @@
     {
         GameService.OnGameLoaded += OnGameLoaded;
         PlugInRegistry.OnPlugInChanged += OnPlugInChanged;
+        BrowserWindowService.LoadRequested += OnLoadRequested;
+        
         ToLoadIfNotLoaded();
     }
 
@@ -157,7 +159,15 @@
         else
             Navigation.NavigateToPlugIn(plugin);
     }
+    
+    private Task OnLoadRequested(BrowserWindowService.SaveLoadedRequested arg)
+    {
+        GameService.Load(arg.Bytes, arg.FileName);
+        Navigation.NavigateToHomePage();
 
+        return Task.CompletedTask;
+    }
+    
     private RenderFragment RenderMenu(MenuItem item) =>
         @<MenuItem Key="@item.Route">
             @if (item.Icon is not null)
@@ -176,6 +186,7 @@
     {
         GameService.OnGameLoaded -= OnGameLoaded;
         PlugInRegistry.OnPlugInChanged -= OnPlugInChanged;
+        BrowserWindowService.LoadRequested -= OnLoadRequested;
     }
 
     private void HandleSettingsClick()
