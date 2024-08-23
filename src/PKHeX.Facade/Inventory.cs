@@ -37,7 +37,7 @@ public class Inventory : IEnumerable<Inventory.Item>
     public ImmutableList<ItemDefinition> AllSupportedItems => _pouch
         .GetAllItems()
         .ToArray()
-        .Select(ItemRepository.GetItem).ToImmutableList();
+        .Select(_game.ItemRepository.GetGameItem).ToImmutableList();
 
     /// <summary>
     /// Returns a list of all items that can be added to the current inventory
@@ -87,7 +87,7 @@ public class Inventory : IEnumerable<Inventory.Item>
 
     private ImmutableList<Item> GetItems()
     {
-        return _pouch.Items.Select(i => new Item(i, ItemRepository.GetItem)).ToImmutableList();
+        return _pouch.Items.Select(i => new Item(i, _game.ItemRepository.GetGameItem)).ToImmutableList();
     }
 
     public sealed class Item

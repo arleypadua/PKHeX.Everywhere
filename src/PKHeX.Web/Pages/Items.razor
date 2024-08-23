@@ -38,7 +38,7 @@
     [Inject] public required GameService GameService { get; set; }
     [Inject] public required AnalyticsService Analytics { get; set; }
 
-    List<ButtonOrMenu.ButtonAction> ExtraActions => new List<ButtonOrMenu.ButtonAction>
+    List<ButtonOrMenu.ButtonAction> ExtraActions => new()
     {
         new ()
         {

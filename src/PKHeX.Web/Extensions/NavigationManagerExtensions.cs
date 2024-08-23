@@ -13,6 +13,9 @@ public static class NavigationManagerExtensions
     
     public static void NavigateToHomePage(this NavigationManager navigation) =>
         navigation.NavigateTo("/");
+    
+    public static void NavigateToItems(this NavigationManager navigation) =>
+        navigation.NavigateTo("/items");
 
     public static void NavigateToPokemon(this NavigationManager navigation, PokemonSource source, UniqueId uniqueId,
         bool replace = false) =>

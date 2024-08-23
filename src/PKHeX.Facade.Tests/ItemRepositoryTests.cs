@@ -12,4 +12,11 @@ public class ItemRepositoryTests
     {
         ItemRepository.GetBall(Ball.Sport).Should().NotBeNull();
     }
+
+    [Theory]
+    [Games(GameVersion.E)]
+    public void ShouldLoadRareCandy(Game game)
+    {
+        game.Trainer.Should().NotBeNull();
+    }
 }

@@ -55,4 +55,9 @@
         <Folder Include="obj\"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\plugins\PKHeX.Web.Plugins.LiveRun\0.0.2\PKHeX.Web.Plugins.LiveRun.dll" />
+      <_ContentIncludedByDefault Remove="wwwroot\plugins\PKHeX.Web.Plugins.Nuzlocking\1.1.0\PKHeX.Web.Plugins.Nuzlocking.dll" />
+    </ItemGroup>
+
 </Project>

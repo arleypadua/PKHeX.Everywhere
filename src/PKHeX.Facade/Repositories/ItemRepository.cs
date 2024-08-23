@@ -24,6 +24,9 @@ public class ItemRepository
     }
 
     public ISet<ItemDefinition> GameItems => _gameItems.Values.ToHashSet();
+    public ItemDefinition GetGameItem(ushort id) => _gameItems[id];
+    public ItemDefinition? GetGameItemByName(string name) => _gameItems.Values
+        .FirstOrDefault(i => i.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 
     public static ItemDefinition GetItem(ushort id) => AllItemsById[id];
     public static ItemDefinition? GetItemByName(string name) => AllItemsById.Values

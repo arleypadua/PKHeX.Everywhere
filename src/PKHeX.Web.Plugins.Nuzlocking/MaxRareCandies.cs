@@ -8,8 +8,8 @@ public class MaxRareCandies(IGameProvider gameProvider) : IQuickAction
     public string Label => "Max Rare Candies";
     public IDisable.DisableInfo DisabledInfo => IDisable.Enabled;
     
-    private static ItemDefinition? RareCandyDefinition => 
-        ItemRepository.GetItemByName("Rare Candy");
+    private ItemDefinition? RareCandyDefinition => 
+        gameProvider.Game?.ItemRepository.GetGameItemByName("Rare Candy");
     
     public Task<Outcome> OnActionRequested()
     {

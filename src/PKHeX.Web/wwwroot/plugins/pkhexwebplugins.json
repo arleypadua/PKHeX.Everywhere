@@ -19,7 +19,7 @@
             "Description": "This adds functionality that helps on Nuzlocking.",
             "ProjectUrl": "https://github.com/arleypadua/PKHeX.Everywhere",
             "Summary": null,
-            "PublishedVersions": ["1.1.1", "1.1.2"]
+            "PublishedVersions": ["1.1.2", "1.1.3"]
         },
         {
             "Id": "PKHeX.Web.Plugins.LiveRun",
@@ -28,7 +28,7 @@
             "Description": "Allows to use the save file in an emulator in the browser. This is still in preview and may contain several bugs.",
             "ProjectUrl": "https://github.com/arleypadua/PKHeX.Everywhere",
             "Summary": null,
-            "PublishedVersions": ["0.0.1", "0.0.2", "0.0.3", "0.0.4"]
+            "PublishedVersions": ["0.0.3", "0.0.4"]
         }
     ]
 }
