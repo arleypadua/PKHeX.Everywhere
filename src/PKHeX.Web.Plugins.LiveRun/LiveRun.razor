@@ -22,7 +22,8 @@
                 {
                     RomFile = GetRomFile(),
                     SaveFile = GetSaveFile(),
-                    Core = Game?.GetEmulatorCore() ?? throw new ArgumentOutOfRangeException("core", "No core available for current game")
+                    Core = Game?.GetEmulatorCore() ?? throw new ArgumentOutOfRangeException("core", "No core available for current game"),
+                    ShowFrameCount = PlugInSettings.GetBoolean(LiveRunPlugin.ShowFrameCount)
                 });
         }
     }

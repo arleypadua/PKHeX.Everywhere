@@ -89,6 +89,7 @@ function loadGameMessage(openOptions) {
     return {
         type: 'load_game',
         saveFile: openOptions.saveFile,
-        romFile: openOptions.romFile
+        romFile: openOptions.romFile,
+        showFrameCount: openOptions.showFrameCount,
     }
 }

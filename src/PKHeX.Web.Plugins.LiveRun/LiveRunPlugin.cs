@@ -7,6 +7,7 @@ public class LiveRunPlugin : Settings
     public LiveRunPlugin() : base(PlugInManifest)
     {
         // default settings
+        this[ShowFrameCount] = new SettingValue.BooleanValue(true);
         this[EmeraldRomFile] = new SettingValue.FileValue([], string.Empty);
         this[FireredLeafgreen] = new SettingValue.FileValue([], string.Empty);
         this[RedBlueYellow] = new SettingValue.FileValue([], string.Empty);
@@ -27,4 +28,5 @@ public class LiveRunPlugin : Settings
     public const string RedBlueYellow = "Red/Blue/Yellow ROM";
     public const string GoldSilverCrystal = "Gold/Silver/Crystal ROM";
     public const string RubySapphire = "Rubby/Sapphire ROM";
+    public const string ShowFrameCount = "Show frame count";
 }
