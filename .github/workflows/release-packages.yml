@@ -167,7 +167,7 @@ jobs:
             </metadata>
             <files>
               <file src="tools\**" target="tools" />
-              <file src="LICENSE" target="tools/LICENSE" />
+              <file src="LICENSE" target="tools/LICENSE.txt" />
               <file src="VERIFICATION.txt" target="tools/VERIFICATION.txt" />
             </files>
           </package>
