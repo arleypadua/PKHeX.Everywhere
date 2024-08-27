@@ -3,7 +3,7 @@
 This repository offers 2 different ways of accessing PKHex features in any operating system: a web-based version and a terminal-based version compiled to all major operating systems (macOS, Linux and Windows).
 
 ## PKHeX.Web
-The PKHeX Web version ([pkhex-web.github.io](https://pkhex-web.github.io)) provides a user-friendly interface accessible via any web browser. This version supports plug-ins and includes built-in auto legality mode for ensuring the legality of Pokémon data.
+The PKHeX Web version ([pkhex-web.github.io](https://pkhex-web.github.io)) provides a user-friendly interface accessible via any web browser.
 
 ![](./docs/pkhex-web-demo.gif)
 
