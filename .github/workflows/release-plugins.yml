@@ -22,6 +22,9 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
+      - name: Install xmllint
+        run: sudo apt-get install -y libxml2-utils
+        
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -30,11 +33,6 @@ jobs:
         run: dotnet restore
       - name: Build
         run: |
-          # install pre-requisites
-          apt-get update
-          apt-get install libxml2-utils
-
-          # build all plug-ins
           chmod +x ./build-plugins.sh
           ./build-plugins.sh
 
