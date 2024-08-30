@@ -34,7 +34,10 @@ jobs:
       - name: Build
         run: |
           chmod +x ./build-plugins.sh
+          chmod +x ./gen-pkhexwebplugins.sh
+          
           ./build-plugins.sh
+          ./gen-pkhexwebplugins.sh
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -62,7 +65,7 @@ jobs:
           path: plugins-source-assets
           token: ${{ secrets.GIT_HUB_PKHEX_WEB_TOKEN }}
 
-      - name: Copy artifacts to Github pages repository
+      - name: Copy artifacts to assets repository
         run: |
           cp -R plugins/artifact-plugin-assets/* plugins-source-assets/
 
