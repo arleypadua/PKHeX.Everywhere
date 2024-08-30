@@ -1,0 +1,73 @@
+name: Release plug-ins
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'src/PKHeX.Web.Plugins/**'
+      - 'src/PKHeX.Web.Plugins*/**'
+      
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: |
+          chmod +x ./build-plugins.sh
+          ./build-plugins.sh    
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-plugin-assets
+          path: ./plugins
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_publish
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: plugins
+      - name: List assets
+        run: ls -R plugins
+        
+      - name: Checkout plugins-source-assets repository
+        uses: actions/checkout@v4
+        with:
+          repository: pkhex-web/plugins-source-assets
+          ref: main
+          path: plugins-source-assets
+          token: ${{ secrets.GIT_HUB_PKHEX_WEB_TOKEN }}
+
+      - name: Copy artifacts to Github pages repository
+        run: |
+          cp -R plugins/* plugins-source-assets/
+
+      - name: Commit and push new artifacts
+        run: |
+          cd plugins-source-assets
+          touch .nojekyll
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git add --all
+          git commit -m "update plugins"
+          git push origin
+          cd ..
