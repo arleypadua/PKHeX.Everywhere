@@ -33,6 +33,9 @@ public class PlugInLocalStorageLoader(
     {
         try
         {
+            // for a while, we need to keep it so all local versions are migrated
+            plugInSourceLocalStorage.MigrateOldDefaultSource();
+            
             var sourceTasks = plugInSourceLocalStorage.GetSources()
                 .Select(s => s.SourceManifestUrl)
                 .Select(sourceService.FetchFrom);

@@ -16,7 +16,21 @@ public class PlugInSourceLocalStorage(
     
     public void RemoveSource(PlugInSource source) => localStorage
         .RemoveItem(StorageKey(source));
-    
+
+    public void MigrateOldDefaultSource()
+    {
+        var oldKey = $"{SourcesKeyPrefix}/plugins";
+        var newKey = $"{SourcesKeyPrefix}https://raw.githubusercontent.com/pkhex-web/plugins-source-assets/main";
+
+        var oldSource = localStorage.GetItem<PlugInSource>(oldKey);
+        if (oldSource is null) return;
+
+        oldSource.SourceUrl = "https://raw.githubusercontent.com/pkhex-web/plugins-source-assets/main";
+        
+        localStorage.RemoveItem(oldKey);
+        localStorage.SetItem(newKey, oldSource);
+    }
+
     private string StorageKey(PlugInSource source) => $"{SourcesKeyPrefix}{source.SourceUrl}";
     
     private const string SourcesKeyPrefix = "__plug_in__source__#";

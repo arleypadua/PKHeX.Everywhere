@@ -6,7 +6,7 @@ public class PlugInSource
     /// The url where this source is defined
     /// It is also the identifier of this source
     /// </summary>
-    public required string SourceUrl { get; init; }
+    public required string SourceUrl { get; set; }
 
     public required string Name { get; init; }
     
@@ -17,14 +17,14 @@ public class PlugInSource
 
     public PlugIn[] PlugIns { get; init; } = [];
     
-    public string SourceManifestUrl => $"{SourceUrl}/{ManifestFileName}".Replace("//", "/");
+    public string SourceManifestUrl => $"{SourceUrl.TrimEnd('/')}/{ManifestFileName}";
 
     public string GetLatestDownloadUrl(PlugIn plugIn)
     {
         if (!PlugIns.Contains(plugIn)) 
             throw new KeyNotFoundException($"Plug-in {plugIn.Id} not found on source {SourceUrl}");
-        
-        return $"{SourceUrl}/{plugIn.Id}/{plugIn.PublishedVersions.Last()}/{plugIn.FileName}".Replace("//", "/");
+
+        return $"{SourceUrl.TrimEnd('/')}/{plugIn.Id}/{plugIn.PublishedVersions.Last()}/{plugIn.FileName}";
     }
     
     public override bool Equals(object? obj)
@@ -98,7 +98,7 @@ public class PlugInSource
     /// <summary>
     /// The default path where the default plug-in source is stored
     /// </summary>
-    public const string DefaultSourcePath = "/plugins";
+    public const string DefaultSourcePath = "https://raw.githubusercontent.com/pkhex-web/plugins-source-assets/main";
 
     /// <summary>
     /// This is PKHeX web default source of plugins
