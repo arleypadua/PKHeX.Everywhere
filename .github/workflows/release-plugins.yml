@@ -1,11 +1,12 @@
 name: Release plug-ins
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - 'src/PKHeX.Web.Plugins/**'
-      - 'src/PKHeX.Web.Plugins*/**'
+  # for now, no automated plug-in releases
+  # push:
+  #   branches: [ "main" ]
+  #   paths:
+  #     - 'src/PKHeX.Web.Plugins/**'
+  #     - 'src/PKHeX.Web.Plugins*/**'
       
   workflow_dispatch:
 
@@ -29,8 +30,14 @@ jobs:
         run: dotnet restore
       - name: Build
         run: |
+          # install pre-requisites
+          apt-get update
+          apt-get install libxml2-utils
+
+          # build all plug-ins
           chmod +x ./build-plugins.sh
-          ./build-plugins.sh    
+          ./build-plugins.sh
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -59,7 +66,7 @@ jobs:
 
       - name: Copy artifacts to Github pages repository
         run: |
-          cp -R plugins/* plugins-source-assets/
+          cp -R plugins/artifact-plugin-assets/* plugins-source-assets/
 
       - name: Commit and push new artifacts
         run: |
