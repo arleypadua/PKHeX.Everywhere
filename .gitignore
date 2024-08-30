@@ -402,3 +402,6 @@ FodyWeavers.xsd
 
 # IDEA / Rider stuff
 .idea/
+
+# PKHeX.Web
+plugins/
