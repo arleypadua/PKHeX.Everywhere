@@ -4,6 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <PackageId>PKHeX.Facade</PackageId>
+    <Description>A seamless facade to work with Pokemon save files based on PKHeX.Core.</Description>
+    <Authors>Arley Páudua</Authors>
+    <Company>Arley Páudua</Company>
+    <PackageProjectUrl>https://github.com/arleypadua/PKHeX.Everywhere</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/arleypadua/PKHeX.Everywhere?tab=MIT-1-ov-file#readme</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>pokemon;pkhex</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
