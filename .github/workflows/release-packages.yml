@@ -235,13 +235,11 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Get Package Version
+      - name: Build and pack PKHeX.Facade
         run: |
           pkhex_version=$(grep 'PackageReference Include="PKHeX.Core"' ./src/PKHeX.Facade/PKHeX.Facade.csproj \
             | sed -n 's/.*Version="\([^"]*\)".*/\1/p')
-
-      - name: Build and pack PKHeX.Facade
-        run: |
+          
           dotnet restore src/PKHeX.Facade
           dotnet build src/PKHeX.Facade -c Release --no-restore
           dotnet pack src/PKHeX.Facade/PKHeX.Facade.csproj -p:Version=$pkhex_version -c Release --no-build -o src/PKHeX.Facade/
@@ -249,6 +247,9 @@ jobs:
 
       - name: Build and pack PKHeX.Web.Plugins
         run: |
+          pkhex_version=$(grep 'PackageReference Include="PKHeX.Core"' ./src/PKHeX.Facade/PKHeX.Facade.csproj \
+            | sed -n 's/.*Version="\([^"]*\)".*/\1/p')
+          
           dotnet restore src/PKHeX.Web.Plugins
           dotnet build src/PKHeX.Web.Plugins -c Release --no-restore
           dotnet pack src/PKHeX.Web.Plugins/PKHeX.Web.Plugins.csproj -p:Version=$pkhex_version -c Release --no-build -o src/PKHeX.Web.Plugins/
