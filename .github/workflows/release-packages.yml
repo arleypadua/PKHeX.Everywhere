@@ -237,20 +237,18 @@ jobs:
 
       - name: Build and pack PKHeX.Facade
         run: |
-          pkhex_version=$(grep 'PackageReference Include="PKHeX.Core"' ./src/PKHeX.Facade/PKHeX.Facade.csproj \
-            | sed -n 's/.*Version="\([^"]*\)".*/\1/p')
+          version=${{ steps.fetch_parse_metadata.outputs.version }}
           
           dotnet restore src/PKHeX.Facade
           dotnet build src/PKHeX.Facade -c Release --no-restore
-          dotnet pack src/PKHeX.Facade/PKHeX.Facade.csproj -p:Version=$pkhex_version -c Release --no-build -o src/PKHeX.Facade/
+          dotnet pack src/PKHeX.Facade/PKHeX.Facade.csproj -p:Version=version -c Release --no-build -o src/PKHeX.Facade/
           dotnet nuget push src/PKHeX.Facade/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Build and pack PKHeX.Web.Plugins
         run: |
-          pkhex_version=$(grep 'PackageReference Include="PKHeX.Core"' ./src/PKHeX.Facade/PKHeX.Facade.csproj \
-            | sed -n 's/.*Version="\([^"]*\)".*/\1/p')
+          version=${{ steps.fetch_parse_metadata.outputs.version }}
           
           dotnet restore src/PKHeX.Web.Plugins
           dotnet build src/PKHeX.Web.Plugins -c Release --no-restore
-          dotnet pack src/PKHeX.Web.Plugins/PKHeX.Web.Plugins.csproj -p:Version=$pkhex_version -c Release --no-build -o src/PKHeX.Web.Plugins/
+          dotnet pack src/PKHeX.Web.Plugins/PKHeX.Web.Plugins.csproj -p:Version=version -c Release --no-build -o src/PKHeX.Web.Plugins/
           dotnet nuget push src/PKHeX.Web.Plugins/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
