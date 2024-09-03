@@ -239,9 +239,10 @@ jobs:
         run: |
           version=${{ steps.fetch_parse_metadata.outputs.version }}
           
-          dotnet restore src/PKHeX.Facade
-          dotnet build src/PKHeX.Facade -c Release --no-restore
-          dotnet pack src/PKHeX.Facade/PKHeX.Facade.csproj -p:Version=$version -c Release --no-build -o src/PKHeX.Facade/
+          chmod +x ./src/PKHeX.Facade/create-pack-project.sh
+          ./src/PKHeX.Facade/create-pack-project.sh
+          
+          dotnet pack src/PKHeX.Facade/PKHeX.Facade.nupkg.csproj -p:Version=$version -c Release -o src/PKHeX.Facade/
           dotnet nuget push src/PKHeX.Facade/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Build and pack PKHeX.Web.Plugins

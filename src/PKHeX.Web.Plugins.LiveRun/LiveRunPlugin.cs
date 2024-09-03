@@ -1,5 +1,3 @@
-using PKHeX.Core.AutoMod;
-
 namespace PKHeX.Web.Plugins.LiveRun;
 
 public class LiveRunPlugin : Settings
@@ -14,8 +12,7 @@ public class LiveRunPlugin : Settings
         this[GoldSilverCrystal] = new SettingValue.FileValue([], string.Empty);
         this[RubySapphire] = new SettingValue.FileValue([], string.Empty);
         
-        EnabledByDefault<GoToLiveRun>();
-    }
+        EnabledByDefault<GoToLiveRun>();    }
 
     private static readonly PlugInManifest PlugInManifest = new(
         "Live Run (Browser Emulator)", 
