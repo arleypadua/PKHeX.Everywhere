@@ -11,6 +11,6 @@ public class GoToLiveRun(
     
     public IDisable.DisableInfo DisabledInfo => gameProvider.GetDisabled(settings);
 
-    public Task<Outcome> OnActionRequested() => Outcome.Page("live-run", typeof(LiveRun), layout: Empty)
+    public Task<Outcome> OnActionRequested() => Outcome.Page<LiveRun>("live-run", layout: Empty)
         .Completed();
 }

@@ -27,6 +27,14 @@ public abstract class Outcome
         ComponentType = pageComponentType,
         Layout = layout,
     };
+    
+    public static PlugInPage Page<TPage>(string path, 
+        PlugInPage.PageLayout layout = PlugInPage.PageLayout.Standard) where TPage : PkHexWebPlugInComponent => new ()
+    {
+        Path = path, 
+        ComponentType = typeof(TPage),
+        Layout = layout,
+    };
 
     public class Notification : Outcome
     {
