@@ -9,7 +9,20 @@ public class Money
         _game = game;
     }
 
-    public uint Amount => _game.SaveFile.Money;
+    public uint Amount
+    {
+        get
+        {
+            try
+            {
+                return _game.SaveFile.Money;
+            }
+            catch
+            {
+                return 0u;
+            }
+        }
+    }
 
     public void Set(uint amount)
     {
