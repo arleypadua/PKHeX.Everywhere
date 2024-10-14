@@ -67,7 +67,12 @@ public class Pokemon(PKM pokemon, Game game)
     public PokemonMove Move2 => new(pokemon, PokemonMove.MoveIndex.Move2);
     public PokemonMove Move3 => new(pokemon, PokemonMove.MoveIndex.Move3);
     public PokemonMove Move4 => new(pokemon, PokemonMove.MoveIndex.Move4);
-    public Gender Gender => Gender.FromByte(pokemon.Gender);
+    public Gender Gender
+    {
+        get => Gender.FromByte(pokemon.Gender);
+        set => pokemon.SetGender(value.ToByte());
+    }
+
     public bool IsShiny => pokemon.IsShiny;
 
     public ItemDefinition HeldItem

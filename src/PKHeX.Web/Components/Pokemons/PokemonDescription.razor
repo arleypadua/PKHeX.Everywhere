@@ -1,5 +1,6 @@
 @using PKHeX.Core
 @using PKHeX.Facade.Repositories
+@using Gender = PKHeX.Facade.Gender
 
 <ResponsibleDescriptions
     Bordered
@@ -31,6 +32,11 @@
         <Text Editable EditConfig="_editableNickname">
             @(Pokemon.NicknameSet ? Pokemon.Nickname : "---")
         </Text>
+    </DescriptionsItem>
+    <DescriptionsItem Title="Gender">
+        <GenderSelector
+                Gender="@Pokemon.Gender"
+                OnGenderChanged="HandleGenderChanged"/>
     </DescriptionsItem>
     <DescriptionsItem Title="Shiny">
         <Switch Value="@Pokemon.IsShiny" OnChange="HandleShinyChange"/>
@@ -177,6 +183,12 @@
     {
         Pokemon.Species = definition;
         _editableNickname.Text = Pokemon.Nickname;
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleGenderChanged(Gender gender)
+    {
+        Pokemon.Gender = gender;
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 

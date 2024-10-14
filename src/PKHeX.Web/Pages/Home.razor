@@ -13,7 +13,11 @@
     <Descriptions Title="Trainer" Bordered Column="@ThemeService.ColumnsConfiguration" Size="small">
         <DescriptionsItem Title="TID/SID">@_game.Trainer.Id</DescriptionsItem>
         <DescriptionsItem Title="Name">@_game.Trainer.Name</DescriptionsItem>
-        <DescriptionsItem Title="Gender">@_game.Trainer.Gender.Symbol</DescriptionsItem>
+        <DescriptionsItem Title="Gender">
+           <GenderSelector
+                Gender="@_game.Trainer.Gender"
+                OnGenderChanged="HandleGenderChanged"/>
+        </DescriptionsItem>
         <DescriptionsItem Title="Cash">
             <AntDesign.InputNumber
                 TValue="uint"
@@ -107,5 +111,12 @@
             _quickActionsFailure = e;
         }
     }
+    
+    private Task HandleGenderChanged(Gender gender)
+    {
+        if (_game is null) return Task.CompletedTask;
+        _game.Trainer.Gender = gender;
 
+        return Task.CompletedTask;
+    }
 }

@@ -21,7 +21,12 @@ public class Trainer
 
     public EntityId Id { get; }
     public string Name => _game.SaveFile.OT;
-    public Gender Gender => Gender.FromByte(_game.SaveFile.Gender);
+    public Gender Gender
+    {
+        get => Gender.FromByte(_game.SaveFile.Gender);
+        set => _game.SaveFile.Gender = value.ToByte();
+    }
+
     public Money Money { get; }
     public Inventories Inventories { get; private set; }
     public PokemonParty Party { get; private set; }
