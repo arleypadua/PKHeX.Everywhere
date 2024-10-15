@@ -17,6 +17,8 @@ public class AbilityRepository
     
     public AbilityDefinition Get(int id) => _abilities.GetValueOrDefault(id)
         ?? AbilityDefinition.None;
+    
+    public List<AbilityDefinition> All => _abilities.Values.ToList();
 }
 
 public record AbilityDefinition(int Id, string Name)

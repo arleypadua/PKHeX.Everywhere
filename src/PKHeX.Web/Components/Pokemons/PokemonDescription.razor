@@ -71,7 +71,10 @@
             SelectedItemChanged="HandleHeldItemChanged"/>
     </DescriptionsItem>
     <DescriptionsItem Title="Ability">
-        @Pokemon.Ability.Name
+        <AbilitySelect
+            SelectedAbilityId="Pokemon.Ability.Id"
+            SelectedAbilityChanged="HandleAbilityChanged"
+        />
     </DescriptionsItem>
     <DescriptionsItem>
         <TitleTemplate>
@@ -189,6 +192,12 @@
     private Task HandleGenderChanged(Gender gender)
     {
         Pokemon.Gender = gender;
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleAbilityChanged(AbilityDefinition ability)
+    {
+        Pokemon.Ability = ability;
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 

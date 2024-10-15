@@ -1,0 +1,47 @@
+@using PKHeX.Facade.Repositories
+
+<Select TItem="AbilityDefinition"
+        TItemValue="int?"
+        DataSource="@_items"
+        @bind-Value="@SelectedAbilityId"
+        OnSelectedItemChanged="SelectedAbilityChangedInternal"
+        LabelName="@nameof(AbilityDefinition.Name)"
+        ValueName="@nameof(AbilityDefinition.Id)"
+        Placeholder="Form"
+        DefaultActiveFirstOption="false"
+        EnableSearch
+        EnableVirtualization>
+    <LabelTemplate>
+        @context.Name
+    </LabelTemplate>
+    <ItemTemplate>
+        @context.Name
+    </ItemTemplate>
+</Select>
+
+@code {
+    [Parameter] public int? SelectedAbilityId { get; set; }
+    [Parameter] public EventCallback<AbilityDefinition> SelectedAbilityChanged { get; set; }
+    [Parameter] public bool IgnoreRenderingEvents { get; set; }
+    
+    private bool _dataSourceJustLoaded = true;
+
+    private readonly IEnumerable<AbilityDefinition> _items = AbilityRepository.Instance.All;
+
+    private Task SelectedAbilityChangedInternal(AbilityDefinition arg)
+    {
+        if (_dataSourceJustLoaded)
+        {
+            _dataSourceJustLoaded = false;
+            return Task.CompletedTask;
+        }
+        
+        return SelectedAbilityChanged.InvokeAsync(arg);
+    }
+
+    protected override void OnInitialized()
+    {
+        _dataSourceJustLoaded = IgnoreRenderingEvents;
+    }
+
+}
