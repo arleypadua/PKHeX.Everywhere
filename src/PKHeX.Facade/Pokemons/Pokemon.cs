@@ -81,7 +81,11 @@ public class Pokemon(PKM pokemon, Game game)
         set => pokemon.HeldItem = value.Id;
     }
 
-    public AbilityDefinition Ability => AbilityRepository.Instance.Get(pokemon.Ability);
+    public AbilityDefinition Ability
+    {
+        get => AbilityRepository.Instance.Get(pokemon.Ability);
+        set => pokemon.Ability = value.Id;
+    }
 
     public int Friendship
     {
