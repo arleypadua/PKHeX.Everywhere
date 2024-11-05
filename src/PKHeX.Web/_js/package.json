@@ -1,0 +1,22 @@
+{
+  "name": "pkhex-web-js-assets",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build:watch": "vite build --watch",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/blazor__javascript-interop": "^3.1.7",
+    "@types/crypto-js": "^4.2.2",
+    "typescript": "~5.6.2",
+    "vite": "^5.4.10"
+  },
+  "dependencies": {
+    "crypto-js": "^4.2.0",
+    "firebase": "^11.0.1"
+  }
+}

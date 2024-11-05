@@ -60,4 +60,8 @@
       <_ContentIncludedByDefault Remove="wwwroot\plugins\PKHeX.Web.Plugins.Nuzlocking\1.1.0\PKHeX.Web.Plugins.Nuzlocking.dll" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Include="wwwroot\js\.gitignore" />
+    </ItemGroup>
+
 </Project>

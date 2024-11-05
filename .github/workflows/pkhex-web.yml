@@ -21,10 +21,30 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
+          
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install NPM dependencies and build
+        run: |
+          cd src/PKHeX.Web/_js
+          
+          echo "VITE_FIREBASE_PROJECT_NAME=${{ secrets.FIREBASE_PROJECT_NAME }}"
+          echo "VITE_FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> .env
+          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "VITE_FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}" >> .env
+          
+          npm ci
+          npm run build
+          
+          cd ../../../
+          
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
