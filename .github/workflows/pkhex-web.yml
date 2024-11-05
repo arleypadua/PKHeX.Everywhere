@@ -35,7 +35,7 @@ jobs:
         run: |
           cd src/PKHeX.Web/_js
           
-          echo "VITE_FIREBASE_PROJECT_NAME=${{ secrets.FIREBASE_PROJECT_NAME }}"
+          echo "VITE_FIREBASE_PROJECT_NAME=${{ secrets.FIREBASE_PROJECT_NAME }}" >> .env
           echo "VITE_FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> .env
           echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}" >> .env
           echo "VITE_FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}" >> .env
