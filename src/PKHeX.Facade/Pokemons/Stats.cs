@@ -2,10 +2,19 @@ using PKHeX.Core;
 
 namespace PKHeX.Facade.Pokemons;
 
-public record Stats(PKM Pokemon, Stats.StatsType Type)
+/// <summary>
+/// Represents the stats of a Pokemon
+/// </summary>
+/// <param name="Pokemon">The Pokemon in which we are seeing the statuses</param>
+/// <param name="Type">Type of status</param>
+/// <param name="VirtualStats">
+/// Sometimes stats are not persisted in the save file, but can be calculated at runtime.
+/// When that's the case, it is a virtual stats, and any changes won't take effect
+/// </param>
+public record Stats(PKM Pokemon, Stats.StatsType Type, bool VirtualStats = false)
 {
     private IAwakened? _awakened => Pokemon is IAwakened awakened ? awakened : null;
-    
+
     public int Attack
     {
         get => Type switch
@@ -155,8 +164,20 @@ public record Stats(PKM Pokemon, Stats.StatsType Type)
         AV,
     }
 
-    public static Stats EvFrom(PKM pokemon) => new (pokemon, StatsType.EV);
-    public static Stats IvFrom(PKM pokemon) => new (pokemon, StatsType.IV);
-    public static Stats AvFrom(PKM pokemon) => new (pokemon, StatsType.AV);
-    public static Stats BaseFrom(PKM pokemon) => new (pokemon, StatsType.Base);
+    public static Stats EvFrom(PKM pokemon) => new(pokemon, StatsType.EV);
+    public static Stats IvFrom(PKM pokemon) => new(pokemon, StatsType.IV);
+    public static Stats AvFrom(PKM pokemon) => new(pokemon, StatsType.AV);
+
+    public static Stats BaseFrom(PKM pokemon)
+    {
+        var virtualStats = !pokemon.PartyStatsPresent;
+        if (virtualStats)
+        {
+            var pokemonToBeUsed = pokemon.Clone();
+            pokemonToBeUsed.ResetPartyStats();
+            return new Stats(pokemonToBeUsed, StatsType.Base, true);
+        }
+
+        return new Stats(pokemon, StatsType.Base, virtualStats);
+    }
 }

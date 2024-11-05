@@ -10,7 +10,7 @@
     {
         <ResponsibleDescriptions Bordered Title="@description.Key" Size="small" Style="width: 100%">
             <DescriptionsItem Title="Base">
-                @InputFor(@description.Value.GetBase, @description.Value.SetBase, @description.Value.ReadOnly)
+                @InputFor(@description.Value.GetBase, @description.Value.SetBase, @description.Value.ReadOnly || @description.Value.GetIsBaseVirtual())
             </DescriptionsItem>
             <DescriptionsItem Title="IV">
                 @InputFor(@description.Value.GetIv, @description.Value.SetIv, @description.Value.ReadOnly)
@@ -124,6 +124,8 @@
         public void SetIv(int value) => Property.SetValue(Pokemon.IVs, value);
         public void SetEv(int value) => Property.SetValue(Pokemon.EVs, value);
         public void SetAv(int value) => Property.SetValue(Pokemon.AVs, value);
+
+        public bool GetIsBaseVirtual() => Pokemon.BaseStats.VirtualStats;
     };
 
     private PropertyInfo _attack = typeof(Stats).GetProperty(nameof(Stats.Attack))!;
