@@ -1,0 +1,173 @@
+@using PKHeX.Web.BackendApi
+@using PKHeX.Web.BackendApi.Representation
+@implements IDisposable
+@inject SyncPokemonWorker SyncWorker
+@inject SyncPokemonQueue SyncQueue
+@inject SyncedPokemonRepository SyncedPokemonRepository
+@inject MyPokemonRepository MyPokemonRepository
+@inject NavigationManager Navigation
+
+<Space Style="width: 100%; gap: 10px;" Direction="DirectionVHType.Vertical">
+    <ResponsibleDescriptions Bordered Size="small" Style="width: 100%">
+        <DescriptionsItem Title="Synced">
+            <Switch
+                Checked="@_isSynced"
+                Loading="@_isSyncing"
+                Control
+                OnClick="HandleSyncClick">
+                <CheckedChildrenTemplate>
+                    <Icon Type="cloud"></Icon>
+                </CheckedChildrenTemplate>
+                <UnCheckedChildrenTemplate>
+                    <Icon Type="disconnect"></Icon>
+                </UnCheckedChildrenTemplate>
+            </Switch>
+        </DescriptionsItem>
+
+        <DescriptionsItem Title="Public">
+            <Switch
+                Checked="@(_syncedMetadata?.IsPublic ?? false)"
+                Disabled="@(!_isSynced)"
+                OnChange="HandlePublicClick">
+                <CheckedChildrenTemplate>
+                    <Icon Type="eye"></Icon>
+                </CheckedChildrenTemplate>
+                <UnCheckedChildrenTemplate>
+                    <Icon Type="eye-invisible"></Icon>
+                </UnCheckedChildrenTemplate>
+            </Switch>
+        </DescriptionsItem>
+
+        <DescriptionsItem Title="Allow Download">
+            <Switch
+                Checked="@(_syncedMetadata?.AllowDownload ?? false)"
+                Disabled="@(!_syncedMetadata?.IsPublic ?? true)"
+                OnChange="HandleAllowDownloadClick">
+                <CheckedChildrenTemplate>
+                    <Icon Type="cloud-download"></Icon>
+                </CheckedChildrenTemplate>
+            </Switch>
+
+        </DescriptionsItem>
+    </ResponsibleDescriptions>
+
+    @if (_isSynced && _syncedMetadata is not null && _syncedMetadata.IsPublic)
+    {
+        var link = _syncedMetadata.GetShareUrl(Navigation.BaseUri);
+        var message = _syncedMetadata.AllowDownload
+            ? "Your Pokemon is public and can be downloaded by others."
+            : "Your Pokemon is public but cannot be downloaded by others.";
+        <Alert
+            Type="@AlertType.Info"
+            ShowIcon="true">
+            <Paragraph>
+                @message
+            </Paragraph>
+            <Paragraph>
+                @{ var copyConfig = new TypographyCopyableConfig { Text = link }; }
+                <Text
+                    Copyable
+                    CopyConfig="copyConfig">
+                    <a href="@link"
+                       target="_blank">
+                        @link
+                    </a>
+                </Text>
+            </Paragraph>
+        </Alert>
+    }
+</Space>
+
+@code {
+    [Parameter] public required Pokemon Pokemon { get; set; }
+
+    private bool _isSyncing;
+    private bool _isSynced;
+
+    private PokemonMetadataRepresentation? _syncedMetadata;
+
+    private bool _hasBeenRemoved;
+
+    protected override async Task OnInitializedAsync()
+    {
+        SyncPokemonWorker.PokemonUploaded += HandlePokemonUploaded;
+        SetSyncingStatuses();
+
+        if (_isSynced)
+        {
+            _syncedMetadata = await MyPokemonRepository.GetByLocalId(Pokemon.GetLocalSyncId());
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleSyncClick(object arg)
+    {
+        if (!_isSynced)
+        {
+            SyncQueue.Enqueue(Pokemon);
+        }
+        else
+        {
+            await MyPokemonRepository.RemoveByLocalId(Pokemon.GetLocalSyncId());
+            _hasBeenRemoved = true;
+        }
+
+        SetSyncingStatuses();
+
+        StateHasChanged();
+    }
+
+    private async Task HandlePublicClick(bool isShared)
+    {
+        if (_syncedMetadata is null) return;
+
+        await MyPokemonRepository.Share(_syncedMetadata.Id, isShared);
+
+        await RefreshMetadata();
+    }
+
+    private async Task HandleAllowDownloadClick(bool isAllowed)
+    {
+        if (_syncedMetadata is null) return;
+
+        await MyPokemonRepository.AllowDownload(_syncedMetadata.Id, isAllowed);
+
+        await RefreshMetadata();
+    }
+
+    private Task HandlePokemonUploaded(PokemonUploadedArgs arg)
+    {
+        if (arg.Pokemon.GetLocalSyncId() != Pokemon.GetLocalSyncId()) return Task.CompletedTask;
+
+        _syncedMetadata = arg.Metadata;
+        _hasBeenRemoved = false;
+
+        SetSyncingStatuses();
+
+        StateHasChanged();
+
+        return Task.CompletedTask;
+    }
+
+    private void SetSyncingStatuses()
+    {
+        _isSynced = SyncedPokemonRepository.IsSynced(Pokemon);
+        _isSyncing = SyncQueue.IsEnqueued(Pokemon)
+                     || SyncWorker.PokemonSyncing?.GetLocalSyncId() == Pokemon.GetLocalSyncId();
+    }
+
+    private async Task RefreshMetadata()
+    {
+        if (_isSynced)
+        {
+            _syncedMetadata = await MyPokemonRepository.GetByLocalId(Pokemon.GetLocalSyncId());
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        SyncPokemonWorker.PokemonUploaded -= HandlePokemonUploaded;
+    }
+
+}

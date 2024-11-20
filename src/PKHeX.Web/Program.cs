@@ -5,8 +5,11 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PKHeX.Core;
+using PKHeX.Web.BackendApi;
+using PKHeX.Web.Extensions;
 using PKHeX.Web.Services;
 using PKHeX.Web.Services.AnalyticsResults;
+using PKHeX.Web.Services.Auth;
 using PKHeX.Web.Services.GeneralSettings;
 using PKHeX.Web.Services.Plugins;
 using Sentry.Extensions.Logging;
@@ -15,10 +18,35 @@ using TG.Blazor.IndexedDB;
 using App = PKHeX.Web.App;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.HostEnvironment.Environment}.json", optional: true, reloadOnChange: true);
+
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddHttpClient("BackendApi", client =>
+    {
+        var configuration = builder.Configuration.GetBackendApiOptions();
+        if (!string.IsNullOrWhiteSpace(configuration.BaseUri))
+        {
+            client.BaseAddress = new Uri(configuration.BaseUri);
+        }
+    })
+    .AddHttpMessageHandler<BackendApiAuthHandler>();
+
+builder.Services.AddHttpClient("BackendApi.Anonymous", client =>
+{
+    var configuration = builder.Configuration.GetBackendApiOptions();
+    if (!string.IsNullOrWhiteSpace(configuration.BaseUri))
+    {
+        client.BaseAddress = new Uri(configuration.BaseUri);
+    }
+});
+
+builder.Services.AddScoped<BackendApiAuthHandler>();
+
 builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<EncounterService>();
 builder.Services.AddScoped<LoadPokemonService>();
@@ -41,9 +69,16 @@ builder.Services.AddScoped<JsService>();
 builder.Services.AddScoped<AntdThemeService>();
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddScoped<BrowserWindowService.Instance>();
+builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddScoped<BlazorAesProvider>();
 builder.Services.AddScoped<BlazorMd5Provider>();
+
+builder.Services.AddScoped<SyncPokemonQueue>();
+builder.Services.AddScoped<MyPokemonRepository>();
+builder.Services.AddScoped<PublicPokemonRepository>();
+builder.Services.AddScoped<SyncedPokemonRepository>();
+builder.Services.AddScoped<SyncPokemonWorker>();
 
 builder.Services.AddAntDesign();
 builder.Services.AddGoogleAnalytics("G-BV586KEZM9");
@@ -62,7 +97,7 @@ builder.Services.AddIndexedDB(store =>
 {
     store.DbName = "pkhex-web-db";
     store.Version = 1;
-    
+
     store.Stores.Add(PlugInFilesRepository.Schema);
 });
 
@@ -117,5 +152,7 @@ app.Services.GetRequiredService<IAnalytics>()
 
 await app.Services.GetRequiredService<PlugInLocalStorageLoader>()
     .InitializePlugIns();
+
+app.Services.GetRequiredService<SyncPokemonWorker>().Start();
 
 await app.RunAsync();

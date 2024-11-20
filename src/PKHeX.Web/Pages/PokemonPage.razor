@@ -7,11 +7,12 @@
 {
     <Space Style="width: 100%; gap: 20px;" Direction="DirectionVHType.Vertical">
         <PokemonEdit
-            Pokemon="_editingPokemon"/>
+            Pokemon="_editingPokemon"
+            ShowCloudTab />
 
-        <Space Align="end" Style="width: 100%" Direction="DirectionVHType.Vertical">
+        <Space Align="end" Style="width: 100%; align-items: center; justify-content: end; gap:  10px;" Direction="DirectionVHType.Horizontal">
             @{ var actions = PlugInRegistry.GetAllEnabledHooks<IPokemonEditAction>().ToList(); }
-            
+
             <DropdownButton
                 Type="@ButtonType.Primary"
                 OnClick="HandleSaveClick">
@@ -127,5 +128,4 @@
         var memoryStream = new MemoryStream(file.Bytes);
         await Js.DownloadFile(memoryStream, file.Name);
     }
-
 }

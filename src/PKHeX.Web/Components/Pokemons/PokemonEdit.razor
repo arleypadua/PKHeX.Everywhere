@@ -38,6 +38,14 @@
                 Pokemon="Pokemon"
                 OnPokemonChanged="HandlePokemonChange"/>
         </TabPane>
+        
+        @if (ShowCloudTab)
+        {
+            <TabPane Tab="Cloud" Key="Cloud">
+                <PokemonOnCloud
+                    Pokemon="Pokemon" />
+            </TabPane>
+        }
     </Tabs>
 </Space>
 
@@ -46,6 +54,8 @@
     
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> PokemonChanged { get; set; }
+
+    [Parameter] public bool ShowCloudTab { get; set; } = false;
 
     private string _activeTab = default!;
     private PokemonLegalityBanner _legalityBanner = default!;

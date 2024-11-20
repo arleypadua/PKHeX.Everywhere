@@ -1,5 +1,4 @@
 import {FirebaseOptions} from "@firebase/app";
-import {UserCredential} from "@firebase/auth";
 
 import { initializeApp } from 'firebase/app'
 import { getAuth, signInAnonymously } from 'firebase/auth'
@@ -20,16 +19,12 @@ export async function initFirebase() {
     
     const app = initializeApp(config)
     const auth = getAuth(app)
+
+    window.getAuthToken = async () => {
+        const user = auth.currentUser
+        if (!user) throw new Error('No user found')
+        return await user.getIdToken()
+    }
     
-    await signInAnonymously(auth)
-        .then(handleAnonymousSignIn)
-        .catch(handleAnonymousSignInError);
-
-    function handleAnonymousSignIn(credential: UserCredential) {
-        console.log(credential);
-    }
-
-    function handleAnonymousSignInError(error: any) {
-        console.log(error);
-    }
+    await signInAnonymously(auth);
 }

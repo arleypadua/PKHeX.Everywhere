@@ -15,5 +15,8 @@ declare global {
         // ui
         getWidth: () => number;
         hasPreferenceForDarkTheme: () => boolean;
+        
+        // firebase
+        getAuthToken: () => Promise<string>;
     }
 }

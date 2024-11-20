@@ -57,6 +57,9 @@ public static class NavigationManagerExtensions
     
     public static void NavigateToSettings(this NavigationManager navigation) =>
         navigation.NavigateTo($"/settings");
+
+    public static void NavigateToSharedPokemon(this NavigationManager navigation, Guid id) =>
+        navigation.NavigateTo($"/s/{id}");
     
     public static void StoreOnQuery(this NavigationManager navigation, Dictionary<string, object?> parameters)
     {

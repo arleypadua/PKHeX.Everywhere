@@ -9,6 +9,7 @@
         ValueName="@nameof(AbilityDefinition.Id)"
         Placeholder="Form"
         DefaultActiveFirstOption="false"
+        Disabled="Disabled"
         EnableSearch
         EnableVirtualization>
     <LabelTemplate>
@@ -23,6 +24,8 @@
     [Parameter] public int? SelectedAbilityId { get; set; }
     [Parameter] public EventCallback<AbilityDefinition> SelectedAbilityChanged { get; set; }
     [Parameter] public bool IgnoreRenderingEvents { get; set; }
+    
+    [Parameter] public bool Disabled { get; set; }
     
     private bool _dataSourceJustLoaded = true;
 

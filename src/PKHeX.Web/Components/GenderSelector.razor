@@ -1,4 +1,4 @@
-<RadioGroup Value="Gender" ValueChanged="OnGenderChanged" ButtonStyle="@RadioButtonStyle.Solid">
+<RadioGroup Value="Gender" ValueChanged="OnGenderChanged" ButtonStyle="@RadioButtonStyle.Solid" Disabled="Disabled">
     <Radio RadioButton Class="gender_selector__male" Value="@(Gender.Male)">@Gender.Male.Symbol</Radio>
     <Radio RadioButton Class="gender_selector__female" Value="@(Gender.Female)">@Gender.Female.Symbol</Radio>
     @if (Genderless)
@@ -10,6 +10,8 @@
 @code {
     [Parameter] public required Gender Gender { get; set; } = Gender.Male;
     [Parameter] public EventCallback<Gender> OnGenderChanged { get; set; }
+
+    [Parameter] public bool Disabled { get; set; }
     
     [Parameter] public bool Genderless { get; set; }
 
