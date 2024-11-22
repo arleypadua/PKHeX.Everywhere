@@ -51,6 +51,19 @@ jobs:
         run: dotnet build --no-restore
       - name: Test
         run: dotnet test --no-build --verbosity normal
+      - name: Modify appsettings.json
+        run: |
+          APPSETTINGS_FILE="src/PKHeX.Web/wwwroot/appsettings.Production.json"
+          
+          if [ ! -f "$APPSETTINGS_FILE" ]; then
+            echo "{}" > "$APPSETTINGS_FILE"
+          fi
+          
+          jq '
+            .BackendApi.Enabled = ${{ vars.BACKEND_API_ENABLED }} | 
+            .BackendApi.BaseUri = "${{ vars.BACKEND_API_BASE_URI }}"
+          ' "$APPSETTINGS_FILE" > tmp.json && mv tmp.json "$APPSETTINGS_FILE"
+          
       - name: Publish
         run: dotnet publish ./src/PKHeX.Web/PKHeX.Web.csproj -c Release -o ./src/PKHeX.Web/bin/pkhex-web-publish
       - name: Upload artifacts

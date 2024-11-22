@@ -1,5 +1,6 @@
 @using PKHeX.Web.Plugins
 @using PKHeX.Web.Services.Plugins
+@inject IConfiguration Configuration
 
 <Space Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
     <PageHeader BackIcon="true" Style="max-width: 100%">
@@ -39,7 +40,7 @@
                 OnPokemonChanged="HandlePokemonChange"/>
         </TabPane>
         
-        @if (ShowCloudTab)
+        @if (ShowCloudTab && Configuration.GetBackendApiOptions().Enabled)
         {
             <TabPane Tab="Cloud" Key="Cloud">
                 <PokemonOnCloud
