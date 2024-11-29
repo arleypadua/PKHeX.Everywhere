@@ -64,6 +64,7 @@ builder.Services.AddScoped<PlugInSourceLocalStorage>();
 builder.Services.AddScoped<PlugInPageRegistry>();
 builder.Services.AddScoped<PlugInFilesRepository>();
 
+builder.Services.AddScoped<UserJourneyService>();
 builder.Services.AddScoped<GeneralSettingsService>();
 builder.Services.AddScoped<AnalyticsService>();
 builder.Services.AddScoped<JsService>();

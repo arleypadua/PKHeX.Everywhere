@@ -1,12 +1,10 @@
 ﻿@page "/"
 @using PKHeX.Web.Plugins
-@using PKHeX.Web.Services.Auth
 @using PKHeX.Web.Services.Plugins
 @inject GameService GameService
 @inject AntdThemeService ThemeService
 @inject PlugInRegistry PlugInRegistry
 @inject PlugInRuntime PlugInRuntime
-@inject AuthService Auth
 
 <PageTitle>Home</PageTitle>
 
@@ -75,16 +73,6 @@
 
     private RenderFragment RenderActionButton(IQuickAction action)
     {
-        @* var button = @<Button *@
-        @*                   Type="@ButtonType.Link" *@
-        @*                   OnClick="@(() => HandleActionButtonClick(action))" *@
-        @*                   Disabled="@action.DisabledInfo.Disabled"> *@
-        @*                  @action.Label *@
-        @*              </Button>; *@
-        @* *@
-        @* return action.DisabledInfo.Disabled && !string.IsNullOrWhiteSpace(action.DisabledInfo.Reason) *@
-        @*     ? @<Tooltip Title="@action.DisabledInfo.Reason">@button</Tooltip> *@
-        @*     : button; *@
         if (action.DisabledInfo.Disabled && !string.IsNullOrWhiteSpace(action.DisabledInfo.Reason))
         {
             return @<Tooltip Title="@action.DisabledInfo.Reason">
