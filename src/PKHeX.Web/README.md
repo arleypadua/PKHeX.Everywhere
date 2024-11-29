@@ -7,5 +7,12 @@ A proof-of-concept with Blazor WASM
 The best way to run so far is by running:
 
 ```bash
-dotnet watch run --project ./src/PKHeX.Web --no-hot-reload
+# build/watch the js project at src/PKHeX.Web/_js
+cd _js
+npm run build:watch
+```
+
+```bash
+# run the dotnet Blazor project at the root
+dotnet watch run --project ./ --no-hot-reload
 ```
