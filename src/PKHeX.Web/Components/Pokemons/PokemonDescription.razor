@@ -1,6 +1,7 @@
 @using PKHeX.Core
 @using PKHeX.Facade.Repositories
 @using Gender = PKHeX.Facade.Gender
+@inject INotificationService Notification
 
 <ResponsibleDescriptions
     Bordered
@@ -172,7 +173,16 @@
 
     private Task HandleNatureChanged(Nature nature)
     {
-        Pokemon.Natures.ChangeAll(nature);
+        var changed = Pokemon.Natures.ChangeAll(nature);
+        if (!changed)
+        {
+            _ = Notification.Open(new()
+            {
+                Message = $"Pokemon {Pokemon.Version.Name} does not support change of nature, as it is based on the PID.",
+                NotificationType = NotificationType.Error,
+            });
+        }
+
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 

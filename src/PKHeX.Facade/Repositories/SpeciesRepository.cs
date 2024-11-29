@@ -38,6 +38,13 @@ public class SpeciesRepository
         .ToImmutableDictionary(
             k => (Species)k.Value,
             v => new SpeciesDefinition((Species)v.Value, v.Text));
+    
+    public static IImmutableList<SpeciesDefinition> GetEvolutionsFrom(Species species, EntityContext generation, byte form = 0) =>
+        EvolutionTree
+            .GetEvolutionTree(generation)
+            .GetEvolutionsAndPreEvolutions((ushort)species, form)
+            .Select(result => All[(Species)result.Species])
+            .ToImmutableList();
 }
 
 public record SpeciesDefinition(Species Species, string Name)

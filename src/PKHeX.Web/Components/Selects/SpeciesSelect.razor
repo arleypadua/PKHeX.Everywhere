@@ -63,14 +63,14 @@
 
     protected override void OnInitialized()
     {
-        if (!GameService.IsLoaded) return;
-
         _species = (Source switch
         {
             DataSource.All => SpeciesRepository.All.Values,
             DataSource.CurrentGame => GameService.LoadedGame.SpeciesRepository.AllGameSpecies,
             DataSource.OnlySpeciesChain => SelectedSpecies is not null
-                ? GameService.LoadedGame.SpeciesRepository.GetEvolutionsFrom(SelectedSpecies)
+                ? GameService.IsLoaded
+                    ? GameService.LoadedGame.SpeciesRepository.GetEvolutionsFrom(SelectedSpecies) // Use the loaded game species repository
+                    : SpeciesRepository.GetEvolutionsFrom(SelectedSpecies.Species, EntityContext.Gen9) // assumes last gen
                 : throw new ArgumentException("Selected species is required when OnlySpeciesChain DataSource is used", nameof(SelectedSpecies)),
             _ => SpeciesRepository.All.Values
         }).Where(SpeciesDefinition.IsSome).ToList();

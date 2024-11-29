@@ -24,6 +24,8 @@ public class Pokemon(PKM pokemon, Game game)
     public Owner Owner => new(pokemon);
     
     public uint PID => Pkm.PID;
+    
+    public GameVersionDefinition Version => GameVersionRepository.Instance.Get(Pkm.Version);
 
     public SpeciesDefinition Species
     {
