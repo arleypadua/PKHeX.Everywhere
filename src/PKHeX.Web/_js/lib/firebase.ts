@@ -13,9 +13,10 @@ const config: FirebaseOptions = {
 }
 
 export function initFirebase() {
-    if (import.meta.env.VITE_FIREBASE_ENABLED !== 'true') {
-        return    
-    }
+    // disabled for now
+    // if (import.meta.env.VITE_FIREBASE_ENABLED !== 'true') {
+    //     return    
+    // }
     
     const app = initializeApp(config)
     const auth = getAuth(app)
