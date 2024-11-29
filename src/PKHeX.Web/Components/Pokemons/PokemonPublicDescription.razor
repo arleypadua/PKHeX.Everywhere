@@ -1,5 +1,7 @@
+@using PKHeX.Core
 @using PKHeX.Facade.Repositories
 @using PKHeX.Web.BackendApi.Representation
+@using Gender = PKHeX.Facade.Gender
 
 <Space Style="gap: 20px; width: 100%" Direction="DirectionVHType.Vertical" Wrap>
     <ResponsibleDescriptions
@@ -10,6 +12,17 @@
             @_species.Name
         </DescriptionsItem>
 
+        <DescriptionsItem Title="Types">
+            <PokemonTypeImage Types="Pokemon.Types.Tuple" Index="PokemonTypeImage.TypeIndex.Primary"/>
+
+            @if (Pokemon.Types.Type1 != Pokemon.Types.Type2)
+            {
+                <PokemonTypeImage Types="Pokemon.Types.Tuple" Index="PokemonTypeImage.TypeIndex.Secondary"/>
+            }
+        </DescriptionsItem>
+        <DescriptionsItem Title="PID">
+            (hidden)
+        </DescriptionsItem>
         <DescriptionsItem Title="Nickname">
             @Pokemon.Nickname
         </DescriptionsItem>
@@ -29,10 +42,8 @@
                 SelectedNature="Pokemon.Nature"
                 Disabled/>
         </DescriptionsItem>
-        <DescriptionsItem Title="Ability">
-            <AbilitySelect
-                SelectedAbilityId="_ability.Id"
-                Disabled/>
+        <DescriptionsItem Title="Form">
+            @_form?.Name
         </DescriptionsItem>
         @if (_heldItem is not null)
         {
@@ -40,6 +51,12 @@
                 @_heldItem.Name
             </DescriptionsItem>
         }
+        <DescriptionsItem Title="Ability">
+            <AbilitySelect
+                SelectedAbilityId="_ability.Id"
+                Disabled/>
+        </DescriptionsItem>
+
     </ResponsibleDescriptions>
 
     <AntList Grid="_grid" DataSource="@Pokemon.Moves">
@@ -56,6 +73,7 @@
     private Gender _gender = default!;
     private ItemDefinition? _heldItem;
     private AbilityDefinition _ability = default!;
+    private FormDefinition? _form;
 
     private ListGridType _grid = new() { Gutter = 16, Column = 4 };
 
@@ -67,5 +85,9 @@
         _heldItem = Pokemon.HeldItem is null
             ? null
             : ItemRepository.GetItem(Pokemon.HeldItem.Id);
+
+        var forms = FormRepository.GetFor(Pokemon.Species, Pokemon.Generation);
+        _form = forms.FirstOrDefault(f => f.Id == Pokemon.Form.Id);
     }
+
 }

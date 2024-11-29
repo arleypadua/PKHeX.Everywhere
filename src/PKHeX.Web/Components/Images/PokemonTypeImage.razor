@@ -1,7 +1,7 @@
 <Image Src="@ContentUrl()" Style="width: 75px" Preview="false"></Image>
 
 @code {
-    [Parameter] public required PokemonTypes Types { get; set; }
+    [Parameter] public required (int Type1, int Type2) Types { get; set; }
     [Parameter] public required TypeIndex Index { get; set; }
 
     private string ContentUrl() => Index switch

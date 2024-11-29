@@ -18,10 +18,10 @@
 
     <DescriptionsItem Title="Types">
         <Space Style="gap: 5px" Direction="DirectionVHType.Vertical" Wrap>
-            <PokemonTypeImage Types="Pokemon.Types" Index="PokemonTypeImage.TypeIndex.Primary"/>
+            <PokemonTypeImage Types="Pokemon.Types.Tuple" Index="PokemonTypeImage.TypeIndex.Primary"/>
             @if (Pokemon.Types.HasSecondary)
             {
-                <PokemonTypeImage Types="Pokemon.Types" Index="PokemonTypeImage.TypeIndex.Secondary"/>
+                <PokemonTypeImage Types="Pokemon.Types.Tuple" Index="PokemonTypeImage.TypeIndex.Secondary"/>
             }
         </Space>
     </DescriptionsItem>
