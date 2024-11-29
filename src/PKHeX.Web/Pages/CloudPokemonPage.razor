@@ -1,0 +1,126 @@
+@page "/cloud/pokemon/{Id}"
+@using PKHeX.Web.BackendApi
+@using PKHeX.Web.BackendApi.Repositories
+@using PKHeX.Web.Plugins
+@using PKHeX.Web.Services.Auth
+@using PKHeX.Web.Services.Plugins
+@inject AuthService Auth
+@inject NavigationManager Navigation
+@inject GameService GameService
+@inject LocalSyncedPokemonRepository LocalSyncedPokemonRepository
+
+@if (_editingPokemon is not null)
+{
+    <Space Style="width: 100%; gap: 20px;" Direction="DirectionVHType.Vertical">
+        <PokemonEdit
+            Pokemon="_editingPokemon"
+            CloudId="_id"
+            ShowCloudTab />
+
+        <Space Align="end" Style="width: 100%; align-items: center; justify-content: end; gap:  10px;" Direction="DirectionVHType.Horizontal">
+            @{ var actions = PlugInRegistry.GetAllEnabledHooks<IPokemonEditAction>().ToList(); }
+
+            <DropdownButton
+                Type="@ButtonType.Primary"
+                OnClick="HandleSaveClick">
+                <Overlay>
+                    <Menu>
+                        <MenuItem>
+                            <Button
+                                Type="@ButtonType.Link"
+                                OnClick="ExportPokemonToFile">
+                                Export *.pk
+                            </Button>
+                        </MenuItem>
+
+                        @foreach (var action in actions)
+                        {
+                            <MenuItem>
+                                @RenderActionButton(action)
+                            </MenuItem>
+                        }
+                    </Menu>
+                </Overlay>
+                <ChildContent>
+                    Save
+                </ChildContent>
+            </DropdownButton>
+        </Space>
+    </Space>
+}
+
+@code {
+    [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
+    [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
+    [Inject] public required JsService Js { get; set; }
+    [Inject] public required AnalyticsService Analytics { get; set; }
+    [Inject] public required SyncPokemonQueue SyncPokemonQueue { get; set; }
+    [Inject] public required MyPokemonRepository MyPokemonRepository { get; set; }
+
+    [Parameter] public required string Id { get; set; }
+    private Guid _id;
+
+    private Pokemon? _editingPokemon;
+    private Pokemon? _originalPokemon;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsSignedIn())
+        {
+            Navigation.NavigateToHomePage();
+            return;
+        }
+        
+        _id = Guid.Parse(Id);
+        var binaries = await MyPokemonRepository.GetBinaries(_id);
+        var loaded = Pokemon.LoadFrom(binaries, GameService.Game);
+        _originalPokemon = loaded;
+        _editingPokemon = loaded.Clone();
+    }
+
+    private async Task HandleSaveClick()
+    {
+        if (_originalPokemon is null || _editingPokemon is null) return;
+        await PlugInRuntime.RunAll<IRunOnPokemonSave>(h => h.OnPokemonSaved(_editingPokemon));
+
+        TrackSaved(_editingPokemon);
+
+        if (LocalSyncedPokemonRepository.IsSynced(_originalPokemon))
+        {
+            SyncPokemonQueue.Enqueue(_editingPokemon);
+        }
+
+        await Js.NavigateBack();
+    }
+
+    private void TrackSaved(Pokemon pokemon)
+    {
+        Analytics.TrackPokemon("pokemon_saved", pokemon, PokemonSource.Cloud);
+    }
+
+    private RenderFragment? RenderActionButton(IPokemonEditAction action)
+    {
+        if (_editingPokemon is null) return null;
+
+        return
+            @<Button
+                 Type="@ButtonType.Link"
+                 OnClick="() => HandleActionButtonClick(action)">
+                @action.Label
+            </Button>;
+    }
+
+    private async Task HandleActionButtonClick(IPokemonEditAction action)
+    {
+        await PlugInRuntime.RunOn(action, (_) => action.OnActionRequested(_editingPokemon!));
+    }
+
+    private async Task ExportPokemonToFile()
+    {
+        if (_editingPokemon is null) return;
+
+        var file = _editingPokemon.ToFile();
+        var memoryStream = new MemoryStream(file.Bytes);
+        await Js.DownloadFile(memoryStream, file.Name);
+    }
+}

@@ -81,6 +81,11 @@ public class JsService(IJSRuntime js,
     {
         await js.InvokeVoidAsync("eval", $"window.open('{url}', '_blank')");
     }
+    
+    public async Task CopyToClipboard(string text)
+    {
+        await js.InvokeVoidAsync("navigator.clipboard.writeText", text);
+    }
 }
 
 public static class JsServiceExtensions

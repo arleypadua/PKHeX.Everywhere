@@ -1,0 +1,71 @@
+@using PKHeX.Facade.Repositories
+@using PKHeX.Web.BackendApi.Representation
+
+<Space Style="gap: 20px; width: 100%" Direction="DirectionVHType.Vertical" Wrap>
+    <ResponsibleDescriptions
+        Bordered
+        Size="small"
+        Style="width: 100%">
+        <DescriptionsItem Title="Species">
+            @_species.Name
+        </DescriptionsItem>
+
+        <DescriptionsItem Title="Nickname">
+            @Pokemon.Nickname
+        </DescriptionsItem>
+        <DescriptionsItem Title="Gender">
+            <GenderSelector
+                Gender="@_gender"
+                Disabled/>
+        </DescriptionsItem>
+        <DescriptionsItem Title="Shiny">
+            <Switch Value="@Pokemon.IsShiny" Disabled/>
+        </DescriptionsItem>
+        <DescriptionsItem Title="Level">
+            @Pokemon.Level
+        </DescriptionsItem>
+        <DescriptionsItem Title="Nature">
+            <NatureSelect
+                SelectedNature="Pokemon.Nature"
+                Disabled/>
+        </DescriptionsItem>
+        <DescriptionsItem Title="Ability">
+            <AbilitySelect
+                SelectedAbilityId="_ability.Id"
+                Disabled/>
+        </DescriptionsItem>
+        @if (_heldItem is not null)
+        {
+            <DescriptionsItem Title="Held Item">
+                @_heldItem.Name
+            </DescriptionsItem>
+        }
+    </ResponsibleDescriptions>
+
+    <AntList Grid="_grid" DataSource="@Pokemon.Moves">
+        <ListItem>
+            <Card Bordered Title="@(context.Name)"/>
+        </ListItem>
+    </AntList>
+</Space>
+
+@code {
+    [Parameter] public required PokemonPublicMetadataRepresentation Pokemon { get; set; }
+
+    private SpeciesDefinition _species = default!;
+    private Gender _gender = default!;
+    private ItemDefinition? _heldItem;
+    private AbilityDefinition _ability = default!;
+
+    private ListGridType _grid = new() { Gutter = 16, Column = 4 };
+
+    protected override void OnInitialized()
+    {
+        _species = SpeciesRepository.All[Pokemon.Species];
+        _ability = AbilityRepository.Instance.Get((int)Pokemon.Ability);
+        _gender = Pokemon.Gender.ToGender();
+        _heldItem = Pokemon.HeldItem is null
+            ? null
+            : ItemRepository.GetItem(Pokemon.HeldItem.Id);
+    }
+}

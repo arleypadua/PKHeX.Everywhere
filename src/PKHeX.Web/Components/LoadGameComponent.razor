@@ -5,6 +5,7 @@
 @inject HttpClient HttpClient
 @inject AntdThemeService ThemeService
 @inject INotificationService Notification
+@inject UserJourneyService UserJourneyService
 
 @if (GameService.IsLoaded)
 {
@@ -23,15 +24,19 @@
 else
 {
     <Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; max-width: 300px; gap: 20px;">
-        <Button 
-            Type="@ButtonType.Primary" 
-            Icon="@IconType.Outline.FolderOpen" 
+        <Button
+            OnClick="GoToHome"
+            Style="min-width: 150px">Home</Button>
+        
+        <Button
+            Type="@ButtonType.Primary"
+            Icon="@IconType.Outline.FolderOpen"
             OnClick="OpenFilePickerAsync"
             Style="min-width: 150px">Open</Button>
 
         <ButtonOrMenu
             Actions="EmptyActions"
-            Style="min-width: 150px" />
+            Style="min-width: 150px"/>
 
         <Button
             OnClick='OpenDemo'
@@ -127,8 +132,15 @@ else
         GameService.Load(testData, "savedata_1.sav");
         Navigation.NavigateTo($"/");
     }
+    
+    private Task GoToHome(MouseEventArgs arg)
+    {
+        UserJourneyService.IgnoreFirstLoadAndGoToHome();
+        return Task.CompletedTask;
+    }
 
     private async Task OpenFilePickerAsync() => await Js.ClickOnAsync(_inputGameFile.Element);
 
     private const int MaxFileSize = 6 * 1024 * 1000;
+
 }

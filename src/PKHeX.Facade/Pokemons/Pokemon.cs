@@ -1,6 +1,4 @@
-﻿using System.Text;
-using PKHeX.Core;
-using PKHeX.Facade.Extensions;
+﻿using PKHeX.Core;
 using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade.Pokemons;

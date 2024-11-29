@@ -14,6 +14,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.10" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.10" PrivateAssets="all" />
         <PackageReference Include="Sentry.AspNetCore.Blazor.WebAssembly" Version="4.12.1-preview.1" />
+        <PackageReference Include="System.Runtime.Caching" Version="9.0.0" />
         <PackageReference Include="TG.Blazor.IndexedDB" Version="1.5.0-preview" />
     </ItemGroup>
 
@@ -37,6 +38,12 @@
         </Content>
         <Content Update="wwwroot\plugins\PKHeX.Web.Plugins.Nuzlocking\1.0.0\PKHeX.Web.Plugins.Nuzlocking.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="wwwroot\appsettings.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Update="wwwroot\appsettings.Development.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
 

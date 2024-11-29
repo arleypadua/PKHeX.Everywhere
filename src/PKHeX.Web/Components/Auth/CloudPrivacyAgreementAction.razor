@@ -1,0 +1,29 @@
+@using PKHeX.Web.Services.Auth
+@inject AuthService Auth
+
+<Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; gap: 20px;">
+    @if (!Auth.IsSignedIn())
+    {
+        <Paragraph>In order to use this functionality you must accept our <a href="/privacy-policy">privacy policy</a>.</Paragraph>
+        <Button 
+            Type="@ButtonType.Primary"
+            OnClick="HandleAcceptance">I read & accept</Button>
+    }
+    else
+    {
+        @WhenAuthenticated
+    }
+</Space>
+
+@code {
+
+    [Parameter] public RenderFragment? WhenAuthenticated { get; set; }
+    [Parameter] public EventCallback OnAccepted { get; set; }
+
+    private async Task HandleAcceptance(MouseEventArgs arg)
+    {
+        await Auth.SignInAnonymously();
+        await OnAccepted.InvokeAsync();
+    }
+
+}

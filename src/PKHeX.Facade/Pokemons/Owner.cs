@@ -46,6 +46,13 @@ public class Owner(PKM pokemon)
         set => pokemon.CurrentHandler = (byte)value;
     }
 
+    public string GetName() => CurrentHandler switch
+    {
+        Handler.OriginalTrainer => Name,
+        Handler.SomeoneElse => HandlingTrainerName,
+        _ => string.Empty,
+    };
+
     public enum Handler : byte
     {
         OriginalTrainer = 0,

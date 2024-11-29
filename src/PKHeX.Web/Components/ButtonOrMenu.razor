@@ -1,7 +1,16 @@
 @if (Actions.Count == 1)
 {
     var single = Actions.Single();
-    @RenderButton(single, Style)
+    @if(single.Disabled && !string.IsNullOrWhiteSpace(single.DisabledMessage))
+    {
+        <Tooltip Title="@single.DisabledMessage">
+            @RenderButton(single)
+        </Tooltip>
+    }
+    else
+    {
+        @RenderButton(single)
+    }
 }
 else if (Actions.Count > 1)
 {
@@ -24,7 +33,16 @@ else if (Actions.Count > 1)
                 @foreach (var action in others)
                 {
                     <MenuItem>
-                        @RenderButton(action)
+                        @if(action.Disabled && !string.IsNullOrWhiteSpace(action.DisabledMessage))
+                        {
+                            <Tooltip Title="@action.DisabledMessage">
+                                @RenderButton(action)
+                            </Tooltip>
+                        }
+                        else
+                        {
+                            @RenderButton(action)
+                        }
                     </MenuItem>
                 }
             </Menu>
@@ -52,6 +70,7 @@ else if (Actions.Count > 1)
         public required string Label { get; init; }
         public Func<Task> OnClickAsync { get; init; } = () => Task.CompletedTask;
         public bool Disabled { get; init; }
+        public string? DisabledMessage { get; set; }
         
         public string? Icon { get; init; }
     }

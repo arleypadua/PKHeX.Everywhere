@@ -1,17 +1,21 @@
 @page "/pokemon/{PartyOrBox}/{UniqueIdString}"
+@using PKHeX.Web.BackendApi
+@using PKHeX.Web.BackendApi.Repositories
 @using PKHeX.Web.Plugins
 @using PKHeX.Web.Services.Plugins
 @inject NavigationManager Navigation
+@inject LocalSyncedPokemonRepository LocalSyncedPokemonRepository
 
 @if (_editingPokemon is not null)
 {
     <Space Style="width: 100%; gap: 20px;" Direction="DirectionVHType.Vertical">
         <PokemonEdit
-            Pokemon="_editingPokemon"/>
+            Pokemon="_editingPokemon"
+            ShowCloudTab />
 
-        <Space Align="end" Style="width: 100%" Direction="DirectionVHType.Vertical">
+        <Space Align="end" Style="width: 100%; align-items: center; justify-content: end; gap:  10px;" Direction="DirectionVHType.Horizontal">
             @{ var actions = PlugInRegistry.GetAllEnabledHooks<IPokemonEditAction>().ToList(); }
-            
+
             <DropdownButton
                 Type="@ButtonType.Primary"
                 OnClick="HandleSaveClick">
@@ -47,6 +51,7 @@
     [Inject] public required GameService GameService { get; set; }
     [Inject] public required JsService Js { get; set; }
     [Inject] public required AnalyticsService Analytics { get; set; }
+    [Inject] public required SyncPokemonQueue SyncPokemonQueue { get; set; }
 
     [Parameter] public required string PartyOrBox { get; set; }
     [Parameter] public required string UniqueIdString { get; set; }
@@ -93,6 +98,11 @@
         }
 
         TrackSaved(_editingPokemon);
+        
+        if (LocalSyncedPokemonRepository.IsSynced(OriginalPokemon))
+        {
+            SyncPokemonQueue.Enqueue(_editingPokemon);
+        }
 
         await Js.NavigateBack();
     }
@@ -127,5 +137,4 @@
         var memoryStream = new MemoryStream(file.Bytes);
         await Js.DownloadFile(memoryStream, file.Name);
     }
-
 }

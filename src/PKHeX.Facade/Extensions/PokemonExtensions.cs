@@ -11,6 +11,11 @@ public static class PokemonExtensions
         ? pokemon.Species.Name
         : $"{pokemon.Nickname} ({pokemon.Species.Name})";
     
+    /// <summary>
+    /// Returns the PID of the Pokémon in hexadecimal format.
+    /// </summary>
+    public static string PidDisplay(this Pokemon pokemon) => pokemon.PID.ToString("x8");
+    
     public static string Showdown(this Pokemon pokemon) => ShowdownParsing.GetShowdownText(pokemon.Pkm);
     
     public static string Showdown(this IEnumerable<Pokemon> pokemonList) => string.Join("\n\n", pokemonList.Select(Showdown));

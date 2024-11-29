@@ -1,5 +1,4 @@
 import {FirebaseOptions} from "@firebase/app";
-import {UserCredential} from "@firebase/auth";
 
 import { initializeApp } from 'firebase/app'
 import { getAuth, signInAnonymously } from 'firebase/auth'
@@ -13,7 +12,7 @@ const config: FirebaseOptions = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
-export async function initFirebase() {
+export function initFirebase() {
     if (import.meta.env.VITE_FIREBASE_ENABLED !== 'true') {
         return    
     }
@@ -21,15 +20,39 @@ export async function initFirebase() {
     const app = initializeApp(config)
     const auth = getAuth(app)
     
-    await signInAnonymously(auth)
-        .then(handleAnonymousSignIn)
-        .catch(handleAnonymousSignInError);
-
-    function handleAnonymousSignIn(credential: UserCredential) {
-        console.log(credential);
+    auth.onIdTokenChanged(async (user) => {
+        // if dotnet doesn't exist, return
+        if (!window.DotNet || !window.DotNet.invokeMethodAsync) return
+        if (user) {
+            await DotNet.invokeMethodAsync("PKHeX.Web", "OnTokenChanged", await user.getIdToken())
+        } else {
+            await DotNet.invokeMethodAsync("PKHeX.Web", "OnTokenChanged", null)
+        }
+    })
+    
+    window.isSignedIn = () => auth.currentUser !== null
+    
+    window.getAuthToken = async () => {
+        const user = auth.currentUser
+        if (!user) throw new Error('No user found')
+        return await user.getIdToken()
     }
-
-    function handleAnonymousSignInError(error: any) {
-        console.log(error);
+    
+    window.signInAnonymously = async () => {
+        const userCredential = await signInAnonymously(auth);
+        return await userCredential.user.getIdToken();
+    }
+    
+    window.getSignedInUser = () => {
+        if (!auth.currentUser) throw new Error('No user found')
+        return {
+            id: auth.currentUser.uid,
+            email: auth.currentUser.email,
+            isAnonymous: auth.currentUser.isAnonymous,
+        }
+    }
+    
+    window.signOut = async () => {
+        await auth.signOut();
     }
 }

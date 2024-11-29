@@ -3,6 +3,7 @@
 @implements IDisposable
 @inject NavigationManager Navigation
 @inject GameService GameService
+@inject UserJourneyService UserJourneyService
 
 <Layout Style="min-height: 100vh">
     <Sider Collapsible
@@ -55,7 +56,8 @@
                 Icon="@IconType.Outline.Setting"
                 Size="@AntSizeLDSType.Large"
                 Shape="@ButtonShape.Round"
-                OnClick="HandleSettingsClick"></Button>
+                OnClick="HandleSettingsClick">
+            </Button>
         </Header>
         <Content Style=" margin: 24px 16px 0;">
             <div class="site-layout-background" style="padding: 24px; min-height: 360px">
@@ -65,8 +67,8 @@
                         @Body
                     </ChildContent>
                     <ErrorContent>
-                        <Alert 
-                            Type="@AlertType.Error" 
+                        <Alert
+                            Type="@AlertType.Error"
                             Message="Error"
                             CloseText="Dismiss"
                             OnClose="DismissError"
@@ -74,7 +76,7 @@
                             <Paragraph>
                                 Whops, some unexpected error happened.
                             </Paragraph>
-                            
+
                             <Paragraph>
                                 <a href="@GetIssueLink(context)" target="_blank">Click here</a> to file an issue in GitHub.
                             </Paragraph>
@@ -89,7 +91,9 @@
                 </AnalyticsAwareErrorBoundary>
             </div>
         </Content>
+
         <PkHexFooter/>
+        <PokemonSyncToast/>
     </Layout>
 
 </Layout>
@@ -103,7 +107,7 @@
 
     IEnumerable<MenuItem> MenuItems =>
     [
-        new("", "Home", "home"),
+        new("", "Home", "home", true),
         new("party", "Party", "team"),
         new("pokemon-box", "Pokemon Box", "inbox"),
         new("items", "Items", "shop"),
@@ -131,14 +135,14 @@
         GameService.OnGameLoaded += OnGameLoaded;
         PlugInRegistry.OnPlugInChanged += OnPlugInChanged;
         BrowserWindowService.LoadRequested += OnLoadRequested;
-        
-        ToLoadIfNotLoaded();
     }
 
     protected override void OnAfterRender(bool firstRender) => ToLoadIfNotLoaded();
 
     private void ToLoadIfNotLoaded()
     {
+        if (UserJourneyService.IgnoredFirstLoad) return;
+
         var currentRoute = Navigation.CurrentRoute();
         if (!GameService.IsLoaded && string.IsNullOrWhiteSpace(currentRoute) || currentRoute == "/")
         {
@@ -159,7 +163,7 @@
         else
             Navigation.NavigateToPlugIn(plugin);
     }
-    
+
     private Task OnLoadRequested(BrowserWindowService.SaveLoadedRequested arg)
     {
         GameService.Load(arg.Bytes, arg.FileName);
@@ -167,7 +171,7 @@
 
         return Task.CompletedTask;
     }
-    
+
     private RenderFragment RenderMenu(MenuItem item) =>
         @<MenuItem Key="@item.Route">
             @if (item.Icon is not null)
@@ -193,15 +197,15 @@
     {
         Navigation.NavigateToSettings();
     }
-    
+
     private void DismissError()
     {
         _errorBoundary.Recover();
     }
 
     private string GetIssueLink(Exception context) => GitHubRepositoryNewIssue(
-            title: $"Error on {ApplicationName}: {context.Message}",
-            body: $@"# Error on {ApplicationName}
+        title: $"Error on {ApplicationName}: {context.Message}",
+        body: $@"# Error on {ApplicationName}
 
 * **Id**: {context.GetExceptionTrackingId()}
 * **Game version**: {GameService.Game?.GameVersionApproximation.Name}
@@ -220,6 +224,6 @@
 ```
 {context.StackTrace}
 ```",
-            labels: ["bug"]);
+        labels: ["bug"]);
 
 }

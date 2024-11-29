@@ -1,0 +1,92 @@
+@page "/s/{Id}"
+@using PKHeX.Web.BackendApi
+@using PKHeX.Web.BackendApi.Repositories
+@using PKHeX.Web.BackendApi.Representation
+@inject PublicPokemonRepository PublicPokemonRepository
+@inject NavigationManager Navigation
+@inject JsService Js
+@inject ILogger<SharedPokemon> Logger
+
+@if (_metadata is not null)
+{
+    <Space Style="width: 100%; gap: 20px;" Class="shared_pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
+        <PageHeader BackIcon="true" Style="max-width: 100%">
+            <TitleTemplate>Pokemon</TitleTemplate>
+
+            <PageHeaderExtra>
+                <Space Style="width: 100%;" Align="center" Direction="DirectionVHType.Vertical">
+                    <PokemonImage
+                        Species="@_metadata.Species"
+                        IsShiny="@_metadata.IsShiny"/>
+                </Space>
+            </PageHeaderExtra>
+        </PageHeader>
+
+        <Tabs @bind-ActiveKey="@_activeTab" DefaultActiveKey="Description" Class="tab-scrollable" Animated>
+            <TabPane Tab="Description" Key="Description">
+                <PokemonPublicDescription Pokemon="_metadata" />
+            </TabPane>
+        </Tabs>
+
+        <Space Align="end" Style="width: 100%; align-items: center; justify-content: end; gap:  10px;" Direction="DirectionVHType.Horizontal">
+            <ButtonOrMenu Actions="ExtraActions"/>
+        </Space>
+    </Space>
+}
+
+@code {
+    [Parameter] public required string Id { get; set; }
+    private Guid id;
+
+    private PokemonPublicMetadataRepresentation? _metadata;
+    
+    private string _activeTab = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var parsed = Guid.TryParse(Id, out id);
+        if (!parsed)
+        {
+            Navigation.NavigateToHomePage();
+            return;
+        }
+
+        try
+        {
+            _metadata = await PublicPokemonRepository.GetById(id);
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Failed to load Pokemon");
+            Navigation.NavigateToHomePage();
+        }
+    }
+    
+    private IList<ButtonOrMenu.ButtonAction> ExtraActions => new List<ButtonOrMenu.ButtonAction>
+    {
+        new ()
+        {
+            Type = ButtonType.Primary,
+            Label = "Download",
+            Disabled = !(_metadata?.AllowDownload ?? false),
+            DisabledMessage = "The owner of this Pokémon has disabled downloads.",
+            OnClickAsync = HandleDownloadClick,
+        },
+    };
+
+    private async Task HandleDownloadClick()
+    {
+        if (_metadata is null) return;
+        
+        var file = await PublicPokemonRepository.GetBinaries(_metadata.Id);
+        var memoryStream = new MemoryStream(file);
+        var fileName = $"{_metadata.Species}-{_metadata.Id}.bin";
+        await Js.DownloadFile(memoryStream, fileName);
+    }
+}
+
+<style>
+    .shared_pokemon_page__heading_extra__grow .ant-page-header-heading-extra {
+        flex-grow: 1;
+    }
+</style>

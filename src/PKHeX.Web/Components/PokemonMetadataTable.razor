@@ -1,0 +1,96 @@
+@using PKHeX.Web.BackendApi.Representation
+@inject NavigationManager Navigation
+
+@if (DataSource.Any())
+{
+    <Table
+        TItem="PokemonMetadataRepresentation"
+        DataSource="@DataSource"
+        PageIndex="@(PageIndex ?? 1)"
+        PageSize="@(PageSize ?? 10)"
+        OnPageSizeChange="HandlePagination"
+        OnPageIndexChange="HandlePagination"
+        SelectedRows="_selectedPokemons"
+        SelectedRowsChanged="HandleSelectedRowsChanged"
+        RowKey="@(x => x.Id)"
+        Size="TableSize.Small"
+        Responsive
+        EnableVirtualization>
+
+        @if (Selectable)
+        {
+            <Selection Key="@context.Id.ToString()" Type="checkbox"/>
+        }
+
+        <PropertyColumn Title="" Property="@(c => c.Species)">
+            <PokemonIcon Species="@context.Species" />
+        </PropertyColumn>
+        <PropertyColumn Title="Name" Property="@(c => c.Species)" Sortable Filterable/>
+        <PropertyColumn Title="Nickname" Property="@(c => c.Nickname)" Sortable Filterable/>
+        <PropertyColumn Title="Level" Property="c => c.Level" Sortable Filterable></PropertyColumn>
+        <ActionColumn Title="Action">
+            <Space Size=@("small")>
+                <SpaceItem>
+                    <Button
+                        OnClick="() => Navigation.NavigateToCloudPokemon(context.Id)"
+                        Type="@ButtonType.Link">View</Button>
+                    @* <DropdownButton OnClick='() => Navigation.NavigateToCloudPokemon(context.Id)' Type="@ButtonType.Link"> *@
+                    @*     <Overlay> *@
+                    @*         <Menu> *@
+                    @*             <MenuItem> *@
+                    @*                 <Button *@
+                    @*                     Type="@ButtonType.Link" *@
+                    @*                     OnClick="() => HandleCalculatorClick(context.Pokemon)"> *@
+                    @*                     Calculator *@
+                    @*                 </Button> *@
+                    @*             </MenuItem> *@
+                    @*             <MenuItem> *@
+                    @*                 <Button *@
+                    @*                     Type="@ButtonType.Link" *@
+                    @*                     OnClick="() => HandleExportShowdownClick(context.Pokemon)"> *@
+                    @*                     Showdown *@
+                    @*                 </Button> *@
+                    @*             </MenuItem> *@
+                    @*         </Menu> *@
+                    @*     </Overlay> *@
+                    @*     <ChildContent> *@
+                    @*         View *@
+                    @*     </ChildContent> *@
+                    @* </DropdownButton> *@
+                </SpaceItem>
+            </Space>
+        </ActionColumn>
+    </Table>
+}
+
+@code {
+    [Parameter] public IList<PokemonMetadataRepresentation> DataSource { get; set; } = [];
+
+    [Parameter] public bool Selectable { get; set; }
+    [Parameter] public IList<PokemonMetadataRepresentation> SelectedPokemons { get; set; } = [];
+    [Parameter] public EventCallback<IList<PokemonMetadataRepresentation>> SelectedPokemonsChanged { get; set; }
+
+    [SupplyParameterFromQuery(Name = "pageIndex")]
+    public int? PageIndex { get; set; } = 1;
+
+    [SupplyParameterFromQuery(Name = "pageSize")]
+    public int? PageSize { get; set; } = 10;
+    
+    private IEnumerable<PokemonMetadataRepresentation> _selectedPokemons = [];
+
+    private void HandlePagination(PaginationEventArgs args)
+    {
+        PageIndex = args.Page;
+        PageSize = args.PageSize;
+
+        Navigation.StoreOnQuery(new() { { "pageIndex", PageIndex }, { "pageSize", PageSize } });
+    }
+
+    private Task HandleSelectedRowsChanged(IEnumerable<PokemonMetadataRepresentation> changed)
+    {
+        _selectedPokemons = changed;
+        SelectedPokemons = _selectedPokemons.ToList();
+        return SelectedPokemonsChanged.InvokeAsync(SelectedPokemons);
+    }
+
+}

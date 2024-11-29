@@ -35,6 +35,7 @@ jobs:
         run: |
           cd src/PKHeX.Web/_js
           
+          echo "VITE_FIREBASE_ENABLED=${{ vars.FIREBASE_ENABLED }}" >> .env
           echo "VITE_FIREBASE_PROJECT_NAME=${{ secrets.FIREBASE_PROJECT_NAME }}" >> .env
           echo "VITE_FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> .env
           echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}" >> .env
@@ -51,6 +52,20 @@ jobs:
         run: dotnet build --no-restore
       - name: Test
         run: dotnet test --no-build --verbosity normal
+      - name: Modify appsettings.json
+        run: |
+          APPSETTINGS_FILE="src/PKHeX.Web/wwwroot/appsettings.Production.json"
+          
+          if [ ! -f "$APPSETTINGS_FILE" ]; then
+            echo "{}" > "$APPSETTINGS_FILE"
+          fi
+          
+          jq '
+            .BackendApi.Debugging = false | 
+            .BackendApi.Enabled = ${{ vars.BACKEND_API_ENABLED }} | 
+            .BackendApi.BaseUri = "${{ vars.BACKEND_API_BASE_URI }}"
+          ' "$APPSETTINGS_FILE" > tmp.json && mv tmp.json "$APPSETTINGS_FILE"
+          
       - name: Publish
         run: dotnet publish ./src/PKHeX.Web/PKHeX.Web.csproj -c Release -o ./src/PKHeX.Web/bin/pkhex-web-publish
       - name: Upload artifacts
