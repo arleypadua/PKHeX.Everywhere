@@ -1,0 +1,39 @@
+@using PKHeX.Facade.Repositories
+@using PKHeX.Web.BackendApi.Representation
+
+<ResponsibleDescriptions Bordered Size="small" Title="Met Conditions" Style="width: 100%">
+    <DescriptionsItem Title="Origin Game">@Version.Name</DescriptionsItem>
+    <DescriptionsItem Title="Location">@Pokemon.MetConditions.Location</DescriptionsItem>
+    <DescriptionsItem Title="Captured With">
+        <ItemSelect
+            Items="@ItemRepository.AllBalls()"
+            SelectedItemId="@Ball.Id"/>
+    </DescriptionsItem>
+    <DescriptionsItem Title="Level">
+        <AntDesign.InputNumber
+            TValue="int"
+            Value="Pokemon.MetConditions.Level"
+            Disabled/>
+    </DescriptionsItem>
+
+    <DescriptionsItem Title="Date">
+        <DatePicker
+            TValue="DateOnly?"
+            Picker="@DatePickerType.Date"
+            Format="dd/MM/yyyy"
+            AllowClear="false"
+            Value="Pokemon.MetConditions.Date"
+            Disabled="true" />
+    </DescriptionsItem>
+
+    <DescriptionsItem Title="Fateful Encounter">
+        <Switch Value="Pokemon.MetConditions.FatefulEncounter" Disabled />
+    </DescriptionsItem>
+</ResponsibleDescriptions>
+
+@code {
+    [Parameter] public required PokemonPublicMetadataRepresentation Pokemon { get; set; }
+
+    private ItemDefinition Ball => ItemRepository.GetItem(Convert.ToUInt16(Pokemon.MetConditions.BallId));
+    private GameVersionDefinition Version => GameVersionRepository.Instance.Get(Pokemon.MetConditions.Version);
+}

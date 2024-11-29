@@ -1,0 +1,19 @@
+@using PKHeX.Web.BackendApi.Representation
+@inject BrowserWindowService.Instance BrowserWindow
+
+<div class="ant-descriptions-title">
+    Moves
+</div>
+
+<Space Direction="DirectionVHType.Horizontal" Wrap Style="width: 100%; gap: 20px;">
+    @foreach (var move in Pokemon.Moves)
+    {
+        <Card Bordered Style="@(BrowserWindow.IsTooSmall ? "width: 130px;" : "")">
+            @move.Name
+        </Card>
+    }
+</Space>
+
+@code {
+    [Parameter] public required PokemonPublicMetadataRepresentation Pokemon { get; set; }
+}

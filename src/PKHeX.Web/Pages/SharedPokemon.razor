@@ -22,12 +22,14 @@
             </PageHeaderExtra>
         </PageHeader>
 
-        <Tabs @bind-ActiveKey="@_activeTab" DefaultActiveKey="Description" Class="tab-scrollable" Animated>
-            <TabPane Tab="Description" Key="Description">
-                <PokemonPublicDescription Pokemon="_metadata" />
-            </TabPane>
-        </Tabs>
+        <PokemonPublicDescription Pokemon="_metadata"/>
 
+        <PokemonPublicMoves Pokemon="_metadata" />
+        
+        <PokemonPublicMetConditions Pokemon="_metadata"/>
+        
+        <PokemonPublicStats Pokemon="_metadata" />
+        
         <Space Align="end" Style="width: 100%; align-items: center; justify-content: end; gap:  10px;" Direction="DirectionVHType.Horizontal">
             <ButtonOrMenu Actions="ExtraActions"/>
         </Space>
@@ -36,15 +38,15 @@
 
 @code {
     [Parameter] public required string Id { get; set; }
-    private Guid id;
+    private Guid _id;
 
     private PokemonPublicMetadataRepresentation? _metadata;
-    
-    private string _activeTab = default!;
+
+    private readonly ListGridType _grid = new() { Gutter = 16, Column = 4 };
 
     protected override async Task OnInitializedAsync()
     {
-        var parsed = Guid.TryParse(Id, out id);
+        var parsed = Guid.TryParse(Id, out _id);
         if (!parsed)
         {
             Navigation.NavigateToHomePage();
@@ -53,7 +55,7 @@
 
         try
         {
-            _metadata = await PublicPokemonRepository.GetById(id);
+            _metadata = await PublicPokemonRepository.GetById(_id);
         }
         catch (Exception e)
         {
@@ -61,10 +63,10 @@
             Navigation.NavigateToHomePage();
         }
     }
-    
+
     private IList<ButtonOrMenu.ButtonAction> ExtraActions => new List<ButtonOrMenu.ButtonAction>
     {
-        new ()
+        new()
         {
             Type = ButtonType.Primary,
             Label = "Download",
@@ -77,12 +79,13 @@
     private async Task HandleDownloadClick()
     {
         if (_metadata is null) return;
-        
+
         var file = await PublicPokemonRepository.GetBinaries(_metadata.Id);
         var memoryStream = new MemoryStream(file);
         var fileName = $"{_metadata.Species}-{_metadata.Id}.bin";
         await Js.DownloadFile(memoryStream, fileName);
     }
+
 }
 
 <style>
