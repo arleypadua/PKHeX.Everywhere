@@ -1,0 +1,114 @@
+@using PKHeX.Web.BackendApi.Repositories
+@using PKHeX.Web.BackendApi.Representation
+@using PKHeX.Web.Services.Auth
+@inject JsService Js
+@inject NavigationManager Navigation
+@inject INotificationService Notification
+@inject IConfiguration Configuration
+@inject UserRepository UserRepository
+@inject AuthService AuthService
+@inject LocalSyncedPokemonRepository LocalSyncedPokemonRepository
+
+<WhenSignedIn
+    OnSignedIn="HandleSignedIn"
+    OnSignedOut="HandleSignedOut">
+    @if (_user is not null && _firebaseUser is not null)
+    {
+        <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+
+            <SpaceItem>
+                <Badge
+                    Dot="true"
+                    Size="default"
+                    Color="@BadgeColor.Gold"
+                    Offset="(5, 0)">
+                    <Tooltip Title="Beta feature">
+                        Cloud
+                    </Tooltip>
+                </Badge>
+            </SpaceItem>
+
+            <ResponsibleDescriptions Bordered Size="small">
+                <DescriptionsItem Title="Synced Pokemon">@LocalSyncedPokemonRepository.Count()</DescriptionsItem>
+                <DescriptionsItem Title="Sync Quota">@_user.SyncQuota</DescriptionsItem>
+            </ResponsibleDescriptions>
+
+            <Space Direction="DirectionVHType.Horizontal" Align="center" Wrap="true" Style="gap: 20px; justify-content: center">
+                @if (LocalSyncedPokemonRepository.Any())
+                {
+                    <Button
+                        OnClick="() => Navigation.NavigateToCloudPokemonList()">
+                        Synced Pokemon (@(LocalSyncedPokemonRepository.Count()))
+                    </Button>
+                }
+
+                @if (Configuration.GetBackendApiOptions().Debugging || _user.IsAdmin)
+                {
+                    <Button
+                        OnClick="CopyAuthToken">
+                        Copy Auth Token
+                    </Button>
+
+                    <Button
+                        OnClick="OpenBackendSwagger">
+                        Backend Swagger
+                    </Button>
+                }
+            </Space>
+
+            @if (_firebaseUser.IsAnonymous)
+            {
+                <Alert Type="@AlertType.Warning" ShowIcon="true">
+                    <p>You are currently using the <b>beta</b> version of the cloud service, which allows you to sync up to @_user.SyncQuota Pokémon and share them.</p>
+                    <p>Please note: While you can sync Pokémon with the cloud, clearing your browser cache will result in the loss of access to them.</p>
+                </Alert>
+            }
+        </Space>
+    }
+</WhenSignedIn>
+
+@code {
+    private UserRepresentation? _user;
+    private AuthService.User? _firebaseUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _user = await UserRepository.GetSignedInUser();
+            _firebaseUser = await AuthService.GetSignedInUser();
+        }
+        catch
+        {
+            // ignored because we may get a signal that the user signed in later
+        }
+    }
+
+    private async Task HandleSignedIn(object arg)
+    {
+        _user = await UserRepository.GetSignedInUser();
+        _firebaseUser = await AuthService.GetSignedInUser();
+    }
+
+    private Task HandleSignedOut(object arg)
+    {
+        _user = null;
+        _firebaseUser = null;
+        return Task.CompletedTask;
+    }
+
+    private async Task CopyAuthToken(MouseEventArgs arg)
+    {
+        await Js.CopyToClipboard(await AuthService.GetAuthToken());
+        _ = Notification.Success(new()
+        {
+            Message = "Copied Auth Token to Clipboard",
+        });
+    }
+
+    private async Task OpenBackendSwagger(MouseEventArgs arg)
+    {
+        await Js.OpenNewTab($"{Configuration.GetBackendApiOptions().BaseUri}/swagger/index.html");
+    }
+
+}

@@ -14,17 +14,19 @@
         SyncPokemonWorker.PokemonUploadEnded += HandlePokemonUploadEnded;
     }
 
-    private async Task HandlePokemonUploadStarted(PokemonUploadStartedArgs arg)
+    private Task HandlePokemonUploadStarted(PokemonUploadStartedArgs arg)
     {
         _queueSize = arg.QueueSize;
         
-        await MessageService.Loading(new MessageConfig
+        _ = MessageService.Loading(new MessageConfig
         {
             // todo: add link to see the queue
             Content = "Synchronizing...",
             Key = "pokemon-sync-toast",
             Duration = 5
         });
+
+        return Task.CompletedTask;
     }
 
     private Task HandlePokemonUploaded(PokemonUploadedArgs arg)
@@ -33,17 +35,19 @@
         return Task.CompletedTask;
     }
     
-    private async Task HandlePokemonUploadEnded(EventArgs arg)
+    private Task HandlePokemonUploadEnded(EventArgs arg)
     {
         _queueSize = 0;
         _uploadCount = 0;
         
-        await MessageService.Success(new MessageConfig
+        _ = MessageService.Success(new MessageConfig
         {
             Content = "Synchronizing completed",
             Key = "pokemon-sync-toast",
             Duration = 3
         });
+
+        return Task.CompletedTask;
     }
 
     public void Dispose()

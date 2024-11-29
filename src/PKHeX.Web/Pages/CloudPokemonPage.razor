@@ -1,9 +1,12 @@
-@page "/pokemon/{PartyOrBox}/{UniqueIdString}"
+@page "/cloud/pokemon/{Id}"
 @using PKHeX.Web.BackendApi
 @using PKHeX.Web.BackendApi.Repositories
 @using PKHeX.Web.Plugins
+@using PKHeX.Web.Services.Auth
 @using PKHeX.Web.Services.Plugins
+@inject AuthService Auth
 @inject NavigationManager Navigation
+@inject GameService GameService
 @inject LocalSyncedPokemonRepository LocalSyncedPokemonRepository
 
 @if (_editingPokemon is not null)
@@ -11,6 +14,7 @@
     <Space Style="width: 100%; gap: 20px;" Direction="DirectionVHType.Vertical">
         <PokemonEdit
             Pokemon="_editingPokemon"
+            CloudId="_id"
             ShowCloudTab />
 
         <Space Align="end" Style="width: 100%; align-items: center; justify-content: end; gap:  10px;" Direction="DirectionVHType.Horizontal">
@@ -48,58 +52,40 @@
 @code {
     [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
     [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
-    [Inject] public required GameService GameService { get; set; }
     [Inject] public required JsService Js { get; set; }
     [Inject] public required AnalyticsService Analytics { get; set; }
     [Inject] public required SyncPokemonQueue SyncPokemonQueue { get; set; }
+    [Inject] public required MyPokemonRepository MyPokemonRepository { get; set; }
 
-    [Parameter] public required string PartyOrBox { get; set; }
-    [Parameter] public required string UniqueIdString { get; set; }
-
-    private UniqueId UniqueId => UniqueId.From(UniqueIdString);
-
-    private Pokemon? OriginalPokemon => PartyOrBox switch
-    {
-        Party => GameService.Game?.Trainer.Party.Pokemons.FirstOrDefault(p => p.UniqueId.Equals(UniqueId)),
-        Box => GameService.Game?.Trainer.PokemonBox.All.FirstOrDefault(p => p.UniqueId.Equals(UniqueId)),
-        _ => null
-    };
+    [Parameter] public required string Id { get; set; }
+    private Guid _id;
 
     private Pokemon? _editingPokemon;
+    private Pokemon? _originalPokemon;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        _editingPokemon = OriginalPokemon?.Clone();
+        if (!Auth.IsSignedIn())
+        {
+            Navigation.NavigateToHomePage();
+            return;
+        }
+        
+        _id = Guid.Parse(Id);
+        var binaries = await MyPokemonRepository.GetBinaries(_id);
+        var loaded = Pokemon.LoadFrom(binaries, GameService.Game);
+        _originalPokemon = loaded;
+        _editingPokemon = loaded.Clone();
     }
-
-    private const string Party = "party";
-    private const string Box = "box";
-
-    private PokemonSource PokemonSource => PartyOrBox switch
-    {
-        Party => PokemonSource.Party,
-        Box => PokemonSource.Box,
-        _ => throw new NotSupportedException($"{PartyOrBox} not supported")
-    };
 
     private async Task HandleSaveClick()
     {
-        if (OriginalPokemon is null || _editingPokemon is null) return;
-        var idChanged = !OriginalPokemon.UniqueId.Equals(_editingPokemon.UniqueId);
-
-        OriginalPokemon.Game.Trainer.AddOrUpdate(OriginalPokemon.UniqueId, _editingPokemon, PokemonSource);
-
+        if (_originalPokemon is null || _editingPokemon is null) return;
         await PlugInRuntime.RunAll<IRunOnPokemonSave>(h => h.OnPokemonSaved(_editingPokemon));
 
-        // some changes might change the id of the Pokémon
-        if (idChanged)
-        {
-            Navigation.NavigateToPokemon(PokemonSource, _editingPokemon.UniqueId, replace: true);
-        }
-
         TrackSaved(_editingPokemon);
-        
-        if (LocalSyncedPokemonRepository.IsSynced(OriginalPokemon))
+
+        if (LocalSyncedPokemonRepository.IsSynced(_originalPokemon))
         {
             SyncPokemonQueue.Enqueue(_editingPokemon);
         }
@@ -109,7 +95,7 @@
 
     private void TrackSaved(Pokemon pokemon)
     {
-        Analytics.TrackPokemon("pokemon_saved", pokemon, PokemonSource);
+        Analytics.TrackPokemon("pokemon_saved", pokemon, PokemonSource.Cloud);
     }
 
     private RenderFragment? RenderActionButton(IPokemonEditAction action)

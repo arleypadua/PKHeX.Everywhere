@@ -1,13 +1,14 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Web.BackendApi.Representation;
 
-namespace PKHeX.Web.BackendApi;
+namespace PKHeX.Web.BackendApi.Repositories;
 
 public class MyPokemonRepository(
-    SyncedPokemonRepository syncedRepository,
+    LocalSyncedPokemonRepository localSyncedRepository,
     IHttpClientFactory httpClientFactory)
 {
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("BackendApi");
@@ -20,21 +21,33 @@ public class MyPokemonRepository(
 
     public async Task<PokemonMetadataRepresentation> GetByLocalId(string localId)
     {
-        var synced = syncedRepository.Get().FirstOrDefault(s => s.LocalUniqueId == localId)
-                     ?? throw new InvalidOperationException($"{localId} is not stored in the local synced");
+        var synced = localSyncedRepository.Get().FirstOrDefault(s => s.LocalUniqueId == localId)
+                     ?? throw new NotFoundException($"{localId} is not stored in the local synced");
 
         return await GetById(synced.RemoteId);
     }
 
     public async Task<PokemonMetadataRepresentation> GetById(Guid id)
     {
-        return await _httpClient.GetFromJsonAsync<PokemonMetadataRepresentation>($"/pokemon/{id}", SerializerOptions)
-               ?? throw new InvalidOperationException("Could not parse the response.");
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<PokemonMetadataRepresentation>($"/pokemon/{id}", SerializerOptions)
+                   ?? throw new NotFoundException("Could not parse the response.");
+        }
+        catch (HttpRequestException e) when(e.StatusCode == HttpStatusCode.NotFound)
+        {
+            throw new NotFoundException($"Could not find the pokemon {id}.");
+        }
+    }
+    
+    public async Task<byte[]> GetBinaries(Guid id)
+    {
+        return await _httpClient.GetByteArrayAsync($"/pokemon/{id}/file");
     }
 
     public async Task<PokemonMetadataRepresentation> Upload(Pokemon pokemon)
     {
-        var alreadySyncedPokemonSet = syncedRepository.Get();
+        var alreadySyncedPokemonSet = localSyncedRepository.Get();
         var alreadySynced = alreadySyncedPokemonSet.FirstOrDefault(s => s.LocalUniqueId == pokemon.GetLocalSyncId());
 
         return alreadySynced is not null
@@ -54,15 +67,15 @@ public class MyPokemonRepository(
     
     public Task RemoveByLocalId(string localId)
     {
-        return RemoveById(syncedRepository.Get().First(s => s.LocalUniqueId == localId).RemoteId);
+        return RemoveById(localSyncedRepository.Get().First(s => s.LocalUniqueId == localId).RemoteId);
     }
     
     public async Task RemoveById(Guid id)
     {
         await _httpClient.DeleteAsync($"/pokemon/{id}");
-        syncedRepository.RemoveByRemoteId(id);
+        localSyncedRepository.RemoveByRemoteId(id);
     }
-
+    
     private async Task<PokemonMetadataRepresentation> UploadNew(Pokemon pokemon)
     {
         var file = pokemon.ToFile();
@@ -77,7 +90,7 @@ public class MyPokemonRepository(
         var metadata = await response.Content.ReadFromJsonAsync<PokemonMetadataRepresentation>(SerializerOptions)
                        ?? throw new InvalidOperationException("Could not parse the response.");
 
-        syncedRepository.Add(pokemon, metadata);
+        localSyncedRepository.Add(pokemon, metadata);
 
         return metadata;
     }

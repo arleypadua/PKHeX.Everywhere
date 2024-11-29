@@ -9,6 +9,7 @@ public static class ConfigurationExtensions
 
 public class BackendApiOptions
 {
+    public bool Debugging { get; init; }
     public bool Enabled { get; init; }
     public string BaseUri { get; init; } = string.Empty;
 

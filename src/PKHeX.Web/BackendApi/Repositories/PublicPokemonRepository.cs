@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using PKHeX.Web.BackendApi.Representation;
 
-namespace PKHeX.Web.BackendApi;
+namespace PKHeX.Web.BackendApi.Repositories;
 
 public class PublicPokemonRepository(
     IHttpClientFactory httpClientFactory)

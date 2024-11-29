@@ -137,7 +137,7 @@ public class PlugInLocalStorage(
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    logger.LogError(e, "");
                     return null;
                 }
             });

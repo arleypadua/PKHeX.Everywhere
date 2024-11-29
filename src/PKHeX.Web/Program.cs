@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PKHeX.Core;
 using PKHeX.Web.BackendApi;
+using PKHeX.Web.BackendApi.Repositories;
 using PKHeX.Web.Extensions;
 using PKHeX.Web.Services;
 using PKHeX.Web.Services.AnalyticsResults;
@@ -77,7 +78,8 @@ builder.Services.AddScoped<BlazorMd5Provider>();
 builder.Services.AddScoped<SyncPokemonQueue>();
 builder.Services.AddScoped<MyPokemonRepository>();
 builder.Services.AddScoped<PublicPokemonRepository>();
-builder.Services.AddScoped<SyncedPokemonRepository>();
+builder.Services.AddScoped<LocalSyncedPokemonRepository>();
+builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<SyncPokemonWorker>();
 
 builder.Services.AddAntDesign();

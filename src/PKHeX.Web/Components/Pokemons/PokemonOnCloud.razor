@@ -1,11 +1,14 @@
 @using PKHeX.Web.BackendApi
+@using PKHeX.Web.BackendApi.Repositories
 @using PKHeX.Web.BackendApi.Representation
 @implements IDisposable
+@inject INotificationService Notification
 @inject SyncPokemonWorker SyncWorker
 @inject SyncPokemonQueue SyncQueue
-@inject SyncedPokemonRepository SyncedPokemonRepository
+@inject LocalSyncedPokemonRepository LocalSyncedPokemonRepository
 @inject MyPokemonRepository MyPokemonRepository
 @inject NavigationManager Navigation
+@inject UserRepository UserRepository
 
 <Space Style="width: 100%; gap: 10px;" Direction="DirectionVHType.Vertical">
     <ResponsibleDescriptions Bordered Size="small" Style="width: 100%">
@@ -80,38 +83,54 @@
 
 @code {
     [Parameter] public required Pokemon Pokemon { get; set; }
+    [Parameter] public Guid? CloudId { get; set; }
 
     private bool _isSyncing;
     private bool _isSynced;
 
     private PokemonMetadataRepresentation? _syncedMetadata;
 
-    private bool _hasBeenRemoved;
-
     protected override async Task OnInitializedAsync()
     {
         SyncPokemonWorker.PokemonUploaded += HandlePokemonUploaded;
+
         SetSyncingStatuses();
 
-        if (_isSynced)
-        {
-            _syncedMetadata = await MyPokemonRepository.GetByLocalId(Pokemon.GetLocalSyncId());
-            StateHasChanged();
-        }
+        await RefreshMetadata();
     }
 
     private async Task HandleSyncClick(object arg)
     {
         if (!_isSynced)
         {
-            SyncQueue.Enqueue(Pokemon);
+            var user = await UserRepository.GetSignedInUser();
+            if (LocalSyncedPokemonRepository.Count() >= user.SyncQuota)
+            {
+                _ = Notification.Open(new NotificationConfig
+                {
+                    Message = "Quota Exceeded",
+                    Description = $"You have reached your sync quota: {user.SyncQuota}.",
+                    NotificationType = NotificationType.Error
+                });
+            }
+            else
+            {
+                SyncQueue.Enqueue(Pokemon);
+            }
         }
         else
         {
-            await MyPokemonRepository.RemoveByLocalId(Pokemon.GetLocalSyncId());
-            _hasBeenRemoved = true;
+            if (CloudId.HasValue)
+            {
+                await MyPokemonRepository.RemoveById(CloudId.Value);
+            }
+            else
+            {
+                await MyPokemonRepository.RemoveByLocalId(Pokemon.GetLocalSyncId());
+            }
         }
 
+        await RefreshMetadata();
         SetSyncingStatuses();
 
         StateHasChanged();
@@ -140,7 +159,6 @@
         if (arg.Pokemon.GetLocalSyncId() != Pokemon.GetLocalSyncId()) return Task.CompletedTask;
 
         _syncedMetadata = arg.Metadata;
-        _hasBeenRemoved = false;
 
         SetSyncingStatuses();
 
@@ -151,7 +169,8 @@
 
     private void SetSyncingStatuses()
     {
-        _isSynced = SyncedPokemonRepository.IsSynced(Pokemon);
+        _isSynced = LocalSyncedPokemonRepository.IsSynced(Pokemon) 
+                    || (CloudId.HasValue && LocalSyncedPokemonRepository.IsSynced(CloudId.Value));
         _isSyncing = SyncQueue.IsEnqueued(Pokemon)
                      || SyncWorker.PokemonSyncing?.GetLocalSyncId() == Pokemon.GetLocalSyncId();
     }
@@ -160,9 +179,26 @@
     {
         if (_isSynced)
         {
-            _syncedMetadata = await MyPokemonRepository.GetByLocalId(Pokemon.GetLocalSyncId());
-            StateHasChanged();
+            try
+            {
+                _syncedMetadata = CloudId.HasValue
+                    ? await MyPokemonRepository.GetById(CloudId.Value)
+                    : await MyPokemonRepository.GetByLocalId(Pokemon.GetLocalSyncId());
+            }
+            catch (NotFoundException)
+            {
+                // maybe we just unsynced the pokemon a the state will be eventually updated
+                // there's probably a better way to handle this, but for now we simply set it to null
+                _syncedMetadata = null;
+            }
+            
         }
+        else
+        {
+            _syncedMetadata = null;
+        }
+        
+        StateHasChanged();
     }
 
     public void Dispose()

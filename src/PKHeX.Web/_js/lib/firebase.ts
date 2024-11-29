@@ -12,19 +12,47 @@ const config: FirebaseOptions = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
-export async function initFirebase() {
+export function initFirebase() {
     if (import.meta.env.VITE_FIREBASE_ENABLED !== 'true') {
         return    
     }
     
     const app = initializeApp(config)
     const auth = getAuth(app)
-
+    
+    auth.onIdTokenChanged(async (user) => {
+        // if dotnet doesn't exist, return
+        if (!window.DotNet || !window.DotNet.invokeMethodAsync) return
+        if (user) {
+            await DotNet.invokeMethodAsync("PKHeX.Web", "OnTokenChanged", await user.getIdToken())
+        } else {
+            await DotNet.invokeMethodAsync("PKHeX.Web", "OnTokenChanged", null)
+        }
+    })
+    
+    window.isSignedIn = () => auth.currentUser !== null
+    
     window.getAuthToken = async () => {
         const user = auth.currentUser
         if (!user) throw new Error('No user found')
         return await user.getIdToken()
     }
     
-    await signInAnonymously(auth);
+    window.signInAnonymously = async () => {
+        const userCredential = await signInAnonymously(auth);
+        return await userCredential.user.getIdToken();
+    }
+    
+    window.getSignedInUser = () => {
+        if (!auth.currentUser) throw new Error('No user found')
+        return {
+            id: auth.currentUser.uid,
+            email: auth.currentUser.email,
+            isAnonymous: auth.currentUser.isAnonymous,
+        }
+    }
+    
+    window.signOut = async () => {
+        await auth.signOut();
+    }
 }

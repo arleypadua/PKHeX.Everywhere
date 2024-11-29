@@ -1,0 +1,54 @@
+@using PKHeX.Web.Services.Auth
+@implements IDisposable
+@inject AuthService Auth
+
+@if(_isSignedIn)
+{
+    @ChildContent
+}
+
+@code {
+    [Parameter] public required RenderFragment ChildContent { get; set; }
+    
+    [Parameter] public EventCallback OnSignedIn { get; set; }
+    [Parameter] public EventCallback OnSignedOut { get; set; }
+    
+    private bool _isSignedIn;
+    
+    protected override Task OnInitializedAsync()
+    {
+        _isSignedIn = Auth.IsSignedIn();
+        
+        if (_isSignedIn)
+        {
+            return OnSignedIn.InvokeAsync();
+        }
+        
+        AuthService.TokenChanged += HandleTokenChanged;
+
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleTokenChanged(AuthService.IdTokenChangedArgs arg)
+    {
+        var wasSignedIn = _isSignedIn;
+        _isSignedIn = Auth.IsSignedIn();
+
+        if (_isSignedIn && !wasSignedIn)
+        {
+            await OnSignedIn.InvokeAsync();
+        }
+        else if (!wasSignedIn)
+        {
+            await OnSignedOut.InvokeAsync();
+        }
+
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        AuthService.TokenChanged -= HandleTokenChanged;
+    }
+
+}

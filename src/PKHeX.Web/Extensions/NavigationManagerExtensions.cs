@@ -61,6 +61,12 @@ public static class NavigationManagerExtensions
     public static void NavigateToSharedPokemon(this NavigationManager navigation, Guid id) =>
         navigation.NavigateTo($"/s/{id}");
     
+    public static void NavigateToCloudPokemonList(this NavigationManager navigation) =>
+        navigation.NavigateTo($"/cloud/pokemon");
+    
+    public static void NavigateToCloudPokemon(this NavigationManager navigation, Guid id) =>
+        navigation.NavigateTo($"/cloud/pokemon/{id}");
+    
     public static void StoreOnQuery(this NavigationManager navigation, Dictionary<string, object?> parameters)
     {
         navigation.NavigateTo(navigation.GetUriWithQueryParameters(parameters));

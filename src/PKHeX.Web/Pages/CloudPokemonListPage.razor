@@ -1,0 +1,28 @@
+@page "/cloud/pokemon"
+@using PKHeX.Web.BackendApi.Repositories
+@using PKHeX.Web.BackendApi.Representation
+@inject MyPokemonRepository MyPokemonRepository
+
+<PageTitle>My Pokemon Cloud</PageTitle>
+
+<WhenSignedIn
+    OnSignedIn="HandleSignedId">
+    <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+        <PageHeader BackIcon="true" Style="max-width: 100%">
+            <TitleTemplate>Pokemon Cloud</TitleTemplate>
+        </PageHeader>
+
+        <PokemonMetadataTable 
+            DataSource="@_myPokemon" />
+    </Space>
+</WhenSignedIn>
+
+@code {
+    private List<PokemonMetadataRepresentation> _myPokemon = [];
+
+    private async Task HandleSignedId(object arg)
+    {
+        _myPokemon = await MyPokemonRepository.GetAll();
+    }
+
+}

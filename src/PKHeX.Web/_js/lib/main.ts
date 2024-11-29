@@ -1,9 +1,9 @@
 import {setupWindow} from "./window.ts";
 import {initFirebase} from "./firebase.ts";
 
-async function main() {
+function main() {
     setupWindow()
-    await initFirebase()
+    initFirebase()
 }
 
 main()

@@ -1,6 +1,8 @@
 @using PKHeX.Web.Plugins
+@using PKHeX.Web.Services.Auth
 @using PKHeX.Web.Services.Plugins
 @inject IConfiguration Configuration
+@inject AuthService AuthService
 
 <Space Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
     <PageHeader BackIcon="true" Style="max-width: 100%">
@@ -39,12 +41,17 @@
                 Pokemon="Pokemon"
                 OnPokemonChanged="HandlePokemonChange"/>
         </TabPane>
-        
+
         @if (ShowCloudTab && Configuration.GetBackendApiOptions().Enabled)
         {
             <TabPane Tab="Cloud" Key="Cloud">
-                <PokemonOnCloud
-                    Pokemon="Pokemon" />
+                <CloudPrivacyAgreementAction>
+                    <WhenAuthenticated>
+                        <PokemonOnCloud
+                            Pokemon="Pokemon"
+                            CloudId="CloudId"/>
+                    </WhenAuthenticated>
+                </CloudPrivacyAgreementAction>
             </TabPane>
         }
     </Tabs>
@@ -52,20 +59,28 @@
 
 @code {
     [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
-    
+
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> PokemonChanged { get; set; }
 
-    [Parameter] public bool ShowCloudTab { get; set; } = false;
+    [Parameter] public bool ShowCloudTab { get; set; }
+    [Parameter] public Guid? CloudId { get; set; }
 
     private string _activeTab = default!;
     private PokemonLegalityBanner _legalityBanner = default!;
+    private bool _isSignedIn = false;
+
+    protected override void OnInitialized()
+    {
+        _isSignedIn = AuthService.IsSignedIn();
+    }
 
     async Task HandlePokemonChange(Pokemon changedPokemon)
     {
         await PlugInRuntime.RunAll<IRunOnPokemonChange>(h => h.OnPokemonChange(changedPokemon));
         _legalityBanner.Refresh();
     }
+
 }
 
 <style>
