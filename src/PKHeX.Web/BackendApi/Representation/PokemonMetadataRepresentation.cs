@@ -58,7 +58,8 @@ public record PokemonMetConditionsMetadataRepresentation(
     string Location,
     DateOnly? Date,
     int Level,
-    bool FatefulEncounter);
+    bool FatefulEncounter,
+    int BallId);
 
 public record AllPokemonStatusMetadataRepresentation(
     PokemonStatsMetadataRepresentation Base,

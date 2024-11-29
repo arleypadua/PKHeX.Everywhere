@@ -1,0 +1,119 @@
+@using PKHeX.Web.BackendApi.Representation
+
+<div class="ant-descriptions-title">
+    Stats
+</div>
+
+<Space Style="gap: 20px;" Wrap>
+    <ResponsibleDescriptions Bordered Title="HP" Size="small" Style="width: 100%">
+        <DescriptionsItem Title="Base">
+            @Pokemon.Stats.Base.Health
+        </DescriptionsItem>
+        <DescriptionsItem Title="IV">
+            (hidden)
+        </DescriptionsItem>
+        <DescriptionsItem Title="EV">
+            @Pokemon.Stats.Ev.Health
+        </DescriptionsItem>
+        @if (Pokemon.Stats.Av != null)
+        {
+            <DescriptionsItem Title="AV">
+                @Pokemon.Stats.Av.Health
+            </DescriptionsItem>
+        }
+    </ResponsibleDescriptions>
+
+    <ResponsibleDescriptions Bordered Title="Attack" Size="small" Style="width: 100%">
+        <DescriptionsItem Title="Base">
+            @Pokemon.Stats.Base.Attack
+        </DescriptionsItem>
+        <DescriptionsItem Title="IV">
+            (hidden)
+        </DescriptionsItem>
+        <DescriptionsItem Title="EV">
+            @Pokemon.Stats.Ev.Attack
+        </DescriptionsItem>
+        @if (Pokemon.Stats.Av != null)
+        {
+            <DescriptionsItem Title="AV">
+                @Pokemon.Stats.Av.Attack
+            </DescriptionsItem>
+        }
+    </ResponsibleDescriptions>
+
+    <ResponsibleDescriptions Bordered Title="Defense" Size="small" Style="width: 100%">
+        <DescriptionsItem Title="Base">
+            @Pokemon.Stats.Base.Defense
+        </DescriptionsItem>
+        <DescriptionsItem Title="IV">
+            (hidden)
+        </DescriptionsItem>
+        <DescriptionsItem Title="EV">
+            @Pokemon.Stats.Ev.Defense
+        </DescriptionsItem>
+        @if (Pokemon.Stats.Av != null)
+        {
+            <DescriptionsItem Title="AV">
+                @Pokemon.Stats.Av.Defense
+            </DescriptionsItem>
+        }
+    </ResponsibleDescriptions>
+
+    <ResponsibleDescriptions Bordered Title="Special Attack" Size="small" Style="width: 100%">
+        <DescriptionsItem Title="Base">
+            @Pokemon.Stats.Base.SpecialAttack
+        </DescriptionsItem>
+        <DescriptionsItem Title="IV">
+            (hidden)
+        </DescriptionsItem>
+        <DescriptionsItem Title="EV">
+            @Pokemon.Stats.Ev.SpecialAttack
+        </DescriptionsItem>
+        @if (Pokemon.Stats.Av != null)
+        {
+            <DescriptionsItem Title="AV">
+                @Pokemon.Stats.Av.SpecialAttack
+            </DescriptionsItem>
+        }
+    </ResponsibleDescriptions>
+
+    <ResponsibleDescriptions Bordered Title="Special Defense" Size="small" Style="width: 100%">
+        <DescriptionsItem Title="Base">
+            @Pokemon.Stats.Base.SpecialDefense
+        </DescriptionsItem>
+        <DescriptionsItem Title="IV">
+            (hidden)
+        </DescriptionsItem>
+        <DescriptionsItem Title="EV">
+            @Pokemon.Stats.Ev.SpecialDefense
+        </DescriptionsItem>
+        @if (Pokemon.Stats.Av != null)
+        {
+            <DescriptionsItem Title="AV">
+                @Pokemon.Stats.Av.SpecialDefense
+            </DescriptionsItem>
+        }
+    </ResponsibleDescriptions>
+
+    <ResponsibleDescriptions Bordered Title="Speed" Size="small" Style="width: 100%">
+        <DescriptionsItem Title="Base">
+            @Pokemon.Stats.Base.Speed
+        </DescriptionsItem>
+        <DescriptionsItem Title="IV">
+            (hidden)
+        </DescriptionsItem>
+        <DescriptionsItem Title="EV">
+            @Pokemon.Stats.Ev.Speed
+        </DescriptionsItem>
+        @if (Pokemon.Stats.Av != null)
+        {
+            <DescriptionsItem Title="AV">
+                @Pokemon.Stats.Av.Speed
+            </DescriptionsItem>
+        }
+    </ResponsibleDescriptions>
+</Space>
+
+@code {
+    [Parameter] public required PokemonPublicMetadataRepresentation Pokemon { get; set; }
+}

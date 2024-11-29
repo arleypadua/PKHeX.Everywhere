@@ -1,4 +1,3 @@
-@using PKHeX.Core
 @using PKHeX.Facade.Repositories
 @using PKHeX.Web.BackendApi.Representation
 @using Gender = PKHeX.Facade.Gender
@@ -8,62 +7,92 @@
         Bordered
         Size="small"
         Style="width: 100%">
-        <DescriptionsItem Title="Species">
-            @_species.Name
-        </DescriptionsItem>
 
-        <DescriptionsItem Title="Types">
-            <PokemonTypeImage Types="Pokemon.Types.Tuple" Index="PokemonTypeImage.TypeIndex.Primary"/>
+        <TitleTemplate>
+            Descriptions
+        </TitleTemplate>
 
-            @if (Pokemon.Types.Type1 != Pokemon.Types.Type2)
-            {
-                <PokemonTypeImage Types="Pokemon.Types.Tuple" Index="PokemonTypeImage.TypeIndex.Secondary"/>
-            }
-        </DescriptionsItem>
-        <DescriptionsItem Title="PID">
-            (hidden)
-        </DescriptionsItem>
-        <DescriptionsItem Title="Nickname">
-            @Pokemon.Nickname
-        </DescriptionsItem>
-        <DescriptionsItem Title="Gender">
-            <GenderSelector
-                Gender="@_gender"
-                Disabled/>
-        </DescriptionsItem>
-        <DescriptionsItem Title="Shiny">
-            <Switch Value="@Pokemon.IsShiny" Disabled/>
-        </DescriptionsItem>
-        <DescriptionsItem Title="Level">
-            @Pokemon.Level
-        </DescriptionsItem>
-        <DescriptionsItem Title="Nature">
-            <NatureSelect
-                SelectedNature="Pokemon.Nature"
-                Disabled/>
-        </DescriptionsItem>
-        <DescriptionsItem Title="Form">
-            @_form?.Name
-        </DescriptionsItem>
-        @if (_heldItem is not null)
-        {
-            <DescriptionsItem Title="Held Item">
-                @_heldItem.Name
+        <ChildContent>
+            <DescriptionsItem Title="Species">
+                @_species.Name
             </DescriptionsItem>
-        }
-        <DescriptionsItem Title="Ability">
-            <AbilitySelect
-                SelectedAbilityId="_ability.Id"
-                Disabled/>
-        </DescriptionsItem>
 
+            <DescriptionsItem Title="Types">
+                <PokemonTypeImage Types="Pokemon.Types.Tuple" Index="PokemonTypeImage.TypeIndex.Primary"/>
+
+                @if (Pokemon.Types.Type1 != Pokemon.Types.Type2)
+                {
+                    <PokemonTypeImage Types="Pokemon.Types.Tuple" Index="PokemonTypeImage.TypeIndex.Secondary"/>
+                }
+            </DescriptionsItem>
+            <DescriptionsItem Title="PID">
+                (hidden)
+            </DescriptionsItem>
+            <DescriptionsItem Title="Nickname">
+                @Pokemon.Nickname
+            </DescriptionsItem>
+            <DescriptionsItem Title="Gender">
+                <GenderSelector
+                    Gender="@_gender"
+                    Disabled/>
+            </DescriptionsItem>
+            <DescriptionsItem Title="Shiny">
+                <Switch Value="@Pokemon.IsShiny" Disabled/>
+            </DescriptionsItem>
+            <DescriptionsItem Title="Level">
+                @Pokemon.Level
+            </DescriptionsItem>
+            <DescriptionsItem Title="Nature">
+                <NatureSelect
+                    SelectedNature="Pokemon.Nature"
+                    Disabled/>
+            </DescriptionsItem>
+            @if (!string.IsNullOrWhiteSpace(_form?.Name))
+            {
+                <DescriptionsItem Title="Form">
+                    @_form.Name
+                </DescriptionsItem>
+            }
+            @if (_heldItem is not null)
+            {
+                <DescriptionsItem Title="Held Item">
+                    @_heldItem.Name
+                </DescriptionsItem>
+            }
+            <DescriptionsItem Title="Ability">
+                <AbilitySelect
+                    SelectedAbilityId="_ability.Id"
+                    Disabled/>
+            </DescriptionsItem>
+
+            <DescriptionsItem Title="Egg">
+                <Switch Value="Pokemon.Egg.IsEgg" Disabled/>
+            </DescriptionsItem>
+
+            @if (Pokemon.Egg.IsEgg)
+            {
+                <DescriptionsItem>
+                    <TitleTemplate>
+                        Hatch Counter
+                    </TitleTemplate>
+                    <ChildContent>
+                        <AntDesign.InputNumber
+                            TValue="int"
+                            Disabled="true"
+                            Value="@(Pokemon.Egg.HatchCounter ?? 1)"
+                            DefaultValue="1"/>
+                    </ChildContent>
+                </DescriptionsItem>
+            }
+
+            <DescriptionsItem Title="Infected">
+                <Switch Disabled Value="Pokemon.Flags.IsInfected"/>
+            </DescriptionsItem>
+            <DescriptionsItem Title="Cured">
+                <Switch Disabled Value="Pokemon.Flags.IsCured"/>
+            </DescriptionsItem>
+        </ChildContent>
     </ResponsibleDescriptions>
-
-    <AntList Grid="_grid" DataSource="@Pokemon.Moves">
-        <ListItem>
-            <Card Bordered Title="@(context.Name)"/>
-        </ListItem>
-    </AntList>
 </Space>
 
 @code {
@@ -74,8 +103,6 @@
     private ItemDefinition? _heldItem;
     private AbilityDefinition _ability = default!;
     private FormDefinition? _form;
-
-    private ListGridType _grid = new() { Gutter = 16, Column = 4 };
 
     protected override void OnInitialized()
     {
