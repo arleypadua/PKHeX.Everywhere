@@ -1,6 +1,5 @@
 using FluentAssertions;
 using PKHeX.Facade.Repositories;
-using PKHeX.Facade.Tests.Base;
 
 namespace PKHeX.Facade.Tests;
 
@@ -53,6 +52,28 @@ public class InventoryTests
         {
             reloadedGame.Trainer.Inventories.InventoryItems["Balls"].Items
                 .Should().NotContain(i => i.Id == MasterBall.Id);
+        });
+    }
+
+    [Theory]
+    [SupportedSaveFiles]
+    public void Invories_CanAddRareCandies(string saveFile)
+    {
+        var game = Game.LoadFrom(saveFile);
+
+        var rareCandyBag =
+            game.Trainer.Inventories.InventoryItems.Values.FirstOrDefault(i =>
+                i.AllSupportedItems.Any(s => s.Name == "Rare Candy"));
+        
+        rareCandyBag.Should().NotBeNull();
+
+        var rareCandyDefinition = rareCandyBag!.AllSupportedItems.First(s => s.Name == "Rare Candy");
+        rareCandyBag.Set(rareCandyDefinition.Id, 5);
+
+        game.SaveAndReload(reloadedGame =>
+        {
+            reloadedGame.Trainer.Inventories[rareCandyBag.Type].Items
+                .Should().ContainSingle(i => i.Id == rareCandyDefinition.Id && i.Count == 5);
         });
     }
 }

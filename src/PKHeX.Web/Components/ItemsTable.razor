@@ -4,8 +4,8 @@
     @bind-PageIndex="_pageIndex"
     @bind-PageSize="_pageSize"
     Size="TableSize.Small"
-    Responsive
-    EnableVirtualization>
+    RowKey="@(x => x.Id)"
+    Responsive>
     <PropertyColumn Title="" Property="@(c => c.Definition.Id)">
         <ItemIcon Item="@context.Definition"/>
     </PropertyColumn>

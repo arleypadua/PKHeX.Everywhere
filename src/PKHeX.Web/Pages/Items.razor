@@ -17,6 +17,7 @@
         {
             <TabPane Tab="@inventoryType" Key="@inventoryType">
                 <ItemsTable
+                    @key="@inventoryType"
                     Inventory="Inventories?[inventoryType]"
                     DataSource="@(Inventories?[inventoryType].Where(i => i.Definition.Id != ItemDefinition.None).ToList())"/>
             </TabPane>
@@ -75,6 +76,9 @@
         _addItemModalVisible = false;
 
         Track(itemToBeAdded);
+        
+        StateHasChanged();
+        ShouldRender();
     }
 
     private void Track(AddItemModal.ItemToBeAdded itemToBeAdded)
