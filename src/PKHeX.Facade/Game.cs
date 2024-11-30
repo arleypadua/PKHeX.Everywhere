@@ -16,6 +16,7 @@ public class Game
         ItemRepository = new ItemRepository(saveFile);
 
         Trainer = new Trainer(this);
+        BattlePoints = BattlePoints.GetInstance(saveFile);
     }
 
     public SpeciesRepository SpeciesRepository { get; }
@@ -23,6 +24,7 @@ public class Game
     public LocationRepository LocationRepository { get; }
     public ItemRepository ItemRepository { get; }
     public Trainer Trainer { get; }
+    public BattlePoints BattlePoints { get; }
 
     public GameVersionDefinition SaveVersion => GameVersionRepository.Instance.Get(SaveFile.Version);
 
