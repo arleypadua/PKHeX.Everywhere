@@ -50,7 +50,7 @@ export function initFirebase() {
     }
     
     window.getSignedInUser = () => {
-        if (!auth.currentUser) throw new Error('No user found')
+        if (!auth.currentUser) return null
         return {
             id: auth.currentUser.uid,
             email: auth.currentUser.email,

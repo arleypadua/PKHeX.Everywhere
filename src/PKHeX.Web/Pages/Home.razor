@@ -5,6 +5,7 @@
 @inject AntdThemeService ThemeService
 @inject PlugInRegistry PlugInRegistry
 @inject PlugInRuntime PlugInRuntime
+@inject IConfiguration Configuration
 
 <PageTitle>Home</PageTitle>
 
@@ -46,7 +47,10 @@
         </Descriptions>
     }
 
-    <CloudSummary />
+    @if (Configuration.GetBackendApiOptions().Enabled)
+    {
+        <CloudSummary />
+    }
 
 </Space>
 

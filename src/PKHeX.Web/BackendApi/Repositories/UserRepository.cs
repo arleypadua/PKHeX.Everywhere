@@ -14,7 +14,7 @@ public class UserRepository(
         if (_cache.Get(SignedInUserKey) is UserRepresentation user)
             return user;
         
-        var firebaseUser = await auth.GetSignedInUser();
+        var firebaseUser = await auth.GetSignedInUserOrThrow();
         user = new UserRepresentation
         {
             Id = firebaseUser.Id,

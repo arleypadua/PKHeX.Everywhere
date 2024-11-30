@@ -23,7 +23,7 @@ declare global {
         isSignedIn: () => boolean;
         getAuthToken: () => Promise<IdToken>;
         signInAnonymously: () => Promise<IdToken>;
-        getSignedInUser: () => User;
+        getSignedInUser: () => User | null;
         signOut: () => Promise<void>;
     }
 }

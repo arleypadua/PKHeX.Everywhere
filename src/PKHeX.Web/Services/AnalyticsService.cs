@@ -1,10 +1,12 @@
 using Blazor.Analytics;
-using Microsoft.AspNetCore.Components;
 using PKHeX.Facade;
 using PKHeX.Facade.Pokemons;
+using PKHeX.Facade.Repositories;
+using PKHeX.Web.BackendApi.Representation;
 using PKHeX.Web.Components;
 using PKHeX.Web.Extensions;
 using PKHeX.Web.Plugins;
+using PKHeX.Web.Services.Auth;
 using PKHeX.Web.Services.Plugins;
 
 namespace PKHeX.Web.Services;
@@ -64,6 +66,101 @@ public class AnalyticsService(
             ball_name = pokemon.Ball.Name,
             level = pokemon.Level,
             source = source?.ToString()
+        });
+    }
+
+    public void TrackSharedPokemonSeen(PokemonPublicMetadataRepresentation pokemon, AuthService.User? user = null)
+    {
+        analytics.TrackEvent("shared_pokemon_seen", new
+        {
+            id = pokemon.Id.ToString(),
+            species_id = (int)pokemon.Species,
+            species_name = pokemon.Species.ToString(),
+            gender = pokemon.Gender.Name,
+            ball_name = ItemRepository.GetItem(Convert.ToUInt16(pokemon.MetConditions.BallId)).Name,
+            level = pokemon.Level,
+            seen_by_user_id = user?.Id
+        });
+    }
+
+    public void TrackSharedPokemonDownloaded(PokemonPublicMetadataRepresentation pokemon, AuthService.User? user = null)
+    {
+        analytics.TrackEvent("shared_pokemon_downloaded", new
+        {
+            id = pokemon.Id.ToString(),
+            species_id = (int)pokemon.Species,
+            species_name = pokemon.Species.ToString(),
+            gender = pokemon.Gender.Name,
+            ball_name = ItemRepository.GetItem(Convert.ToUInt16(pokemon.MetConditions.BallId)).Name,
+            level = pokemon.Level,
+            downloaded_by_user_id = user?.Id
+        });
+    }
+    
+    public void TrackPokemonSyncStarted(PokemonMetadataRepresentation pokemon, AuthService.User user)
+    {
+        analytics.TrackEvent("pokemon_sync_started", new
+        {
+            id = pokemon.Id.ToString(),
+            species_id = (int)pokemon.Species,
+            species_name = pokemon.Species.ToString(),
+            gender = pokemon.Gender.Name,
+            ball_name = ItemRepository.GetItem(Convert.ToUInt16(pokemon.MetConditions.BallId)).Name,
+            level = pokemon.Level,
+            user_id = user.Id
+        });
+    }
+    
+    public void TrackPokemonSyncStopped(PokemonMetadataRepresentation pokemon, AuthService.User user)
+    {
+        analytics.TrackEvent("pokemon_sync_stopped", new
+        {
+            id = pokemon.Id.ToString(),
+            species_id = (int)pokemon.Species,
+            species_name = pokemon.Species.ToString(),
+            gender = pokemon.Gender.Name,
+            ball_name = ItemRepository.GetItem(Convert.ToUInt16(pokemon.MetConditions.BallId)).Name,
+            level = pokemon.Level,
+            user_id = user.Id
+        });
+    }
+    
+    public void TrackPokemonPublicToggle(PokemonMetadataRepresentation pokemon, bool isShared, AuthService.User user)
+    {
+        analytics.TrackEvent("pokemon_sync_stopped", new
+        {
+            id = pokemon.Id.ToString(),
+            species_id = (int)pokemon.Species,
+            species_name = pokemon.Species.ToString(),
+            gender = pokemon.Gender.Name,
+            ball_name = ItemRepository.GetItem(Convert.ToUInt16(pokemon.MetConditions.BallId)).Name,
+            level = pokemon.Level,
+            is_shared = isShared,
+            user_id = user.Id
+        });
+    }
+    
+    public void TrackPokemonDownloadToggle(PokemonMetadataRepresentation pokemon, bool isAllowed, AuthService.User user)
+    {
+        analytics.TrackEvent("pokemon_sync_stopped", new
+        {
+            id = pokemon.Id.ToString(),
+            species_id = (int)pokemon.Species,
+            species_name = pokemon.Species.ToString(),
+            gender = pokemon.Gender.Name,
+            ball_name = ItemRepository.GetItem(Convert.ToUInt16(pokemon.MetConditions.BallId)).Name,
+            level = pokemon.Level,
+            is_allowed = isAllowed,
+            user_id = user.Id
+        });
+    }
+    
+    public void TrackPokemonSyncQuotaExceeded(AuthService.User user, int userQuota)
+    {
+        analytics.TrackEvent("pokemon_sync_quota_exceeded", new
+        {
+            user_id = user.Id,
+            user_quota = userQuota
         });
     }
 

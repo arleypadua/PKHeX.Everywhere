@@ -29,9 +29,9 @@ public class AuthService(
         return authToken;
     }
     
-    public async Task<User> GetSignedInUser()
+    public async Task<User?> GetSignedInUser()
     {
-        return await js.InvokeAsync<User>("getSignedInUser");
+        return await js.InvokeAsync<User?>("getSignedInUser");
     }
     
     [JSInvokable]
@@ -51,5 +51,14 @@ public class AuthService(
         string? Token)
     {
         public bool IsSignedIn => !string.IsNullOrEmpty(Token);
+    }
+}
+
+public static class AuthServiceExtensions
+{
+    public static async Task<AuthService.User> GetSignedInUserOrThrow(this AuthService auth)
+    {
+        var user = await auth.GetSignedInUser();
+        return user ?? throw new InvalidOperationException("User is not signed in");
     }
 }

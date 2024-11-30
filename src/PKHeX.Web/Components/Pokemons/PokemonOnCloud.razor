@@ -1,6 +1,7 @@
 @using PKHeX.Web.BackendApi
 @using PKHeX.Web.BackendApi.Repositories
 @using PKHeX.Web.BackendApi.Representation
+@using PKHeX.Web.Services.Auth
 @implements IDisposable
 @inject INotificationService Notification
 @inject SyncPokemonWorker SyncWorker
@@ -9,6 +10,8 @@
 @inject MyPokemonRepository MyPokemonRepository
 @inject NavigationManager Navigation
 @inject UserRepository UserRepository
+@inject AnalyticsService AnalyticsService
+@inject AuthService Auth
 
 <Space Style="width: 100%; gap: 10px;" Direction="DirectionVHType.Vertical">
     <ResponsibleDescriptions Bordered Size="small" Style="width: 100%">
@@ -112,6 +115,8 @@
                     Description = $"You have reached your sync quota: {user.SyncQuota}.",
                     NotificationType = NotificationType.Error
                 });
+                
+                AnalyticsService.TrackPokemonSyncQuotaExceeded(await Auth.GetSignedInUserOrThrow(), user.SyncQuota);
             }
             else
             {
@@ -128,6 +133,11 @@
             {
                 await MyPokemonRepository.RemoveByLocalId(Pokemon.GetLocalSyncId());
             }
+
+            if (_syncedMetadata is not null)
+            {
+                AnalyticsService.TrackPokemonSyncStopped(_syncedMetadata, await Auth.GetSignedInUserOrThrow());   
+            }
         }
 
         await RefreshMetadata();
@@ -141,6 +151,7 @@
         if (_syncedMetadata is null) return;
 
         await MyPokemonRepository.Share(_syncedMetadata.Id, isShared);
+        AnalyticsService.TrackPokemonPublicToggle(_syncedMetadata, isShared, await Auth.GetSignedInUserOrThrow());
 
         await RefreshMetadata();
     }
@@ -150,21 +161,22 @@
         if (_syncedMetadata is null) return;
 
         await MyPokemonRepository.AllowDownload(_syncedMetadata.Id, isAllowed);
+        AnalyticsService.TrackPokemonDownloadToggle(_syncedMetadata, isAllowed, await Auth.GetSignedInUserOrThrow());
 
         await RefreshMetadata();
     }
 
-    private Task HandlePokemonUploaded(PokemonUploadedArgs arg)
+    private async Task HandlePokemonUploaded(PokemonUploadedArgs arg)
     {
-        if (arg.Pokemon.GetLocalSyncId() != Pokemon.GetLocalSyncId()) return Task.CompletedTask;
+        if (arg.Pokemon.GetLocalSyncId() != Pokemon.GetLocalSyncId()) return;
 
         _syncedMetadata = arg.Metadata;
+
+        AnalyticsService.TrackPokemonSyncStarted(arg.Metadata, await Auth.GetSignedInUserOrThrow());
 
         SetSyncingStatuses();
 
         StateHasChanged();
-
-        return Task.CompletedTask;
     }
 
     private void SetSyncingStatuses()

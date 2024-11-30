@@ -1,10 +1,12 @@
 @page "/s/{Id}"
-@using PKHeX.Web.BackendApi
 @using PKHeX.Web.BackendApi.Repositories
 @using PKHeX.Web.BackendApi.Representation
+@using PKHeX.Web.Services.Auth
 @inject PublicPokemonRepository PublicPokemonRepository
 @inject NavigationManager Navigation
 @inject JsService Js
+@inject AnalyticsService AnalyticsService
+@inject AuthService Auth
 @inject ILogger<SharedPokemon> Logger
 
 @if (_metadata is not null)
@@ -42,8 +44,6 @@
 
     private PokemonPublicMetadataRepresentation? _metadata;
 
-    private readonly ListGridType _grid = new() { Gutter = 16, Column = 4 };
-
     protected override async Task OnInitializedAsync()
     {
         var parsed = Guid.TryParse(Id, out _id);
@@ -56,6 +56,7 @@
         try
         {
             _metadata = await PublicPokemonRepository.GetById(_id);
+            AnalyticsService.TrackSharedPokemonSeen(_metadata, await Auth.GetSignedInUser());
         }
         catch (Exception e)
         {
@@ -79,7 +80,9 @@
     private async Task HandleDownloadClick()
     {
         if (_metadata is null) return;
-
+        
+        AnalyticsService.TrackSharedPokemonDownloaded(_metadata, await Auth.GetSignedInUser());
+        
         var file = await PublicPokemonRepository.GetBinaries(_metadata.Id);
         var memoryStream = new MemoryStream(file);
         var fileName = $"{_metadata.Species}-{_metadata.Id}.bin";
