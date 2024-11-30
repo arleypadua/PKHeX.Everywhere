@@ -10,8 +10,7 @@ internal class CapturedWith(Pokemon pokemon) : EditPokemonAttribute.SimpleAttrib
 {
     public override Result HandleSelection()
     {
-        var balls = BallApplicator
-            .GetLegalBalls(Pokemon.Pkm)
+        var balls = GetLegalBalls(Pokemon.Pkm)
             .Select(b => ItemRepository.GetItem((ushort)b));
 
         var ball = AnsiConsole.Prompt(new SelectionPrompt<OptionOrBack>()
@@ -28,5 +27,19 @@ internal class CapturedWith(Pokemon pokemon) : EditPokemonAttribute.SimpleAttrib
         }
 
         return Result.Continue;
+    }
+    
+    private static IEnumerable<Ball> GetLegalBalls(PKM pk)
+    {
+        var clone = pk.Clone();
+        foreach (var b in Enum.GetValues<Ball>())
+        {
+            var ball = (byte)b;
+            clone.Ball = ball;
+            if (clone.Ball != ball)
+                continue; // Some setters guard against out of bounds values.
+            if (new LegalityAnalysis(clone).Valid)
+                yield return b;
+        }
     }
 }

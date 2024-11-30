@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyName>PKHeX.Facade</AssemblyName>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="PKHeX.Core" Version="24.7.27" />
+    <PackageReference Include="PKHeX.Core" Version="24.11.12" />
   </ItemGroup>
 
   <ItemGroup>

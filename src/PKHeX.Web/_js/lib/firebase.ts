@@ -24,10 +24,15 @@ export function initFirebase() {
     auth.onIdTokenChanged(async (user) => {
         // if dotnet doesn't exist, return
         if (!window.DotNet || !window.DotNet.invokeMethodAsync) return
-        if (user) {
-            await DotNet.invokeMethodAsync("PKHeX.Web", "OnTokenChanged", await user.getIdToken())
-        } else {
-            await DotNet.invokeMethodAsync("PKHeX.Web", "OnTokenChanged", null)
+        
+        try {
+            if (user) {
+                await DotNet.invokeMethodAsync("PKHeX.Web", "OnTokenChanged", await user.getIdToken())
+            } else {
+                await DotNet.invokeMethodAsync("PKHeX.Web", "OnTokenChanged", null)
+            }   
+        } catch {
+            // skip as maybe the dotnet method doesn't exist
         }
     })
     
