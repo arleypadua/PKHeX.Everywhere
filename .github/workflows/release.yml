@@ -86,7 +86,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
       - name: Publish - ${{ matrix.config.rid }}
         run: dotnet publish ./src/PKHeX.CLI/PKHeX.CLI.csproj -r ${{ matrix.config.rid }} -c Release /p:Version=${{ needs.versionBump.outputs.new_version_raw }}
 
