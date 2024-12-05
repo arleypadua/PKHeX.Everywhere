@@ -20,12 +20,19 @@ public static class GameFixture
 
 public class SupportedSaveFilesAttribute : DataAttribute
 {
-    public override IEnumerable<object[]> GetData(MethodInfo testMethod) =>
+    public GameVersion[] Except { get; set; } = [];
+    
+    public override IEnumerable<object[]> GetData(MethodInfo testMethod) => TestedVersions
+        .Except(Except)
+        .Select(SaveFilePath.PathFrom)
+        .Distinct()
+        .Select(p => new object[] { p });
+
+    private static readonly GameVersion[] TestedVersions =
     [
-        // [SaveFilePath.Gen1], still need to fix tests 
-        [SaveFilePath.HgSs],
-        [SaveFilePath.LetsGoPikachu],
-        [SaveFilePath.Emerald],
+        GameVersion.HG, GameVersion.SS, GameVersion.HGSS,
+        GameVersion.GP, GameVersion.GG, GameVersion.GE,
+        GameVersion.E, GameVersion.C,
     ];
 }
 
@@ -43,6 +50,7 @@ public static class SaveFilePath
     public const string HgSs = "./data/save/savedata_4hgss.dsv"; // soul silver
     public const string LetsGoPikachu = "./data/save/savedata_7b.bin"; // let's go pikachu
     public const string Emerald = "./data/save/emerald.sav"; // emerald
+    public const string Crystal = "./data/save/crystal.sav"; // crystal
 
     public static string PathFrom(GameVersion version) => version switch
     {
@@ -50,6 +58,7 @@ public static class SaveFilePath
         GameVersion.HGSS or GameVersion.HG or GameVersion.SS => HgSs,
         GameVersion.GG or GameVersion.GP or GameVersion.GE => LetsGoPikachu,
         GameVersion.E => Emerald,
+        GameVersion.C => Crystal,
         _ => throw new InvalidOperationException($"{version} not yet supported on tests"),
     };
 }

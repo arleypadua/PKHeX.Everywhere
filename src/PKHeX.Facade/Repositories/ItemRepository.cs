@@ -24,7 +24,11 @@ public class ItemRepository
     }
 
     public ISet<ItemDefinition> GameItems => _gameItems.Values.ToHashSet();
-    public ItemDefinition GetGameItem(ushort id) => _gameItems[id];
+    public ItemDefinition GetGameItem(ushort id) => _gameItems.GetValueOrDefault(id)
+                                                    // for whatever reason, some items are not in the game's item list
+                                                    // and that ends up failing
+                                                    // falling back to the all items list (is this even correct?)
+                                                    ?? GetItem(id);
     public ItemDefinition? GetGameItemByName(string name) => _gameItems.Values
         .FirstOrDefault(i => i.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 

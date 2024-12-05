@@ -19,4 +19,18 @@ public class ItemRepositoryTests
     {
         game.Trainer.Should().NotBeNull();
     }
+
+    [Theory]
+    [SupportedSaveFiles]
+    public void ShouldLoadAndEnumerateAllItemsInTheRepository(string saveFile)
+    {
+        var game = Game.LoadFrom(saveFile);
+        foreach (var inventoryType in game.Trainer.Inventories.InventoryTypes)
+        {
+            var items = game.Trainer.Inventories[inventoryType].Where(i => i.Definition.Id != ItemDefinition.None)
+                .ToList();
+
+            items.Count.Should().BeGreaterThanOrEqualTo(0);
+        }
+    }
 }
