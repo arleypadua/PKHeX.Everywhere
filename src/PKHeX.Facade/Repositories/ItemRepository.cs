@@ -21,14 +21,16 @@ public class ItemRepository
         _gameItems = GameInfo.Strings.GetItemStrings(saveFile.Context, saveFile.Version)
             .Select((itemName, id) => (id: Convert.ToUInt16(id), itemName))
             .ToDictionary(x => Convert.ToUInt16(x.id), x => new ItemDefinition(Convert.ToUInt16(x.id), x.itemName));
+
+        if (saveFile.Version == GameVersion.C)
+        {
+            // for whatever reason, Pokemon Crystal has this last item
+            _gameItems[255] = new ItemDefinition(255, "Collapsible bike");
+        }
     }
 
     public ISet<ItemDefinition> GameItems => _gameItems.Values.ToHashSet();
-    public ItemDefinition GetGameItem(ushort id) => _gameItems.GetValueOrDefault(id)
-                                                    // for whatever reason, some items are not in the game's item list
-                                                    // and that ends up failing
-                                                    // falling back to the all items list (is this even correct?)
-                                                    ?? GetItem(id);
+    public ItemDefinition GetGameItem(ushort id) => _gameItems[id];
     public ItemDefinition? GetGameItemByName(string name) => _gameItems.Values
         .FirstOrDefault(i => i.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 
