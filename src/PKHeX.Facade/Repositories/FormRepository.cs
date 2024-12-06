@@ -5,9 +5,18 @@ namespace PKHeX.Facade.Repositories;
 
 public static class FormRepository
 {
-    public static IEnumerable<FormDefinition> GetFor(Species species, EntityContext context) =>
-        FormConverter.GetFormList((ushort)species, GameInfo.Strings.types, GameInfo.Strings.forms, [], context)
-            .Select((form, index) => new FormDefinition((ushort)index, form));
+    public static IEnumerable<FormDefinition> GetFor(Species species, EntityContext context)
+    {
+        try
+        {
+            return FormConverter.GetFormList((ushort)species, GameInfo.Strings.types, GameInfo.Strings.forms, [], context)
+                .Select((form, index) => new FormDefinition((ushort)index, form));
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return Array.Empty<FormDefinition>();
+        }
+    }
 
     public static IEnumerable<FormDefinition> GetFor(PKM pokemon) =>
         GetFor((Species)pokemon.Species, pokemon.Context);

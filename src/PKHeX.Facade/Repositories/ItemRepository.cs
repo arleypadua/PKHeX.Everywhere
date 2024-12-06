@@ -30,11 +30,11 @@ public class ItemRepository
     }
 
     public ISet<ItemDefinition> GameItems => _gameItems.Values.ToHashSet();
-    public ItemDefinition GetGameItem(ushort id) => _gameItems[id];
+    public ItemDefinition GetGameItem(ushort id) => _gameItems.GetValueOrDefault(id) ?? ItemDefinition.Unknown(id);
     public ItemDefinition? GetGameItemByName(string name) => _gameItems.Values
         .FirstOrDefault(i => i.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 
-    public static ItemDefinition GetItem(ushort id) => AllItemsById[id];
+    public static ItemDefinition GetItem(ushort id) => AllItemsById.GetValueOrDefault(id) ?? ItemDefinition.Unknown(id);
     public static ItemDefinition? GetItemByName(string name) => AllItemsById.Values
         .FirstOrDefault(i => i.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
     public static ISet<ItemDefinition> AllBalls() => AllBallsById.Values.ToHashSet();
@@ -46,4 +46,6 @@ public record ItemDefinition(ushort Id, string Name)
     public static readonly int None = 0;
 
     public bool IsNone => Id == None;
+    
+    public static ItemDefinition Unknown(ushort id) => new(id, $"Unknown Item {id}");
 }
