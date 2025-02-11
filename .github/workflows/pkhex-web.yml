@@ -22,6 +22,10 @@ jobs:
           submodules: true
           fetch-depth: 0
           
+      - name: Update submodules to the latest commit
+        run: |
+          git submodule update --remote --recursive
+          
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
