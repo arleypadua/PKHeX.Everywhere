@@ -1,7 +1,7 @@
 @using PKHeX.Facade.Repositories
 
-<Space Style="gap: 20px; width: 100%" Direction="DirectionVHType.Vertical" Wrap>
-    <ResponsibleDescriptions Bordered Title="Move 1" Size="small">
+<Flex Style="gap: 20px; width: 100%" Direction="FlexDirection.Vertical" Wrap="FlexWrap.Wrap">
+    <ResponsibleDescriptions Bordered Title="Move 1" Size="DescriptionsSize.Small">
         <DescriptionsItem Title="Move" Style="max-width: 250px">
             <MoveSelect
                 Moves="PossibleMoves"
@@ -12,7 +12,7 @@
     </ResponsibleDescriptions>
 
 
-    <ResponsibleDescriptions Bordered Title="Move 2" Size="small">
+    <ResponsibleDescriptions Bordered Title="Move 2" Size="DescriptionsSize.Small">
         <DescriptionsItem Title="Move" Style="max-width: 250px">
             <MoveSelect
                 Moves="PossibleMoves"
@@ -23,7 +23,7 @@
     </ResponsibleDescriptions>
 
 
-    <ResponsibleDescriptions Bordered Title="Move 3" Size="small">
+    <ResponsibleDescriptions Bordered Title="Move 3" Size="DescriptionsSize.Small">
         <DescriptionsItem Title="Move" Style="max-width: 250px">
             <MoveSelect
                 Moves="PossibleMoves"
@@ -33,7 +33,7 @@
         <DescriptionsItem Title="PP">@Pokemon.Move3.PP</DescriptionsItem>
     </ResponsibleDescriptions>
 
-    <ResponsibleDescriptions Bordered Title="Move 4" Size="small">
+    <ResponsibleDescriptions Bordered Title="Move 4" Size="DescriptionsSize.Small">
         <DescriptionsItem Title="Move" Style="max-width: 250px">
             <MoveSelect
                 Moves="PossibleMoves"
@@ -43,7 +43,7 @@
         <DescriptionsItem Title="PP">@Pokemon.Move4.PP</DescriptionsItem>
     </ResponsibleDescriptions>
 
-</Space>
+</Flex>
 
 @code {
     [Parameter] public required Pokemon Pokemon { get; set; }

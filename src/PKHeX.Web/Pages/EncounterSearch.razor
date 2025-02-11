@@ -2,7 +2,7 @@
 @using PKHeX.Facade.Repositories
 @inject EncounterService EncounterService
 
-<Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+<Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
     <GameVersionSelect 
         Source="GameVersionSelect.DataSource.CurrentGame"
         SelectedGameVersion="_version"
@@ -15,7 +15,7 @@
 
     <PokemonEncounterTable
         DataSource="EncounterService.Encounters"/>
-</Space>
+</Flex>
 
 @code {
     private GameVersionDefinition? _version = null;

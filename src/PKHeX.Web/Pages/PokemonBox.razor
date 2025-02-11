@@ -7,7 +7,7 @@
 
 <PageTitle>Pokemon Box</PageTitle>
 
-<Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+<Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
     <PageHeader BackIcon="true" Style="max-width: 100%">
         <TitleTemplate>Box</TitleTemplate>
 
@@ -25,7 +25,7 @@
         Selectable
         @bind-SelectedPokemons="_selectedPokemonList" />
 
-</Space>
+</Flex>
 
 @code {
     [Inject] public required GameService GameService { get; set; }

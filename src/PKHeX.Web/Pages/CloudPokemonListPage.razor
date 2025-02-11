@@ -7,14 +7,14 @@
 
 <WhenSignedIn
     OnSignedIn="HandleSignedId">
-    <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+    <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
         <PageHeader BackIcon="true" Style="max-width: 100%">
             <TitleTemplate>Pokemon Cloud</TitleTemplate>
         </PageHeader>
 
         <PokemonMetadataTable 
             DataSource="@_myPokemon" />
-    </Space>
+    </Flex>
 </WhenSignedIn>
 
 @code {

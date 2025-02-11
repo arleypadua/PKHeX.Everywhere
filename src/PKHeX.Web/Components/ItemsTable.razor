@@ -44,7 +44,7 @@
     RenderFragment EditItemCountTemplate()
     {
         return
-            @<Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; gap: 20px;">
+            @<Space Direction="SpaceDirection.Vertical" Align="SpaceAlign.Center" Style="width: 100%; gap: 20px;">
                 <AntDesign.InputNumber
                     TValue="int?"
                     @bind-Value="@_selectedItemCount"

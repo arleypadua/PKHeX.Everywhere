@@ -5,7 +5,7 @@
 
 <ResponsibleDescriptions
     Bordered
-    Size="small"
+    Size="DescriptionsSize.Small"
     Style="width: 100%">
     <DescriptionsItem Title="Species">
         @* Disabled for now as changing species leaves out some dirty data in the trash. *@
@@ -18,7 +18,7 @@
     </DescriptionsItem>
 
     <DescriptionsItem Title="Types">
-        <Space Style="gap: 5px" Direction="DirectionVHType.Vertical" Wrap>
+        <Space Style="gap: 5px" Direction="SpaceDirection.Vertical" Wrap>
             <PokemonTypeImage Types="Pokemon.Types.Tuple" Index="PokemonTypeImage.TypeIndex.Primary"/>
             @if (Pokemon.Types.HasSecondary)
             {

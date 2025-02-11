@@ -4,8 +4,8 @@
     Stats
 </div>
 
-<Space Style="gap: 20px;" Wrap>
-    <ResponsibleDescriptions Bordered Title="HP" Size="small" Style="width: 100%">
+<Flex Style="gap: 20px;" Wrap="FlexWrap.Wrap">
+    <ResponsibleDescriptions Bordered Title="HP" Size="DescriptionsSize.Small" Style="width: 100%">
         <DescriptionsItem Title="Base">
             @Pokemon.Stats.Base.Health
         </DescriptionsItem>
@@ -23,7 +23,7 @@
         }
     </ResponsibleDescriptions>
 
-    <ResponsibleDescriptions Bordered Title="Attack" Size="small" Style="width: 100%">
+    <ResponsibleDescriptions Bordered Title="Attack" Size="DescriptionsSize.Small" Style="width: 100%">
         <DescriptionsItem Title="Base">
             @Pokemon.Stats.Base.Attack
         </DescriptionsItem>
@@ -41,7 +41,7 @@
         }
     </ResponsibleDescriptions>
 
-    <ResponsibleDescriptions Bordered Title="Defense" Size="small" Style="width: 100%">
+    <ResponsibleDescriptions Bordered Title="Defense" Size="DescriptionsSize.Small" Style="width: 100%">
         <DescriptionsItem Title="Base">
             @Pokemon.Stats.Base.Defense
         </DescriptionsItem>
@@ -59,7 +59,7 @@
         }
     </ResponsibleDescriptions>
 
-    <ResponsibleDescriptions Bordered Title="Special Attack" Size="small" Style="width: 100%">
+    <ResponsibleDescriptions Bordered Title="Special Attack" Size="DescriptionsSize.Small" Style="width: 100%">
         <DescriptionsItem Title="Base">
             @Pokemon.Stats.Base.SpecialAttack
         </DescriptionsItem>
@@ -77,7 +77,7 @@
         }
     </ResponsibleDescriptions>
 
-    <ResponsibleDescriptions Bordered Title="Special Defense" Size="small" Style="width: 100%">
+    <ResponsibleDescriptions Bordered Title="Special Defense" Size="DescriptionsSize.Small" Style="width: 100%">
         <DescriptionsItem Title="Base">
             @Pokemon.Stats.Base.SpecialDefense
         </DescriptionsItem>
@@ -95,7 +95,7 @@
         }
     </ResponsibleDescriptions>
 
-    <ResponsibleDescriptions Bordered Title="Speed" Size="small" Style="width: 100%">
+    <ResponsibleDescriptions Bordered Title="Speed" Size="DescriptionsSize.Small" Style="width: 100%">
         <DescriptionsItem Title="Base">
             @Pokemon.Stats.Base.Speed
         </DescriptionsItem>
@@ -112,7 +112,7 @@
             </DescriptionsItem>
         }
     </ResponsibleDescriptions>
-</Space>
+</Flex>
 
 @code {
     [Parameter] public required PokemonPublicMetadataRepresentation Pokemon { get; set; }

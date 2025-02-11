@@ -32,7 +32,7 @@
                         @<span>
                             @if (item.Icon is not null)
                             {
-                                <Icon Type="@item.Icon" Theme="outline"/>
+                                <Icon Type="@item.Icon" Theme="IconThemeType.Outline"/>
                             }
                             <span>@item.Label</span>
                         </span>;
@@ -54,7 +54,7 @@
                 Style="flex-shrink: 1"
                 Type="@ButtonType.Default"
                 Icon="@IconType.Outline.Setting"
-                Size="@AntSizeLDSType.Large"
+                Size="@ButtonSize.Large"
                 Shape="@ButtonShape.Round"
                 OnClick="HandleSettingsClick">
             </Button>
@@ -81,7 +81,7 @@
                                 <a href="@GetIssueLink(context)" target="_blank">Click here</a> to file an issue in GitHub.
                             </Paragraph>
 
-                            <ResponsibleDescriptions Bordered Size="small">
+                            <ResponsibleDescriptions Bordered Size="DescriptionsSize.Small">
                                 <DescriptionsItem Title="Id">@context.GetExceptionTrackingId()</DescriptionsItem>
                                 <DescriptionsItem Title="Type">@context.GetType().Name</DescriptionsItem>
                                 <DescriptionsItem Title="Message">@context.Message</DescriptionsItem>
@@ -176,7 +176,7 @@
         @<MenuItem Key="@item.Route">
             @if (item.Icon is not null)
             {
-                <Icon Type="@item.Icon" Theme="outline"/>
+                <Icon Type="@item.Icon" Theme="IconThemeType.Outline"/>
             }
 
             <span class="nav-text">

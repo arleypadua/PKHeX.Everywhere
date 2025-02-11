@@ -1,7 +1,7 @@
-<Space Style="gap: 20px; width: 100%" Direction="DirectionVHType.Vertical" Wrap>
+<Flex Style="gap: 20px; width: 100%" Direction="FlexDirection.Vertical" Wrap="FlexWrap.Wrap">
     <ResponsibleDescriptions
         Bordered
-        Size="small"
+        Size="DescriptionsSize.Small"
         Style="width: 100%">
         <DescriptionsItem
             Title="Handler">
@@ -19,7 +19,7 @@
     <ResponsibleDescriptions
         Bordered
         Title="@OTTitle"
-        Size="small"
+        Size="DescriptionsSize.Small"
         Style="width: 100%">
         <DescriptionsItem Title="TID">
             <AntDesign.InputNumber
@@ -60,7 +60,7 @@
     <ResponsibleDescriptions
         Bordered
         Title="@HandlerTitle"
-        Size="small"
+        Size="DescriptionsSize.Small"
         Style="width: 100%">
         <DescriptionsItem Title="Name">
             <Input
@@ -76,7 +76,7 @@
                 OnGenderChanged="HandleHandlingTrainerGenderChanged"/>
         </DescriptionsItem>
     </ResponsibleDescriptions>
-</Space>
+</Flex>
 
 @code {
     [Parameter] public required Pokemon Pokemon { get; set; }

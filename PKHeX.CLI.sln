@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PKHeX.Web.Plugins.Nuzlockin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PKHeX.Web.Plugins.LiveRun", "src\PKHeX.Web.Plugins.LiveRun\PKHeX.Web.Plugins.LiveRun.csproj", "{C1B672F8-C0C7-4203-8310-48A434FD27AC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PKHeX.Core", "external\PKHeX\PKHeX.Core\PKHeX.Core.csproj", "{C9C091B7-D437-4AE0-98E8-0AC4A0705E4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{C1B672F8-C0C7-4203-8310-48A434FD27AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1B672F8-C0C7-4203-8310-48A434FD27AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1B672F8-C0C7-4203-8310-48A434FD27AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9C091B7-D437-4AE0-98E8-0AC4A0705E4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C091B7-D437-4AE0-98E8-0AC4A0705E4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9C091B7-D437-4AE0-98E8-0AC4A0705E4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C091B7-D437-4AE0-98E8-0AC4A0705E4A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,6 +93,7 @@ Global
 		{026DB30A-D734-45E9-AC4F-CCE20C1C81C2} = {CC075F32-5750-4FFC-8E7C-B10A9834AAF5}
 		{1B4DA625-46D8-4A05-9E79-45EAAC54974D} = {CC075F32-5750-4FFC-8E7C-B10A9834AAF5}
 		{C1B672F8-C0C7-4203-8310-48A434FD27AC} = {CC075F32-5750-4FFC-8E7C-B10A9834AAF5}
+		{C9C091B7-D437-4AE0-98E8-0AC4A0705E4A} = {4FEE1C4E-85F6-4A3E-A0D4-16B38B9979E5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DC818BE7-9140-4DBD-A070-2FF1372FF25E}

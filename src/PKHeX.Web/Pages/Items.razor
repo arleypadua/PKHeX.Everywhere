@@ -3,7 +3,7 @@
 @using PKHeX.Web.Plugins
 @using PKHeX.Web.Services.Plugins
 
-<Space Direction="DirectionVHType.Vertical" Style="width: 100%;gap: 20px;">
+<Flex Direction="FlexDirection.Vertical" Style="width: 100%;gap: 20px;">
     <PageHeader BackIcon="true" Style="max-width: 100%">
         <TitleTemplate>Items</TitleTemplate>
 
@@ -23,7 +23,7 @@
             </TabPane>
         }
     </Tabs>
-</Space>
+</Flex>
 
 @if (ActiveInventory is not null)
 {

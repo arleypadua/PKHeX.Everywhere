@@ -2,10 +2,10 @@
 @using PKHeX.Web.BackendApi.Representation
 @using Gender = PKHeX.Facade.Gender
 
-<Space Style="gap: 20px; width: 100%" Direction="DirectionVHType.Vertical" Wrap>
+<Flex Style="gap: 20px; width: 100%" Direction="FlexDirection.Vertical" Wrap="FlexWrap.Wrap">
     <ResponsibleDescriptions
         Bordered
-        Size="small"
+        Size="DescriptionsSize.Small"
         Style="width: 100%">
 
         <TitleTemplate>
@@ -93,7 +93,7 @@
             </DescriptionsItem>
         </ChildContent>
     </ResponsibleDescriptions>
-</Space>
+</Flex>
 
 @code {
     [Parameter] public required PokemonPublicMetadataRepresentation Pokemon { get; set; }

@@ -9,13 +9,11 @@
 
 <PageTitle>Home</PageTitle>
 
-<Space
-    Style="width: 100%; gap: 20px;"
-    Direction="DirectionVHType.Vertical">
+<Flex Style="width: 100%; gap: 20px;" Direction="FlexDirection.Vertical">
 
     @if (_game is not null)
     {
-        <Descriptions Title="Trainer" Bordered Column="@ThemeService.ColumnsConfiguration" Size="small">
+        <Descriptions Title="Trainer" Bordered Column="@ThemeService.ColumnsConfiguration" Size="DescriptionsSize.Small">
             <DescriptionsItem Title="TID/SID">@_game.Trainer.Id</DescriptionsItem>
             <DescriptionsItem Title="Name">@_game.Trainer.Name</DescriptionsItem>
             <DescriptionsItem Title="Gender">
@@ -52,18 +50,18 @@
         <CloudSummary />
     }
 
-</Space>
+</Flex>
 
-<Space
+<Flex
     Style="width: 100%; gap: 20px; align-items: center; margin-top: 20px"
-    Direction="DirectionVHType.Vertical">
+    Direction="FlexDirection.Vertical">
     @{ FetchPlugInQuickActions(); }
     @if (_actions.Any())
     {
         <h1>Quick Actions</h1>
         <Space
             Style="gap: 20px; align-items: center; justify-items: center;"
-            Direction="DirectionVHType.Horizontal"
+            Direction="SpaceDirection.Horizontal"
             Wrap>
             @foreach (var action in _actions)
             {
@@ -74,7 +72,7 @@
 
     <GenericPlugInFailureAlert
         @bind-Error="_quickActionsFailure"/>
-</Space>
+</Flex>
 
 @code {
     private Game? _game;

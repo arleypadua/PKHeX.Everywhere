@@ -4,12 +4,12 @@
 @inject IConfiguration Configuration
 @inject AuthService AuthService
 
-<Space Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
+<Flex Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="FlexDirection.Vertical">
     <PageHeader BackIcon="true" Style="max-width: 100%">
         <TitleTemplate>Pokemon</TitleTemplate>
 
         <PageHeaderExtra>
-            <Space Style="width: 100%;" Align="center" Direction="DirectionVHType.Vertical">
+            <Space Style="width: 100%;" Align="SpaceAlign.Center" Direction="SpaceDirection.Vertical">
                 <PokemonImage
                     Species="@Pokemon.Species"
                     IsShiny="@Pokemon.IsShiny"/>
@@ -55,7 +55,7 @@
             </TabPane>
         }
     </Tabs>
-</Space>
+</Flex>
 
 @code {
     [Inject] public required PlugInRuntime PlugInRuntime { get; set; }

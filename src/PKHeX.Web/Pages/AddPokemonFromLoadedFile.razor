@@ -7,18 +7,18 @@
 
 @if (_pokemon is not null)
 {
-    <Space Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
+    <Flex Style="width: 100%; gap: 20px;" Class="pokemon_page__heading_extra__grow" Direction="FlexDirection.Vertical">
         <PokemonEdit
             Pokemon="_pokemon"/>
 
-        <Space Align="end" Style="width: 100%" Direction="DirectionVHType.Vertical">
+        <Space Align="SpaceAlign.End" Style="width: 100%" Direction="SpaceDirection.Vertical">
             <Button
                 Type="@ButtonType.Primary"
                 OnClick="HandleAddToBoxClick">
                 Add to box
             </Button>
         </Space>
-    </Space>
+    </Flex>
 }
 
 @code {

@@ -11,12 +11,12 @@
 
 @if (_metadata is not null)
 {
-    <Space Style="width: 100%; gap: 20px;" Class="shared_pokemon_page__heading_extra__grow" Direction="DirectionVHType.Vertical">
+    <Flex Style="width: 100%; gap: 20px;" Class="shared_pokemon_page__heading_extra__grow" Direction="FlexDirection.Vertical">
         <PageHeader BackIcon="true" Style="max-width: 100%">
             <TitleTemplate>Pokemon</TitleTemplate>
 
             <PageHeaderExtra>
-                <Space Style="width: 100%;" Align="center" Direction="DirectionVHType.Vertical">
+                <Space Style="width: 100%;" Align="SpaceAlign.Center" Direction="SpaceDirection.Vertical">
                     <PokemonImage
                         Species="@_metadata.Species"
                         IsShiny="@_metadata.IsShiny"/>
@@ -32,10 +32,10 @@
         
         <PokemonPublicStats Pokemon="_metadata" />
         
-        <Space Align="end" Style="width: 100%; align-items: center; justify-content: end; gap:  10px;" Direction="DirectionVHType.Horizontal">
+        <Space Align="SpaceAlign.End" Style="width: 100%; align-items: center; justify-content: end; gap:  10px;" Direction="SpaceDirection.Horizontal">
             <ButtonOrMenu Actions="ExtraActions"/>
         </Space>
-    </Space>
+    </Flex>
 }
 
 @code {

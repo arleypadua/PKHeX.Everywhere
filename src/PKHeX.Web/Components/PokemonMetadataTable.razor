@@ -19,7 +19,7 @@
 
         @if (Selectable)
         {
-            <Selection Key="@context.Id.ToString()" Type="checkbox"/>
+            <Selection Key="@context.Id.ToString()" Type="SelectionType.Checkbox"/>
         }
 
         <PropertyColumn Title="" Property="@(c => c.Species)">

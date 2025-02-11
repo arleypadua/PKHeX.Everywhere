@@ -14,7 +14,7 @@
     OnSignedOut="HandleSignedOut">
     @if (_user is not null && _firebaseUser is not null)
     {
-        <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+        <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
 
             <SpaceItem>
                 <Badge
@@ -28,12 +28,12 @@
                 </Badge>
             </SpaceItem>
 
-            <ResponsibleDescriptions Bordered Size="small">
+            <ResponsibleDescriptions Bordered Size="DescriptionsSize.Small">
                 <DescriptionsItem Title="Synced Pokemon">@LocalSyncedPokemonRepository.Count()</DescriptionsItem>
                 <DescriptionsItem Title="Sync Quota">@_user.SyncQuota</DescriptionsItem>
             </ResponsibleDescriptions>
 
-            <Space Direction="DirectionVHType.Horizontal" Align="center" Wrap="true" Style="gap: 20px; justify-content: center">
+            <Space Direction="SpaceDirection.Horizontal" Align="SpaceAlign.Center" Wrap="true" Style="gap: 20px; justify-content: center">
                 @if (LocalSyncedPokemonRepository.Any())
                 {
                     <Button
@@ -63,7 +63,7 @@
                     <p>Please note: While you can sync Pokémon with the cloud, clearing your browser cache will result in the loss of access to them.</p>
                 </Alert>
             }
-        </Space>
+        </Flex>
     }
 </WhenSignedIn>
 

@@ -1,7 +1,7 @@
 @using PKHeX.Web.Services.Auth
 @inject AuthService Auth
 
-<Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; gap: 20px;">
+<Flex Direction="FlexDirection.Vertical" Align="FlexAlign.Center" Style="width: 100%; gap: 20px;">
     @if (!Auth.IsSignedIn())
     {
         <Paragraph>In order to use this functionality you must accept our <a href="/privacy-policy">privacy policy</a>.</Paragraph>
@@ -13,7 +13,7 @@
     {
         @WhenAuthenticated
     }
-</Space>
+</Flex>
 
 @code {
 

@@ -7,7 +7,7 @@
 
 @if (_page != null)
 {
-    <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+    <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
         @if (_page.PageHeader != null)
         {
             <PageHeader BackIcon="true" Style="max-width: 100%">
@@ -28,7 +28,7 @@
         <DynamicComponent 
             Type="_page.ComponentType"
             Parameters="@AssembleComponentParams()"/>
-    </Space>
+    </Flex>
 }
 
 @code {

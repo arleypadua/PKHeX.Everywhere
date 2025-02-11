@@ -21,7 +21,7 @@
 
         @if (Selectable)
         {
-            <Selection Key="@context.UniqueId?.Value" Type="checkbox"/>
+            <Selection Key="@context.UniqueId?.Value" Type="SelectionType.Checkbox"/>
         }
 
         <PropertyColumn Title="" Property="@(c => c.Pokemon.Species)">

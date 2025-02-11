@@ -8,12 +8,12 @@
 
 @if (_editingPokemon is not null)
 {
-    <Space Style="width: 100%; gap: 20px;" Direction="DirectionVHType.Vertical">
+    <Flex Style="width: 100%; gap: 20px;" Direction="FlexDirection.Vertical">
         <PokemonEdit
             Pokemon="_editingPokemon"
             ShowCloudTab />
 
-        <Space Align="end" Style="width: 100%; align-items: center; justify-content: end; gap:  10px;" Direction="DirectionVHType.Horizontal">
+        <Space Align="SpaceAlign.End" Style="width: 100%; align-items: center; justify-content: end; gap:  10px;" Direction="SpaceDirection.Horizontal">
             @{ var actions = PlugInRegistry.GetAllEnabledHooks<IPokemonEditAction>().ToList(); }
 
             <DropdownButton
@@ -42,7 +42,7 @@
                 </ChildContent>
             </DropdownButton>
         </Space>
-    </Space>
+    </Flex>
 }
 
 @code {

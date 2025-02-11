@@ -13,8 +13,8 @@
 @inject AnalyticsService AnalyticsService
 @inject AuthService Auth
 
-<Space Style="width: 100%; gap: 10px;" Direction="DirectionVHType.Vertical">
-    <ResponsibleDescriptions Bordered Size="small" Style="width: 100%">
+<Flex Style="width: 100%; gap: 10px;" Direction="FlexDirection.Vertical">
+    <ResponsibleDescriptions Bordered Size="DescriptionsSize.Small" Style="width: 100%">
         <DescriptionsItem Title="Synced">
             <Switch
                 Checked="@_isSynced"
@@ -82,7 +82,7 @@
             </Paragraph>
         </Alert>
     }
-</Space>
+</Flex>
 
 @code {
     [Parameter] public required Pokemon Pokemon { get; set; }

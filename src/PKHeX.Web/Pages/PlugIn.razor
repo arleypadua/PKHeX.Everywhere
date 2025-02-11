@@ -10,7 +10,7 @@
 
 @if (_plugIn != null)
 {
-    <Space Direction="DirectionVHType.Vertical" Style="width: 100%; gap: 20px;">
+    <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
         <PageHeader BackIcon="true" Style="max-width: 100%">
             <TitleTemplate>@_plugIn.Settings.Manifest.PlugInName</TitleTemplate>
 
@@ -26,7 +26,7 @@
             </PageHeaderExtra>
         </PageHeader>
 
-        <ResponsibleDescriptions @key="_plugIn" Bordered Size="small" Style="width: 100%">
+        <ResponsibleDescriptions @key="_plugIn" Bordered Size="DescriptionsSize.Small" Style="width: 100%">
             <DescriptionsItem Title="Name">
                 <LabelOrLink
                     Label="@_plugIn.Settings.Manifest.PlugInName"
@@ -82,7 +82,7 @@
                 @_plugIn.Settings.Manifest.Information
             </Alert>
         }
-    </Space>
+    </Flex>
 }
 
 <GenericPlugInFailureAlert

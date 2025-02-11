@@ -20,9 +20,10 @@
     <Folder Include="Base/" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="PKHeX.Core" Version="24.11.11" />
-  </ItemGroup>
+<!--  Replaced with a local refernce to facilitate keeping in sync with latest changes-->
+<!--  <ItemGroup>-->
+<!--    <PackageReference Include="PKHeX.Core" Version="24.11.12" />-->
+<!--  </ItemGroup>-->
 
   <ItemGroup>
     <ProjectReference Include="..\..\external\PKHeX-Plugins\PKHeX.Core.AutoMod\PKHeX.Core.AutoMod.csproj" />

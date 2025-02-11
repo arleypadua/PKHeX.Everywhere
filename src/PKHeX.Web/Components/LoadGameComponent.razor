@@ -9,21 +9,21 @@
 
 @if (GameService.IsLoaded)
 {
-    <Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; gap: 20px;">
-        <Descriptions Title="Loaded Game" Bordered Column="@ThemeService.ColumnsConfiguration" Size="small" Style="width: 100%">
+    <Flex Direction="FlexDirection.Vertical" Align="FlexAlign.Center" Style="width: 100%; gap: 20px;">
+        <Descriptions Title="Loaded Game" Bordered Column="@ThemeService.ColumnsConfiguration" Size="DescriptionsSize.Small" Style="width: 100%">
             <DescriptionsItem Title="File">@GameService.FileName</DescriptionsItem>
             <DescriptionsItem Title="Version">@GameService.LoadedGame.SaveVersion.Name</DescriptionsItem>
         </Descriptions>
 
-        <Space Direction="DirectionVHType.Vertical" Style="width: 100%; max-width: 300px; gap: 20px;">
+        <Flex Direction="FlexDirection.Vertical" Style="width: 100%; max-width: 300px; gap: 20px;">
             <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Export" OnClick='ExportSaveAsync'>Export</Button>
             <Button Icon="@IconType.Outline.FolderOpen" OnClick='OpenFilePickerAsync'>Open new...</Button>
-        </Space>
-    </Space>
+        </Flex>
+    </Flex>
 }
 else
 {
-    <Space Direction="DirectionVHType.Vertical" Align="center" Style="width: 100%; max-width: 300px; gap: 20px;">
+    <Flex Direction="FlexDirection.Vertical" Align="FlexAlign.Center" Style="width: 100%; max-width: 300px; gap: 20px;">
         <Button
             OnClick="GoToHome"
             Style="min-width: 150px">Home</Button>
@@ -43,7 +43,7 @@ else
             Style="min-width: 150px">
             Demo
         </Button>
-    </Space>
+    </Flex>
 }
 
 <InputFile OnChange="LoadSave" @ref="_inputGameFile" style="display: none;"></InputFile>

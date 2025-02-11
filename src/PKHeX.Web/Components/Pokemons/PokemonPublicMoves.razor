@@ -5,14 +5,14 @@
     Moves
 </div>
 
-<Space Direction="DirectionVHType.Horizontal" Wrap Style="width: 100%; gap: 20px;">
+<Flex Direction="FlexDirection.Horizontal" Wrap="FlexWrap.Wrap" Style="width: 100%; gap: 20px;">
     @foreach (var move in Pokemon.Moves)
     {
         <Card Bordered Style="@(BrowserWindow.IsTooSmall ? "width: 130px;" : "")">
             @move.Name
         </Card>
     }
-</Space>
+</Flex>
 
 @code {
     [Parameter] public required PokemonPublicMetadataRepresentation Pokemon { get; set; }
