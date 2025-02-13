@@ -52,6 +52,7 @@ builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<EncounterService>();
 builder.Services.AddScoped<LoadPokemonService>();
 builder.Services.AddScoped<AnalyticsResultsService>();
+builder.Services.AddScoped<NewsService>();
 
 builder.Services.AddScoped<PlugInService>();
 builder.Services.AddScoped<PlugInRegistry>();

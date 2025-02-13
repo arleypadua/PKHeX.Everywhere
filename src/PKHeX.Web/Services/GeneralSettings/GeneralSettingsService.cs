@@ -22,6 +22,22 @@ public class GeneralSettingsService(
         }
     }
 
+    public DateOnly? LastDateNewsSeen
+    {
+        get
+        {
+            if (!localStorage.ContainKey("lastDateNewsSeen")) return null;
+            return DateOnly.ParseExact(
+                localStorage.GetItemAsString("lastDateNewsSeen")!,
+                "yyyy-MM-dd");
+        }
+        set
+        {
+            if (value == null) localStorage.RemoveItem(KeyFor("lastDateNewsSeen"));
+            else localStorage.SetItemAsString("lastDateNewsSeen", value.Value.ToString("yyyy-MM-dd"));
+        }
+    }
+
     public string CalculatorUrlOrDefault =>
         CalculatorUrl ?? CalculatorRepository.Smogon.Url;
 

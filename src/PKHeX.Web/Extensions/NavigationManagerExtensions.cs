@@ -67,6 +67,9 @@ public static class NavigationManagerExtensions
     public static void NavigateToCloudPokemon(this NavigationManager navigation, Guid id) =>
         navigation.NavigateTo($"/cloud/pokemon/{id}");
     
+    public static void NavigateToReleaseNotes(this NavigationManager navigation, DateOnly? since = null) =>
+        navigation.NavigateTo($"/release-notes?since={since?.ToString("yyyy-MM-dd")}");
+    
     public static void StoreOnQuery(this NavigationManager navigation, Dictionary<string, object?> parameters)
     {
         navigation.NavigateTo(navigation.GetUriWithQueryParameters(parameters));

@@ -1,0 +1,28 @@
+@code {
+
+    private readonly List<News> _news =
+    [
+        new (
+            DateOnly.ParseExact("2024-11-29", Format),
+            @<ui>
+                <ul>Introduced the PKHeX.Web Cloud (alpha) with up to 6 Pokémon stored in the cloud.</ul>
+            </ui>),
+        
+        new (
+            DateOnly.ParseExact("2024-11-30", Format),
+            @<ui>
+                <ul>Migrated to .NET 9</ul>
+                <ul>Upgraded PKHeX.Core and ALM plugins to latest</ul>
+                <ul>Added support for Battle Points.</ul>
+            </ui>),
+        
+        new (
+            DateOnly.ParseExact("2025-02-14", Format),
+            @<ui>
+                <ul>Minor bug fixes</ul>
+                <ul>News banner</ul>
+            </ui>),
+    ];
+
+    private const string Format = "yyyy-MM-dd";
+}

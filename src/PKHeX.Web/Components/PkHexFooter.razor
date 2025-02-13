@@ -1,3 +1,6 @@
+@using PKHeX.Web.Services.GeneralSettings
+@inject GeneralSettingsService SettingsService
+
 <Footer Style="text-align: center;">
    <p>
       @ApplicationName - edit pokemon save files.
@@ -5,7 +8,7 @@
    <p>
       Issues or feedback on <a href="@GitHubRepository" target="_blank">GitHub</a>
    </p>
-   <Space>
+   <Space Wrap>
       <Split>
          <Divider Type="DividerType.Vertical" />
       </Split>
@@ -18,6 +21,9 @@
          </SpaceItem>
          <SpaceItem>
             <a href="/credits">Credits</a>
+         </SpaceItem>
+         <SpaceItem>
+            <a href="/release-notes?since=@SettingsService.LastDateNewsSeen?.ToString("yyyy-MM-dd")">Release Notes</a>
          </SpaceItem>
       </ChildContent>
    </Space>

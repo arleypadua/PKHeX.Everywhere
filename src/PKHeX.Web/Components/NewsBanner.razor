@@ -1,0 +1,98 @@
+@using PKHeX.Web.Services.GeneralSettings
+@inject GeneralSettingsService SettingsService
+@inject NewsService NewsService
+
+<div
+    class="news_banner @(_isVisible ? "news_banner__visible" : "")">
+    <Alert
+        Type="AlertType.Info"
+        Banner
+        Closable
+        CloseText="Dismiss"
+        OnClose="DismissNews"
+        ShowIcon="false">
+        <span class="news_banner__content">
+            <div>
+                PKHeX.Web just got updated
+                <br/>
+                See to see <a href="release-notes?since=@_lastDateNewsSeen?.ToString("yyyy-MM-dd")">what's new</a>.
+            </div>
+        </span>
+    </Alert>
+</div>
+
+@code {
+
+    private bool _isVisible = false;
+    private DateOnly? _lastDateNewsSeen;
+    
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _lastDateNewsSeen = SettingsService.LastDateNewsSeen;
+            _ = CheckUpdatesNotSeen();
+        }
+    }
+
+    private async Task CheckUpdatesNotSeen()
+    {
+        // never loaded PKHeX before, we assume a recent date only
+        SettingsService.LastDateNewsSeen ??= DateOnly.FromDateTime(DateTime.Today.AddDays(-30));
+        
+        // We already saw this news, skip
+        if (SettingsService.LastDateNewsSeen >= NewsService.LatestNewsDate)
+        {
+            return;
+        }
+
+        await Task.Delay(2000);
+        _isVisible = true;
+        StateHasChanged();
+
+        _ = AutoDismiss();
+    }
+
+    private async Task AutoDismiss()
+    {
+        await Task.Delay(10000);
+        _isVisible = false;
+
+        // after 10 seconds we don't want to be bothered with it anymore
+        SettingsService.LastDateNewsSeen = NewsService.LatestNewsDate;
+        
+        StateHasChanged();
+    }
+
+    private void DismissNews()
+    {
+        SettingsService.LastDateNewsSeen = NewsService.LatestNewsDate;
+    }
+
+}
+
+<style>
+    .news_banner {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        z-index: 9;
+
+        transition: opacity 0.5s ease-in-out;
+        opacity: 0;
+    }
+    
+    .news_banner__visible {
+        opacity: 1;
+    }
+
+    .news_banner .ant-alert-close-text {
+        font-size: 0.7em !important;
+    }
+
+    .news_banner__content {
+        font-size: 0.7em;
+        display: flex;
+        justify-content: center;
+    }
+</style>

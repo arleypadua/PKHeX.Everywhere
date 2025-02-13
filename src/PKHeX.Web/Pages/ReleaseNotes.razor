@@ -1,0 +1,36 @@
+@page "/release-notes"
+@inject NewsService NewsService
+
+<PageTitle>Release Notes</PageTitle>
+
+<h1>Release Notes</h1>
+
+@foreach (var news in NewsService.AllNews)
+{
+    <h2>
+        @news.Date
+        @if (IsNew(news.Date))
+        {
+            <Tag
+                Color="TagColor.Green">
+                new
+            </Tag>
+        }
+    </h2>
+    <p>
+        @news.Fragment
+    </p>
+}
+
+@code {
+    [Parameter] [SupplyParameterFromQuery] public String? Since { get; set; }
+
+    private bool IsNew(DateOnly date)
+    {
+        if (string.IsNullOrWhiteSpace(Since)) return false;
+        var since = DateOnly.ParseExact(Since, "yyyy-MM-dd");
+
+        return date >= since;
+    }
+
+}
