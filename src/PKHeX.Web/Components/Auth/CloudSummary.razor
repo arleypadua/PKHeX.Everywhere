@@ -15,8 +15,7 @@
     @if (_user is not null && _firebaseUser is not null)
     {
         <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
-
-            <SpaceItem>
+            <span>
                 <Badge
                     Dot="true"
                     Size="default"
@@ -26,7 +25,7 @@
                         Cloud
                     </Tooltip>
                 </Badge>
-            </SpaceItem>
+            </span>
 
             <ResponsibleDescriptions Bordered Size="DescriptionsSize.Small">
                 <DescriptionsItem Title="Synced Pokemon">@LocalSyncedPokemonRepository.Count()</DescriptionsItem>
