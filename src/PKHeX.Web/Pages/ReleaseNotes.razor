@@ -30,7 +30,7 @@
         if (string.IsNullOrWhiteSpace(Since)) return false;
         var since = DateOnly.ParseExact(Since, "yyyy-MM-dd");
 
-        return date >= since;
+        return date > since;
     }
 
 }
