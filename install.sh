@@ -11,6 +11,8 @@ ARCH=$(uname -m)
 
 if [[ "$OS" == "linux" && "$ARCH" == "x86_64" ]]; then
     ZIP_NAME="pkhex-cli-linux-x64.zip"
+elif [[ "$OS" == "linux" && "$ARCH" == "aarch64" ]]; then
+    ZIP_NAME="pkhex-cli-linux-arm64.zip"
 elif [[ "$OS" == "darwin" && "$ARCH" == "x86_64" ]]; then
     ZIP_NAME="pkhex-cli-osx-x64.zip"
 elif [[ "$OS" == "darwin" && "$ARCH" == "arm64" ]]; then
