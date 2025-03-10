@@ -59,7 +59,7 @@ jobs:
             artifact:
               from: PKHeX.CLI
               to: pkhex-cli
-          - os: ubuntu-latest
+          - os: ubuntu-24.04-arm
             rid: linux-arm64
             artifact:
               from: PKHeX.CLI
