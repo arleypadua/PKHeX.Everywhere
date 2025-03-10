@@ -55,7 +55,8 @@ jobs:
           OSX_ARM64_URL=$(jq -r '.assets[] | select(.name | test("pkhex-cli-osx-arm64.zip")) | .browser_download_url' latest_release.json)
           OSX_X64_URL=$(jq -r '.assets[] | select(.name | test("pkhex-cli-osx-x64.zip")) | .browser_download_url' latest_release.json)
           LINUX_X64_URL=$(jq -r '.assets[] | select(.name | test("pkhex-cli-linux-x64.zip")) | .browser_download_url' latest_release.json)
-
+          LINUX_ARM64_URL=$(jq -r '.assets[] | select(.name | test("pkhex-cli-linux-arm64.zip")) | .browser_download_url' latest_release.json)
+          
           # compute sha256 checksum
           curl -L -o pkhex-cli-osx-arm64.zip $OSX_ARM64_URL
           SHA256_OSX_ARM64=$(sha256sum pkhex-cli-osx-arm64.zip | awk '{ print $1 }')
@@ -65,16 +66,21 @@ jobs:
           
           curl -L -o pkhex-cli-linux-x64.zip $LINUX_X64_URL
           SHA256_LINUX_X64=$(sha256sum pkhex-cli-linux-x64.zip | awk '{ print $1 }')
+          
+          curl -L -o pkhex-cli-linux-arm64.zip $LINUX_ARM64_URL
+          SHA256_LINUX_ARM64=$(sha256sum pkhex-cli-linux-arm64.zip | awk '{ print $1 }')
 
           # output extracted information
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "osx_arm64_url=$OSX_ARM64_URL" >> "$GITHUB_OUTPUT"
           echo "osx_x64_url=$OSX_X64_URL" >> "$GITHUB_OUTPUT"
           echo "linux_x64_url=$LINUX_X64_URL" >> "$GITHUB_OUTPUT"
+          echo "linux_arm64_url=$LINUX_ARM64_URL" >> "$GITHUB_OUTPUT"
           
           echo "sha256_osx_arm64=$SHA256_OSX_ARM64" >> "$GITHUB_OUTPUT"
           echo "sha256_osx_x64=$SHA256_OSX_X64" >> "$GITHUB_OUTPUT"
           echo "sha256_linux_x64=$SHA256_LINUX_X64" >> "$GITHUB_OUTPUT"
+          echo "sha256_linux_arm64=$SHA256_LINUX_ARM64" >> "$GITHUB_OUTPUT"
 
       - name: Generate pkhex-cli.rb formula
         run: |
@@ -90,6 +96,9 @@ jobs:
             elsif OS.mac?
               url "${{ steps.parse_metadata.outputs.osx_x64_url }}"
               sha256 "${{ steps.parse_metadata.outputs.sha256_osx_x64 }}"
+            elsif OS.linux? && Hardware::CPU.arm?
+              url "${{ steps.parse_metadata.outputs.linux_arm64_url }}"
+              sha256 "${{ steps.parse_metadata.outputs.sha256_linux_arm64 }}"
             elsif OS.linux?
               url "${{ steps.parse_metadata.outputs.linux_x64_url }}"
               sha256 "${{ steps.parse_metadata.outputs.sha256_linux_x64 }}"
