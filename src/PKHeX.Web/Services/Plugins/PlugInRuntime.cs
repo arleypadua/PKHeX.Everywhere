@@ -14,7 +14,7 @@ public partial class PlugInRuntime(
     INotificationService notificationService,
     AnalyticsService analyticsService)
 {
-    private readonly FixedSizeQueue<Failure> _failures = new(20);
+    private readonly FixedSizeList<Failure> _failures = new(20);
     public IEnumerable<Failure> RecentFailures => _failures.GetItems();
         
     public async Task RunAll<T>(Func<T, Task<Outcome>> action) where T : IPluginHook
@@ -39,8 +39,7 @@ public partial class PlugInRuntime(
 
         if (failed)
         {
-            var showMessage = message.Error(RenderErrorMessage());
-            showMessage.Start();
+            _ = message.Error(RenderErrorMessage());
         }
     }
 
@@ -58,6 +57,11 @@ public partial class PlugInRuntime(
             throw;
         }
         
+    }
+
+    public void Dismiss(Failure failure)
+    {
+        _failures.Remove(failure);
     }
 
     private void Handle(IPluginHook hook, Outcome outcome) => _ = outcome switch
@@ -93,21 +97,28 @@ public partial class PlugInRuntime(
     public record Failure(LoadedPlugIn PlugIn, Exception Exception);
 }
 
-internal sealed class FixedSizeQueue<T>(int maxSize)
+internal sealed class FixedSizeList<T>(int maxSize)
 {
-    private readonly Queue<T> _queue = new();
+    private readonly List<T> _list = new();
 
     public void Enqueue(T item)
     {
-        if (_queue.Count >= maxSize)
+        if (_list.Count >= maxSize)
         {
-            _queue.Dequeue();
+            var last = _list.LastOrDefault();
+            if (last is not null) _list.Remove(last);
         }
-        _queue.Enqueue(item);
+        
+        _list.Add(item);
     }
 
     public IEnumerable<T> GetItems()
     {
-        return _queue.ToArray();
+        return _list.ToArray();
+    }
+
+    public void Remove(T item)
+    {
+        _list.Remove(item);
     }
 }

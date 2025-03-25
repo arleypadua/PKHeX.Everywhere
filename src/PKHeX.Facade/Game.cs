@@ -48,7 +48,7 @@ public class Game
         // make sure pending changes make its way to the bytes of the save
         Trainer.Commit();
 
-        if (SaveFile is SAV7b _7b) _7b.FixPreWrite();
+        if (SaveFile is SAV7b _7b) _7b.FixStoragePreWrite();
 
         return SaveFile.Write(
             setting: SaveFile.Metadata.GetSuggestedFlags(Path.GetExtension(SaveFile.Metadata.FileName))

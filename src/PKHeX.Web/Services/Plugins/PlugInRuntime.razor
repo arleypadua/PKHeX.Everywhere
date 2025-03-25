@@ -2,12 +2,8 @@
 
     private RenderFragment RenderErrorMessage() =>
         @<Text>
-            Plugin failed to execute.
-            <Button
-                OnClick="navigation.NavigateToPlugInErrors"
-                Type="@ButtonType.Link">
-                Details
-            </Button>
+            Plugin failed to execute. 
+            <a href="/plugins/errors">Details</a>
         </Text>;
 
 }

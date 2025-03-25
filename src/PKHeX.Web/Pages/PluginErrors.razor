@@ -1,0 +1,37 @@
+@page "/plugins/errors"
+@using PKHeX.Web.Services.Plugins
+@inject PlugInRuntime PlugInRuntime
+
+<h3>Plug-in execution errors</h3>
+
+<Space Direction="SpaceDirection.Vertical">
+@foreach (var error in PlugInRuntime.RecentFailures)
+{
+    <Alert Type="@AlertType.Default" Closable OnClose="() => HandleClose(error)">
+        <dl>
+            <dt>Plug-in</dt>
+            <dd>@error.PlugIn.Id</dd>
+            
+            <dt>Message</dt>
+            <dd>
+                <code>@error.Exception.Message</code>
+            </dd>
+            
+            <dt>Stack trace</dt>
+            <dd>
+                <code>@error.Exception.StackTrace</code>
+            </dd>
+        </dl>
+    </Alert>   
+}
+</Space>
+
+@code {
+
+    private Task HandleClose(PlugInRuntime.Failure error)
+    {
+        PlugInRuntime.Dismiss(error);
+        return Task.CompletedTask;
+    }
+
+}
