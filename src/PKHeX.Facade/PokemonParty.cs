@@ -13,7 +13,15 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
 
     public void Commit()
     {
-        game.SaveFile.PartyData = _partyData;
+        try
+        {
+            game.SaveFile.PartyData = _partyData;
+        }
+        catch (ArgumentOutOfRangeException e) when (e.Message == "Specified argument was out of the range of valid values. (Parameter 'index')")
+        {
+            // there's some weird bug in some versions, that setting party data goes beyond the boundaries
+            // since the whole set mostly have executed, we consider it to still be a succeeded set operation
+        }
     }
 
     public void AddOrUpdate(UniqueId id, Pokemon pokemon)

@@ -49,6 +49,7 @@ public static class SaveFilePath
     public const string Yellow = "./data/save/savedata_1.sav"; // yellow
     public const string HgSs = "./data/save/savedata_4hgss.dsv"; // soul silver
     public const string LetsGoPikachu = "./data/save/savedata_7b.bin"; // let's go pikachu
+    public const string LetsGoEevee = "./data/save/savedata_7b_lge.bin";
     public const string Emerald = "./data/save/emerald.sav"; // emerald
     public const string Crystal = "./data/save/crystal.sav"; // crystal
 
@@ -56,7 +57,8 @@ public static class SaveFilePath
     {
         GameVersion.RBY => Yellow,
         GameVersion.HGSS or GameVersion.HG or GameVersion.SS => HgSs,
-        GameVersion.GG or GameVersion.GP or GameVersion.GE => LetsGoPikachu,
+        GameVersion.GG or GameVersion.GP => LetsGoPikachu,
+        GameVersion.GE => LetsGoEevee,
         GameVersion.E => Emerald,
         GameVersion.C => Crystal,
         _ => throw new InvalidOperationException($"{version} not yet supported on tests"),
