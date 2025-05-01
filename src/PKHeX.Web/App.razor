@@ -18,8 +18,19 @@
             </LayoutView>
         </NotFound>
     </Router>
+
+    <BytexDigital.Blazor.Components.CookieConsent.CookieConsentHandler @rendermode="@RenderMode.InteractiveWebAssembly" />
 </ConfigProvider>
 <NavigationTracker/>
+
+<link rel="stylesheet" href="_content/BytexDigital.Blazor.Components.CookieConsent/styles.min.css" />
+<style>
+    .cc-isolation-container * {
+        --cc-color-accent: #177ddc;
+        --cc-color-accent-dark: #115696;
+        --cc-color-switch-active:#177ddc;
+    }
+</style>
 
 @code
 {

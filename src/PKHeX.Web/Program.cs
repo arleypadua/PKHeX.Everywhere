@@ -5,6 +5,7 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PKHeX.Core;
+using PKHeX.Web;
 using PKHeX.Web.BackendApi;
 using PKHeX.Web.BackendApi.Repositories;
 using PKHeX.Web.Extensions;
@@ -104,6 +105,8 @@ builder.Services.AddIndexedDB(store =>
 
     store.Stores.Add(PlugInFilesRepository.Schema);
 });
+
+builder.Services.ConfigureCookieConsent();
 
 #if !DEBUG
 builder.UseSentry(options =>
