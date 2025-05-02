@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using PKHeX.Web.Plugins
 @using PKHeX.Web.Services.Plugins
+@using PKHeX.Web.Components.Ads
 @inject GameService GameService
 @inject AntdThemeService ThemeService
 @inject PlugInRegistry PlugInRegistry
@@ -44,6 +45,8 @@
             <DescriptionsItem Title="Rival">@_game.Trainer.RivalName</DescriptionsItem>
         </Descriptions>
     }
+    
+    <HomeMultiplexAdSlot />
 
     @if (Configuration.GetBackendApiOptions().Enabled)
     {

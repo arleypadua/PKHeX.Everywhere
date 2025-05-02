@@ -1,5 +1,6 @@
 @using PKHeX.Core
 @using PKHeX.Facade.Repositories
+@using PKHeX.Web.Components.Ads
 @inject JsService Js
 @inject NavigationManager Navigation
 @inject HttpClient HttpClient
@@ -10,6 +11,8 @@
 @if (GameService.IsLoaded)
 {
     <Flex Direction="FlexDirection.Vertical" Align="FlexAlign.Center" Style="width: 100%; gap: 20px;">
+        <LoadTopAdSlot />
+        
         <Descriptions Title="Loaded Game" Bordered Column="@ThemeService.ColumnsConfiguration" Size="DescriptionsSize.Small" Style="width: 100%">
             <DescriptionsItem Title="File">@GameService.FileName</DescriptionsItem>
             <DescriptionsItem Title="Version">@GameService.LoadedGame.SaveVersion.Name</DescriptionsItem>
@@ -19,15 +22,19 @@
             <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Export" OnClick='ExportSaveAsync'>Export</Button>
             <Button Icon="@IconType.Outline.FolderOpen" OnClick='OpenFilePickerAsync'>Open new...</Button>
         </Flex>
+        
+        <LoadBottomAdSlot />
     </Flex>
 }
 else
 {
     <Flex Direction="FlexDirection.Vertical" Align="FlexAlign.Center" Style="width: 100%; max-width: 300px; gap: 20px;">
+        <LoadTopAdSlot />
+        
         <Button
             OnClick="GoToHome"
             Style="min-width: 150px">Home</Button>
-        
+
         <Button
             Type="@ButtonType.Primary"
             Icon="@IconType.Outline.FolderOpen"
@@ -43,6 +50,8 @@ else
             Style="min-width: 150px">
             Demo
         </Button>
+
+        <LoadBottomAdSlot />
     </Flex>
 }
 
