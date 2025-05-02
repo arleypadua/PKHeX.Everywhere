@@ -4,6 +4,15 @@
     <meta charset="UTF-8"/>
     <title>{{ title }} | {{ site.title }}</title>
 
+    <link rel="canonical" href="{{ site.url }}{{ page.url }}">
+
+    <meta name="description" content="{{ description }}">
+    <meta property="og:title" content="{{ title }}">
+    <meta property="og:description" content="{{ description }}">
+    <meta property="og:url" content="{{ site.url }}{{ page.url }}">
+    <meta property="og:type" content="article">
+    <meta name="twitter:card" content="summary">
+
     <link href="https://pkhex-web.github.io/_content/AntDesign/css/ant-design-blazor.dark.css" rel="stylesheet">
     <link href="{{ site.baseUrl }}css/style.css" rel="stylesheet">
 </head>
