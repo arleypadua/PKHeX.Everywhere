@@ -1,0 +1,25 @@
+---
+layout: base.njk
+title: Tags
+tags: tag
+pagination:
+    data: collections.tagList
+    size: 1
+    alias: tag
+permalink: /tags/{{ tag | slug }}/index.html
+---
+
+<nav style="padding-bottom: 16px;">
+    <a href="{{ site.baseUrl }}">Home</a>
+    {% if page.url != "/" %}
+    <span> / </span>
+    <a href="{{ page.url | withBaseUrl }}">{{ page.fileSlug }} / {{ tag }}</a>
+    {% endif %}
+</nav>
+
+<h1>Posts tagged with "{{ tag }}"</h1>
+<ul>
+{% for post in collections[tag] %}
+<li><a href="{{ post.url | withBaseUrl }}">{{ post.data.title }}</a> - {{ post.date | readableDate }}</li>
+{% endfor %}
+</ul>

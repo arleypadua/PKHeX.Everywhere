@@ -1,0 +1,23 @@
+---
+layout: base.njk
+---
+
+{% include 'breadcrumb.njk' %}
+
+<article>
+    <h1>{{ title }}</h1>
+    <p><small>{{ date | readableDate }}</small></p>
+    {{ content | safe }}
+</article>
+
+{% if tags %}
+<hr style="margin-bottom: 32px; margin-top: 16px" />
+<h2>Tags</h2>
+{% for tag in tags %}
+<a href="{{ ('tags/' + tag) | withBaseUrl }}">
+    <span class="ant-tag ant-tag-default">
+        {{ tag }}
+    </span>
+</a>
+{% endfor %}
+{% endif %}

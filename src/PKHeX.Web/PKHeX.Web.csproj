@@ -38,6 +38,10 @@
         <Content Update="wwwroot\appsettings.Development.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <Content Update="_blog\font\pkmgb.ttf">
+          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+          <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>

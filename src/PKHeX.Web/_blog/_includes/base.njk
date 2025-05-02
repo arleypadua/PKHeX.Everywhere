@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>{{ title }} | {{ site.title }}</title>
+
+    <link href="https://pkhex-web.github.io/_content/AntDesign/css/ant-design-blazor.dark.css" rel="stylesheet">
+    <link href="{{ site.baseUrl }}css/style.css" rel="stylesheet">
+</head>
+<body>
+<section class="ant-layout ant-layout-has-sider" style="min-height: 100vh;">
+    <aside class="ant-layout-sider ant-layout-sider-dark ant-layout-sider-has-trigger ant-layout-sider-collapsed"
+           style="flex: 0 0 64px; max-width: 64px; min-width: 64px; width: 64px; overflow:initial; ">
+
+        <div class="ant-layout-sider-children">
+            <div class="logo">
+                <a class="logo-link" href="/">PKHeX.Web</a>
+            </div>
+        </div>
+    </aside>
+
+    <section class="ant-layout">
+        <header class="ant-layout-header ant-header"
+                style="display: flex; justify-items: center; align-items: center; width: 100%;">
+        </header>
+        <main class="ant-layout-content blog-main-layout" style=" margin: 24px 16px 0;">
+            <div class="site-layout-background blog-main-content" style="padding: 24px; min-height: 360px">
+                {{ content | safe }}
+            </div>
+        </main>
+
+        <footer class="ant-layout-footer" style="text-align: center;"
+        >
+            <p>PKHeX.Web - edit pokemon save files.
+            </p>
+            <p>
+                Issues or feedback on <a href="https://github.com/arleypadua/PKHeX.Everywhere"
+                                         target="_blank">GitHub</a></p>
+
+            <div class="ant-space ant-space-horizontal ant-space-align-start" style=" flex-wrap: wrap;">
+
+                <div class="ant-space-item" style=" margin-right:4px;">
+                    <a href="/privacy-policy">Privacy Policy</a>
+                </div>
+                <span class="ant-space-item-split" style="margin-right: 4px;">
+            <span class="ant-divider ant-divider-vertical">
+    </span>
+        </span>
+
+                <div class="ant-space-item" style=" margin-right:4px;">
+                    <a href="/terms-of-use">Terms of Use</a>
+                </div>
+                <span class="ant-space-item-split" style="margin-right: 4px;">
+            <span class="ant-divider ant-divider-vertical"
+            >
+    </span>
+        </span>
+
+                <div class="ant-space-item" style=" margin-right:4px;">
+                    <a href="/credits">Credits</a>
+                </div>
+                <span class="ant-space-item-split" style="margin-right: 4px;">
+            <span class="ant-divider ant-divider-vertical"
+            >
+    </span>
+        </span>
+
+                <div class="ant-space-item">
+                    <a href="/release-notes?since=2025-05-01">Release Notes</a>
+                </div>
+            </div>
+
+        </footer>
+
+    </section>
+    
+</section>
+
+</body>
+</html>

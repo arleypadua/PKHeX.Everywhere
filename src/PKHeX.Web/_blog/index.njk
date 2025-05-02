@@ -1,0 +1,11 @@
+---
+layout: base.njk
+title: Blog
+---
+
+<h1>Blog Posts</h1>
+<ul>
+  {% for post in collections.posts %}
+    <li><a href="{{ post.url | withBaseUrl }}">{{ post.data.title }}</a> - {{ post.date | readableDate }}</li>
+  {% endfor %}
+</ul>
