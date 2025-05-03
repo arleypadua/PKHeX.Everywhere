@@ -1,5 +1,5 @@
 ---
-title: How to use Auto-Legality Mode (ALM) in PJHeX.Wev
+title: How to use Auto-Legality Mode (ALM) in PKHeX.Web
 date: 2024-09-02
 tags:
   - pkhex
