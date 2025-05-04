@@ -1,0 +1,10 @@
+# Node modules
+node_modules/
+
+# Eleventy output
+_site/
+
+# Optional: OS or editor junk
+.DS_Store
+*.log
+.env

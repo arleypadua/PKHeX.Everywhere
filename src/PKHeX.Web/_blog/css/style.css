@@ -1,0 +1,44 @@
+@font-face {
+    font-family: 'Pokemon GB';
+    src: url("../font/pkmgb.ttf");
+}
+
+html, body {
+    font-family: 'Pokemon GB', "Lucida Console", sans-serif;
+}
+
+.logo {
+    color: white;
+    margin-top: 10px;
+    padding: 16px;
+    text-align: center;
+}
+
+.nav-text > a {
+    color: white;
+}
+
+.nav-text > a:hover {
+    color: cornflowerblue;
+}
+
+.layout-header {
+    color: white;
+}
+
+.site-layout-background {
+    font-family: 'Roboto Mono', monospace;
+}
+
+.logo-link {
+    color: white;
+}
+
+.blog-main-layout {
+    display: flex;
+    justify-content: center;
+}
+
+.blog-main-content {
+    width: 75%;
+}

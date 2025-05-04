@@ -1,4 +1,7 @@
+using Blazor.Analytics;
 using BytexDigital.Blazor.Components.CookieConsent;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using PKHeX.Web.Services;
 
 namespace PKHeX.Web;
 
@@ -70,5 +73,43 @@ public static class CookieConsentConfiguration
                 }
             });
         });
+    }
+}
+
+public static class CookieConsentAnalyticsToggle
+{
+    public static async Task ConfigureCookieConsentToggle(this WebAssemblyHost host)
+    {
+        var cookieConsentService = host.Services.GetRequiredService<CookieConsentService>();
+        var analytics = host.Services.GetRequiredService<IAnalytics>();
+        var logger = host.Services.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("CookieConsentAnalyticsToggle");
+        
+        // no need to dispose as it is only one per instance anyway
+        cookieConsentService.CategoryConsentChanged += (object? sender, ConsentChangedArgs e) =>
+        {
+            if (e.CategoryIdentifier != "google") return;
+            
+            HandleConsentChanged(analytics, e.ChangedTo == ConsentChangedArgs.ConsentChangeType.Granted, logger);
+        };
+
+        var cookiePreferences = await cookieConsentService.GetPreferencesAsync();
+        var isGoogleAllowed = cookiePreferences?.IsCategoryAllowed("google") ?? false;
+        
+        HandleConsentChanged(analytics, isGoogleAllowed, logger);
+    }
+
+    private static void HandleConsentChanged(IAnalytics analytics, bool isGoogleAllowed, ILogger logger)
+    {
+        if (isGoogleAllowed)
+        {
+            analytics.Enable();
+            logger.LogInformation("Google Analytics enabled");
+        }
+        else
+        {
+            analytics.Disable();
+            logger.LogInformation("Google Analytics disabled");
+        }
     }
 }

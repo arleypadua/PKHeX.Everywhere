@@ -1,0 +1,7 @@
+<nav style="padding-bottom: 16px;">
+    <a href="{{ site.baseUrl }}">Home</a>
+    {% if page.url != "/" %}
+    <span> / </span>
+    <a href="{{ page.url | withBaseUrl }}">{{ page.fileSlug }}</a>
+    {% endif %}
+</nav>

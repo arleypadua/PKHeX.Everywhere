@@ -34,8 +34,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-          
-      - name: Install NPM dependencies and build
+
+      - name: Install NPM dependencies and build PKHeX.Web/_js
         run: |
           cd src/PKHeX.Web/_js
           
@@ -44,6 +44,15 @@ jobs:
           echo "VITE_FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> .env
           echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}" >> .env
           echo "VITE_FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}" >> .env
+          
+          npm ci
+          npm run build
+          
+          cd ../../../
+
+      - name: Install NPM dependencies and build PKHeX.Web/_blog
+        run: |
+          cd src/PKHeX.Web/_blog
           
           npm ci
           npm run build
