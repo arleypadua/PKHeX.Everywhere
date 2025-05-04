@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pkhex-web.github.io/blog/sitemap.xml
