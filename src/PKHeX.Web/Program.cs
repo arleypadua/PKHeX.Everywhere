@@ -152,6 +152,8 @@ var app = builder.Build();
 RuntimeCryptographyProvider.Aes = app.Services.GetRequiredService<BlazorAesProvider>();
 RuntimeCryptographyProvider.Md5 = app.Services.GetRequiredService<BlazorMd5Provider>();
 
+await app.ConfigureCookieConsentToggle();
+
 #if DEBUG
 app.Services.GetRequiredService<IAnalytics>()
     .Disable();
