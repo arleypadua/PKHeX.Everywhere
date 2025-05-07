@@ -5,6 +5,7 @@ export default function(eleventyConfig) {
     const config = siteConfig();
     eleventyConfig.addPassthroughCopy("css");
     eleventyConfig.addPassthroughCopy("font");
+    eleventyConfig.addPassthroughCopy("favicon.svg");
     
     eleventyConfig.addFilter("readableDate", (dateObj) => {
         return DateTime.fromJSDate(dateObj).toFormat("MMMM dd, yyyy");
