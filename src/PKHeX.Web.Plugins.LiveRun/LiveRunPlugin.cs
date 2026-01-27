@@ -24,6 +24,6 @@ public class LiveRunPlugin : Settings
     public const string FireredLeafgreen = "FireRed/LeafGreen ROM";
     public const string RedBlueYellow = "Red/Blue/Yellow ROM";
     public const string GoldSilverCrystal = "Gold/Silver/Crystal ROM";
-    public const string RubySapphire = "Rubby/Sapphire ROM";
+    public const string RubySapphire = "Ruby/Sapphire ROM";
     public const string ShowFrameCount = "Show frame count";
 }
