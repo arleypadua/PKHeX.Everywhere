@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using PKHeX.Facade.Tests.Base;
 
 namespace PKHeX.Facade.Tests;

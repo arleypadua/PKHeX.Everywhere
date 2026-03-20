@@ -8,7 +8,7 @@
         <DebugType>portable</DebugType>
         <EmbedAllSources>true</EmbedAllSources>
         <PublishSingleFile>true</PublishSingleFile>
-        <Version>1.0.1</Version>
+        <Version>1.1.0</Version>
     </PropertyGroup>
 
 
@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.5" />
     </ItemGroup>
 
     <ItemGroup>

@@ -26,7 +26,7 @@ public static class Program
 
 public sealed class PkCommand : Command<PkCommand.Settings>
 {
-    public override int Execute(CommandContext context, Settings settings)
+    public override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         if (settings.ShowVersion)
         {

@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using FluentAssertions;
+using AwesomeAssertions;
 using PKHeX.Core;
 using Xunit.Sdk;
 
