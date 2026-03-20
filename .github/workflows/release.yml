@@ -96,18 +96,18 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
       - name: Publish - ${{ matrix.config.rid }}
         run: dotnet publish ./src/PKHeX.CLI/PKHeX.CLI.csproj -r ${{ matrix.config.rid }} -c Release /p:Version=${{ needs.versionBump.outputs.new_version_raw }}
 
       - name: Copy artifact with new name
-        run: cp ./src/PKHeX.CLI/bin/Release/net9.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.from }} ./src/PKHeX.CLI/bin/Release/net9.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.to }}
+        run: cp ./src/PKHeX.CLI/bin/Release/net10.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.from }} ./src/PKHeX.CLI/bin/Release/net10.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.to }}
 
       - name: Upload - ${{ matrix.config.rid }}
         uses: actions/upload-artifact@v4
         with:
           name: artifact-${{ matrix.config.rid }}
-          path: ./src/PKHeX.CLI/bin/Release/net9.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.to }}
+          path: ./src/PKHeX.CLI/bin/Release/net10.0/${{ matrix.config.rid }}/publish/${{ matrix.config.artifact.to }}
 
   release:
     runs-on: ubuntu-latest
