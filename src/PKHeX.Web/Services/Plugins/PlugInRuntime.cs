@@ -9,7 +9,6 @@ namespace PKHeX.Web.Services.Plugins;
 public partial class PlugInRuntime(
     PlugInRegistry registry, 
     PlugInPageRegistry pageRegistry,
-    IMessageService message,
     NavigationManager navigation,
     INotificationService notificationService,
     AnalyticsService analyticsService)
@@ -39,7 +38,12 @@ public partial class PlugInRuntime(
 
         if (failed)
         {
-            _ = message.Error(RenderErrorMessage());
+            _ = notificationService.Open(new NotificationConfig
+            {
+                Message = "Plugin failed to execute",
+                Description = "Visit /plugins/errors for details.",
+                NotificationType = NotificationType.Error,
+            });
         }
     }
 

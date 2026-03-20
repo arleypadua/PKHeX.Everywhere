@@ -192,8 +192,10 @@
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 
-    private Task HandleSelectedSpeciesChanged(SpeciesDefinition definition)
+    private Task HandleSelectedSpeciesChanged(SpeciesDefinition? definition)
     {
+        if (definition is null) return Task.CompletedTask;
+        
         Pokemon.Species = definition;
         _editableNickname.Text = Pokemon.Nickname;
         return OnPokemonChanged.InvokeAsync(Pokemon);

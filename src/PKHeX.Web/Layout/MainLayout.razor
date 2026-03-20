@@ -76,12 +76,24 @@
                             OnClose="DismissError"
                             Closable>
                             <Paragraph>
-                                Whops, some unexpected error happened.
+                                @if (IsUnsupportedLoadedPokemonFormat(context))
+                                {
+                                    <span>
+                                        This Pokémon format is not compatible with the currently loaded save file yet. Support for this workflow is on the roadmap.
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>Whops, some unexpected error happened.</span>
+                                }
                             </Paragraph>
 
-                            <Paragraph>
-                                <a href="@GetIssueLink(context)" target="_blank">Click here</a> to file an issue in GitHub.
-                            </Paragraph>
+                            @if (ShouldShowIssueLink(context))
+                            {
+                                <Paragraph>
+                                    <a href="@GetIssueLink(context)" target="_blank">Click here</a> to file an issue in GitHub.
+                                </Paragraph>
+                            }
 
                             <ResponsibleDescriptions Bordered Size="DescriptionsSize.Small">
                                 <DescriptionsItem Title="Id">@context.GetExceptionTrackingId()</DescriptionsItem>
@@ -204,6 +216,11 @@
     {
         _errorBoundary.Recover();
     }
+
+    private static bool ShouldShowIssueLink(Exception context) => !IsUnsupportedLoadedPokemonFormat(context);
+
+    private static bool IsUnsupportedLoadedPokemonFormat(Exception context) =>
+        context.Message.Contains("PKM Format needs to be", StringComparison.Ordinal);
 
     private string GetIssueLink(Exception context) => GitHubRepositoryNewIssue(
         title: $"Error on {ApplicationName}: {context.Message}",
