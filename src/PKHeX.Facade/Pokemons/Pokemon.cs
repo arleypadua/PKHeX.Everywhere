@@ -163,7 +163,7 @@ public class Pokemon(PKM pokemon, Game game)
     public void ApplyChangesFrom(Pokemon template, bool keepPid = true)
     {
         var pid = PID;
-        template.Pkm.TransferPropertiesWithReflection(Pkm);
+        template.Pkm.Data.CopyTo(Pkm.Data);
 
         if (keepPid)
         {

@@ -34,7 +34,7 @@ public class Inventories
     public ImmutableDictionary<string, Inventory> InventoryItems { get; init; }
 
     private ImmutableHashSet<string> GetInventoryTypes()
-        => _game.SaveFile.Inventory.Select(i => i.Type.ToString()).ToImmutableHashSet();
+        => _game.SaveFile.Inventory.Pouches.Select(i => i.Type.ToString()).ToImmutableHashSet();
 
     private ImmutableDictionary<string, Inventory> GetInventories() => InventoryTypes.ToImmutableDictionary(
         type => type,

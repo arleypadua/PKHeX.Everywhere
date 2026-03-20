@@ -36,7 +36,17 @@ public static class PokemonExtensions
     {
         var result = await pokemon.ToLegalAsync();
         pokemon.ApplyChangesFrom(result, keepPid: true);
-        ApplyDoableCorrections(result, pokemon);
+        if (!pokemon.Legality().Valid)
+        {
+            ApplyDoableCorrections(result, pokemon);
+
+            if (pokemon.Legality().Valid)
+            {
+                return;
+            }
+
+            pokemon.ApplyChangesFrom(result, keepPid: false);
+        }
     }
 
     private static void ApplyDoableCorrections(Pokemon before, Pokemon after)
@@ -44,9 +54,22 @@ public static class PokemonExtensions
         var legality = after.Legality();
         if (legality.Valid) return;
 
-        if (legality.Results.Any(r =>
-                r is { Judgement: Severity.Invalid, Identifier: CheckIdentifier.TrashBytes } &&
-                r.Comment.Contains("OT")))
+        var localization = LegalityLocalizationContext.Create(legality);
+
+        var hasOriginalTrainerTrashBytesIssue = false;
+        foreach (var result in legality.Results)
+        {
+            if (result is not { Judgement: Severity.Invalid, Identifier: CheckIdentifier.TrashBytes })
+                continue;
+
+            if (!localization.Humanize(result).Contains("OT", StringComparison.Ordinal))
+                continue;
+
+            hasOriginalTrainerTrashBytesIssue = true;
+            break;
+        }
+
+        if (hasOriginalTrainerTrashBytesIssue)
         {
             before.Game.SaveFile.ApplyTo(after.Pkm);
         }

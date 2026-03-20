@@ -20,13 +20,19 @@ internal class Legal(Pokemon pokemon) : EditPokemonAttribute(pokemon)
 
     public override Result HandleSelection()
     {
-        var displays = _legalityAnalysis.Results.Select(a => a.Judgement switch
+        var localization = LegalityLocalizationContext.Create(_legalityAnalysis);
+        var displays = new List<string>(_legalityAnalysis.Results.Count);
+        foreach (var result in _legalityAnalysis.Results)
         {
-            Severity.Valid => $"* [green]{a.Identifier}: {a.Comment}[/]",
-            Severity.Fishy => $"* [yellow]{a.Identifier}: {a.Comment}[/]",
-            Severity.Invalid => $"* [red]{a.Identifier}: {a.Comment}[/]",
-            _ => string.Empty,
-        });
+            var message = localization.Humanize(result);
+            displays.Add(result.Judgement switch
+            {
+                Severity.Valid => $"* [green]{result.Identifier}: {message}[/]",
+                Severity.Fishy => $"* [yellow]{result.Identifier}: {message}[/]",
+                Severity.Invalid => $"* [red]{result.Identifier}: {message}[/]",
+                _ => string.Empty,
+            });
+        }
                 
         var display = string.Join(Environment.NewLine, displays);
                 

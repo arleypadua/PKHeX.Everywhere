@@ -1,5 +1,5 @@
-﻿using PKHeX.Facade.Repositories;
-using PKHeX.Core;
+﻿using PKHeX.Core;
+using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade;
 
@@ -52,12 +52,12 @@ public class Game
 
         return SaveFile.Write(
             setting: SaveFile.Metadata.GetSuggestedFlags(Path.GetExtension(SaveFile.Metadata.FileName))
-        );
+        ).ToArray();
     }
 
     public static Game LoadFrom(string path)
     {
-        var saveFile = SaveUtil.GetVariantSAV(path)
+        var saveFile = SaveUtil.GetSaveFile(path)
                        ?? throw new GameNotLoadedException(path);
 
         return new Game(saveFile);
@@ -65,7 +65,7 @@ public class Game
 
     public static Game LoadFrom(byte[] bytes, string? path = null)
     {
-        var saveFile = SaveUtil.GetVariantSAV(bytes, path)
+        var saveFile = SaveUtil.GetSaveFile(bytes, path)
                        ?? throw new GameNotLoadedException(path);
 
         return new Game(saveFile);
@@ -73,7 +73,7 @@ public class Game
 
     public static Game EmptyOf(
         GameVersionDefinition version,
-        string? trainerName = null) => new(SaveUtil.GetBlankSAV(version.Version, trainerName ?? "PKHeXWeb"));
+        string? trainerName = null) => new(BlankSaveFile.Get(version.Version, trainerName ?? "PKHeXWeb"));
 }
 
 public class GameNotLoadedException(string? path = null)

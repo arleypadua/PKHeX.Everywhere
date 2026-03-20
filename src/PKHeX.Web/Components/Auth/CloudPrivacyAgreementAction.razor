@@ -2,7 +2,11 @@
 @inject AuthService Auth
 
 <Flex Direction="FlexDirection.Vertical" Align="FlexAlign.Center" Style="width: 100%; gap: 20px;">
-    @if (!Auth.IsSignedIn())
+    @if (!Auth.IsEnabled())
+    {
+        <Paragraph>Cloud authentication is disabled in this environment.</Paragraph>
+    }
+    else if (!Auth.IsSignedIn())
     {
         <Paragraph>In order to use this functionality you must accept our <a href="/privacy-policy">privacy policy</a>.</Paragraph>
         <Button 
@@ -22,7 +26,10 @@
 
     private async Task HandleAcceptance(MouseEventArgs arg)
     {
-        await Auth.SignInAnonymously();
+        var authToken = await Auth.SignInAnonymously();
+        if (string.IsNullOrWhiteSpace(authToken))
+            return;
+
         await OnAccepted.InvokeAsync();
     }
 

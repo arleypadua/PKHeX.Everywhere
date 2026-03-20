@@ -3,6 +3,18 @@ import {FirebaseOptions} from "@firebase/app";
 import { initializeApp } from 'firebase/app'
 import { getAuth, signInAnonymously } from 'firebase/auth'
 
+const disabledToken = ''
+
+function setupDisabledAuthBindings() {
+    window.isFirebaseAuthEnabled = () => false
+    window.isSignedIn = () => false
+    window.getAuthToken = async () => disabledToken
+    window.signInAnonymously = async () => disabledToken
+    window.getSignedInUser = () => null
+    window.signOut = async () => {
+    }
+}
+
 const config: FirebaseOptions = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_NAME}.firebaseapp.com`,
@@ -13,13 +25,22 @@ const config: FirebaseOptions = {
 }
 
 export function initFirebase() {
-    // disabled for now
-    // if (import.meta.env.VITE_FIREBASE_ENABLED !== 'true') {
-    //     return    
-    // }
+    setupDisabledAuthBindings()
+
+    const isEnabled = import.meta.env.VITE_FIREBASE_ENABLED === 'true'
+    const hasRequiredConfig = !!config.apiKey
+        && !!config.projectId
+        && !!config.messagingSenderId
+        && !!config.appId
+
+    if (!isEnabled || !hasRequiredConfig) {
+        return
+    }
     
     const app = initializeApp(config)
     const auth = getAuth(app)
+
+    window.isFirebaseAuthEnabled = () => true
     
     auth.onIdTokenChanged(async (user) => {
         // if dotnet doesn't exist, return

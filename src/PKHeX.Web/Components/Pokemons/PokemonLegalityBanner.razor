@@ -5,7 +5,7 @@
         <ul>
             @foreach (var failure in Failures)
             {
-                <li>@failure.Identifier: @failure.Comment</li>
+                <li>@failure.Identifier: @Describe(failure)</li>
             }
         </ul>
     </Alert>   
@@ -30,5 +30,13 @@
     public void Refresh()
     {
         _analysis = Pokemon.Legality();
+    }
+
+    private string Describe(CheckResult failure)
+    {
+        if (_analysis is null)
+            return string.Empty;
+
+        return LegalityLocalizationContext.Create(_analysis).Humanize(failure);
     }
 }

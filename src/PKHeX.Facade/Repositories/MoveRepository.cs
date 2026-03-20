@@ -31,8 +31,8 @@ public class MoveRepository
         var learnSource = GameData.GetLearnSource(pokemon.Game.SaveFile.Version);
         var learnSet = learnSource.GetLearnset(pokemon.Pkm.Species, pokemon.Pkm.Form);
         
-        var moves = learnSet.GetMoveRange(pokemon.Level)
-            .ToImmutableArray().AddRange(possibleCurrentMoves)
+        var moves = learnSet.GetMoveRange((byte)pokemon.Level)
+            .ToArray().ToImmutableArray().AddRange(possibleCurrentMoves)
             .ToHashSet();
 
         return _moves

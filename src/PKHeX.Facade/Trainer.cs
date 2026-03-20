@@ -34,13 +34,13 @@ public class Trainer
 
     public string? RivalName => _game.SaveFile switch
     {
-        SAV1 gen1 => gen1.Rival,
-        SAV2 gen2 => gen2.Rival,
+        SAV1 gen1 => gen1.RivalName,
+        SAV2 gen2 => gen2.RivalName,
         SAV3FRLG gen3 => gen3.RivalName,
-        SAV4 gen4 => gen4.Rival,
-        SAV5B2W2 gen5 => gen5.Rival,
-        SAV7b gen7 => gen7.Misc.Rival,
-        SAV8BS gen8 => gen8.Rival,
+        SAV4 gen4 => gen4.RivalName,
+        SAV5B2W2 gen5 => gen5.RivalName,
+        SAV7b gen7 => gen7.Misc.RivalName,
+        SAV8BS gen8 => gen8.RivalName,
         _ => null
     };
 

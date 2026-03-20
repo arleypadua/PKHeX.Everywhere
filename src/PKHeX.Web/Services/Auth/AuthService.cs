@@ -10,29 +10,47 @@ public class AuthService(
     private IJSInProcessRuntime SyncJs => js as IJSInProcessRuntime ??
                                           throw new NotSupportedException(
                                               "Requested an in process javascript interop, but none was found");
+
+    public bool IsEnabled() => InvokeSync("isFirebaseAuthEnabled", false);
     
     public bool IsSignedIn()
-    {
-        var isSignedId = SyncJs.Invoke<bool>("isSignedIn");
-        return isSignedId;
-    }
+        => InvokeSync("isSignedIn", false);
     
     public async Task<string> SignInAnonymously()
-    {
-        var authToken = await js.InvokeAsync<string>("signInAnonymously");
-        return authToken;
-    }
+        => await InvokeAsync("signInAnonymously", string.Empty);
     
     public async Task<string> GetAuthToken()
-    {
-        var authToken = await js.InvokeAsync<string>("getAuthToken");
-        return authToken;
-    }
+        => await InvokeAsync("getAuthToken", string.Empty);
     
     public async Task<User?> GetSignedInUser()
+        => await InvokeAsync<User?>("getSignedInUser", null);
+
+    private bool InvokeSync(string identifier, bool fallback)
     {
-        return await js.InvokeAsync<User?>("getSignedInUser");
+        try
+        {
+            return SyncJs.Invoke<bool>(identifier);
+        }
+        catch (Exception ex) when (IsInteropUnavailable(ex))
+        {
+            return fallback;
+        }
     }
+
+    private async Task<T> InvokeAsync<T>(string identifier, T fallback)
+    {
+        try
+        {
+            return await js.InvokeAsync<T>(identifier);
+        }
+        catch (Exception ex) when (IsInteropUnavailable(ex))
+        {
+            return fallback;
+        }
+    }
+
+    private static bool IsInteropUnavailable(Exception ex)
+        => ex is JSException or InvalidOperationException or NotSupportedException;
     
     [JSInvokable]
     public static async Task OnTokenChanged(string? token)

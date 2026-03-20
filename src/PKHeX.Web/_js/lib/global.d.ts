@@ -20,6 +20,7 @@ declare global {
         hasPreferenceForDarkTheme: () => boolean;
         
         // firebase
+        isFirebaseAuthEnabled: () => boolean;
         isSignedIn: () => boolean;
         getAuthToken: () => Promise<IdToken>;
         signInAnonymously: () => Promise<IdToken>;

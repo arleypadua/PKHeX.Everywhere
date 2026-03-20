@@ -12,7 +12,7 @@ public class GameVersionRepository
     private GameVersionRepository()
     {
         _versions = Enum.GetValues<GameVersion>()
-            .Select(v => new GameVersionDefinition(v, GameInfo.VersionDataSource.FirstOrDefault(s => s.Value == (int)v)?.Text ?? v.ToString()))
+            .Select(v => new GameVersionDefinition(v, GameInfo.GetVersionName(v)))
             .ToDictionary(x => x.Version, x => x);
     }
 
@@ -22,7 +22,7 @@ public class GameVersionRepository
     public GameVersionDefinition Get(GameVersion version) => Get((int)version);
 
     public IImmutableList<GameVersionDefinition> GetAvailableFor(EntityContext generation, GameVersion version) => GameUtil
-        .GetVersionsInGeneration((byte)generation, version)
+        .GetVersionsInGeneration(generation, version)
         .Select(Get)
         .ToImmutableList();
 }

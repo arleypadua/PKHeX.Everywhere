@@ -19,7 +19,7 @@ public class PokemonRepository
     {
         var settings = new SearchSettings
         {
-            Format = _saveFile.Generation,
+            Context = _saveFile.Context,
             Generation = _saveFile.Generation,
 
             Species = (ushort)species,

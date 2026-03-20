@@ -8,12 +8,14 @@ namespace PKHeX.Facade;
 public class Inventory : IEnumerable<Inventory.Item>
 {
     private readonly Game _game;
+    private readonly PlayerBag _bag;
     private readonly InventoryPouch _pouch;
 
     public Inventory(string type, Game game)
     {
         _game = game;
-        _pouch = _game.SaveFile.Inventory.FirstOrDefault(i => i.Type.ToString() == type)
+        _bag = _game.SaveFile.Inventory;
+        _pouch = _bag.Pouches.FirstOrDefault(i => i.Type.ToString() == type)
             ?? throw new InvalidOperationException($"Inventory of type {type} not found");
 
         Type = type;
@@ -73,16 +75,14 @@ public class Inventory : IEnumerable<Inventory.Item>
         }
 
         _pouch.RemoveAll(i => i.Index == itemId);
-        _pouch.GiveItem(_game.SaveFile, itemId, Convert.ToInt32(count));
+        _pouch.GiveItem(_bag, itemId, Convert.ToInt32(count));
 
         Commit();
     }
 
     private void Commit()
     {
-        _game.SaveFile.Inventory = _game.SaveFile.Inventory
-            .Select(i => i.Type.ToString() == Type ? _pouch : i)
-            .ToImmutableList();
+        _bag.CopyTo(_game.SaveFile);
     }
 
     private ImmutableList<Item> GetItems()
