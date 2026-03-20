@@ -21,8 +21,7 @@ public class JsService(IJSRuntime js,
         await js.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
     }
 
-    public ValueTask ClickOnAsync(ElementReference? element) => js.InvokeVoidAsync("HTMLElement.prototype.click.call",
-        element);
+    public ValueTask ClickOnAsync(ElementReference? element) => js.InvokeVoidAsync("clickElement", element);
 
     public void EncryptAes(ReadOnlySpan<byte> origin, Span<byte> destination, ReadOnlySpan<byte> key, CipherMode mode)
     {

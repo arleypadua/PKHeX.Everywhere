@@ -14,6 +14,18 @@ export function setupWindow() {
     // ui functions
     window.getWidth = () => window.innerWidth;
     window.hasPreferenceForDarkTheme = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    window.clickElement = (element) => {
+        if (!(element instanceof HTMLElement)) {
+            return;
+        }
+
+        if (element instanceof HTMLInputElement && typeof element.showPicker === "function") {
+            element.showPicker();
+            return;
+        }
+
+        element.click();
+    };
     
     // event listeners -- integration
     window.addEventListener("resize", async () => {
