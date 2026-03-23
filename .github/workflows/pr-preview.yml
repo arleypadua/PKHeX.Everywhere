@@ -1,0 +1,78 @@
+name: PR Preview
+
+on:
+  pull_request:
+    paths:
+      - 'src/PKHeX.Web/**'
+      - 'src/PKHeX.Facade/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: write
+
+jobs:
+  build_and_preview:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Update submodules to the latest commit
+        run: |
+          git submodule update --remote --recursive
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install NPM dependencies and build PKHeX.Web/_js
+        run: |
+          cd src/PKHeX.Web/_js
+
+          echo "VITE_FIREBASE_ENABLED=false" >> .env
+
+          npm ci
+          npm run build
+
+          cd ../../../
+
+      - name: Install NPM dependencies and build PKHeX.Web/_blog
+        run: |
+          cd src/PKHeX.Web/_blog
+
+          npm ci
+          npm run build
+
+          cd ../../../
+
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+      - name: Publish
+        run: dotnet publish ./src/PKHeX.Web/PKHeX.Web.csproj -c Release -o ./src/PKHeX.Web/bin/pkhex-web-publish
+
+      - name: Add Cloudflare Pages SPA redirect rule
+        run: echo "/* /index.html 200" > ./src/PKHeX.Web/bin/pkhex-web-publish/wwwroot/_redirects
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: pkhex-web-preview
+          directory: ./src/PKHeX.Web/bin/pkhex-web-publish/wwwroot
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
