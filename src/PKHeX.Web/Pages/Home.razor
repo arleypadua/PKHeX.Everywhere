@@ -15,8 +15,29 @@
     @if (_game is not null)
     {
         <Descriptions Title="Trainer" Bordered Column="@ThemeService.ColumnsConfiguration" Size="DescriptionsSize.Small">
-            <DescriptionsItem Title="TID/SID">@_game.Trainer.Id</DescriptionsItem>
-            <DescriptionsItem Title="Name">@_game.Trainer.Name</DescriptionsItem>
+            <DescriptionsItem Title="TID">
+                <AntDesign.InputNumber
+                    TValue="uint"
+                    Value="@_game.Trainer.TID"
+                    OnChange="HandleTIDChanged"
+                    Style="width: 100%; max-width: 170px;"
+                    Min="0" Max="@uint.MaxValue"/>
+            </DescriptionsItem>
+            <DescriptionsItem Title="SID">
+                <AntDesign.InputNumber
+                    TValue="uint"
+                    Value="@_game.Trainer.SID"
+                    OnChange="HandleSIDChanged"
+                    Style="width: 100%; max-width: 170px;"
+                    Min="0" Max="@uint.MaxValue"/>
+            </DescriptionsItem>
+            <DescriptionsItem Title="Name">
+                <Input
+                    TValue="string"
+                    Value="@_game.Trainer.Name"
+                    OnChange="HandleNameChanged"
+                    Style="max-width: 200px;"/>
+            </DescriptionsItem>
             <DescriptionsItem Title="Gender">
                 <GenderSelector
                     Gender="@_game.Trainer.Gender"
@@ -130,6 +151,30 @@
     {
         if (_game is null) return Task.CompletedTask;
         _game.Trainer.Gender = gender;
+
+        return Task.CompletedTask;
+    }
+
+    private Task HandleNameChanged(string value)
+    {
+        if (_game is null) return Task.CompletedTask;
+        _game.Trainer.Name = value;
+
+        return Task.CompletedTask;
+    }
+
+    private Task HandleTIDChanged(uint value)
+    {
+        if (_game is null) return Task.CompletedTask;
+        _game.Trainer.TID = value;
+
+        return Task.CompletedTask;
+    }
+
+    private Task HandleSIDChanged(uint value)
+    {
+        if (_game is null) return Task.CompletedTask;
+        _game.Trainer.SID = value;
 
         return Task.CompletedTask;
     }

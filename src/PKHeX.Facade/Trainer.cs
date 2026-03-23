@@ -12,15 +12,32 @@ public class Trainer
     {
         _game = game;
 
-        Id = new EntityId(_game.SaveFile.DisplayTID, _game.SaveFile.DisplaySID);
         Money = new Money(_game);
         Inventories = new Inventories(_game);
         Party = new PokemonParty(_game);
         PokemonBox = new PokemonBox(_game);
     }
 
-    public EntityId Id { get; }
-    public string Name => _game.SaveFile.OT;
+    public EntityId Id => new EntityId(_game.SaveFile.DisplayTID, _game.SaveFile.DisplaySID);
+
+    public uint TID
+    {
+        get => _game.SaveFile.DisplayTID;
+        set => _game.SaveFile.DisplayTID = value;
+    }
+
+    public uint SID
+    {
+        get => _game.SaveFile.DisplaySID;
+        set => _game.SaveFile.DisplaySID = value;
+    }
+
+    public string Name
+    {
+        get => _game.SaveFile.OT;
+        set => _game.SaveFile.OT = value;
+    }
+
     public Gender Gender
     {
         get => Gender.FromByte(_game.SaveFile.Gender);
