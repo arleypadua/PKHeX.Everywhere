@@ -404,4 +404,4 @@ FodyWeavers.xsd
 .idea/
 
 # PKHeX.Web
-plugins/
+plugins/.nuget/
