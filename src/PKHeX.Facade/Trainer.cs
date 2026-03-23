@@ -1,6 +1,7 @@
 ﻿using PKHeX.Core;
 using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Pokemons;
+using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade;
 
@@ -48,6 +49,26 @@ public class Trainer
     public Inventories Inventories { get; private set; }
     public PokemonParty Party { get; private set; }
     public PokemonBox PokemonBox { get; private set; }
+
+    public int PokemonInPartyCount => Party.Pokemons.Count(p => p.Species != SpeciesDefinition.None);
+    public int PokemonInBoxCount => PokemonBox.All.Count(p => p.Species != SpeciesDefinition.None);
+
+    public void ApplyOwnerToAll()
+    {
+        var allPokemon = Party.Pokemons
+            .Concat(PokemonBox.All)
+            .Where(p => p.Species != SpeciesDefinition.None)
+            .ToList();
+
+        foreach (var pokemon in allPokemon)
+        {
+            pokemon.Owner.Name = Name;
+            pokemon.Owner.TID = TID;
+            pokemon.Owner.SID = SID;
+        }
+
+        Commit();
+    }
 
     public string? RivalName => _game.SaveFile switch
     {

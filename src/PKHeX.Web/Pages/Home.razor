@@ -98,10 +98,26 @@
         @bind-Error="_quickActionsFailure"/>
 </Flex>
 
+<Modal Title="Update Original Trainer?"
+       @bind-Visible="_trainerChangeModalVisible"
+       OnOk="HandleTrainerChangeConfirmed"
+       OnCancel="HandleTrainerChangeDeclined"
+       OkText="Yes, update all"
+       CancelText="No, just update trainer">
+    @if (_game is not null)
+    {
+        <p>You have <strong>@_game.Trainer.PokemonInPartyCount</strong> Pokémon in your party and <strong>@_game.Trainer.PokemonInBoxCount</strong> in your box.</p>
+        <p>Would you like to update their Original Trainer info to match the new trainer values?</p>
+    }
+</Modal>
+
 @code {
     private Game? _game;
     private List<IQuickAction> _actions = [];
     private Exception? _quickActionsFailure;
+
+    private bool _trainerChangeModalVisible;
+    private Action? _pendingTrainerChange;
 
     protected override void OnInitialized()
     {
@@ -158,7 +174,8 @@
     private Task HandleNameChanged(string value)
     {
         if (_game is null) return Task.CompletedTask;
-        _game.Trainer.Name = value;
+        _pendingTrainerChange = () => _game.Trainer.Name = value;
+        _trainerChangeModalVisible = true;
 
         return Task.CompletedTask;
     }
@@ -166,7 +183,8 @@
     private Task HandleTIDChanged(uint value)
     {
         if (_game is null) return Task.CompletedTask;
-        _game.Trainer.TID = value;
+        _pendingTrainerChange = () => _game.Trainer.TID = value;
+        _trainerChangeModalVisible = true;
 
         return Task.CompletedTask;
     }
@@ -174,7 +192,27 @@
     private Task HandleSIDChanged(uint value)
     {
         if (_game is null) return Task.CompletedTask;
-        _game.Trainer.SID = value;
+        _pendingTrainerChange = () => _game.Trainer.SID = value;
+        _trainerChangeModalVisible = true;
+
+        return Task.CompletedTask;
+    }
+
+    private Task HandleTrainerChangeConfirmed()
+    {
+        _pendingTrainerChange?.Invoke();
+        _pendingTrainerChange = null;
+        _game?.Trainer.ApplyOwnerToAll();
+        _trainerChangeModalVisible = false;
+
+        return Task.CompletedTask;
+    }
+
+    private Task HandleTrainerChangeDeclined()
+    {
+        _pendingTrainerChange?.Invoke();
+        _pendingTrainerChange = null;
+        _trainerChangeModalVisible = false;
 
         return Task.CompletedTask;
     }

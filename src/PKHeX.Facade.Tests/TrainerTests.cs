@@ -1,4 +1,6 @@
 ﻿using AwesomeAssertions;
+using PKHeX.Core;
+using PKHeX.Facade.Repositories;
 using PKHeX.Facade.Tests.Base;
 
 namespace PKHeX.Facade.Tests;
@@ -51,6 +53,36 @@ public class TrainerTests
         game.SaveAndReload(reloaded =>
         {
             reloaded.Trainer.SID.Should().Be(54321);
+        });
+    }
+
+    [Theory]
+    [Games(GameVersion.HG)]
+    public void ApplyOwnerToAll_ShouldUpdateAllPokemon(Game game)
+    {
+        game.Trainer.Name = "TestOT";
+        game.Trainer.TID = 11111;
+        game.Trainer.SID = 22222;
+
+        game.Trainer.ApplyOwnerToAll();
+
+        game.SaveAndReload(reloaded =>
+        {
+            var allPokemon = reloaded.Trainer.Party.Pokemons
+                .Concat(reloaded.Trainer.PokemonBox.All)
+                .Where(p => p.Species != SpeciesDefinition.None)
+                .ToList();
+
+            allPokemon.Should().HaveCountGreaterThan(0);
+            allPokemon.Should().AllSatisfy(p =>
+            {
+                p.Owner.Name.Should().Be("TestOT");
+                // p.Id.TID reads Pkm.DisplayTID directly — the same path used by the
+                // ApplyOwnerToAll setter — because Owner.TID getter uses TrainerTID7,
+                // which differs from DisplayTID in Gen 4 (it incorporates SID16).
+                p.Id.TID.Should().Be(11111u);
+                p.Id.SID.Should().Be(22222u);
+            });
         });
     }
 }
