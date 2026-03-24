@@ -68,6 +68,12 @@ jobs:
       - name: Add Cloudflare Pages SPA redirect rule
         run: echo "/* /index.html 200" > ./src/PKHeX.Web/bin/pkhex-web-publish/wwwroot/_redirects
 
+      - name: List Cloudflare Pages projects
+        run: |
+          curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" | jq '[.result[] | {name: .name, subdomain: .subdomain}]'
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
