@@ -13,6 +13,7 @@ public static class Program
 {
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(PkCommand))]
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(PkCommand.Settings))]
+    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicConstructors, typeof(EmptyCommandSettings))]
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, "Spectre.Console.Cli.ExplainCommand", "Spectre.Console.Cli")]
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, "Spectre.Console.Cli.VersionCommand", "Spectre.Console.Cli")]
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, "Spectre.Console.Cli.XmlDocCommand", "Spectre.Console.Cli")]
