@@ -14,7 +14,7 @@
         OnPageIndexChange="HandlePagination"
         SelectedRows="_selectedPokemons"
         SelectedRowsChanged="HandleSelectedRowsChanged"
-        RowKey="@(x => x.UniqueId?.Value ?? string.Empty)"
+        RowKey="@(x => x.RowKey)"
         Size="TableSize.Small"
         Responsive
         EnableVirtualization>
@@ -92,10 +92,14 @@
         _ => string.Empty
     };
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        _pokemonRows = DataSource.Select(p => new PokemonRow { Pokemon = p });
-        _selectedPokemons = SelectedPokemons.Select(p => new PokemonRow { Pokemon = p });
+        _pokemonRows = DataSource
+            .Select((p, index) => new PokemonRow { Pokemon = p, Index = index })
+            .ToList();
+        _selectedPokemons = _pokemonRows
+            .Where(row => SelectedPokemons.Contains(row.Pokemon))
+            .ToList();
     }
 
     private void HandlePagination(PaginationEventArgs args)
@@ -123,6 +127,8 @@
     public class PokemonRow
     {
         public required Pokemon Pokemon { get; set; }
+        public required int Index { get; set; }
+        public string RowKey => $"{Index}:{UniqueId?.Value ?? string.Empty}";
 
         public UniqueId? UniqueId
         {
