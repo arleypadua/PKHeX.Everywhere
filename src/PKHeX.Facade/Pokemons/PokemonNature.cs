@@ -5,7 +5,7 @@ namespace PKHeX.Facade.Pokemons;
 public record PokemonNature(PKM Pokemon)
 {
     public Nature Nature => Pokemon.Nature;
-    public Nature StatNature => Pokemon.StatNature;
+    public Nature StatNature => Pokemon.StatAlignment;
 
     public bool ChangeAll(Nature newNature)
     {
@@ -14,7 +14,7 @@ public record PokemonNature(PKM Pokemon)
         var oldNature = Pokemon.Nature;
         
         Pokemon.Nature = newNature;
-        Pokemon.StatNature = newNature;
+        Pokemon.StatAlignment = newNature;
 
         return Pokemon.Nature != oldNature;
     }

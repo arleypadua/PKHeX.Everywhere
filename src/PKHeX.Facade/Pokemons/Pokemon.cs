@@ -1,4 +1,4 @@
-﻿using PKHeX.Core;
+using PKHeX.Core;
 using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade.Pokemons;
@@ -129,7 +129,7 @@ public class Pokemon(PKM pokemon, Game game)
             moveIndex == PokemonMove.MoveIndex.Move3 ? newMove.Id : Move3.Move.Id,
             moveIndex == PokemonMove.MoveIndex.Move4 ? newMove.Id : Move4.Move.Id);
 
-        if (newMoveSet.ToArray().All(m => m == MoveDefinition.None.Id))
+        if (newMoveSet.Move1 == MoveDefinition.None.Id && newMoveSet.Move2 == MoveDefinition.None.Id && newMoveSet.Move3 == MoveDefinition.None.Id && newMoveSet.Move4 == MoveDefinition.None.Id)
         {
             return;
         }
@@ -173,12 +173,20 @@ public class Pokemon(PKM pokemon, Game game)
 
     public File ToFile(bool encrypted = false)
     {
+        var bytes = new byte[Pkm.SIZE_PARTY];
+        if (encrypted)
+        {
+            Pkm.WriteEncryptedDataParty(bytes);
+        }
+        else
+        {
+            Pkm.WriteDecryptedDataParty(bytes);
+        }
+
         return new File
         {
             Name = Pkm.FileName,
-            Bytes = encrypted
-                ? Pkm.EncryptedPartyData
-                : Pkm.DecryptedPartyData
+            Bytes = bytes
         };
     }
 
