@@ -59,7 +59,7 @@ jobs:
       - name: Fix base href for GitHub Pages
         run: |
           REPO_NAME="${{ github.event.repository.name }}"
-          sed -i "s|<base href=\"/\" />|<base href=\"/$REPO_NAME/\" />|" publish/wwwroot/index.html
+          sed -i "s|<base href=\"/\"/>|<base href=\"/$REPO_NAME/\"/>|" publish/wwwroot/index.html
           sed -i "s|location.replace('/');|location.replace('/$REPO_NAME/');|" publish/wwwroot/404.html
 
       - name: Add .nojekyll
