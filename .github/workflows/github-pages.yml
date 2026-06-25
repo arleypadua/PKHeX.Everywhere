@@ -68,14 +68,28 @@ jobs:
           # Fix 404 redirect
           sed -i "s|location.replace('/');|location.replace('$PATH_BASE/');|" "$PUBLISH_DIR/404.html"
 
-          # Inject pathbase interceptor before Blazor loads so NavigateTo("/route")
-          # resolves to /REPO_NAME/route instead of /route
-          INTERCEPTOR=$(cat <<'SCRIPT'
-          <script>(function(){var p=location.pathname.replace(/[^/]*$/,'');if(p==='/')return;var op=history.pushState.bind(history);var or=history.replaceState.bind(history);function f(u){if(!u)return u;try{var o=new URL(u,location.origin)}catch(e){return u}if(o.origin!==location.origin)return u;if(o.pathname===p||o.pathname.startsWith(p))return u;o.pathname=p.replace(/\/$/,'')+o.pathname;return o.pathname+o.search+o.hash}history.pushState=function(s,t,u){return op(s,t,f(u))};history.replaceState=function(s,t,u){return or(s,t,f(u))}})();
-          </script>
-          SCRIPT
-          )
-          sed -i "s|</head>|$INTERCEPTOR\n    </head>|" "$PUBLISH_DIR/index.html"
+          # Write pathbase interceptor script
+          cat > "$PUBLISH_DIR/js/pathbase.js" <<'EOF'
+          (function(){
+            var p = location.pathname.replace(/[^/]*$/,'');
+            if (p === '/') return;
+            var op = history.pushState.bind(history);
+            var or = history.replaceState.bind(history);
+            function fix(u) {
+              if (!u) return u;
+              try { var o = new URL(u, location.origin); } catch(e) { return u; }
+              if (o.origin !== location.origin) return u;
+              if (o.pathname === p || o.pathname.startsWith(p)) return u;
+              o.pathname = p.replace(/\/$/,'') + o.pathname;
+              return o.pathname + o.search + o.hash;
+            }
+            history.pushState = function(s,t,u) { return op(s,t,fix(u)); };
+            history.replaceState = function(s,t,u) { return or(s,t,fix(u)); };
+          })();
+          EOF
+
+          # Inject script tag before Blazor loads
+          sed -i 's|</head>|<script src="js/pathbase.js"></script>\n</head>|' "$PUBLISH_DIR/index.html"
 
       - name: Add .nojekyll
         run: touch publish/wwwroot/.nojekyll
