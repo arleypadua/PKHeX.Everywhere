@@ -59,8 +59,23 @@ jobs:
       - name: Fix base href for GitHub Pages
         run: |
           REPO_NAME="${{ github.event.repository.name }}"
-          sed -i "s|<base href=\"/\"/>|<base href=\"/$REPO_NAME/\"/>|" publish/wwwroot/index.html
-          sed -i "s|location.replace('/');|location.replace('/$REPO_NAME/');|" publish/wwwroot/404.html
+          PUBLISH_DIR="./publish/wwwroot"
+          PATH_BASE="/$REPO_NAME"
+
+          # Fix base href
+          sed -i "s|<base href=\"/\"/>|<base href=\"$PATH_BASE/\"/>|" "$PUBLISH_DIR/index.html"
+
+          # Fix 404 redirect
+          sed -i "s|location.replace('/');|location.replace('$PATH_BASE/');|" "$PUBLISH_DIR/404.html"
+
+          # Inject pathbase interceptor before Blazor loads so NavigateTo("/route")
+          # resolves to /REPO_NAME/route instead of /route
+          INTERCEPTOR=$(cat <<'SCRIPT'
+          <script>(function(){var p=location.pathname.replace(/[^/]*$/,'');if(p==='/')return;var op=history.pushState.bind(history);var or=history.replaceState.bind(history);function f(u){if(!u)return u;try{var o=new URL(u,location.origin)}catch(e){return u}if(o.origin!==location.origin)return u;if(o.pathname===p||o.pathname.startsWith(p))return u;o.pathname=p.replace(/\/$/,'')+o.pathname;return o.pathname+o.search+o.hash}history.pushState=function(s,t,u){return op(s,t,f(u))};history.replaceState=function(s,t,u){return or(s,t,f(u))}})();
+          </script>
+          SCRIPT
+          )
+          sed -i "s|</head>|$INTERCEPTOR\n    </head>|" "$PUBLISH_DIR/index.html"
 
       - name: Add .nojekyll
         run: touch publish/wwwroot/.nojekyll
