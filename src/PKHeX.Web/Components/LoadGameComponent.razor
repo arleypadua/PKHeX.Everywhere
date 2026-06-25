@@ -88,7 +88,7 @@ else
     private Task LoadEmpty(GameVersionDefinition version)
     {
         GameService.LoadBlank(version);
-        Navigation.NavigateTo("/");
+        Navigation.NavigateToHomePage();
 
         return Task.CompletedTask;
     }
@@ -122,7 +122,7 @@ else
             });
         }
 
-        Navigation.NavigateTo("/");
+        Navigation.NavigateToHomePage();
     }
 
     private async Task ExportSaveAsync()

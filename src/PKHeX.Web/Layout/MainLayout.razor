@@ -160,13 +160,13 @@
         var currentRoute = Navigation.CurrentRoute();
         if (!GameService.IsLoaded && string.IsNullOrWhiteSpace(currentRoute) || currentRoute == "/")
         {
-            Navigation.NavigateTo("/load");
+            Navigation.NavigateToLoad();
         }
     }
 
     private void OnGameLoaded(object? sender, EventArgs args)
     {
-        Navigation.NavigateTo("/");
+        Navigation.NavigateToHomePage();
     }
 
 
