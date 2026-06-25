@@ -1,0 +1,82 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'src/PKHeX.Web/**'
+      - 'src/PKHeX.Facade/**'
+      - 'external/PKHeX/**'
+      - '.github/workflows/github-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Update submodules to the latest commit
+        run: git submodule update --remote --recursive
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Build JS
+        run: |
+          cd src/PKHeX.Web/_js
+          echo "VITE_FIREBASE_ENABLED=false" >> .env
+          npm ci
+          npm run build
+
+      - name: Build Blog
+        run: |
+          cd src/PKHeX.Web/_blog
+          npm ci
+          npm run build
+
+      - name: Publish
+        run: dotnet publish ./src/PKHeX.Web/PKHeX.Web.csproj -c Release -o ./publish
+
+      - name: Fix base href for GitHub Pages
+        run: |
+          REPO_NAME="${{ github.event.repository.name }}"
+          sed -i "s|<base href=\"/\" />|<base href=\"/$REPO_NAME/\" />|" publish/wwwroot/index.html
+          sed -i "s|location.replace('/');|location.replace('/$REPO_NAME/');|" publish/wwwroot/404.html
+
+      - name: Add .nojekyll
+        run: touch publish/wwwroot/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./publish/wwwroot
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

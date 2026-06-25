@@ -11,10 +11,12 @@ public class Inventory : IEnumerable<Inventory.Item>
     private readonly PlayerBag _bag;
     private readonly InventoryPouch _pouch;
 
-    public Inventory(string type, Game game)
+    public Inventory(string type, Game game) : this(type, game, game.SaveFile.Inventory) { }
+
+    public Inventory(string type, Game game, PlayerBag bag)
     {
         _game = game;
-        _bag = _game.SaveFile.Inventory;
+        _bag = bag;
         _pouch = _bag.Pouches.FirstOrDefault(i => i.Type.ToString() == type)
             ?? throw new InvalidOperationException($"Inventory of type {type} not found");
 

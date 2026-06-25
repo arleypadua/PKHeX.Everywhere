@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using PKHeX.Core;
 
 namespace PKHeX.Facade;
 
@@ -10,8 +11,9 @@ public class Inventories
     {
         _game = game;
 
-        InventoryTypes = GetInventoryTypes();
-        InventoryItems = GetInventories();
+        var sharedBag = game.SaveFile.Inventory;
+        InventoryTypes = GetInventoryTypes(sharedBag);
+        InventoryItems = GetInventories(sharedBag);
     }
 
     public Inventory this[string key]
@@ -33,12 +35,12 @@ public class Inventories
     public ImmutableHashSet<string> InventoryTypes { get; init; }
     public ImmutableDictionary<string, Inventory> InventoryItems { get; init; }
 
-    private ImmutableHashSet<string> GetInventoryTypes()
-        => _game.SaveFile.Inventory.Pouches.Select(i => i.Type.ToString()).ToImmutableHashSet();
+    private static ImmutableHashSet<string> GetInventoryTypes(PlayerBag bag)
+        => bag.Pouches.Select(i => i.Type.ToString()).ToImmutableHashSet();
 
-    private ImmutableDictionary<string, Inventory> GetInventories() => InventoryTypes.ToImmutableDictionary(
+    private ImmutableDictionary<string, Inventory> GetInventories(PlayerBag bag) => InventoryTypes.ToImmutableDictionary(
         type => type,
-        type => new Inventory(type, _game)
+        type => new Inventory(type, _game, bag)
     );
 }
 
