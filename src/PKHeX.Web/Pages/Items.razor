@@ -19,7 +19,7 @@
                 <ItemsTable
                     @key="@inventoryType"
                     Inventory="Inventories?[inventoryType]"
-                    DataSource="@(Inventories?[inventoryType].Where(i => i.Definition.Id != ItemDefinition.None).ToList())"/>
+                    DataSource="@(Inventories?[inventoryType].Where(i => i.Definition.Id != ItemDefinition.None).OrderBy(i => i.Id).ToList())"/>
             </TabPane>
         }
     </Tabs>
