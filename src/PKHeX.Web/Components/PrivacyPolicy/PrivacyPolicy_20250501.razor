@@ -1,6 +1,4 @@
-@using BytexDigital.Blazor.Components.CookieConsent
-@inject CookieConsentService ConsentService
-@inject GoogleCmpService GoogleCmp
+@inject JsService Js
 
 <h1>Privacy Policy</h1>
 <p>Effective Date: 01/05/2025</p>
@@ -44,7 +42,7 @@
 <p>Your privacy is important to us. Our application includes a beta feature for syncing Pokémon data to the cloud, enabling restoration if needed. This feature is entirely optional and will only sync your data if you explicitly opt in. While we employ best practices to secure your data, please note that this feature is still in development, and its functionality is not guaranteed. By using this feature, you acknowledge that there may be limitations or interruptions in service during the beta phase. We recommend keeping local backups of your data for added security.</p>
 
 <h2>9. Cookies, Advertising, and Third-Party Services</h2>
-<p>Our application uses cookies and similar technologies to enhance your experience, understand usage patterns, and serve advertisements. By using our application, you consent to the use of these cookies as described below.</p>
+<p>Our application uses cookies and similar technologies to enhance your experience, understand usage patterns, and serve advertisements. If you are in the European Economic Area, the United Kingdom or Switzerland, we ask for your consent before setting advertising or analytics cookies. If you decline, you still see ads, but they are not personalized and do not use cookies for advertising. You can change your choice at any time with the Cookie preferences button below.</p>
 <p><strong>Google AdSense & Advertising Cookies:</strong></p>
 <ul>
 <li>Third party vendors, including Google, use cookies to serve ads based on a user's prior visits to our website or other websites.</li>
@@ -68,21 +66,8 @@
 <li>For more information on how Google uses data when you use our partners' sites or apps, please visit <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">Google's Partner Sites Policy</a>. You can also review <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's Privacy Policy</a> and <a href="https://policies.google.com/technologies/cookies" target="_blank" rel="noopener noreferrer">Cookie Policy</a> for further details.</li>
 </ul>
 <Flex Justify="@FlexJustify.Center">
-    <Button @onclick="HandleCookieConsentPreferences">Cookie preferences</Button>
+    <Button @onclick="Js.ShowCookiePreferences">Cookie preferences</Button>
 </Flex>
 
 <h2>10. Contact Us</h2>
 <p>If you have any questions about this Privacy Policy, please open an issue on <a href="@GitHubRepositoryIssues" target="_blank">GitHub</a>.</p>
-
-@code {
-    private async Task HandleCookieConsentPreferences()
-    {
-        if (GoogleCmp.IsEnabled)
-        {
-            await GoogleCmp.ShowRevocationMessage();
-            return;
-        }
-
-        await ConsentService.ShowPreferencesModalAsync();
-    }
-}   
