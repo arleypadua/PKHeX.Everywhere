@@ -64,6 +64,28 @@ public class PokemonTests
     }
 
     [Fact]
+    public void IsAlpha_ShouldSurviveSerialization()
+    {
+        var game = Game.EmptyOf(GameVersionRepository.Instance.Get(GameVersion.PLA));
+        var pokemon = new Pokemon(new PA8(), game);
+
+        pokemon.SupportsAlpha.Should().BeTrue();
+        pokemon.IsAlpha = true;
+
+        Pokemon.LoadFrom(pokemon.ToFile().Bytes, game).IsAlpha.Should().BeTrue();
+    }
+
+    [Fact]
+    public void SupportsAlpha_ShouldBeFalseForGamesWithoutAlphas()
+    {
+        var pokemon = Game.LoadFrom(SaveFilePath.Emerald).Trainer.Party.Pokemons.First();
+
+        pokemon.SupportsAlpha.Should().BeFalse();
+        pokemon.IsAlpha.Should().BeFalse();
+        pokemon.Invoking(p => p.IsAlpha = true).Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
     public void UniqueId_ShouldBeDistinctForPokemonWithoutPid()
     {
         var game = Game.LoadFrom(SaveFilePath.Yellow);

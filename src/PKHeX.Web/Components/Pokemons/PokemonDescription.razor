@@ -46,6 +46,12 @@
     <DescriptionsItem Title="Shiny">
         <Switch Value="@Pokemon.IsShiny" OnChange="HandleShinyChange"/>
     </DescriptionsItem>
+    @if (Pokemon.SupportsAlpha)
+    {
+        <DescriptionsItem Title="Alpha">
+            <Switch Value="@Pokemon.IsAlpha" OnChange="HandleAlphaChange"/>
+        </DescriptionsItem>
+    }
     <DescriptionsItem Title="Level">
         <div data-testid="pokemon-level">
             <AntDesign.InputNumber
@@ -157,6 +163,12 @@
     private Task HandleShinyChange(bool newShinyValue)
     {
         Pokemon.SetShiny(newShinyValue);
+        return OnPokemonChanged.InvokeAsync(Pokemon);
+    }
+
+    private Task HandleAlphaChange(bool isAlpha)
+    {
+        Pokemon.IsAlpha = isAlpha;
         return OnPokemonChanged.InvokeAsync(Pokemon);
     }
 

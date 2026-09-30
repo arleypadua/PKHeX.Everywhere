@@ -79,6 +79,19 @@ public class Pokemon(PKM pokemon, Game game)
 
     public bool IsShiny => pokemon.IsShiny;
 
+    public bool SupportsAlpha => Pkm is IAlpha;
+
+    public bool IsAlpha
+    {
+        get => Pkm is IAlpha { IsAlpha: true };
+        set
+        {
+            if (Pkm is not IAlpha alpha)
+                throw new InvalidOperationException($"{Pkm.GetType().Name} does not support the alpha flag.");
+            alpha.IsAlpha = value;
+        }
+    }
+
     public ItemDefinition HeldItem
     {
         get => Game.ItemRepository.GetGameItem(Convert.ToUInt16(pokemon.HeldItem));
