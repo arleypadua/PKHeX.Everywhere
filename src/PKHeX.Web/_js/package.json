@@ -12,7 +12,7 @@
   "devDependencies": {
     "@types/blazor__javascript-interop": "^3.1.7",
     "@types/crypto-js": "^4.2.2",
-    "typescript": "~5.6.2",
+    "typescript": "~7.0.2",
     "vite": "^8.3.1"
   },
   "dependencies": {
