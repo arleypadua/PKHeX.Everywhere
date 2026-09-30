@@ -120,6 +120,7 @@ ipch/
 
 # Visual Studio Trace Files
 *.e2e
+!src/PKHeX.Web.E2E/
 
 # TFS 2012 Local Workspace
 $tf/
