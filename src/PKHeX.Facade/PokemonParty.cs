@@ -13,15 +13,15 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
 
     public void Commit()
     {
-        try
+        // SAV7b empty party slots point to a non-existent box slot, so the PartyData setter throws when blanking them
+        if (game.SaveFile is SAV7b)
         {
-            game.SaveFile.PartyData = _partyData;
+            for (var i = 0; i < _partyData.Count; i++)
+                game.SaveFile.SetPartySlotAtIndex(_partyData[i], i);
+            return;
         }
-        catch (ArgumentOutOfRangeException e) when (e.Message == "Specified argument was out of the range of valid values. (Parameter 'index')")
-        {
-            // there's some weird bug in some versions, that setting party data goes beyond the boundaries
-            // since the whole set mostly have executed, we consider it to still be a succeeded set operation
-        }
+
+        game.SaveFile.PartyData = _partyData;
     }
 
     public void AddOrUpdate(UniqueId id, Pokemon pokemon)
