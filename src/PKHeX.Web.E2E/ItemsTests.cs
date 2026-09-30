@@ -13,7 +13,7 @@ public class ItemsTests(WebAppFixture fixture) : E2ETest(fixture)
     public Task EditingAnItemCount_EndsUpInTheExportedSave() => RunAsync(Path.GetFileName(SaveFile), async page =>
     {
         var inventories = Game.LoadFrom(SaveFile).Trainer.Inventories;
-        var inventoryType = inventories.InventoryTypes.Order().First();
+        const string inventoryType = "Balls";
         var original = inventories[inventoryType].AllExceptNone().First();
         var count = original.Count == 7 ? 8 : 7;
 
@@ -21,7 +21,8 @@ public class ItemsTests(WebAppFixture fixture) : E2ETest(fixture)
         await page.UploadSaveAsync(SaveFile);
 
         await page.NavigateWithMenuAsync("Items", new Uri(BaseAddress, "/items"));
-        var itemRow = page.GetByRole(AriaRole.Row).Filter(new() { Has = page.GetByRole(AriaRole.Cell, new() { Name = original.Name, Exact = true }) });
+        await page.GetByRole(AriaRole.Tab, new() { Name = inventoryType, Exact = true }).ClickAsync();
+        var itemRow = page.GetByRole(AriaRole.Tabpanel).GetByRole(AriaRole.Row).Filter(new() { Has = page.GetByRole(AriaRole.Cell, new() { Name = original.Name, Exact = true }) });
         await itemRow.GetByRole(AriaRole.Button, new() { Name = "Edit", Exact = true }).ClickAsync();
 
         var dialog = page.GetByRole(AriaRole.Dialog);
