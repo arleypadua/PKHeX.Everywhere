@@ -33,4 +33,12 @@ public class ItemRepositoryTests
             items.Count.Should().BeGreaterThanOrEqualTo(0);
         }
     }
+
+    [Fact]
+    public void ShouldNotExposeItemsWithoutName()
+    {
+        var za = Game.EmptyOf(GameVersionRepository.Instance.Get(GameVersion.ZA));
+
+        za.ItemRepository.GameItems.Should().NotContain(i => string.IsNullOrEmpty(i.Name));
+    }
 }

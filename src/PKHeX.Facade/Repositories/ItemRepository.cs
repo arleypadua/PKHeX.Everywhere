@@ -20,6 +20,7 @@ public class ItemRepository
     {
         _gameItems = GameInfo.Strings.GetItemStrings(saveFile.Context, saveFile.Version)
             .Select((itemName, id) => (id: Convert.ToUInt16(id), itemName))
+            .Where(x => !string.IsNullOrEmpty(x.itemName))
             .ToDictionary(x => Convert.ToUInt16(x.id), x => new ItemDefinition(Convert.ToUInt16(x.id), x.itemName));
 
         if (saveFile.Version == GameVersion.C)
