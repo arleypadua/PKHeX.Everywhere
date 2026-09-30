@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using PKHeX.Core;
 
 namespace PKHeX.Facade;
 
@@ -39,7 +40,7 @@ public class Inventories
         {
             return _game.SaveFile.Inventory.Pouches.Select(i => i.Type.ToString()).ToImmutableHashSet();
         }
-        catch (ArgumentOutOfRangeException)
+        catch (ArgumentOutOfRangeException) when (_game.SaveFile is SAV8LA)
         {
             // Blank Legends: Arceus saves have an item block with an unset type code, so PKHeX.Core throws reading it.
             return ImmutableHashSet<string>.Empty;
