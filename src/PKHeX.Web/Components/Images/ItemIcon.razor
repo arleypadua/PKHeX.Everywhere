@@ -12,7 +12,9 @@
     private string ContentUrl() => $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/{ItemName}.png";
 
     // PokeAPI only has per-type TM sprites and no TR sprites; the TM's move type isn't known here
-    private string ItemName => Regex.IsMatch(Item.Name, @"^T[MR]\d+$")
+    private string ItemName => NumberedTmOrTr.IsMatch(Item.Name)
         ? "tm-normal"
         : string.Join('-', Item.Name.ToLower().Replace("é", "e").Split(' '));
+
+    private static readonly Regex NumberedTmOrTr = new(@"^T[MR]\d+$", RegexOptions.Compiled);
 }
