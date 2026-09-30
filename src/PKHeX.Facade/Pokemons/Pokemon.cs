@@ -63,6 +63,10 @@ public class Pokemon(PKM pokemon, Game game)
     public Stats IVs => Stats.IvFrom(pokemon);
     public Stats BaseStats => Stats.BaseFrom(pokemon);
     public Stats? AVs => pokemon is IAwakened ? Stats.AvFrom(pokemon) : null;
+    public HiddenPowerDefinition? HiddenPower =>
+        pokemon.Context is EntityContext.Gen1 or EntityContext.Gen7b || pokemon.Context.Generation >= 8
+            ? null
+            : new(GameInfo.Strings.types[pokemon.HPType + 1], pokemon.Format <= 5 ? pokemon.HPPower : null);
     public PokemonMove Move1 => new(pokemon, PokemonMove.MoveIndex.Move1);
     public PokemonMove Move2 => new(pokemon, PokemonMove.MoveIndex.Move2);
     public PokemonMove Move3 => new(pokemon, PokemonMove.MoveIndex.Move3);
@@ -223,3 +227,5 @@ public class Pokemon(PKM pokemon, Game game)
         public required byte[] Bytes { get; init; }
     }
 }
+
+public record HiddenPowerDefinition(string Type, int? Power);
