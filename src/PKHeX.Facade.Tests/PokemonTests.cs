@@ -63,6 +63,20 @@ public class PokemonTests
         pokemon.HeldItem.Should().Be(leftovers);
     }
 
+    [Fact]
+    public void UniqueId_ShouldBeDistinctForPokemonWithoutPid()
+    {
+        var game = Game.LoadFrom(SaveFilePath.Yellow);
+
+        var ids = game.Trainer.Party.Pokemons
+            .Concat(game.Trainer.PokemonBox.All)
+            .Where(p => p.Species != SpeciesDefinition.None)
+            .Select(p => p.UniqueId.Value)
+            .ToList();
+
+        ids.Should().OnlyHaveUniqueItems();
+    }
+
     private Game AGame(GameVersion version, string trainerName) =>
         Game.EmptyOf(GameVersionRepository.Instance.Get(version), trainerName);
 }
