@@ -121,10 +121,9 @@
     
     private async Task HandleUpdateClick(LoadedPlugIn plugIn)
     {
-        bool updated;
         try
         {
-            updated = await PlugInService.Update(plugIn);
+            await PlugInService.Update(plugIn);
         }
         catch (HttpRequestException)
         {
@@ -135,15 +134,6 @@
                 NotificationType = NotificationType.Error,
             });
             return;
-        }
-
-        if (updated)
-        {
-            _ = Notification.Open(new NotificationConfig
-            {
-                Message = "Plug-in updated with success",
-                NotificationType = NotificationType.Success
-            });
         }
 
         await RefreshAvailablePlugIns();
