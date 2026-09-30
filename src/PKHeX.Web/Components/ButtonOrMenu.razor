@@ -22,6 +22,7 @@ else if (Actions.Count > 1)
         OnClick="first.OnClickAsync"
         Icon="@(first.Icon ?? "ellipsis")"
         Class="button_or_menu"
+        Trigger="new[] { Trigger.Click }"
         Style="@Style">
         <ChildContent>
             @first.Label
