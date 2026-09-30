@@ -34,7 +34,17 @@ public class Inventories
     public ImmutableDictionary<string, Inventory> InventoryItems { get; init; }
 
     private ImmutableHashSet<string> GetInventoryTypes()
-        => _game.SaveFile.Inventory.Pouches.Select(i => i.Type.ToString()).ToImmutableHashSet();
+    {
+        try
+        {
+            return _game.SaveFile.Inventory.Pouches.Select(i => i.Type.ToString()).ToImmutableHashSet();
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            // Blank Legends: Arceus saves have an item block with an unset type code, so PKHeX.Core throws reading it.
+            return ImmutableHashSet<string>.Empty;
+        }
+    }
 
     private ImmutableDictionary<string, Inventory> GetInventories() => InventoryTypes.ToImmutableDictionary(
         type => type,
