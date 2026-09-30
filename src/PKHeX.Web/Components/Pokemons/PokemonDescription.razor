@@ -32,9 +32,11 @@
         <Text Copyable>@Pokemon.PID.ToString("X8")</Text>
     </DescriptionsItem>
     <DescriptionsItem Title="Nickname">
-        <Text Editable EditConfig="_editableNickname">
-            @(Pokemon.NicknameSet ? Pokemon.Nickname : "---")
-        </Text>
+        <div data-testid="pokemon-nickname">
+            <Text Editable EditConfig="_editableNickname">
+                @(Pokemon.NicknameSet ? Pokemon.Nickname : "---")
+            </Text>
+        </div>
     </DescriptionsItem>
     <DescriptionsItem Title="Gender">
         <GenderSelector
@@ -45,13 +47,15 @@
         <Switch Value="@Pokemon.IsShiny" OnChange="HandleShinyChange"/>
     </DescriptionsItem>
     <DescriptionsItem Title="Level">
-        <AntDesign.InputNumber
-            TValue="int"
-            Value="Pokemon.Level"
-            OnChange="HandleLevelChange"
-            Min="1"
-            Max="100"
-            DefaultValue="1"/>
+        <div data-testid="pokemon-level">
+            <AntDesign.InputNumber
+                TValue="int"
+                Value="Pokemon.Level"
+                OnChange="HandleLevelChange"
+                Min="1"
+                Max="100"
+                DefaultValue="1"/>
+        </div>
     </DescriptionsItem>
     <DescriptionsItem Title="Nature">
         <NatureSelect
@@ -68,10 +72,12 @@
         </DescriptionsItem>
     }
     <DescriptionsItem Title="Held Item">
-        <ItemSelect
-            Items="Pokemon.Game.ItemRepository.GameItems"
-            SelectedItemId="Pokemon.HeldItem.Id"
-            SelectedItemChanged="HandleHeldItemChanged"/>
+        <div data-testid="pokemon-held-item">
+            <ItemSelect
+                Items="Pokemon.Game.ItemRepository.GameItems"
+                SelectedItemId="Pokemon.HeldItem.Id"
+                SelectedItemChanged="HandleHeldItemChanged"/>
+        </div>
     </DescriptionsItem>
     <DescriptionsItem Title="Ability">
         <AbilitySelect

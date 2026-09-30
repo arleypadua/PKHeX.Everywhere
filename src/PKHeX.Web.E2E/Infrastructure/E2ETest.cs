@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using Microsoft.Playwright;
 
@@ -21,9 +22,9 @@ public abstract class E2ETest(WebAppFixture fixture)
 
         await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
         var page = await context.NewPageAsync();
-        var console = new List<string>();
-        page.Console += (_, message) => console.Add($"[{message.Type}] {message.Text}");
-        page.PageError += (_, error) => console.Add($"[pageerror] {error}");
+        var console = new ConcurrentQueue<string>();
+        page.Console += (_, message) => console.Enqueue($"[{message.Type}] {message.Text}");
+        page.PageError += (_, error) => console.Enqueue($"[pageerror] {error}");
 
         try
         {
@@ -34,7 +35,7 @@ public abstract class E2ETest(WebAppFixture fixture)
         {
             var artifact = Path.Combine(ArtifactsDirectory, string.Concat($"{testName}-{variant}".Split(Path.GetInvalidFileNameChars())));
             Directory.CreateDirectory(ArtifactsDirectory);
-            await File.WriteAllLinesAsync($"{artifact}.console.log", console);
+            await File.WriteAllLinesAsync($"{artifact}.console.log", console.ToArray());
             await TryAsync(() => context.Tracing.StopAsync(new() { Path = $"{artifact}.zip" }));
             await TryAsync(() => page.ScreenshotAsync(new() { Path = $"{artifact}.png", FullPage = true }));
             throw;
