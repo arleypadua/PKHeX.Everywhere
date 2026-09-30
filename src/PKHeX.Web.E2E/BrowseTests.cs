@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using PKHeX.Core;
@@ -15,25 +14,27 @@ public class BrowseTests(WebAppFixture fixture) : E2ETest(fixture)
     public Task BrowsingPartyAndBox_OpensAPokemon(string saveFile) => RunAsync(Path.GetFileName(saveFile), async page =>
     {
         var trainer = Game.LoadFrom(saveFile).Trainer;
-        var party = trainer.Party.Pokemons.Select(p => p.Species.Name).ToList();
-        var boxed = trainer.PokemonBox.All.First(p => p.Species.Species != Species.None).Species.Name;
-        party.Should().NotBeEmpty();
+        var partySpecies = trainer.Party.Pokemons.Select(p => p.Species.Name).ToList();
+        partySpecies.Should().NotBeEmpty();
+        var boxed = trainer.PokemonBox.All.First(p => p.Species.Species != Species.None);
 
         await page.BootAsync();
         await page.UploadSaveAsync(saveFile);
 
-        await page.GetByRole(AriaRole.Link, new() { Name = "Party", Exact = true }).ClickAsync();
-        await Assertions.Expect(page).ToHaveURLAsync(new Uri(BaseAddress, "/party").ToString());
-        foreach (var species in party)
+        await page.NavigateWithMenuAsync("Party", new Uri(BaseAddress, "/party"));
+        await Assertions.Expect(PokemonRows(page)).ToHaveCountAsync(partySpecies.Count);
+        foreach (var species in partySpecies)
             await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = species, Exact = true }).First).ToBeVisibleAsync();
 
-        await page.GetByRole(AriaRole.Link, new() { Name = "Pokemon Box", Exact = true }).ClickAsync();
-        await Assertions.Expect(page).ToHaveURLAsync(new Uri(BaseAddress, "/pokemon-box").ToString());
-        var row = page.GetByRole(AriaRole.Row).Filter(new() { Has = page.GetByRole(AriaRole.Cell, new() { Name = boxed, Exact = true }) }).First;
-        await Assertions.Expect(row).ToBeVisibleAsync();
+        await page.NavigateWithMenuAsync("Pokemon Box", new Uri(BaseAddress, "/pokemon-box"));
+        var boxedRow = PokemonRows(page).Filter(new() { Has = page.GetByRole(AriaRole.Cell, new() { Name = boxed.Species.Name, Exact = true }) }).First;
+        await Assertions.Expect(boxedRow).ToBeVisibleAsync();
 
-        await row.GetByRole(AriaRole.Button, new() { Name = "View", Exact = true }).ClickAsync();
-        await Assertions.Expect(page).ToHaveURLAsync(new Regex("/pokemon/box/"));
-        await Assertions.Expect(page.GetByTestId("pokemon-species")).ToHaveTextAsync(boxed);
+        await boxedRow.GetByRole(AriaRole.Button, new() { Name = "View", Exact = true }).ClickAsync();
+        await Assertions.Expect(page).ToHaveURLAsync(new Uri(BaseAddress, $"/pokemon/box/{boxed.UniqueId}").ToString());
+        await Assertions.Expect(page.GetByTestId("pokemon-species")).ToHaveTextAsync(boxed.Species.Name);
     });
+
+    private static ILocator PokemonRows(IPage page) =>
+        page.GetByRole(AriaRole.Row).Filter(new() { Has = page.GetByRole(AriaRole.Button, new() { Name = "View", Exact = true }) });
 }
