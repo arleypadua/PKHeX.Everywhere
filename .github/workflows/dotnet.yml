@@ -90,7 +90,7 @@ jobs:
       - name: Build
         run: dotnet build src/PKHeX.Web.E2E/PKHeX.Web.E2E.csproj
       - name: Install Chromium
-        run: pwsh src/PKHeX.Web.E2E/bin/Debug/net10.0/playwright.ps1 install --with-deps --only-shell chromium
+        run: pwsh src/PKHeX.Web.E2E/bin/Debug/net10.0/playwright.ps1 install --only-shell chromium
       - name: Test
         run: dotnet test src/PKHeX.Web.E2E/PKHeX.Web.E2E.csproj --no-build --verbosity normal --filter Category=E2E
       - name: Upload Playwright traces
