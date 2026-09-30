@@ -61,7 +61,7 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --verbosity normal --filter Category!=E2E
       - name: Publish
         run: dotnet publish ./src/PKHeX.Web/PKHeX.Web.csproj -c Release -o ./src/PKHeX.Web/bin/pkhex-web-publish
 

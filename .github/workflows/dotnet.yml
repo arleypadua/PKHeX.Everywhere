@@ -8,6 +8,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'src/**'
+      - 'external/**'
       - 'PKHeX.CLI.sln'
     
   pull_request:
@@ -37,4 +38,65 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --verbosity normal --filter Category!=E2E
+
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            web:
+              - 'src/PKHeX.Web/**'
+              - 'src/PKHeX.Facade/**'
+              - 'src/PKHeX.Web.E2E/**'
+              - 'external/**'
+
+  e2e:
+    needs: changes
+    if: always() && (needs.changes.outputs.web == 'true' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+      - name: Update submodules to the latest commit
+        run: |
+          git submodule update --remote --recursive
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Build PKHeX.Web/_js
+        working-directory: src/PKHeX.Web/_js
+        env:
+          VITE_FIREBASE_ENABLED: 'false'
+        run: |
+          npm ci
+          npm run build
+      - name: Build
+        run: dotnet build src/PKHeX.Web.E2E/PKHeX.Web.E2E.csproj
+      - name: Install Chromium
+        run: pwsh src/PKHeX.Web.E2E/bin/Debug/net10.0/playwright.ps1 install --only-shell chromium
+      - name: Test
+        run: dotnet test src/PKHeX.Web.E2E/PKHeX.Web.E2E.csproj --no-build --verbosity normal --filter Category=E2E
+      - name: Upload Playwright traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: src/PKHeX.Web.E2E/bin/Debug/net10.0/playwright-artifacts/
+          if-no-files-found: ignore
