@@ -70,6 +70,7 @@ builder.Services.AddScoped<UserJourneyService>();
 builder.Services.AddScoped<GeneralSettingsService>();
 builder.Services.AddScoped<AnalyticsService>();
 builder.Services.AddScoped<JsService>();
+builder.Services.AddScoped<GoogleCmpService>();
 builder.Services.AddScoped<AntdThemeService>();
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddScoped<BrowserWindowService.Instance>();
@@ -152,7 +153,10 @@ var app = builder.Build();
 RuntimeCryptographyProvider.Aes = app.Services.GetRequiredService<BlazorAesProvider>();
 RuntimeCryptographyProvider.Md5 = app.Services.GetRequiredService<BlazorMd5Provider>();
 
-await app.ConfigureCookieConsentToggle();
+if (!app.Services.GetRequiredService<GoogleCmpService>().IsEnabled)
+{
+    await app.ConfigureCookieConsentToggle();
+}
 
 #if DEBUG
 app.Services.GetRequiredService<IAnalytics>()

@@ -3,6 +3,45 @@
 
 <head>
     <meta charset="utf-8"/>
+    <script>
+        (function () {
+            var flag = new URLSearchParams(location.search).get('google-cmp');
+            if (flag === 'on') localStorage.setItem('google-cmp', 'on');
+            if (flag === 'off') localStorage.removeItem('google-cmp');
+            if (localStorage.getItem('google-cmp') !== 'on') return;
+
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function () { dataLayer.push(arguments); };
+            gtag('consent', 'default', {
+                ad_storage: 'granted',
+                ad_user_data: 'granted',
+                ad_personalization: 'granted',
+                analytics_storage: 'granted'
+            });
+            gtag('consent', 'default', {
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied',
+                analytics_storage: 'denied',
+                region: ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT',
+                    'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO',
+                    'GB', 'CH'],
+                wait_for_update: 500
+            });
+
+            window.showGoogleCmpRevocationMessage = function () {
+                window.googlefc = window.googlefc || {};
+                googlefc.callbackQueue = googlefc.callbackQueue || [];
+                googlefc.callbackQueue.push(function () { googlefc.showRevocationMessage(); });
+            };
+
+            var adsense = document.createElement('script');
+            adsense.async = true;
+            adsense.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9295410730226031';
+            adsense.crossOrigin = 'anonymous';
+            document.head.appendChild(adsense);
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
     <meta name="description"

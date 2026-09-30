@@ -1,5 +1,6 @@
 @using BytexDigital.Blazor.Components.CookieConsent
 @inject CookieConsentService ConsentService
+@inject GoogleCmpService GoogleCmp
 
 <h1>Privacy Policy</h1>
 <p>Effective Date: 01/05/2025</p>
@@ -76,6 +77,12 @@
 @code {
     private async Task HandleCookieConsentPreferences()
     {
+        if (GoogleCmp.IsEnabled)
+        {
+            await GoogleCmp.ShowRevocationMessage();
+            return;
+        }
+
         await ConsentService.ShowPreferencesModalAsync();
     }
 }   

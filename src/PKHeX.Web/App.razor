@@ -1,5 +1,6 @@
 ﻿@implements IDisposable
 @inject AntdThemeService ThemeService
+@inject GoogleCmpService GoogleCmp
 
 
 <ConfigProvider
@@ -19,7 +20,10 @@
         </NotFound>
     </Router>
 
-    <BytexDigital.Blazor.Components.CookieConsent.CookieConsentHandler @rendermode="@RenderMode.InteractiveWebAssembly" />
+    @if (!GoogleCmp.IsEnabled)
+    {
+        <BytexDigital.Blazor.Components.CookieConsent.CookieConsentHandler @rendermode="@RenderMode.InteractiveWebAssembly" />
+    }
 </ConfigProvider>
 <NavigationTracker/>
 
