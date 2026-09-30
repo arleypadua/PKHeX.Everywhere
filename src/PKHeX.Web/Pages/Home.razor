@@ -28,6 +28,7 @@
                     Formatter='value => $"$ {value}"'
                     Value="@_game.Trainer.Money.Amount"
                     OnChange="newValue => _game.Trainer.Money.Set(newValue)"
+                    Disabled="@(!_game.Trainer.Money.IsSupported)"
                     Style="width: 100%; max-width: 170px;"
                     Min="0" Max="999999"/>
             </DescriptionsItem>
