@@ -53,7 +53,7 @@ public class PokemonTests
 
     [Theory]
     [Games(GameVersion.E, GameVersion.HGSS, GameVersion.C)]
-    public void HeldItem_ShouldUseTheGameItemNames(Game game)
+    public void HeldItem_ShouldResolveFromTheGameItems(Game game)
     {
         var leftovers = game.ItemRepository.GetGameItemByName("Leftovers")!;
         var pokemon = game.Trainer.Party.Pokemons.First();
