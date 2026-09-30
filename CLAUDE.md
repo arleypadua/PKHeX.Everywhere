@@ -14,6 +14,10 @@ Run the `unslop` skill on any text we produce: PR descriptions, issue text, UI c
 
 **Do not add comments by default.** Only comment when the code makes a hacky or non-obvious decision a future reader couldn't infer. No comments restating what the code does, no section headers, no "added X" notes.
 
+### Tests
+
+New coverage goes in `PKHeX.Facade.Tests`. Only add an E2E test when [ADR 0001](docs/adr/0001-keep-the-e2e-suite-small.md) allows it.
+
 ### Submodules
 
 `external/PKHeX` and `external/PKHeX-Plugins` are submodules pointing at our forks. Stay as close to upstream as possible: prefer solving problems in this repo. When a change to a fork is unavoidable, don't make it silently; open an issue labelled `ready-for-human` describing the change so a human can handle it (and upstreaming).
