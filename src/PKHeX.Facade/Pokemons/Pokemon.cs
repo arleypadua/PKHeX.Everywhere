@@ -195,7 +195,7 @@ public class Pokemon(PKM pokemon, Game game)
         var targetType = target.SaveFile.PKMType;
         if (Pkm.GetType() == targetType)
         {
-            result = EntityConverterResult.Success;
+            result = EntityConverterResult.None;
             return new Pokemon(Pkm, target);
         }
 
