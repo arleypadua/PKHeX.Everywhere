@@ -22,7 +22,10 @@ public class SpeciesRepository
     public SpeciesDefinition Get(Species species)
     {
         if (species == Species.None) return SpeciesDefinition.None;
-        return _species[species];
+        return _species.TryGetValue(species, out var definition)
+            || All.TryGetValue(species, out definition)
+            ? definition
+            : new SpeciesDefinition(species, $"Unknown ({(int)species})");
     }
 
     public IImmutableList<SpeciesDefinition> GetEvolutionsFrom(SpeciesDefinition definition, byte form = 0) =>

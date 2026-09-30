@@ -7,13 +7,14 @@ public class MalformedSaveTests
 {
     /// <summary>
     /// A real save with corrupted contents still matches on size and footer, so it is detected as a save
-    /// and then decoded. Garbage in a box slot decodes to a species id that does not exist, which used to
-    /// surface as a raw KeyNotFoundException out of the repository indexer and reach the user as a crash.
+    /// and then decoded. A garbage game version byte in the general block decodes to a version that does
+    /// not exist, which used to surface as a raw KeyNotFoundException out of the repository indexer and
+    /// reach the user as a crash.
     /// </summary>
     private static byte[] CorruptedSave()
     {
         var bytes = File.ReadAllBytes(SaveFilePath.HgSs);
-        Array.Fill(bytes, (byte)0xFF, 0x10000, 0x100);
+        bytes[0x80] = 0x7F;
         return bytes;
     }
 

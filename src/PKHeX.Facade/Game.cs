@@ -1,4 +1,5 @@
 ﻿using PKHeX.Core;
+using PKHeX.Facade.Pokemons;
 using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade;
@@ -42,6 +43,9 @@ public class Game
 
     public bool IsAwareOf(Species species, byte form = 0) =>
         SaveFile.Personal.IsPresentInGame((ushort)species, form);
+
+    public bool IsAwareOf(Pokemon pokemon) =>
+        IsAwareOf(pokemon.Species, pokemon.Pkm.Form);
 
     public byte[] ToByteArray()
     {
