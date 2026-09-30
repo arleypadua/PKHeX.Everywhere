@@ -77,11 +77,24 @@
         var binaries = await MyPokemonRepository.GetBinaries(_id);
         var game = GameService.Game;
         var loaded = Pokemon.LoadFrom(binaries, game);
-        if (game is not null && !game.IsAwareOf(loaded))
+        if (game is not null)
         {
-            Notification.NotifyNotInGame(loaded, game);
-            await Js.NavigateBack();
-            return;
+            var converted = loaded.ConvertTo(game, out var result);
+            if (converted is null)
+            {
+                Notification.NotifyConversionFailed(loaded, game, result);
+                await Js.NavigateBack();
+                return;
+            }
+
+            if (!game.IsAwareOf(converted))
+            {
+                Notification.NotifyNotInGame(converted, game);
+                await Js.NavigateBack();
+                return;
+            }
+
+            loaded = converted;
         }
 
         _originalPokemon = loaded;

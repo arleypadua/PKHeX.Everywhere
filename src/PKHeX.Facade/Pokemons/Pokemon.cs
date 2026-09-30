@@ -190,6 +190,19 @@ public class Pokemon(PKM pokemon, Game game)
         };
     }
 
+    public Pokemon? ConvertTo(Game target, out EntityConverterResult result)
+    {
+        var targetType = target.SaveFile.PKMType;
+        if (Pkm.GetType() == targetType)
+        {
+            result = EntityConverterResult.None;
+            return new Pokemon(Pkm, target);
+        }
+
+        var converted = EntityConverter.ConvertToType(Pkm, targetType, out result);
+        return converted is null ? null : new Pokemon(converted, target);
+    }
+
     public static Pokemon LoadFrom(
         byte[] bytes, 
         Game? game = null)
