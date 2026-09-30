@@ -206,7 +206,24 @@
     private async Task HandleUpdateClick()
     {
         if (_plugIn is null) return;
-        await PlugInService.Update(_plugIn);
+
+        bool updated;
+        try
+        {
+            updated = await PlugInService.Update(_plugIn);
+        }
+        catch (HttpRequestException)
+        {
+            _ = Notification.Open(new()
+            {
+                Message = "Couldn't reach the plug-in source",
+                Description = "Try again later.",
+                NotificationType = NotificationType.Error,
+            });
+            return;
+        }
+
+        if (!updated) return;
 
         LoadPlugin();
 

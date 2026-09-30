@@ -15,18 +15,19 @@ public class PlugInService(
         return result;
     }
 
-    public async Task Update(LoadedPlugIn plugIn)
+    public async Task<bool> Update(LoadedPlugIn plugIn)
     {
         var source = await sourceService.FetchFrom(plugIn);
-        if (source is null) return;
+        if (source is null) return false;
 
         var sourcePlugIn = source.PlugIns.FirstOrDefault(p => p.Id == plugIn.Id);
-        if (sourcePlugIn is null) return;
+        if (sourcePlugIn is null) return false;
 
         var downloadUrl = source.GetLatestDownloadUrl(sourcePlugIn);
         var updatedPlugIn = await InstallFrom(source.SourceUrl, downloadUrl);
 
         analyticsService.TrackUpdated(updatedPlugIn);
+        return true;
     }
 
     public async Task Uninstall(LoadedPlugIn plugIn)

@@ -75,6 +75,5 @@ public static class LoadedPlugInExtensions
         SourceManifestUrl(plugIn.SourceId);
     
     public static string SourceManifestUrl(string sourceId) =>
-        $"{sourceId}/{PlugInSource.ManifestFileName}"
-            .Replace("//", "/");
+        $"{sourceId.TrimEnd('/')}/{PlugInSource.ManifestFileName}";
 }
