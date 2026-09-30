@@ -18,9 +18,13 @@ public class UniqueId
     public override int GetHashCode() => Value.GetHashCode();
     public override string ToString() => Value;
     
-    public static UniqueId From(PKM pokemon) => new() { _pid = pokemon.PID, _species = (Species)pokemon.Species };
+    public static UniqueId From(PKM pokemon) => new()
+    {
+        _pid = pokemon.Format <= 2 ? Checksums.CRC32Invert(pokemon.Data) : pokemon.PID,
+        _species = (Species)pokemon.Species
+    };
 
-    public static UniqueId From(Pokemon pokemon) => new() { _pid = pokemon.PID, _species = pokemon.Species };
+    public static UniqueId From(Pokemon pokemon) => From(pokemon.Pkm);
 
     public static UniqueId From(string value)
     {
