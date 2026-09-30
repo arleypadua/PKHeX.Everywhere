@@ -1,6 +1,7 @@
+@using System.Text.RegularExpressions
 @using PKHeX.Facade.Repositories
 
-@if (Item.Id != ItemDefinition.None)
+@if (Item.Id != ItemDefinition.None && !string.IsNullOrEmpty(Item.Name))
 {
     <Image Src="@ContentUrl()" Style="width: 30px" Preview="false"></Image>
 }
@@ -10,5 +11,8 @@
 
     private string ContentUrl() => $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/{ItemName}.png";
 
-    private string ItemName => string.Join('-', Item.Name.ToLower().Replace("é", "e").Split(' '));
+    // PokeAPI only has per-type TM sprites and no TR sprites; the TM's move type isn't known here
+    private string ItemName => Regex.IsMatch(Item.Name, @"^T[MR]\d+$")
+        ? "tm-normal"
+        : string.Join('-', Item.Name.ToLower().Replace("é", "e").Split(' '));
 }
