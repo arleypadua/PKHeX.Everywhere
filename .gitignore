@@ -405,3 +405,6 @@ FodyWeavers.xsd
 
 # PKHeX.Web
 plugins/
+
+# Agent Auto-Pilot runtime state & worktrees
+.autopilot/*
