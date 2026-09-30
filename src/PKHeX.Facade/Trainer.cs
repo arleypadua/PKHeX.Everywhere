@@ -20,7 +20,16 @@ public class Trainer
     }
 
     public EntityId Id { get; }
-    public string Name => _game.SaveFile.OT;
+    public string Name
+    {
+        get => _game.SaveFile.OT;
+        set
+        {
+            var max = _game.SaveFile.MaxStringLengthTrainer;
+            value ??= string.Empty;
+            _game.SaveFile.OT = value.Length > max ? value[..max] : value;
+        }
+    }
     public Gender Gender
     {
         get => Gender.FromByte(_game.SaveFile.Gender);

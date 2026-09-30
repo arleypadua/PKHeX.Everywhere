@@ -16,7 +16,15 @@
     {
         <Descriptions Title="Trainer" Bordered Column="@ThemeService.ColumnsConfiguration" Size="DescriptionsSize.Small">
             <DescriptionsItem Title="TID/SID">@_game.Trainer.Id</DescriptionsItem>
-            <DescriptionsItem Title="Name">@_game.Trainer.Name</DescriptionsItem>
+            <DescriptionsItem Title="Name">
+                <Input
+                    TValue="string"
+                    Value="@_game.Trainer.Name"
+                    OnChange="newValue => _game.Trainer.Name = newValue"
+                    MaxLength="@_game.SaveFile.MaxStringLengthTrainer"
+                    PlaceHolder="Name"
+                    Style="width: 100%; max-width: 170px;"/>
+            </DescriptionsItem>
             <DescriptionsItem Title="Gender">
                 <GenderSelector
                     Gender="@_game.Trainer.Gender"
