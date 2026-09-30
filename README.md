@@ -25,3 +25,7 @@ The PKHeX Command Line Interface (CLI) version allows users to interact with PKH
    brew install pkhex-cli
    ```
 3. For more information, refer to the documentation [here](./src/PKHeX.CLI).
+
+## License
+
+GPL-3.0-or-later, matching [PKHeX.Core](https://github.com/kwsch/PKHeX), which this project links against. Code contributed before this change was released under MIT; see git history.
