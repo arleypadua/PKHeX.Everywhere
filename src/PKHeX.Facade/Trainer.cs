@@ -26,6 +26,7 @@ public class Trainer
         set
         {
             var max = _game.SaveFile.MaxStringLengthTrainer;
+            value ??= string.Empty;
             _game.SaveFile.OT = value.Length > max ? value[..max] : value;
         }
     }
