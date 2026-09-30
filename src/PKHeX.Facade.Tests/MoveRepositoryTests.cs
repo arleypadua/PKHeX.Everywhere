@@ -34,8 +34,9 @@ public class MoveRepositoryTests
         var pokemon = game.Trainer.Party.Pokemons.First();
 
         var allMoves = MoveRepository.Instance.AllMovesFor(game);
+        var possibleMoves = MoveRepository.Instance.PossibleMovesFor(pokemon);
 
-        allMoves.Should().Contain(m => !MoveRepository.Instance.PossibleMovesFor(pokemon).Contains(m));
+        allMoves.Should().Contain(m => !possibleMoves.Contains(m));
         allMoves.Should().NotContain(m => m.Id > game.SaveFile.MaxMoveID);
         allMoves.Select(m => m.Name).Should().BeInAscendingOrder();
     }

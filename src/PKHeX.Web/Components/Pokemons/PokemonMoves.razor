@@ -51,15 +51,16 @@
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
 
+    private bool _showAllMoves;
+    private List<MoveDefinition>? _allMoves;
+
     private IList<ushort> AlreadyAssigned => Pokemon.Moves
         .Where(m => m.Value.Move != MoveDefinition.None)
         .Select(m => m.Value.Move.Id)
         .ToList();
 
-    private bool _showAllMoves;
-
     private IEnumerable<MoveDefinition> PossibleMoves => (_showAllMoves
-            ? MoveRepository.Instance.AllMovesFor(Pokemon.Game)
+            ? _allMoves ??= MoveRepository.Instance.AllMovesFor(Pokemon.Game)
             : MoveRepository.Instance.PossibleMovesFor(Pokemon))
         .Where(m => !AlreadyAssigned.Contains(m.Id))
         .Append(MoveDefinition.None);
