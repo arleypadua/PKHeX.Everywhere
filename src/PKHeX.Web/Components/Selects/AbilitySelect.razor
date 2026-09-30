@@ -1,8 +1,9 @@
+@inherits SearchableSelect<AbilityDefinition>
 @using PKHeX.Facade.Repositories
 
 <Select TItem="AbilityDefinition"
         TItemValue="int?"
-        DataSource="@_items"
+        DataSource="@Searched(_items)"
         @bind-Value="@SelectedAbilityId"
         OnSelectedItemChanged="SelectedAbilityChangedInternal"
         LabelName="@nameof(AbilityDefinition.Name)"
@@ -11,6 +12,8 @@
         DefaultActiveFirstOption="false"
         Disabled="Disabled"
         EnableSearch
+        OnSearch="OnSearch"
+        OnDropdownVisibleChange="OnDropdownVisibleChange"
         EnableVirtualization>
     <LabelTemplate>
         @context.Name
@@ -21,6 +24,8 @@
 </Select>
 
 @code {
+    protected override string SearchTextOf(AbilityDefinition item) => item.Name;
+
     [Parameter] public int? SelectedAbilityId { get; set; }
     [Parameter] public EventCallback<AbilityDefinition> SelectedAbilityChanged { get; set; }
     [Parameter] public bool IgnoreRenderingEvents { get; set; }

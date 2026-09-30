@@ -51,6 +51,18 @@ public class PokemonTests
         pokemon.Pkm.EncryptionConstant.Should().Be(cloneWithLegality.Pkm.EncryptionConstant);
     }
 
+    [Theory]
+    [Games(GameVersion.E, GameVersion.HGSS, GameVersion.C)]
+    public void HeldItem_ShouldUseTheGameItemNames(Game game)
+    {
+        var leftovers = game.ItemRepository.GetGameItemByName("Leftovers")!;
+        var pokemon = game.Trainer.Party.Pokemons.First();
+
+        pokemon.HeldItem = leftovers;
+
+        pokemon.HeldItem.Should().Be(leftovers);
+    }
+
     private Game AGame(GameVersion version, string trainerName) =>
         Game.EmptyOf(GameVersionRepository.Instance.Get(version), trainerName);
 }

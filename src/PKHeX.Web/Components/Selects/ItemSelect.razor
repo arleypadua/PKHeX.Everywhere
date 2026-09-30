@@ -1,8 +1,9 @@
+@inherits SearchableSelect<ItemDefinition>
 @using PKHeX.Facade.Repositories
 
 <Select TItem="ItemDefinition"
         TItemValue="ushort?"
-        DataSource="@Items"
+        DataSource="@Searched(Items)"
         @bind-Value="@SelectedItemId"
         OnSelectedItemChanged="SelectedItemChangedInternal"
         LabelName="@nameof(ItemDefinition.Name)"
@@ -10,6 +11,8 @@
         Placeholder="Select an item"
         DefaultActiveFirstOption="false"
         EnableSearch
+        OnSearch="OnSearch"
+        OnDropdownVisibleChange="OnDropdownVisibleChange"
         EnableVirtualization>
     <LabelTemplate>
         @RenderItem(context)
@@ -20,6 +23,8 @@
 </Select>
 
 @code {
+    protected override string SearchTextOf(ItemDefinition item) => item.Name;
+
     [Parameter] public required IEnumerable<ItemDefinition> Items { get; set; }
     [Parameter] public ISet<ItemDefinition>? LegalItems { get; set; } = null;
 

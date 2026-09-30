@@ -77,7 +77,7 @@ public class Pokemon(PKM pokemon, Game game)
 
     public ItemDefinition HeldItem
     {
-        get => ItemRepository.GetItem(Convert.ToUInt16(pokemon.HeldItem));
+        get => Game.ItemRepository.GetGameItem(Convert.ToUInt16(pokemon.HeldItem));
         set => pokemon.HeldItem = value.Id;
     }
 

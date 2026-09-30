@@ -15,7 +15,7 @@ public class EditAndExportTests(WebAppFixture fixture) : E2ETest(fixture)
         var original = Game.LoadFrom(saveFile).Trainer.Party.Pokemons.First();
         var level = original.Level == 50 ? 51 : 50;
         const string nickname = "Roundtrip";
-        const string heldItem = "Master Ball";
+        const string heldItem = "Leftovers";
         original.HeldItem.Name.Should().NotBe(heldItem);
 
         await page.BootAsync();
@@ -39,6 +39,7 @@ public class EditAndExportTests(WebAppFixture fixture) : E2ETest(fixture)
 
         var heldItemField = page.GetByTestId("pokemon-held-item");
         await heldItemField.ClickAsync();
+        await heldItemField.Locator("input").PressSequentiallyAsync(heldItem);
         await page.GetByRole(AriaRole.Option, new() { Name = heldItem, Exact = true }).ClickAsync();
         await Assertions.Expect(heldItemField).ToContainTextAsync(heldItem);
 
