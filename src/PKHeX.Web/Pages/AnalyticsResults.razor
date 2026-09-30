@@ -3,6 +3,11 @@
 @using PKHeX.Web.Services.AnalyticsResults
 @inject AnalyticsResultsService AnalyticsResultService
 
+@if (_loadFailed)
+{
+    <Alert Type="@AlertType.Error" Message="Couldn't load analytics results. Try again later." ShowIcon="true"/>
+}
+
 <Space Wrap="true" Class="chart_deck" Size="@("small")">
     @if (_gameLoads.Any())
     {
@@ -44,6 +49,7 @@
     private Dictionary<string, List<GameLoadedByCountryRepresentation>> _gameLoads = [];
     private List<(SpeciesDefinition Definition, int Count)> _speciesCount = [];
     private List<(ItemDefinition Definition, int Count)> _itemsCount = [];
+    private bool _loadFailed;
 
     IEnumerable<object> GameLoadCountByCountry => _gameLoads
         .Select(l => new
@@ -114,14 +120,25 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _gameLoads = await AnalyticsResultService.GetGameLoadsByCountry();
-        _speciesCount = (await AnalyticsResultService.GetSpeciesSavedCount())
-            .Where(s => s.Count > 1)
-            .ToList();
-        
-        _itemsCount = (await AnalyticsResultService.GetItemChangedCount())
-            .Where(s => s.Count > 1)
-            .ToList();
+        try
+        {
+            var gameLoads = await AnalyticsResultService.GetGameLoadsByCountry();
+            var speciesCount = (await AnalyticsResultService.GetSpeciesSavedCount())
+                .Where(s => s.Count > 1)
+                .ToList();
+
+            var itemsCount = (await AnalyticsResultService.GetItemChangedCount())
+                .Where(s => s.Count > 1)
+                .ToList();
+
+            _gameLoads = gameLoads;
+            _speciesCount = speciesCount;
+            _itemsCount = itemsCount;
+        }
+        catch (HttpRequestException)
+        {
+            _loadFailed = true;
+        }
     }
     
     public class Data : ITreemapData<TreemapDataItem>
