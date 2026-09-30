@@ -1,6 +1,8 @@
 @using PKHeX.Facade.Repositories
 
 <Flex Style="gap: 20px; width: 100%" Direction="FlexDirection.Vertical" Wrap="FlexWrap.Wrap">
+    <Checkbox @bind-Checked="_showAllMoves">Show all moves</Checkbox>
+
     <ResponsibleDescriptions Bordered Title="Move 1" Size="DescriptionsSize.Small">
         <DescriptionsItem Title="Move" Style="max-width: 250px">
             <MoveSelect
@@ -49,12 +51,17 @@
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> OnPokemonChanged { get; set; }
 
+    private bool _showAllMoves;
+    private List<MoveDefinition>? _allMoves;
+
     private IList<ushort> AlreadyAssigned => Pokemon.Moves
         .Where(m => m.Value.Move != MoveDefinition.None)
         .Select(m => m.Value.Move.Id)
         .ToList();
 
-    private IEnumerable<MoveDefinition> PossibleMoves => MoveRepository.Instance.PossibleMovesFor(Pokemon)
+    private IEnumerable<MoveDefinition> PossibleMoves => (_showAllMoves
+            ? _allMoves ??= MoveRepository.Instance.AllMovesFor(Pokemon.Game)
+            : MoveRepository.Instance.PossibleMovesFor(Pokemon))
         .Where(m => !AlreadyAssigned.Contains(m.Id))
         .Append(MoveDefinition.None);
     

@@ -21,6 +21,14 @@ public class MoveRepository
     public MoveDefinition GetMove(ushort id) =>
         _moves.TryGetValue(id, out var move) ? move : new MoveDefinition(id, $"Unknown ({id})");
 
+    public List<MoveDefinition> AllMovesFor(Game game) =>
+        new FilteredGameDataSource(game.SaveFile, GameInfo.Sources).Moves
+            .Select(m => Convert.ToUInt16(m.Value))
+            .Where(id => id != MoveDefinition.None.Id)
+            .Select(GetMove)
+            .OrderBy(m => m.Name)
+            .ToList();
+
     public List<MoveDefinition> PossibleMovesFor(Pokemon pokemon)
     {
         // consider the current set of moves, whenever they have been learnt by other sources
