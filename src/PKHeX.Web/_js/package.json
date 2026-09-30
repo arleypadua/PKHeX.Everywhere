@@ -17,6 +17,6 @@
   },
   "dependencies": {
     "crypto-js": "^4.2.0",
-    "firebase": "^11.0.1"
+    "firebase": "^12.19.0"
   }
 }
