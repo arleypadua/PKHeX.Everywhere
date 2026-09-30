@@ -137,9 +137,21 @@ else
 
     private async Task OpenDemo()
     {
-        var testData = await HttpClient.GetByteArrayAsync("https://raw.githubusercontent.com/projectpokemon/ProjectCompleteDexSaves/master/Gen%204%20-%20Pokemon%20SoulSilver%20(ENG).sav");
-        GameService.Load(testData, "savedata_1.sav");
-        Navigation.NavigateTo($"/");
+        try
+        {
+            var testData = await HttpClient.GetByteArrayAsync("/data/emerald.sav");
+            GameService.Load(testData, "emerald.sav");
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception e) when (e is HttpRequestException or GameNotLoadedException)
+        {
+            _ = Notification.Open(new()
+            {
+                Message = "Could not load the demo",
+                Description = "Try again, or open your own save file.",
+                NotificationType = NotificationType.Error,
+            });
+        }
     }
     
     private Task GoToHome(MouseEventArgs arg)
