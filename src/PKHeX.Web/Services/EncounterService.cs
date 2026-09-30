@@ -15,6 +15,9 @@ public class EncounterService : IDisposable
         _gameService = gameService;
         _navigation = navigation;
         _gameService.OnGameLoaded += InitializeOnGameLoad;
+
+        if (_gameService.IsLoaded)
+            InitializeOnGameLoad(this, EventArgs.Empty);
     }
 
     private Game Game => _gameService.Game ?? throw new NullReferenceException("Expected a game to be loaded");
