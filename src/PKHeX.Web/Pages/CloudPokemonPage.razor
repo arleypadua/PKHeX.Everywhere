@@ -8,6 +8,7 @@
 @inject NavigationManager Navigation
 @inject GameService GameService
 @inject LocalSyncedPokemonRepository LocalSyncedPokemonRepository
+@inject INotificationService Notification
 
 @if (_editingPokemon is not null)
 {
@@ -73,7 +74,15 @@
         
         _id = Guid.Parse(Id);
         var binaries = await MyPokemonRepository.GetBinaries(_id);
-        var loaded = Pokemon.LoadFrom(binaries, GameService.Game);
+        var game = GameService.Game;
+        var loaded = Pokemon.LoadFrom(binaries, game);
+        if (game is not null && !game.IsAwareOf(loaded))
+        {
+            Notification.NotifyNotInGame(loaded, game);
+            await Js.NavigateBack();
+            return;
+        }
+
         _originalPokemon = loaded;
         _editingPokemon = loaded.Clone();
     }
