@@ -17,4 +17,10 @@ public static class PageExtensions
         await page.GetByRole(AriaRole.Button, new() { Name = "Open" }).WaitForAsync();
         await page.Locator("input[type=file]").SetInputFilesAsync(saveFile);
     }
+
+    public static async Task NavigateWithMenuAsync(this IPage page, string menuItem, Uri expected)
+    {
+        await page.GetByRole(AriaRole.Link, new() { Name = menuItem, Exact = true }).ClickAsync();
+        await Assertions.Expect(page).ToHaveURLAsync(expected.ToString());
+    }
 }
