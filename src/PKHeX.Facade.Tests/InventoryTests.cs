@@ -1,10 +1,19 @@
 using AwesomeAssertions;
+using PKHeX.Core;
 using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade.Tests;
 
 public class InventoryTests
 {
+    [Fact]
+    public void Inventories_EmptyLegendsArceus_ShouldLoadWithoutPockets()
+    {
+        var game = Game.EmptyOf(GameVersionRepository.Instance.Get(GameVersion.PLA));
+
+        game.Trainer.Inventories.InventoryTypes.Should().BeEmpty();
+    }
+
     [Theory]
     [SupportedSaveFiles]
     public void InventoryRepository_ShouldReturnExpectedItem(string saveFile)
