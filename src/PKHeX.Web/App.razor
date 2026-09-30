@@ -20,7 +20,7 @@
         </NotFound>
     </Router>
 
-    @if (!GoogleCmp.IsEnabled)
+    @if (!_googleCmpEnabled)
     {
         <BytexDigital.Blazor.Components.CookieConsent.CookieConsentHandler @rendermode="@RenderMode.InteractiveWebAssembly" />
     }
@@ -40,10 +40,12 @@
 {
     private GlobalTheme _theme = GlobalTheme.Light;
     private ConfigProvider _configProvider = default!;
+    private bool _googleCmpEnabled;
 
     protected override void OnInitialized()
     {
         _theme = ThemeService.Theme;
+        _googleCmpEnabled = GoogleCmp.IsEnabled;
         AntdThemeService.ThemeChanged += HandleChangedTheme;
     }
 

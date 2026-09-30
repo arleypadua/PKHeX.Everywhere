@@ -1,14 +1,11 @@
+using Blazored.LocalStorage;
 using Microsoft.JSInterop;
 
 namespace PKHeX.Web.Services;
 
-public class GoogleCmpService(IJSRuntime js)
+public class GoogleCmpService(IJSRuntime js, ISyncLocalStorageService localStorage)
 {
-    private IJSInProcessRuntime SyncJs => js as IJSInProcessRuntime ??
-                                          throw new NotSupportedException(
-                                              "Requested an in process javascript interop, but none was found");
-
-    public bool IsEnabled => SyncJs.Invoke<string?>("localStorage.getItem", "google-cmp") == "on";
+    public bool IsEnabled => localStorage.GetItemAsString("google-cmp") == "on";
 
     public ValueTask ShowRevocationMessage() => js.InvokeVoidAsync("showGoogleCmpRevocationMessage");
 }
