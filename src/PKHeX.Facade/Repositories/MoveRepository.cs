@@ -18,7 +18,8 @@ public class MoveRepository
             .ToDictionary(x => Convert.ToUInt16(x.id), x => new MoveDefinition(Convert.ToUInt16(x.id), x.moveName));
     }
 
-    public MoveDefinition GetMove(ushort id) => _moves[id];
+    public MoveDefinition GetMove(ushort id) =>
+        _moves.TryGetValue(id, out var move) ? move : new MoveDefinition(id, $"Unknown ({id})");
 
     public List<MoveDefinition> PossibleMovesFor(Pokemon pokemon)
     {
@@ -28,7 +29,11 @@ public class MoveRepository
             .Where(m => m.Second.Move != MoveDefinition.None && m.First.Valid)
             .Select(m => m.Second.Move.Id);
         
-        var learnSource = GameData.GetLearnSource(pokemon.Game.SaveFile.Version);
+        var saveFile = pokemon.Game.SaveFile;
+        var version = saveFile.Version == GameVersion.BATREV
+            ? saveFile.Context.GetSingleGameVersion()
+            : saveFile.Version;
+        var learnSource = GameData.GetLearnSource(version);
         var learnSet = learnSource.GetLearnset(pokemon.Pkm.Species, pokemon.Pkm.Form);
         
         var moves = learnSet.GetMoveRange((byte)pokemon.Level)
