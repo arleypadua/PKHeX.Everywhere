@@ -100,7 +100,7 @@ else
         try
         {
             await e.File.OpenReadStream(MaxFileSize).CopyToAsync(ms);
-            GameService.Load(ms.ToArray(), e.File.Name);
+            // GameService.Load(ms.ToArray(), e.File.Name);
         }
         catch (IOException ioException)
             when (ioException.Message.Contains("exceeds the maximum"))
