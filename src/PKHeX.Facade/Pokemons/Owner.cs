@@ -6,7 +6,7 @@ public class Owner(PKM pokemon)
 {
     public uint TID
     {
-        get => pokemon.TrainerTID7;
+        get => pokemon.DisplayTID;
         set => pokemon.DisplayTID = value;
     }
 

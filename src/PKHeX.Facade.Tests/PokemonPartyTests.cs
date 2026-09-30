@@ -43,4 +43,12 @@ public class PokemonPartyTests
             savedPokemon.IsShiny.Should().Be(firstPokemon.IsShiny);
         });
     }
+
+    [Fact]
+    public void OwnerTidShouldBeSixteenBitBeforeGen7()
+    {
+        var game = Game.LoadFrom(SaveFilePath.HgSs);
+        game.Trainer.Party.Pokemons.Should().AllSatisfy(p =>
+            p.Owner.TID.Should().Be(p.Pkm.TID16));
+    }
 }
