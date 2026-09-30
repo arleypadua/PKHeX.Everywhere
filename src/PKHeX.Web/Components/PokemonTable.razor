@@ -32,7 +32,7 @@
         <ActionColumn Title="Action">
             <Space Size=@("small")>
                 <SpaceItem>
-                    <DropdownButton OnClick='() => Navigation.NavigateToPokemon(Source, context.Pokemon.UniqueId)' Type="@ButtonType.Link">
+                    <DropdownButton OnClick='() => Navigation.NavigateToPokemon(Source, context.Pokemon.UniqueId)' Type="@ButtonType.Link" Trigger="new[] { Trigger.Click }">
                         <Overlay>
                             <Menu>
                                 <MenuItem>
