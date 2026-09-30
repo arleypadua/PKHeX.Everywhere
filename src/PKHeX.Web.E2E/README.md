@@ -2,7 +2,7 @@
 
 Smoke tests that drive the Release build of PKHeX.Web in headless Chromium.
 
-The test fixture publishes PKHeX.Web, serves it on a random local port and blocks every request to other hosts. Tests are tagged `Category=E2E`, and a plain `dotnet test` skips them.
+The test fixture publishes PKHeX.Web, serves it on a random local port and blocks every request to other hosts. Tests are tagged `Category=E2E`. `default.runsettings` filters them out when no `--filter` is given, so a plain `dotnet test` skips them. IDEs that honour `RunSettingsFilePath` skip them too; run them from the CLI.
 
 ## Run locally
 

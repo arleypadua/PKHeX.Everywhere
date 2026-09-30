@@ -10,7 +10,7 @@ public class BootAndLoadTests(WebAppFixture fixture) : E2ETest(fixture)
     [Theory]
     [InlineData("data/save/emerald.sav")]
     [InlineData("data/save/savedata_4hgss.dsv")]
-    public Task LoadingASave_ShowsTheTrainer(string saveFile) => RunAsync($"{nameof(LoadingASave_ShowsTheTrainer)}-{Path.GetFileName(saveFile)}", async page =>
+    public Task LoadingASave_ShowsTheTrainer(string saveFile) => RunAsync(Path.GetFileName(saveFile), async page =>
     {
         var trainerName = Game.LoadFrom(saveFile).Trainer.Name;
         trainerName.Should().NotBeNullOrWhiteSpace();

@@ -8,6 +8,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'src/**'
+      - 'external/**'
       - 'PKHeX.CLI.sln'
     
   pull_request:
@@ -60,7 +61,7 @@ jobs:
 
   e2e:
     needs: changes
-    if: needs.changes.outputs.web == 'true' || github.event_name == 'workflow_dispatch'
+    if: always() && (needs.changes.outputs.web == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
