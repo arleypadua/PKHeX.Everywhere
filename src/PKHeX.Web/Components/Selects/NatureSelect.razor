@@ -1,8 +1,9 @@
+@inherits SearchableSelect<NatureSelect.NatureSelection>
 @using PKHeX.Core
 
 <Select TItem="NatureSelection"
         TItemValue="Nature?"
-        DataSource="@_natures"
+        DataSource="@Searched(_natures)"
         @bind-Value="@SelectedNature"
         OnSelectedItemChanged="SelectedNatureChangedInternal"
         LabelName="@nameof(NatureSelection.Name)"
@@ -10,6 +11,8 @@
         Placeholder="Nature"
         DefaultActiveFirstOption="false"
         EnableSearch
+        OnSearch="OnSearch"
+        OnDropdownVisibleChange="OnDropdownVisibleChange"
         Disabled="@Disabled"
         EnableVirtualization>
     <LabelTemplate>
@@ -21,6 +24,8 @@
 </Select>
 
 @code {
+    protected override string SearchTextOf(NatureSelection item) => item.Name;
+
     private NatureSelection[] _natures = Enum.GetValues<Nature>()
         .Select(n => new NatureSelection(n, n.ToString()))
         .ToArray();
@@ -53,6 +58,6 @@
         _dataSourceJustLoaded = IgnoreRenderingEvents;
     }
 
-    record NatureSelection(Nature Nature, string Name);
+    public record NatureSelection(Nature Nature, string Name);
 
 }

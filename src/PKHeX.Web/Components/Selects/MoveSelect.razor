@@ -1,8 +1,9 @@
+@inherits SearchableSelect<MoveDefinition>
 @using PKHeX.Facade.Repositories
 
 <Select TItem="MoveDefinition"
         TItemValue="ushort"
-        DataSource="@InternalMoves()"
+        DataSource="@Searched(InternalMoves())"
         @bind-Value="@SelectedMoveId"
         OnSelectedItemChanged="SelectedMoveChangedInternal"
         LabelName="@nameof(MoveDefinition.Name)"
@@ -10,6 +11,8 @@
         Placeholder="Move"
         DefaultActiveFirstOption="false"
         EnableSearch
+        OnSearch="OnSearch"
+        OnDropdownVisibleChange="OnDropdownVisibleChange"
         EnableVirtualization>
     <LabelTemplate>
         @context.Name
@@ -20,6 +23,8 @@
 </Select>
 
 @code {
+    protected override string SearchTextOf(MoveDefinition item) => item.Name;
+
     [Parameter] public required IEnumerable<MoveDefinition> Moves { get; set; }
     [Parameter] public ushort SelectedMoveId { get; set; }
     [Parameter] public EventCallback<MoveDefinition> SelectedMoveChanged { get; set; }

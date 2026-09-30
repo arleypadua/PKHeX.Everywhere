@@ -1,10 +1,11 @@
+@inherits SearchableSelect<SpeciesDefinition>
 @using PKHeX.Core
 @using PKHeX.Facade.Repositories
 @inject GameService GameService
 
 <Select TItem="SpeciesDefinition"
         TItemValue="Species?"
-        DataSource="@_species"
+        DataSource="@Searched(_species)"
         Value="@SelectedValue"
         OnSelectedItemChanged="SelectedValueChanged"
         LabelName="@nameof(SpeciesDefinition.Name)"
@@ -13,6 +14,8 @@
         DefaultActiveFirstOption="false"
         Disabled="Disabled"
         EnableSearch
+        OnSearch="OnSearch"
+        OnDropdownVisibleChange="OnDropdownVisibleChange"
         EnableVirtualization>
     <LabelTemplate>
         @RenderItem(context)
@@ -23,6 +26,8 @@
 </Select>
 
 @code {
+    protected override string SearchTextOf(SpeciesDefinition item) => item.Name;
+
     [Parameter] public required DataSource Source { get; set; }
     [Parameter] public bool ShowIcon { get; set; } = true;
     [Parameter] public bool Disabled { get; set; } = false;

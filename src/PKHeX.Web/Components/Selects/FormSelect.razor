@@ -1,8 +1,9 @@
+@inherits SearchableSelect<FormDefinition>
 @using PKHeX.Facade.Repositories
 
 <Select TItem="FormDefinition"
         TItemValue="ushort?"
-        DataSource="@Items"
+        DataSource="@Searched(Items)"
         @bind-Value="@SelectedFormId"
         OnSelectedItemChanged="SelectedFormChangedInternal"
         LabelName="@nameof(FormDefinition.Name)"
@@ -10,6 +11,8 @@
         Placeholder="Form"
         DefaultActiveFirstOption="false"
         EnableSearch
+        OnSearch="OnSearch"
+        OnDropdownVisibleChange="OnDropdownVisibleChange"
         EnableVirtualization>
     <LabelTemplate>
         @context.Name
@@ -20,6 +23,8 @@
 </Select>
 
 @code {
+    protected override string SearchTextOf(FormDefinition item) => item.Name;
+
     [Parameter] public required Pokemon Pokemon { get; set; }
 
     [Parameter] public ushort? SelectedFormId { get; set; }
