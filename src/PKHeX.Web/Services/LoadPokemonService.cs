@@ -17,11 +17,24 @@ public class LoadPokemonService(
     {
         var game = gameService.Game;
         var pokemon = Pokemon.LoadFrom(data, game);
-        if (game is not null && !game.IsAwareOf(pokemon))
+        if (game is not null)
         {
-            Pokemon = null;
-            notification.NotifyNotInGame(pokemon, game);
-            return;
+            var converted = pokemon.ConvertTo(game, out var result);
+            if (converted is null)
+            {
+                Pokemon = null;
+                notification.NotifyConversionFailed(pokemon, game, result);
+                return;
+            }
+
+            if (!game.IsAwareOf(converted))
+            {
+                Pokemon = null;
+                notification.NotifyNotInGame(converted, game);
+                return;
+            }
+
+            pokemon = converted;
         }
 
         Pokemon = pokemon;
