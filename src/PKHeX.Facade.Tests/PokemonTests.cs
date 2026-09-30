@@ -77,6 +77,35 @@ public class PokemonTests
         ids.Should().OnlyHaveUniqueItems();
     }
 
+    [Fact]
+    public void HiddenPower_ShouldResolveTypeAndPowerFromIvs()
+    {
+        var pokemon = Game.LoadFrom(SaveFilePath.Emerald).Trainer.Party.Pokemons.First();
+
+        pokemon.HiddenPower.Should().Be(new HiddenPowerDefinition(
+            GameInfo.Strings.types[pokemon.Pkm.HPType + 1],
+            pokemon.Pkm.HPPower));
+    }
+
+    [Fact]
+    public void HiddenPower_ShouldFollowIvChanges()
+    {
+        var pokemon = Game.LoadFrom(SaveFilePath.Emerald).Trainer.Party.Pokemons.First();
+        var before = pokemon.HiddenPower!.Type;
+
+        pokemon.Pkm.HPType = 1;
+
+        pokemon.HiddenPower!.Type.Should().NotBe(before);
+    }
+
+    [Fact]
+    public void HiddenPower_ShouldBeNullForGamesWithoutIt()
+    {
+        var pokemon = Game.LoadFrom(SaveFilePath.LetsGoPikachu).Trainer.Party.Pokemons.First();
+
+        pokemon.HiddenPower.Should().BeNull();
+    }
+
     private Game AGame(GameVersion version, string trainerName) =>
         Game.EmptyOf(GameVersionRepository.Instance.Get(version), trainerName);
 }

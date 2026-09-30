@@ -27,6 +27,17 @@
         </ResponsibleDescriptions>
     }
 
+    @if (Pokemon.HiddenPower is { } hiddenPower)
+    {
+        <ResponsibleDescriptions Bordered Title="Hidden Power" Size="DescriptionsSize.Small" Style="width: 100%">
+            <DescriptionsItem Title="Type">@hiddenPower.Type</DescriptionsItem>
+            @if (hiddenPower.Power is { } power)
+            {
+                <DescriptionsItem Title="Power">@power</DescriptionsItem>
+            }
+        </ResponsibleDescriptions>
+    }
+
     @if (Pokemon.BaseStats.CombatPower is not null)
     {
         <ResponsibleDescriptions Bordered Title="Extra" Size="DescriptionsSize.Small" Style="width: 100%">
