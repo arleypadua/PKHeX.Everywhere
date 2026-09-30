@@ -13,6 +13,6 @@ public class EncounterSearchTests(WebAppFixture fixture) : E2ETest(fixture)
         await page.GotoAsync("/pokemon/search-encounter");
 
         await Assertions.Expect(page).ToHaveURLAsync(new Uri(BaseAddress, "/load").ToString());
-        await Assertions.Expect(page.GetByRole(AriaRole.Alert).Filter(new() { HasText = "Expected game to be loaded" })).ToBeHiddenAsync();
+        await Assertions.Expect(page.GetByText("Expected game to be loaded")).ToBeHiddenAsync();
     });
 }
