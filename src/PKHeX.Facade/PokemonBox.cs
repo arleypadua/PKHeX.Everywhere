@@ -27,12 +27,14 @@ public class PokemonBox : IMutablePokemonCollection
             .ToList();
     }
 
-    public bool AddOnEmptySlot(Pokemon pokemon)
-    {
-        var openSlot = _game.SaveFile.NextOpenBoxSlot();
-        if (openSlot == -1) return false;
+    public bool AddOnEmptySlot(Pokemon pokemon) => AddOnEmptySlot(pokemon, out _);
 
-        _game.SaveFile.SetBoxSlotAtIndex(pokemon.Pkm, openSlot);
+    public bool AddOnEmptySlot(Pokemon pokemon, out int index)
+    {
+        index = _game.SaveFile.NextOpenBoxSlot();
+        if (index == -1) return false;
+
+        _game.SaveFile.SetBoxSlotAtIndex(pokemon.Pkm, index);
         PopulateFromSave();
 
         return true;

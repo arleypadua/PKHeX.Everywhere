@@ -1,3 +1,5 @@
+using PKHeX.Everywhere.Engine.Dtos;
+
 namespace PKHeX.Everywhere.Engine;
 
 /// <summary>
@@ -6,3 +8,11 @@ namespace PKHeX.Everywhere.Engine;
 public interface IEngineEvent;
 
 public sealed record ItemChanged(int ItemId, int Count) : IEngineEvent;
+
+public enum PokemonAddSource
+{
+    Encounter,
+    File,
+}
+
+public sealed record PokemonAdded(PokemonHandle At, PokemonAddSource Source) : IEngineEvent;

@@ -11,6 +11,7 @@ public class CommandTopicTests
 {
     private static readonly Dictionary<string, Func<Game, string, IEnumerable<string>>> SampleArgs = new()
     {
+        ["box.addFromFile"] = (game, _) => [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes))],
         ["game.get"] = (_, _) => ["[]"],
         ["game.load"] = (_, saveFile) =>
         [

@@ -6,6 +6,11 @@ export interface AddableItem {
   maxCount: number
 }
 
+export interface AddedPokemon {
+  id: PokemonId
+  at: PokemonHandle
+}
+
 export type Base64 = string
 
 export interface ItemHandle {

@@ -52,7 +52,6 @@ builder.Services.AddScoped<BackendApiAuthHandler>();
 builder.Services.AddSingleton(PKHeX.Everywhere.Engine.Session.Current);
 builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<EncounterService>();
-builder.Services.AddScoped<LoadPokemonService>();
 builder.Services.AddScoped<AnalyticsResultsService>();
 builder.Services.AddScoped<NewsService>();
 
