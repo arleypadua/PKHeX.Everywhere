@@ -224,10 +224,10 @@ public partial class Pokemon
     private void ApplyVersion(int id)
     {
         Require(Game.Options.OriginGames.Any(g => g.Id == id), nameof(PokemonPatch.Version), $"Origin game {id} isn't in this game.");
-        var group = GameUtil.GetMetLocationVersionGroup(Pkm.Version);
+        var group = GameUtil.GetMetLocationVersionGroup(MetLocationVersion());
         Pkm.Version = (GameVersion)id;
         Require(Pkm.Version == (GameVersion)id, nameof(PokemonPatch.Version), $"Origin game {id} can't be stored in this game.");
-        if (GameUtil.GetMetLocationVersionGroup(Pkm.Version) != group)
+        if (GameUtil.GetMetLocationVersionGroup(MetLocationVersion()) != group)
             Pkm.MetLocation = EncounterSuggestion.TryGetSuggestedTransferLocation(Pkm);
     }
 
@@ -291,22 +291,21 @@ public partial class Pokemon
         ? FormRepository.GetFor(Pkm).Select(form => new Choice(form.Id, form.Name)).ToArray()
         : [];
 
-    private Choice[] MetLocationChoices()
-    {
-        if (Pkm.Format <= 1) return [];
-
-        var version = Pkm.Version;
-        // Mirrors PKHeX's editor: an origin game without its own location list borrows the save's, then the format's.
-        if (GameUtil.GetMetLocationVersionGroup(version) is GameVersion.Invalid)
-        {
-            version = Game.SaveFile.Version;
-            if (GameUtil.GetMetLocationVersionGroup(version) is GameVersion.Invalid || version is GameVersion.Any)
-                version = Pkm.Context.GetSingleGameVersion();
-        }
-
-        return GameInfo.GetLocationList(version, Pkm.Context)
+    private Choice[] MetLocationChoices() => Pkm.Format <= 1
+        ? []
+        : GameInfo.GetLocationList(MetLocationVersion(), Pkm.Context)
             .DistinctBy(location => location.Value)
             .Select(location => new Choice(location.Value, location.Text))
             .ToArray();
+
+    // Mirrors PKHeX's editor: an origin game without its own location list borrows the save's, then the format's.
+    private GameVersion MetLocationVersion()
+    {
+        if (GameUtil.GetMetLocationVersionGroup(Pkm.Version) is not GameVersion.Invalid) return Pkm.Version;
+
+        var version = Game.SaveFile.Version;
+        return GameUtil.GetMetLocationVersionGroup(version) is GameVersion.Invalid || version is GameVersion.Any
+            ? Pkm.Context.GetSingleGameVersion()
+            : version;
     }
 }
