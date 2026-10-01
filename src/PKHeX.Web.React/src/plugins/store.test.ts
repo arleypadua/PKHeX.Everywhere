@@ -161,6 +161,12 @@ describe('plug-in store', () => {
     ])
   })
 
+  it('skips a source stored under the old relative url', () => {
+    localStorage.setItem('__plug_in__source__#/plugins', JSON.stringify({ ...blazoredSource, sourceUrl: '/plugins' }))
+
+    expect(createPlugInStore(localStorage, indexedDb).readSources()).toEqual([])
+  })
+
   it('writes a source back in the format it reads', () => {
     localStorage.setItem(`__plug_in__source__#${source}`, JSON.stringify(blazoredSource))
     const store = createPlugInStore(localStorage, indexedDb)

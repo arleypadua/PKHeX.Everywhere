@@ -5,6 +5,7 @@
 @inject INotificationService Notification
 @inject Session Session
 @inject PlugInStore PlugInStore
+@inject NavigationManager Navigation
 
 <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
     <PageHeader BackIcon="true" Style="max-width: 100%">
@@ -129,6 +130,7 @@
             Message = "Plug-in installed with success",
             NotificationType = NotificationType.Success
         });
+        Navigation.NavigateToPlugIn(plugIn.Id);
     }
 
     private Task HandleUpdateClick(string plugInId) => TryReachingTheSource(() => PlugInStore.Update(plugInId));

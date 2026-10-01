@@ -78,9 +78,6 @@ public sealed class PlugInHost
 
     public bool HasNewerVersion(string id) => _hasNewerVersion.Contains(id);
 
-    /// <summary>
-    /// Picks the newest version this host can run, and flags the installed plug-in <paramref name="id"/> when it is newer.
-    /// </summary>
     public PublishedVersion? NewestCompatible(string? id, IEnumerable<PublishedVersion> versions)
     {
         var newest = NewestCompatible(versions);

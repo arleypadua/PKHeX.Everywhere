@@ -123,11 +123,16 @@ export function createPlugInStore(storage: Storage = localStorage, indexedDb: ID
 
   async function readFile(setting: StoredSetting) {
     if (setting.fileName == null || setting.filePlugInId == null) return null
-    const record = await request<FileRecord | undefined>(await files(), 'readonly', (store) =>
-      store.get(fileKey(setting.filePlugInId!, setting.fileName!)),
-    )
-    if (!record) return null
-    return typeof record.data === 'string' ? record.data : toBase64(record.data)
+    try {
+      const record = await request<FileRecord | undefined>(await files(), 'readonly', (store) =>
+        store.get(fileKey(setting.filePlugInId!, setting.fileName!)),
+      )
+      if (!record) return null
+      return typeof record.data === 'string' ? record.data : toBase64(record.data)
+    } catch (error) {
+      console.error(`Couldn't read the file ${setting.fileName} of plug-in ${setting.filePlugInId}.`, error)
+      return null
+    }
   }
 
   function readRecord(key: string): StoredRecord | undefined {
@@ -162,7 +167,15 @@ export function createPlugInStore(storage: Storage = localStorage, indexedDb: ID
   return {
     async readPlugIns() {
       const records = keys(storage, plugInPrefix).map(readRecord).filter((r): r is StoredRecord => !!r)
-      return Promise.all(records.map(toStored))
+      const stored = await Promise.all(
+        records.map((record) =>
+          toStored(record).catch((error) => {
+            console.error(`Couldn't read plug-in ${record.id}.`, error)
+            return undefined
+          }),
+        ),
+      )
+      return stored.filter((p): p is StoredPlugIn => !!p)
     },
 
     async readPlugIn(id) {
@@ -193,7 +206,8 @@ export function createPlugInStore(storage: Storage = localStorage, indexedDb: ID
     },
 
     readSources() {
-      return keys(storage, sourcePrefix).flatMap((key) => {
+      // Sources stored before the default source moved to GitHub sit under a relative url nothing serves.
+      return keys(storage, sourcePrefix).filter((key) => /^https?:/.test(key.slice(sourcePrefix.length))).flatMap((key) => {
         try {
           const value = storage.getItem(key)
           return value ? [readSource(JSON.parse(value) as Json, key.slice(sourcePrefix.length))] : []

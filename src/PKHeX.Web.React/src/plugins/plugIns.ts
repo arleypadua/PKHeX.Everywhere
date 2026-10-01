@@ -54,7 +54,6 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
     return sources.filter((s): s is PlugInSource => !!s)
   }
 
-  // Registers the downloaded version with the given state and stores it, unless the host can't run it.
   async function replace(stored: StoredPlugIn, plugIn: SourcePlugIn, state: StoredPlugIn['state']) {
     const version = await engine.plugins.newestCompatible(plugIn.publishedVersions, null)
     if (!version) return false
@@ -122,7 +121,8 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
     },
 
     async available(): Promise<AvailablePlugIn[]> {
-      const sources = store.readSources().length ? store.readSources() : await refreshSources()
+      const stored = store.readSources()
+      const sources = stored.length ? stored : await refreshSources()
       const installed = new Set((await engine.plugins.installed()).map((p) => p.id))
       const available: AvailablePlugIn[] = []
       for (const source of sources)
