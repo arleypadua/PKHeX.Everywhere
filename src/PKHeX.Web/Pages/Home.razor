@@ -6,7 +6,7 @@
 @inject AntdThemeService ThemeService
 @inject PlugInRegistry PlugInRegistry
 @inject PlugInRuntime PlugInRuntime
-@inject PKHeX.Everywhere.Engine.PlugIns.PlugInHost PlugInHost
+@inject PlugInHost PlugInHost
 @inject IConfiguration Configuration
 
 <PageTitle>Home</PageTitle>
@@ -94,7 +94,7 @@
 @code {
     private Game? _game;
     private List<IQuickAction> _actions = [];
-    private IReadOnlyList<PKHeX.Everywhere.Engine.PlugIns.PlugInAction> _hostActions = [];
+    private IReadOnlyList<PlugInAction> _hostActions = [];
     private Exception? _quickActionsFailure;
 
     protected override void OnInitialized()
@@ -134,7 +134,7 @@
         try
         {
             _actions = PlugInRegistry.GetAllEnabledHooks<IQuickAction>().ToList();
-            _hostActions = PlugInHost.Actions(PKHeX.Everywhere.Engine.PlugIns.ActionPlacement.Quick);
+            _hostActions = PlugInHost.Actions(ActionPlacement.Quick);
         }
         catch (Exception e)
         {

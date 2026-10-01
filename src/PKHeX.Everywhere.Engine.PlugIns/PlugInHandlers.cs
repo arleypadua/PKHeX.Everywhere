@@ -24,7 +24,6 @@ public static class PlugInHandlers
     {
         var slot = target is null ? null : session.RequireGame().Find(target);
         // Engine calls are synchronous, and single-threaded WASM can't block on an action that really awaits, so such an action fails here.
-        // The Blazor renderer calls RunAction directly instead.
         var ran = PlugInHost.Of(session).RunAction(id, slot?.Pokemon).GetAwaiter().GetResult();
         if (ran.Failure is { } failure) throw new EngineException(ErrorCodes.PlugInFailed, failure.Message, failure);
 
