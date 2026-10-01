@@ -18,11 +18,22 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
         {
             for (var i = 0; i < _partyData.Count; i++)
                 game.SaveFile.SetPartySlotAtIndex(_partyData[i], i);
+            game.Trainer.PokemonBox.RefreshPartyMembers();
             return;
         }
 
         game.SaveFile.PartyData = _partyData;
     }
+
+    // Let's Go keeps party members in box storage, so each one also sits at a box index.
+    public int? BoxIndexOf(int slot) => game.SaveFile is SAV7b save && slot >= 0 && slot < save.PartyCount
+        ? (save.GetPartyOffset(slot) - save.GetBoxSlotOffset(0)) / save.SIZE_BOXSLOT
+        : null;
+
+    public int? SlotOf(int boxIndex) => Enumerable.Range(0, game.SaveFile.PartyCount)
+        .Where(slot => BoxIndexOf(slot) == boxIndex)
+        .Select(slot => (int?)slot)
+        .FirstOrDefault();
 
     public void AddOrUpdate(UniqueId id, Pokemon pokemon)
     {

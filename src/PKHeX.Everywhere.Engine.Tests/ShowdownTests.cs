@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 using PKHeX.Facade.Extensions;
@@ -32,7 +31,7 @@ public class ShowdownTests
     }
 
     [Theory]
-    [SupportedSaveFiles(Except = [GameVersion.GE])]
+    [SupportedSaveFiles]
     public void PokemonShowdownMatchesTheFacadeForABoxPokemon(string saveFile)
     {
         var session = Loaded(saveFile);

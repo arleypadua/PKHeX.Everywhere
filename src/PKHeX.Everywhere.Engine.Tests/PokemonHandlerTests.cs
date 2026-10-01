@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 using PKHeX.Facade.Tests.Base;
@@ -36,7 +35,7 @@ public class PokemonHandlerTests
     }
 
     [Theory]
-    [SupportedSaveFiles(Except = [GameVersion.GE])]
+    [SupportedSaveFiles]
     public void SetLevelChangesABoxPokemonInTheSave(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -61,6 +60,40 @@ public class PokemonHandlerTests
         Dispatcher.Dispatch(session, "pokemon.setLevel", Args(at, 42));
 
         changes.Should().BeEquivalentTo([new[] { Topics.Party }, new[] { $"box/{at.Box}" }], o => o.WithStrictOrdering());
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.LetsGoPikachu)]
+    [InlineData(SaveFilePath.LetsGoEevee)]
+    public void SetLevelOnALetsGoPartyMemberThroughItsBoxHandleIsKept(string saveFile)
+    {
+        var session = Loaded(saveFile);
+        var (at, _) = BoxSlotOfPartyMember(session.Game!, 0);
+        var level = OtherLevel(session.Game!.Trainer.Party.Pokemons[0].Level);
+
+        Dispatcher.Dispatch(session, "pokemon.setLevel", Args(at, level));
+
+        Level(session, PokemonHandle.Party(0)).Should().Be(level);
+        session.Game.SaveAndReload(reloaded => reloaded.Trainer.Party.Pokemons[0].Level.Should().Be(level));
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.LetsGoPikachu)]
+    [InlineData(SaveFilePath.LetsGoEevee)]
+    public void SetLevelOnALetsGoPartyMemberChangesItsPartyAndBoxTopics(string saveFile)
+    {
+        var session = Loaded(saveFile);
+        var (at, index) = BoxSlotOfPartyMember(session.Game!, 0);
+        var level = OtherLevel(session.Game!.Trainer.Party.Pokemons[0].Level);
+        var changes = new List<string[]>();
+        session.Changed += changes.Add;
+
+        Dispatcher.Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Party(0), level));
+        Dispatcher.Dispatch(session, "pokemon.setLevel", Args(at, OtherLevel(level)));
+
+        changes.Should().BeEquivalentTo([new[] { Topics.Party, at.Topic() }, new[] { at.Topic(), Topics.Party }], o => o.WithStrictOrdering());
+        Level(session, at).Should().Be(OtherLevel(level));
+        session.Game.Trainer.PokemonBox.All[index].Level.Should().Be(OtherLevel(level));
     }
 
     [Fact]

@@ -17,7 +17,7 @@ When the save changes, `Session` raises `Changed` with the changed Topics, and J
 
 ## Adding a command
 
-1. Add a static method with `[Command("entity.verb")]` to `Handlers/<Entity>Handlers.cs`. A command writes the Topic of each `IHandle` argument it takes, such as the Pokémon at `at`, plus any Topics listed on the attribute. Return a value only when the command creates something.
+1. Add a static method with `[Command("entity.verb")]` to `Handlers/<Entity>Handlers.cs`. A command writes the Topic of each `IHandle` argument it takes, such as the Pokémon at `at`, plus any Topics listed on the attribute. When the save decides the Topics, such as a Let's Go party member that also sits in a box, pass them to `session.AlsoWrote`. Return a value only when the command creates something.
 2. Throw `EngineException` with a code from `ErrorCodes.cs` for expected failures. JS receives it as a rejected `EngineError`.
 3. Build and commit the generated TypeScript, as for queries.
 4. Add sample arguments for the call to `CommandTopicTests`. That test runs every command against the test saves and fails when a query's result changes outside the Topics the command reported.

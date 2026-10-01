@@ -44,6 +44,23 @@ public class PokemonPartyTests
         });
     }
 
+    [Theory]
+    [InlineData(SaveFilePath.LetsGoPikachu)]
+    [InlineData(SaveFilePath.LetsGoEevee)]
+    public void LetsGoBoxShowsCommittedPartyChanges(string saveFile)
+    {
+        var game = Game.LoadFrom(saveFile);
+        var member = game.Trainer.Party.Pokemons[0];
+        var index = game.Trainer.Party.BoxIndexOf(0)!.Value;
+        var level = member.Level == 50 ? 51 : 50;
+
+        member.ChangeLevel(level);
+        game.Trainer.Party.Commit();
+
+        game.Trainer.PokemonBox.All[index].Level.Should().Be(level);
+        game.Trainer.PokemonBox.BySpecies[member.Species.Species].Should().Contain(p => p.Level == level);
+    }
+
     [Fact]
     public void OwnerTidShouldBeSixteenBitBeforeGen7()
     {

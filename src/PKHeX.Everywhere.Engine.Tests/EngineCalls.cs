@@ -1,5 +1,4 @@
 using System.Text.Json;
-using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 
@@ -14,17 +13,21 @@ internal static class EngineCalls
         return session;
     }
 
-    // Let's Go keeps party members in box storage, so their box slots alias party slots. The Eevee save has no other box Pokémon.
     internal static (PokemonHandle At, int Index)? FirstBoxPokemon(Game game)
     {
         var all = game.Trainer.PokemonBox.All;
-        var index = Enumerable.Range(0, all.Count).FirstOrDefault(i => all[i].Pkm.Species != 0 && !InParty(game, i), -1);
-        var slots = game.SaveFile.BoxSlotCount;
-        return index < 0 ? null : (PokemonHandle.InBox(index / slots, index % slots), index);
+        var index = Enumerable.Range(0, all.Count).FirstOrDefault(i => all[i].Pkm.Species != 0, -1);
+        return index < 0 ? null : (BoxHandle(game, index), index);
     }
 
-    private static bool InParty(Game game, int boxIndex) =>
-        game.SaveFile is SAV7b { Blocks.Storage: var storage } && storage.IsParty(boxIndex);
+    internal static (PokemonHandle At, int Index) BoxSlotOfPartyMember(Game game, int partySlot)
+    {
+        var index = game.Trainer.Party.BoxIndexOf(partySlot)!.Value;
+        return (BoxHandle(game, index), index);
+    }
+
+    private static PokemonHandle BoxHandle(Game game, int index) =>
+        PokemonHandle.InBox(index / game.SaveFile.BoxSlotCount, index % game.SaveFile.BoxSlotCount);
 
     internal static (ItemHandle At, int MaxCount)? AddableItem(Game game) => game.Trainer.Inventories.InventoryItems.Values
         .OrderBy(inventory => inventory.Type, StringComparer.Ordinal)
