@@ -14,6 +14,8 @@ public class CommandTopicTests
     {
         ["box.addEncounter"] = (_, _) => [Args(0)],
         ["box.addFromFile"] = (game, _) => [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes))],
+        ["box.get"] = (_, _) => ["[]"],
+        ["box.showdown"] = (_, _) => ["[]"],
         ["encounters.search"] = (game, _) => [Args(game.GameVersionApproximation.Id, (int)Species.Abra)],
         ["encounters.versions"] = (_, _) => ["[]"],
         ["game.get"] = (_, _) => ["[]"],

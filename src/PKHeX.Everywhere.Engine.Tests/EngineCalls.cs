@@ -1,6 +1,7 @@
 using System.Text.Json;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
+using Pokemon = PKHeX.Facade.Pokemons.Pokemon;
 
 namespace PKHeX.Everywhere.Engine.Tests;
 
@@ -18,6 +19,14 @@ internal static class EngineCalls
         var all = game.Trainer.PokemonBox.All;
         var index = Enumerable.Range(0, all.Count).FirstOrDefault(i => all[i].Pkm.Species != 0, -1);
         return index < 0 ? null : (BoxHandle(game, index), index);
+    }
+
+    internal static IEnumerable<(PokemonHandle At, Pokemon Pokemon)> BoxedPokemon(Game game)
+    {
+        var all = game.Trainer.PokemonBox.All;
+        return Enumerable.Range(0, all.Count)
+            .Where(i => all[i].Pkm.Species != 0 && game.Trainer.Party.SlotOf(i) is null)
+            .Select(i => (BoxHandle(game, i), all[i]));
     }
 
     internal static (PokemonHandle At, int Index) BoxSlotOfPartyMember(Game game, int partySlot)

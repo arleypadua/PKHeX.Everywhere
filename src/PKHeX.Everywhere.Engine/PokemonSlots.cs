@@ -23,6 +23,14 @@ internal static class PokemonSlots
         _ => throw NotFound(at),
     };
 
+    public static IEnumerable<(PokemonHandle At, Pokemon Pokemon)> Boxed(this Game game)
+    {
+        var all = game.Trainer.PokemonBox.All;
+        return Enumerable.Range(0, all.Count)
+            .Where(index => all[index].Pkm.Species != 0 && game.Trainer.Party.SlotOf(index) is null)
+            .Select(index => (BoxHandle(game.SaveFile, index), all[index]));
+    }
+
     private static PokemonSlot? InParty(Game game, int slot)
     {
         var party = game.Trainer.Party;

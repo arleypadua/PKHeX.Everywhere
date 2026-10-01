@@ -1,11 +1,20 @@
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
+using PKHeX.Facade.Extensions;
 using Pokemon = PKHeX.Facade.Pokemons.Pokemon;
 
 namespace PKHeX.Everywhere.Engine.Handlers;
 
 public static class BoxHandlers
 {
+    [Query("box.get", Topics.Box)]
+    public static PokemonSummary[] Get(Game game) => game.Boxed()
+        .Select(boxed => boxed.Pokemon.ToSummary(boxed.At))
+        .ToArray();
+
+    [Query("box.showdown", Topics.Box)]
+    public static string Showdown(Game game) => game.Boxed().Select(boxed => boxed.Pokemon).Showdown();
+
     [Command("box.addFromFile", Topics.Box)]
     public static AddedPokemon AddFromFile(Session session, Game game, byte[] bytes)
     {
