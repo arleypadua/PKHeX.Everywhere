@@ -15,10 +15,11 @@ interface EncountersPageProps {
 }
 
 export default function EncountersPage(props: EncountersPageProps) {
-  const { default: defaultVersion } = useQuery('encounters.versions')
+  const { versions, default: defaultVersion } = useQuery('encounters.versions')
+  const allSpecies = useQuery('species.list')
   const navigate = useNavigate()
-  const version = props.version ?? defaultVersion
-  const species = props.species ?? undefined
+  const version = versions.find((entry) => entry.id === props.version)?.id ?? defaultVersion
+  const species = allSpecies.find((entry) => entry.id === props.species)?.id
 
   return (
     <Flex vertical gap={20}>
@@ -62,7 +63,7 @@ function Encounters({ version, species }: { version: number; species: number }) 
       await notifySuccessInHost(`${encounter.species} added to your box`)
       navigate(routes.pokemon(added))
     } catch (error) {
-      if (!(error instanceof EngineError) || (error.code !== 'box-full' && error.code !== 'not-found')) throw error
+      if (!(error instanceof EngineError)) throw error
       notification.error({ title: "Couldn't add the Pokémon", description: error.message })
     } finally {
       setAdding(undefined)
