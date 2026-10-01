@@ -47,6 +47,7 @@
     <ProjectReference Include="..\PKHeX.Everywhere.Engine.Tests.PlugInV1\PKHeX.Everywhere.Engine.Tests.PlugInV1.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
     <ProjectReference Include="..\PKHeX.Web.Plugins.Nuzlocking\PKHeX.Web.Plugins.Nuzlocking.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
     <ProjectReference Include="..\PKHeX.Web.Plugins.LiveRun\PKHeX.Web.Plugins.LiveRun.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
+    <ProjectReference Include="..\PKHeX.Web.Plugins.AutoLegality\PKHeX.Web.Plugins.AutoLegality.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
   </ItemGroup>
 
   <!-- Plug-ins are copied aside instead of referenced, so tests load them from bytes as the app does. -->
