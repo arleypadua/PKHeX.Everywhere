@@ -33,6 +33,20 @@ public class InventoryHandlerTests
     }
 
     [Theory]
+    [SupportedSaveFiles]
+    public void GetLeavesOutEmptySlotsAndOwnedItemsFromAddable(string saveFile)
+    {
+        var pouches = Value(Dispatcher.Dispatch(Loaded(saveFile), "inventory.get", "[]"))!.AsArray();
+
+        foreach (var pouch in pouches)
+        {
+            var owned = Ids(pouch!["items"]!);
+            owned.Should().NotContain(0);
+            Ids(pouch["addable"]!).Should().NotIntersectWith(owned);
+        }
+    }
+
+    [Theory]
     [InlineData(SaveFilePath.Crystal, "TMHMs", 243)]
     [InlineData(SaveFilePath.Emerald, "TMHMs", 339)]
     [InlineData(SaveFilePath.LetsGoPikachu, "Items", 113)]
@@ -57,6 +71,8 @@ public class InventoryHandlerTests
     [Fact]
     public void GetReturnsNoSaveWithoutALoadedSave() =>
         Error(Dispatcher.Dispatch(new Session(), "inventory.get", "[]")).Should().Be("no-save");
+
+    private static int[] Ids(JsonNode items) => items.AsArray().Select(i => i!["id"]!.GetValue<int>()).ToArray();
 
     private static JsonNode Item(JsonArray pouches, string pouch, int itemId) => pouches
         .Single(p => p!["name"]!.GetValue<string>() == pouch)!
