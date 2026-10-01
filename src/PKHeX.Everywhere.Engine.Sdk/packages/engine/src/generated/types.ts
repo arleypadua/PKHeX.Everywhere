@@ -55,13 +55,6 @@ export interface EventWork {
   options: WorkOption[]
 }
 
-export interface Gen3Extras {
-  tickets: string[]
-  anyTicketMissing: boolean
-  oldSeaMapNeedsConfirmation: boolean
-  islands: EventFlag[]
-}
-
 export interface ItemHandle {
   pouch: string
   itemId: number
@@ -141,7 +134,7 @@ export interface SaveEvents {
   workCount: number
   workMin: number
   workMax: number
-  gen3: Gen3Extras | null
+  gen3: TicketsAndIslands | null
 }
 
 export interface SaveSummary {
@@ -155,6 +148,13 @@ export type SlotSource = 'party' | 'box'
 export interface SpeciesEntry {
   id: number
   name: string
+}
+
+export interface TicketsAndIslands {
+  tickets: string[]
+  anyTicketMissing: boolean
+  oldSeaMapNeedsConfirmation: boolean
+  islands: EventFlag[]
 }
 
 export interface VersionEntry {

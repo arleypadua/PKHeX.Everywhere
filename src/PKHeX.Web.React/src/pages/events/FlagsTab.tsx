@@ -2,7 +2,7 @@ import { Suspense, useState } from 'react'
 import { Card, Checkbox, Flex, InputNumber, Space, Spin, Table, type TableColumnsType } from 'antd'
 import type { EventFlag, SaveEvents } from '@pkhex-everywhere/engine'
 import { useEvents, useQuery } from '@pkhex-everywhere/react'
-import { humanize, useEventFilters } from './EventFilters'
+import { humanize, useEventFilters } from './useEventFilters'
 import { useEventEdit } from './useEventEdit'
 
 export function FlagsTab({ events }: { events: SaveEvents }) {

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Flex, InputNumber, Select, Table, type TableColumnsType } from 'antd'
 import type { EventWork, SaveEvents } from '@pkhex-everywhere/engine'
 import { useEvents } from '@pkhex-everywhere/react'
-import { humanize, useEventFilters } from './EventFilters'
+import { humanize, useEventFilters } from './useEventFilters'
 import { useEventEdit } from './useEventEdit'
 
 export function WorkTab({ events }: { events: SaveEvents }) {

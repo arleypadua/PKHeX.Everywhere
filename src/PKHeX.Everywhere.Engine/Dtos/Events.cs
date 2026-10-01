@@ -8,7 +8,7 @@ public record WorkOption(string Name, int Value);
 
 public record EventWork(int Index, string Name, string Category, int Value, WorkOption[] Options);
 
-public record Gen3Extras(string[] Tickets, bool AnyTicketMissing, bool OldSeaMapNeedsConfirmation, EventFlag[] Islands);
+public record TicketsAndIslands(string[] Tickets, bool AnyTicketMissing, bool OldSeaMapNeedsConfirmation, EventFlag[] Islands);
 
 public record SaveEvents(
     EventFlag[] Flags,
@@ -17,7 +17,7 @@ public record SaveEvents(
     int WorkCount,
     int WorkMin,
     int WorkMax,
-    Gen3Extras? Gen3);
+    TicketsAndIslands? Gen3);
 
 public static class EventsMapping
 {
@@ -32,7 +32,7 @@ public static class EventsMapping
         events.WorkMin,
         events.WorkMax,
         events.Gen3 is { } gen3
-            ? new Gen3Extras(
+            ? new TicketsAndIslands(
                 gen3.Tickets.All.Select(t => t.Name).ToArray(),
                 !gen3.Tickets.Missing.IsEmpty,
                 gen3.Tickets.OldSeaMapNeedsConfirmation,

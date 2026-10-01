@@ -1,9 +1,9 @@
 import { Button, Card, Checkbox, Flex, Typography, App } from 'antd'
-import { EngineError, type Gen3Extras } from '@pkhex-everywhere/engine'
+import { EngineError, type TicketsAndIslands } from '@pkhex-everywhere/engine'
 import { useEvents } from '@pkhex-everywhere/react'
 import { useEventEdit } from './useEventEdit'
 
-export function TicketsTab({ gen3 }: { gen3: Gen3Extras }) {
+export function TicketsTab({ gen3 }: { gen3: TicketsAndIslands }) {
   const { giveTickets, setFlag } = useEvents()
   const { message, modal } = App.useApp()
   const edit = useEventEdit()
