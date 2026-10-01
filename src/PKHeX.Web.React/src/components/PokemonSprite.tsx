@@ -8,10 +8,10 @@ const formSuffixes: Record<string, string> = {
 }
 
 interface PokemonSpriteProps {
-  pokemon: Pick<PokemonSummary, 'speciesId' | 'species' | 'form'>
+  pokemon: Pick<PokemonSummary, 'speciesId' | 'species'> & Partial<Pick<PokemonSummary, 'form'>>
 }
 
 export function PokemonSprite({ pokemon }: PokemonSpriteProps) {
-  const suffix = formSuffixes[pokemon.form.name.toLowerCase()] ?? ''
+  const suffix = formSuffixes[pokemon.form?.name.toLowerCase() ?? ''] ?? ''
   return <img alt={pokemon.species} src={`${iconsUrl}/${pokemon.speciesId}${suffix}.png`} />
 }

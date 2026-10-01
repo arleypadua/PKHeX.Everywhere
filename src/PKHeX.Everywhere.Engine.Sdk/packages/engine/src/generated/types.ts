@@ -13,6 +13,11 @@ export interface AddedPokemon {
 
 export type Base64 = string
 
+export interface EncounterVersions {
+  versions: VersionEntry[]
+  default: number
+}
+
 export interface ItemHandle {
   pouch: string
   itemId: number
@@ -62,3 +67,13 @@ export interface SaveSummary {
 }
 
 export type SlotSource = 'party' | 'box'
+
+export interface SpeciesEntry {
+  id: number
+  name: string
+}
+
+export interface VersionEntry {
+  id: number
+  name: string
+}
