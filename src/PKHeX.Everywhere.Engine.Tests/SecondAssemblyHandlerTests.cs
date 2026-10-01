@@ -68,6 +68,18 @@ public class SecondAssemblyHandlerTests
     }
 
     [Fact]
+    public void ACommandInvalidatesTheTopicsItDeclares()
+    {
+        var session = WithLeadHandlers(Loaded(SaveFilePath.HgSs));
+        var changed = new List<string>();
+        session.Changed += changed.AddRange;
+
+        Value(Dispatcher.Dispatch(session, "lead.refresh", "[]"));
+
+        changed.Should().Equal(Topics.All);
+    }
+
+    [Fact]
     public void TheSdkCoversCallsFromRegisteredAssemblies()
     {
         var contract = Contract.Read(typeof(Session).Assembly, [typeof(LeadHandlers).Assembly]);

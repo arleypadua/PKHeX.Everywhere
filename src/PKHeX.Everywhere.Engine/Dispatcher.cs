@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace PKHeX.Everywhere.Engine;
 
-public delegate bool Invoker(Session session, string call, JsonElement args, Utf8JsonWriter value);
+public delegate bool Invoker(Session session, string call, JsonElement args, Utf8JsonWriter writer);
 
 public static class Dispatcher
 {

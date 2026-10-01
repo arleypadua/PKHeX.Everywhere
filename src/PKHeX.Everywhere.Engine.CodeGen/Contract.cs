@@ -33,11 +33,11 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
 
     public IEnumerable<Call> Queries => Calls.Where(c => c.Kind == CallKind.Query);
 
-    public static Contract Read(Assembly engine, IEnumerable<Assembly> others)
+    public static Contract Read(Assembly engine, IEnumerable<Assembly> handlerAssemblies)
     {
         var nullability = new NullabilityInfoContext();
 
-        var calls = others.Prepend(engine)
+        var calls = handlerAssemblies.Prepend(engine)
             .SelectMany(a => a.GetTypes())
             .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
             .Select(m => (Method: m, Attribute: m.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName is $"{Namespace}.QueryAttribute" or $"{Namespace}.CommandAttribute")))

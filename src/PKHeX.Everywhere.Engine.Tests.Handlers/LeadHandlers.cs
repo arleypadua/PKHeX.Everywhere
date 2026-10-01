@@ -25,4 +25,9 @@ public static class LeadHandlers
         game.Trainer.Party.Pokemons[at.Slot].ChangeLevel(level);
         game.Trainer.Party.Commit();
     }
+
+    [Command("lead.refresh", Topics.All)]
+    public static void Refresh(Game game)
+    {
+    }
 }
