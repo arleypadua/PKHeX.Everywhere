@@ -25,7 +25,7 @@ public class PlugInPageTests
     {
         var (session, host) = Hosted();
 
-        var page = Value(Dispatcher.Dispatch(session, "plugins.pages", "[]"))!.AsArray().Should().ContainSingle().Subject!;
+        var page = Value(Dispatch(session, "plugins.pages", "[]"))!.AsArray().Should().ContainSingle().Subject!;
         page["plugInId"]!.GetValue<string>().Should().Be(TestPlugInId);
         page["path"]!.GetValue<string>().Should().Be("hello");
         page["title"]!.GetValue<string>().Should().Be("Hello");
@@ -33,7 +33,7 @@ public class PlugInPageTests
 
         host.SetEnabled(TestPlugInId, false);
 
-        Value(Dispatcher.Dispatch(session, "plugins.pages", "[]"))!.AsArray().Should().BeEmpty();
+        Value(Dispatch(session, "plugins.pages", "[]"))!.AsArray().Should().BeEmpty();
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public class PlugInPageTests
     {
         var (session, _) = Hosted();
 
-        var source = Value(Dispatcher.Dispatch(session, "plugins.pageModule", Args(TestPlugInId, "hello")))!.GetValue<string>();
+        var source = Value(Dispatch(session, "plugins.pageModule", Args(TestPlugInId, "hello")))!.GetValue<string>();
 
         source.Should().Contain("export function mount(element, ctx)");
     }
@@ -53,7 +53,7 @@ public class PlugInPageTests
     {
         var (session, _) = Hosted();
 
-        Error(Dispatcher.Dispatch(session, "plugins.pageModule", Args(plugInId, path))).Should().Be(ErrorCodes.NotFound);
+        Error(Dispatch(session, "plugins.pageModule", Args(plugInId, path))).Should().Be(ErrorCodes.NotFound);
     }
 
     [Fact]
@@ -62,6 +62,6 @@ public class PlugInPageTests
         var (session, host) = Hosted();
         host.SetEnabled(TestPlugInId, false);
 
-        Error(Dispatcher.Dispatch(session, "plugins.pageModule", Args(TestPlugInId, "hello"))).Should().Be(ErrorCodes.NotFound);
+        Error(Dispatch(session, "plugins.pageModule", Args(TestPlugInId, "hello"))).Should().Be(ErrorCodes.NotFound);
     }
 }

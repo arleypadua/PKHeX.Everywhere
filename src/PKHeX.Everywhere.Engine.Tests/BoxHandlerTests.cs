@@ -16,7 +16,7 @@ public class BoxHandlerTests
         var session = Loaded(saveFile);
         var game = session.Game!;
 
-        var box = Value(Dispatcher.Dispatch(session, "box.get", "[]"))!.AsArray();
+        var box = Value(Dispatch(session, "box.get", "[]"))!.AsArray();
 
         var expected = BoxedPokemon(game).ToList();
         box.Select(p => p!["id"]!.GetValue<string>()).Should().Equal(expected.Select(p => p.Pokemon.UniqueId.Value));
@@ -26,7 +26,7 @@ public class BoxHandlerTests
 
     [Fact]
     public void GetFailsWithNoSaveWithoutALoadedSave() =>
-        Error(Dispatcher.Dispatch(new Session(), "box.get", "[]")).Should().Be("no-save");
+        Error(Dispatch(new Session(), "box.get", "[]")).Should().Be("no-save");
 
     [Theory]
     [SupportedSaveFiles]
@@ -89,10 +89,10 @@ public class BoxHandlerTests
         session.Changed += changes.Add;
         session.Published += published.Add;
 
-        var added = Value(Dispatcher.Dispatch(session, "box.addFromFile", Args(Convert.ToBase64String(bytes))))!;
+        var added = Value(Dispatch(session, "box.addFromFile", Args(Convert.ToBase64String(bytes))))!;
 
         added["at"]!.ToJsonString().Should().Be(Args(expected)[1..^1]);
-        var pokemon = Value(Dispatcher.Dispatch(session, "pokemon.get", Args(expected)))!;
+        var pokemon = Value(Dispatch(session, "pokemon.get", Args(expected)))!;
         pokemon["species"]!.GetValue<string>().Should().Be(species);
         added["id"]!.GetValue<string>().Should().Be(pokemon["id"]!.GetValue<string>());
         changes.Should().ContainSingle().Which.Should().Equal(Topics.Box);
@@ -104,7 +104,7 @@ public class BoxHandlerTests
         var published = new List<IEngineEvent>();
         session.Published += published.Add;
 
-        Error(Dispatcher.Dispatch(session, "box.addFromFile", Args(Convert.ToBase64String(bytes)))).Should().Be(code);
+        Error(Dispatch(session, "box.addFromFile", Args(Convert.ToBase64String(bytes)))).Should().Be(code);
 
         published.Should().BeEmpty();
     }

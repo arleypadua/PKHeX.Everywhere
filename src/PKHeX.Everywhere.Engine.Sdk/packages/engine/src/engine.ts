@@ -35,7 +35,7 @@ export function createEngine({ host }: { host: EngineHost }): Engine {
 
   async function call<T>(name: CallName, args: unknown[]): Promise<T> {
     const engine = await exports
-    const envelope = JSON.parse(engine.Call(name, JSON.stringify(args))) as Envelope<T>
+    const envelope = JSON.parse(await engine.Call(name, JSON.stringify(args))) as Envelope<T>
     if (envelope.ok) return envelope.value
     throw new EngineError(envelope.error.code, envelope.error.message)
   }

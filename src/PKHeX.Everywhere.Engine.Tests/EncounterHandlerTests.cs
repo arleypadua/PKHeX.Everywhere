@@ -19,7 +19,7 @@ public class EncounterHandlerTests
         var session = Loaded(saveFile);
         var game = session.Game!;
 
-        var result = Value(Dispatcher.Dispatch(session, "encounters.versions", "[]"))!;
+        var result = Value(Dispatch(session, "encounters.versions", "[]"))!;
 
         var expected = GameVersionRepository.Instance
             .GetAvailableFor(game.Generation, game.SaveVersion.Version)
@@ -34,7 +34,7 @@ public class EncounterHandlerTests
     [InlineData(SaveFilePath.HgSs, "SoulSilver")]
     public void VersionsDefaultsToTheSaveVersion(string saveFile, string version)
     {
-        var result = Value(Dispatcher.Dispatch(Loaded(saveFile), "encounters.versions", "[]"))!;
+        var result = Value(Dispatch(Loaded(saveFile), "encounters.versions", "[]"))!;
 
         var defaultId = result["default"]!.GetValue<int>();
         result["versions"]!.AsArray().Single(v => v!["id"]!.GetValue<int>() == defaultId)!["name"]!.GetValue<string>()
@@ -43,7 +43,7 @@ public class EncounterHandlerTests
 
     [Fact]
     public void VersionsReturnsNoSaveWithoutALoadedSave() =>
-        Error(Dispatcher.Dispatch(new Session(), "encounters.versions", "[]")).Should().Be("no-save");
+        Error(Dispatch(new Session(), "encounters.versions", "[]")).Should().Be("no-save");
 
     [Theory]
     [SupportedSaveFiles]
@@ -53,7 +53,7 @@ public class EncounterHandlerTests
         var game = session.Game!;
         var version = game.GameVersionApproximation;
 
-        var rows = Value(Dispatcher.Dispatch(session, "encounters.search", Args(version.Id, (int)Species.Abra)))!.AsArray();
+        var rows = Value(Dispatch(session, "encounters.search", Args(version.Id, (int)Species.Abra)))!.AsArray();
 
         var expected = game.PokemonRepository.FindEncounter(version.Version, Species.Abra).ToList();
         rows.Should().NotBeEmpty().And.HaveCount(expected.Count);
@@ -73,11 +73,11 @@ public class EncounterHandlerTests
     [InlineData((int)GameVersion.E, 0)]
     [InlineData((int)GameVersion.E, (int)Species.Turtwig)]
     public void SearchFailsWithBadArgumentsForAVersionOrSpeciesOutsideTheGame(int version, int species) =>
-        Error(Dispatcher.Dispatch(Loaded(SaveFilePath.Emerald), "encounters.search", Args(version, species))).Should().Be("bad-arguments");
+        Error(Dispatch(Loaded(SaveFilePath.Emerald), "encounters.search", Args(version, species))).Should().Be("bad-arguments");
 
     [Fact]
     public void SearchFailsWithNoSaveWithoutALoadedSave() =>
-        Error(Dispatcher.Dispatch(new Session(), "encounters.search", Args((int)GameVersion.E, (int)Species.Abra))).Should().Be("no-save");
+        Error(Dispatch(new Session(), "encounters.search", Args((int)GameVersion.E, (int)Species.Abra))).Should().Be("no-save");
 
     [Theory]
     [SupportedSaveFiles]
@@ -95,10 +95,10 @@ public class EncounterHandlerTests
         session.Changed += changes.Add;
         session.Published += published.Add;
 
-        var added = Value(Dispatcher.Dispatch(session, "box.addEncounter", Args(row["index"]!.GetValue<int>())))!;
+        var added = Value(Dispatch(session, "box.addEncounter", Args(row["index"]!.GetValue<int>())))!;
 
         added["at"]!.ToJsonString().Should().Be(Args(expected)[1..^1]);
-        var pokemon = Value(Dispatcher.Dispatch(session, "pokemon.get", Args(expected)))!;
+        var pokemon = Value(Dispatch(session, "pokemon.get", Args(expected)))!;
         pokemon["species"]!.GetValue<string>().Should().Be(row["species"]!.GetValue<string>());
         added["id"]!.GetValue<string>().Should().Be(pokemon["id"]!.GetValue<string>());
         changes.Should().ContainSingle().Which.Should().Equal(Topics.Box);
@@ -112,9 +112,9 @@ public class EncounterHandlerTests
         Search(session, Species.Abra);
         Search(session, Species.Zubat);
 
-        var added = Value(Dispatcher.Dispatch(session, "box.addEncounter", Args(0)))!;
+        var added = Value(Dispatch(session, "box.addEncounter", Args(0)))!;
 
-        var pokemon = Value(Dispatcher.Dispatch(session, "pokemon.get", $"[{added["at"]!.ToJsonString()}]"))!;
+        var pokemon = Value(Dispatch(session, "pokemon.get", $"[{added["at"]!.ToJsonString()}]"))!;
         pokemon["species"]!.GetValue<string>().Should().Be("Zubat");
     }
 
@@ -139,7 +139,7 @@ public class EncounterHandlerTests
         var session = Loaded(SaveFilePath.Emerald);
         Search(session, Species.Abra);
 
-        Value(Dispatcher.Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.HgSs)), "other.sav")));
+        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.HgSs)), "other.sav")));
 
         AddEncounterFailsWith(session, 0, "not-found");
     }
@@ -162,14 +162,14 @@ public class EncounterHandlerTests
         AddEncounterFailsWith(new Session(), 0, "no-save");
 
     private static JsonArray Search(Session session, Species species) =>
-        Value(Dispatcher.Dispatch(session, "encounters.search", Args(session.Game!.GameVersionApproximation.Id, (int)species)))!.AsArray();
+        Value(Dispatch(session, "encounters.search", Args(session.Game!.GameVersionApproximation.Id, (int)species)))!.AsArray();
 
     private static void AddEncounterFailsWith(Session session, int index, string code)
     {
         var published = new List<IEngineEvent>();
         session.Published += published.Add;
 
-        Error(Dispatcher.Dispatch(session, "box.addEncounter", Args(index))).Should().Be(code);
+        Error(Dispatch(session, "box.addEncounter", Args(index))).Should().Be(code);
 
         published.Should().BeEmpty();
     }

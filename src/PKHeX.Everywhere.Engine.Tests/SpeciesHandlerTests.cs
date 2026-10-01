@@ -15,7 +15,7 @@ public class SpeciesHandlerTests
     {
         var session = Loaded(saveFile);
 
-        var species = Value(Dispatcher.Dispatch(session, "species.list", "[]"))!.AsArray();
+        var species = Value(Dispatch(session, "species.list", "[]"))!.AsArray();
 
         var expected = session.Game!.SpeciesRepository.AllGameSpecies
             .Where(SpeciesDefinition.IsSome)
@@ -30,7 +30,7 @@ public class SpeciesHandlerTests
     [InlineData(SaveFilePath.HgSs, 493)]
     public void ListLeavesOutNone(string saveFile, int count)
     {
-        var species = Value(Dispatcher.Dispatch(Loaded(saveFile), "species.list", "[]"))!.AsArray();
+        var species = Value(Dispatch(Loaded(saveFile), "species.list", "[]"))!.AsArray();
 
         species.Should().HaveCount(count);
         species.Select(s => s!["id"]!.GetValue<int>()).Should().NotContain(0);
@@ -39,5 +39,5 @@ public class SpeciesHandlerTests
 
     [Fact]
     public void ListReturnsNoSaveWithoutALoadedSave() =>
-        Error(Dispatcher.Dispatch(new Session(), "species.list", "[]")).Should().Be("no-save");
+        Error(Dispatch(new Session(), "species.list", "[]")).Should().Be("no-save");
 }

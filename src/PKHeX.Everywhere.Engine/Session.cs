@@ -86,9 +86,33 @@ public sealed class Session
             _written = null;
         }
 
-        Invalidate(reported.Distinct().ToArray());
-        foreach (var engineEvent in raised) Published?.Invoke(engineEvent);
+        Report(reported, raised);
         return result;
+    }
+
+    public async Task<T> RunCommandAsync<T>(string[] written, Func<Task<T>> command)
+    {
+        T result;
+        var raised = _raised = [];
+        var reported = _written = [.. written];
+        try
+        {
+            result = await command();
+        }
+        finally
+        {
+            _raised = null;
+            _written = null;
+        }
+
+        Report(reported, raised);
+        return result;
+    }
+
+    private void Report(List<string> written, List<IEngineEvent> raised)
+    {
+        Invalidate(written.Distinct().ToArray());
+        foreach (var engineEvent in raised) Published?.Invoke(engineEvent);
     }
 
     public Game RequireGame() =>

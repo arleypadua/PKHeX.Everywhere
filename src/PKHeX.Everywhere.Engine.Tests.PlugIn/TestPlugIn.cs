@@ -52,6 +52,21 @@ public class OpenHello : IQuickAction
     public Task<Outcome> OnActionRequested() => Outcome.OpenPage("hello").Completed();
 }
 
+public class Awaits : IQuickAction
+{
+    public static Task? Gate { get; set; }
+
+    public string Description => "Waits for the test to release it";
+    public string Label => "Awaits";
+    public IDisable.DisableInfo DisabledInfo => IDisable.Enabled;
+
+    public async Task<Outcome> OnActionRequested()
+    {
+        await Gate!;
+        return Outcome.Notify("Awaited");
+    }
+}
+
 public class Unavailable : IQuickAction
 {
     public string Description => "Is never available";

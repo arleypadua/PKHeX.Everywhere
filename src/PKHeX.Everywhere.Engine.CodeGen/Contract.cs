@@ -57,8 +57,8 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
                     .Where(p => !InjectedTypes.Contains(p.ParameterType.FullName))
                     .Select(p => new Parameter(p.Name!, p.ParameterType, nullability.Create(p)))
                     .ToList(),
-                m.Method.ReturnType,
-                nullability.Create(m.Method.ReturnParameter)))
+                Awaited(m.Method.ReturnType),
+                Awaited(nullability.Create(m.Method.ReturnParameter))))
             .OrderBy(c => c.Name, StringComparer.Ordinal)
             .ToList();
 
@@ -76,6 +76,14 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
 
         return new Contract(calls, Constants(engine, "ErrorCodes"), topics);
     }
+
+    private static Type Awaited(Type type) =>
+        type == typeof(Task) ? typeof(void) : IsTaskOfT(type) ? type.GenericTypeArguments[0] : type;
+
+    private static NullabilityInfo Awaited(NullabilityInfo info) =>
+        IsTaskOfT(info.Type) ? info.GenericTypeArguments[0] : info;
+
+    private static bool IsTaskOfT(Type type) => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>);
 
     private static bool ReadsSave(MethodInfo method) =>
         method.GetParameters().Any(p => InjectedTypes.Contains(p.ParameterType.FullName));

@@ -33,7 +33,7 @@ public class PlugInHookTests
     }
 
     private static void SetItem(Session session, ItemHandle at, int count) =>
-        Value(Dispatcher.Dispatch(session, "inventory.setItem", Args(at, count)));
+        Value(Dispatch(session, "inventory.setItem", Args(at, count)));
 
     [Fact]
     public void ItemChangedRunsEnabledItemHooksWithTheItemIdAndCount()
@@ -124,7 +124,7 @@ public class PlugInHookTests
         failure.HookId.Should().Be(FailOnItem);
         failure.Message.Should().Be($"Failed on item {at.ItemId}");
 
-        var listed = Value(Dispatcher.Dispatch(session, "plugins.failures", "[]"))!.AsArray().Should().ContainSingle().Subject!;
+        var listed = Value(Dispatch(session, "plugins.failures", "[]"))!.AsArray().Should().ContainSingle().Subject!;
         listed["plugInId"]!.GetValue<string>().Should().Be(TestPlugInId);
         listed["hookId"]!.GetValue<string>().Should().Be(FailOnItem);
         listed["message"]!.GetValue<string>().Should().Be($"Failed on item {at.ItemId}");

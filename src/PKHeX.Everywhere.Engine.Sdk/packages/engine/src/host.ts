@@ -1,5 +1,5 @@
 export interface EngineExports {
-  Call(name: string, args: string): string
+  Call(name: string, args: string): Promise<string>
 }
 
 export interface AssemblyExports {

@@ -3,17 +3,22 @@ using System.Text.Json;
 
 namespace PKHeX.Everywhere.Engine;
 
-public delegate bool Invoker(Session session, string call, JsonElement args, Utf8JsonWriter writer);
+public delegate ValueTask<bool> Invoker(Session session, string call, JsonElement args, Utf8JsonWriter writer);
 
 public static class Dispatcher
 {
-    public static string Dispatch(Session session, string call, string args) =>
+    public static Task<string> Dispatch(Session session, string call, string args) =>
         Dispatch(session, call, args, Invoke);
 
-    private static bool Invoke(Session session, string call, JsonElement args, Utf8JsonWriter writer) =>
-        HandlerRegistry.TryInvoke(session, call, args, writer) || session.Handlers.Any(h => h(session, call, args, writer));
+    private static async ValueTask<bool> Invoke(Session session, string call, JsonElement args, Utf8JsonWriter writer)
+    {
+        if (await HandlerRegistry.TryInvoke(session, call, args, writer)) return true;
+        foreach (var handlers in session.Handlers)
+            if (await handlers(session, call, args, writer)) return true;
+        return false;
+    }
 
-    internal static string Dispatch(Session session, string call, string args, Invoker invoke)
+    internal static async Task<string> Dispatch(Session session, string call, string args, Invoker invoke)
     {
         try
         {
@@ -21,7 +26,7 @@ public static class Dispatcher
             using (var argsDocument = ParseArgs(args))
             using (var writer = new Utf8JsonWriter(value))
             {
-                if (!invoke(session, call, argsDocument.RootElement, writer))
+                if (!await invoke(session, call, argsDocument.RootElement, writer))
                     throw new EngineException(ErrorCodes.UnknownCall, $"Unknown call '{call}'.");
             }
 

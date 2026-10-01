@@ -7,7 +7,7 @@ namespace PKHeX.Everywhere.Engine;
 public static partial class EngineExports
 {
     [JSExport]
-    public static string Call(string name, string args) => Dispatcher.Dispatch(Session.Current, name, args);
+    public static Task<string> Call(string name, string args) => Dispatcher.Dispatch(Session.Current, name, args);
 
     // Blazor.start() resolves before the renderer attaches, so the host signals readiness from its first render.
     // The flag covers JS that starts waiting after the signal, the callback covers JS that is already waiting.

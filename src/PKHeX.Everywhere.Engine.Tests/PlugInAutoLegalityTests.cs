@@ -57,7 +57,7 @@ public class PlugInAutoLegalityTests : IDisposable
     {
         var (session, _, _) = Hosted();
 
-        var actions = Value(Dispatcher.Dispatch(session, "plugins.actions", Call("pokemon", PokemonHandle.Party(0))))!.AsArray();
+        var actions = Value(Dispatch(session, "plugins.actions", Call("pokemon", PokemonHandle.Party(0))))!.AsArray();
 
         actions.Should().ContainSingle().Which.ToJsonString().Should().Be(new JsonObject
         {
@@ -76,7 +76,7 @@ public class PlugInAutoLegalityTests : IDisposable
         var (session, _, _) = Hosted();
         var (at, _) = IllegalPikachu(session);
 
-        var outcome = Value(Dispatcher.Dispatch(session, "plugins.run", Call(Legalize, at)))!;
+        var outcome = Value(Dispatch(session, "plugins.run", Call(Legalize, at)))!;
 
         var saved = session.Game!.SaveFile.GetPartySlotAtIndex(at.Slot);
         new LegalityAnalysis(saved).Valid.Should().BeTrue();
@@ -93,7 +93,7 @@ public class PlugInAutoLegalityTests : IDisposable
         APILegality.Timeout = 1;
         APILegality.ForceLevel100for50 = false;
 
-        Value(Dispatcher.Dispatch(session, "plugins.run", Call(Legalize, PokemonHandle.Party(0))));
+        Value(Dispatch(session, "plugins.run", Call(Legalize, PokemonHandle.Party(0))));
 
         APILegality.Timeout.Should().Be(7);
         APILegality.ForceLevel100for50.Should().BeTrue();
