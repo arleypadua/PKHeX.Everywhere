@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.4",
+    "@ant-design/plots": "^2.6.8",
     "@pkhex-everywhere/engine": "file:../PKHeX.Everywhere.Engine.Sdk/packages/engine",
     "@pkhex-everywhere/react": "file:../PKHeX.Everywhere.Engine.Sdk/packages/react",
     "antd": "^6.6.5",

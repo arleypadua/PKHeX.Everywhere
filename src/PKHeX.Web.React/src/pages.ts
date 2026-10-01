@@ -1,6 +1,7 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react'
 
 export const pages: Record<string, LazyExoticComponent<ComponentType<Record<string, unknown>>>> = {
+  analytics: lazy(() => import('./pages/analytics/AnalyticsPage')),
   box: lazy(() => import('./pages/box/BoxPage')),
   credits: lazy(() => import('./pages/static/CreditsPage')),
   encounters: lazy(() => import('./pages/encounters/EncountersPage')),
