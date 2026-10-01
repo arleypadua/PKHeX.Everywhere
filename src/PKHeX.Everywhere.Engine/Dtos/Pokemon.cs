@@ -1,8 +1,5 @@
 using PKHeX.Facade;
 using PKHeX.Facade.Pokemons;
-using Choice = PKHeX.Everywhere.Engine.Dtos.Choice;
-using PokemonOptions = PKHeX.Everywhere.Engine.Dtos.PokemonOptions;
-using PokemonPatch = PKHeX.Everywhere.Engine.Dtos.PokemonPatch;
 
 namespace PKHeX.Everywhere.Engine.Dtos;
 
@@ -113,7 +110,7 @@ public static class PokemonMapping
     public static EditablePokemon ToEditable(this PokemonDetails details) => new(
         details.Species,
         details.Form,
-        details.Gender == Gender.Male ? PokemonGender.Male : details.Gender == Gender.Female ? PokemonGender.Female : PokemonGender.Genderless,
+        details.Gender.ToDto(),
         details.Nature,
         details.Ability,
         details.HeldItem,
@@ -134,13 +131,7 @@ public static class PokemonMapping
     public static Facade.Pokemons.PokemonPatch ToFacade(this PokemonPatch patch) => new(
         patch.Species,
         patch.Form,
-        patch.Gender switch
-        {
-            PokemonGender.Male => Gender.Male,
-            PokemonGender.Female => Gender.Female,
-            PokemonGender.Genderless => Gender.Genderless,
-            _ => null,
-        },
+        patch.Gender?.ToGender(),
         patch.Nature,
         patch.Ability,
         patch.HeldItem,
@@ -152,6 +143,16 @@ public static class PokemonMapping
         patch.IsEgg,
         patch.Nickname,
         patch.Level);
+
+    public static PokemonGender ToDto(this Gender gender) =>
+        gender == Gender.Male ? PokemonGender.Male : gender == Gender.Female ? PokemonGender.Female : PokemonGender.Genderless;
+
+    public static Gender ToGender(this PokemonGender gender) => gender switch
+    {
+        PokemonGender.Male => Gender.Male,
+        PokemonGender.Female => Gender.Female,
+        _ => Gender.Genderless,
+    };
 
     public static PokemonOptions ToDto(this Facade.Pokemons.PokemonOptions options) => new(
         options.Species.ToChoices(),

@@ -150,7 +150,7 @@ public class PokemonDescriptionPatchTests
     public void AppliesAnAbilityTheSpeciesCantHaveAndReportsIt()
     {
         var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons[0];
-        var foreign = Enumerable.Range(1, 100).First(id => pokemon.Options().Abilities.All(a => a.Id != id));
+        var foreign = Enumerable.Range(1, 100).First(id => pokemon.Pkm.PersonalInfo.GetIndexOfAbility(id) < 0);
 
         pokemon.Update(new PokemonPatch(Ability: foreign));
 
@@ -194,7 +194,21 @@ public class PokemonDescriptionPatchTests
 
         options.Species.Should().Contain(new Choice(pokemon.Species.Id, pokemon.Species.Name));
         if (pokemon.Pkm.Format <= 2) options.Abilities.Should().BeEmpty();
-        else options.Abilities.Select(a => a.Id).Should().Contain(pokemon.Pkm.Ability);
+        else options.Abilities[0].Id.Should().Be(pokemon.Pkm.PersonalInfo.GetAbilityAtIndex(0));
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Emerald, false)]
+    [InlineData(SaveFilePath.HgSs, true)]
+    [InlineData(SaveFilePath.LetsGoPikachu, true)]
+    public void OffersEveryAbilityWhereTheSaveStoresAny(string saveFile, bool every)
+    {
+        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+
+        var abilities = pokemon.Options().Abilities;
+
+        if (every) abilities.Should().HaveCount(pokemon.Pkm.MaxAbilityID);
+        else abilities.Should().AllSatisfy(a => pokemon.Pkm.PersonalInfo.GetIndexOfAbility(a.Id).Should().BeGreaterThanOrEqualTo(0));
     }
 
     [Fact]

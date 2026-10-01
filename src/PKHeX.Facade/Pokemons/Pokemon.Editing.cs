@@ -177,9 +177,12 @@ public partial class Pokemon
         if (Pkm.MaxAbilityID <= 0) return [];
 
         var personal = Pkm.PersonalInfo;
+        // Gen 3 stores only which of the species' abilities is active; later games store any ability.
+        IEnumerable<int> others = Pkm.Format >= 4 ? Enumerable.Range(1, Pkm.MaxAbilityID).OrderBy(id => AbilityRepository.Instance.Get(id).Name) : [];
         return Enumerable.Range(0, personal.AbilityCount)
             .Select(personal.GetAbilityAtIndex)
             .Append(Pkm.Ability)
+            .Concat(others)
             .Where(id => id > 0)
             .Distinct()
             .Select(id => new Choice(id, AbilityRepository.Instance.Get(id).Name))
