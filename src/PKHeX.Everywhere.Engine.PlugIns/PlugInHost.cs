@@ -35,7 +35,17 @@ public sealed class PlugInHost
         ? host
         : throw new EngineException(ErrorCodes.Unexpected, "No plug-in host is attached to the session.");
 
+    public static IReadOnlySet<int> SupportedSdks { get; } = new HashSet<int> { (int)PlugInSdk.V1, (int)PlugInSdk.V2 };
+
     public static PlugInSdk DetectSdk(byte[] assembly) => PlugInSdkDetector.Detect(assembly);
+
+    public static PublishedVersion? NewestCompatible(IEnumerable<PublishedVersion> versions) => versions
+        .Where(v => SupportedSdks.Contains(v.Sdk))
+        .Where(v => Version.TryParse(v.Version, out _))
+        .MaxBy(v => Version.Parse(v.Version));
+
+    public static PublishedVersion? SdkUpdateFor(byte[] installed, IEnumerable<PublishedVersion> versions) =>
+        NewestCompatible(versions) is { } newest && newest.Sdk > (int)DetectSdk(installed) ? newest : null;
 
     public RegisteredPlugIn Register(byte[] assembly, StoredPlugIn? stored = null)
     {

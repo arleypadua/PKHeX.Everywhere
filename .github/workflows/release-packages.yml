@@ -262,3 +262,12 @@ jobs:
           dotnet build src/PKHeX.Web.Plugins -c Release --no-restore
           dotnet pack src/PKHeX.Web.Plugins/PKHeX.Web.Plugins.csproj -p:Version=$version -c Release --no-build -o src/PKHeX.Web.Plugins/
           dotnet nuget push src/PKHeX.Web.Plugins/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Build and pack PKHeX.Everywhere.PlugIns
+        run: |
+          version=${{ steps.fetch_parse_metadata.outputs.version }}
+          
+          dotnet restore src/PKHeX.Everywhere.PlugIns
+          dotnet build src/PKHeX.Everywhere.PlugIns -c Release --no-restore
+          dotnet pack src/PKHeX.Everywhere.PlugIns/PKHeX.Everywhere.PlugIns.csproj -p:Version=$version -c Release --no-build -o src/PKHeX.Everywhere.PlugIns/
+          dotnet nuget push src/PKHeX.Everywhere.PlugIns/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate

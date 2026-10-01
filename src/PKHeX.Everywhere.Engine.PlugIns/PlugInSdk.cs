@@ -5,9 +5,9 @@ namespace PKHeX.Everywhere.Engine.PlugIns;
 
 public enum PlugInSdk
 {
-    None,
-    V1,
-    V2,
+    None = 0,
+    V1 = 1,
+    V2 = 2,
 }
 
 internal static class PlugInSdkDetector

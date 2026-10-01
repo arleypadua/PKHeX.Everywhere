@@ -65,7 +65,7 @@
                     Href="@context.PlugIn.ProjectUrl"/>
             </PropertyColumn>
             <PropertyColumn Title="Description" Property="@(c => c.PlugIn.Description)"/>
-            <PropertyColumn Title="Version" Property="@(c => c.PlugIn.PublishedVersions.LastOrDefault())" Sortable Filterable/>
+            <PropertyColumn Title="Version" Property="@(c => c.PlugIn.NewestCompatibleVersion!.Version)" Sortable Filterable/>
             <PropertyColumn Title="Source" Property="@(c => c.Source.Name)" Sortable Filterable/>
             <ActionColumn Title="Actions">
                 <Space Size=@("middle")>
@@ -150,7 +150,7 @@
             .SelectMany(
                 p => p.PlugIns,
                 (source, plugin) => new PlugInAndSource { Source = source, PlugIn = plugin })
-            .Where(p => !Registry.IsRegistered(p.PlugIn.Id))
+            .Where(p => !Registry.IsRegistered(p.PlugIn.Id) && p.PlugIn.NewestCompatibleVersion is not null)
             .ToList();
     }
 

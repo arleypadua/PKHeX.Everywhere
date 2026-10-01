@@ -1,5 +1,5 @@
-using System.Reflection;
 using AntDesign;
+using PKHeX.Everywhere.Engine.PlugIns;
 
 namespace PKHeX.Web.Services.Plugins;
 
@@ -9,6 +9,7 @@ public class PlugInLocalStorageLoader(
     PlugInSourceService sourceService,
     PlugInSourceLocalStorage plugInSourceLocalStorage,
     PlugInLocalStorage plugInLocalStorage,
+    PlugInService plugInService,
     INotificationService notification,
     ILogger<PlugInLocalStorageLoader> logger)
 {
@@ -26,6 +27,7 @@ public class PlugInLocalStorageLoader(
     private async Task CheckNewVersions()
     {
         await UpdatePlugInSources();
+        await UpdateToNewerSdks();
         await CheckPlugInVersions();
     }
 
@@ -51,6 +53,30 @@ public class PlugInLocalStorageLoader(
         catch (Exception e)
         {
             logger.LogError(e, "Failed to check updates");   
+        }
+    }
+
+    private async Task UpdateToNewerSdks()
+    {
+        var sources = plugInSourceLocalStorage.GetSources().ToDictionary(s => s.SourceUrl);
+        foreach (var installed in registry.GetAllPlugins().ToList())
+        {
+            try
+            {
+                if (!sources.TryGetValue(installed.SourceId, out var source)) continue;
+                var sourcePlugIn = source.PlugIns.FirstOrDefault(p => p.Id == installed.Id);
+                if (sourcePlugIn is null) continue;
+
+                var update = PlugInHost.SdkUpdateFor(installed.AssemblyRawBytes, sourcePlugIn.PublishedVersions);
+                if (update is null) continue;
+
+                logger.LogInformation("Updating plug-in {id} to {version} for SDK {sdk}", installed.Id, update.Version, update.Sdk);
+                await plugInService.UpdateKeepingSettings(installed, source.GetDownloadUrl(sourcePlugIn, update));
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Failed to update plug-in {id} to a newer SDK", installed.Id);
+            }
         }
     }
 
@@ -100,16 +126,17 @@ public class PlugInLocalStorageLoader(
                         continue;
                     }
 
-                    var latestVersionString = plugInManifest.PublishedVersions.LastOrDefault();
-                    var validVersion = Version.TryParse(latestVersionString, out var latestVersion);
-                    if (latestVersionString is null || !validVersion || latestVersion is null)
+                    var latestVersionString = plugInManifest.NewestCompatibleVersion?.Version;
+                    if (latestVersionString is null)
                     {
                         logger.LogWarning(
-                            $"Plug-in {installedPlugIn.Id} at source '{sourceKey}' has no versions published or the version format is invalid {latestVersionString}. " +
+                            $"Plug-in {installedPlugIn.Id} at source '{sourceKey}' has no valid version this app can run. " +
                             "Skipping update check.");
 
                         continue;
                     }
+
+                    var latestVersion = Version.Parse(latestVersionString);
 
                     var newVersionFound = latestVersion > installedPlugIn.Version;
                     newVersionsFound = newVersionsFound || newVersionFound;
