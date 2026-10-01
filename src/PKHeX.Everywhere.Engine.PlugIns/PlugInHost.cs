@@ -39,6 +39,8 @@ public sealed class PlugInHost
 
     public static PlugInSdk DetectSdk(byte[] assembly) => PlugInSdkDetector.Detect(assembly);
 
+    public static bool IsSupported(byte[] assembly) => SupportedSdks.Contains((int)DetectSdk(assembly));
+
     public static PublishedVersion? NewestCompatible(IEnumerable<PublishedVersion> versions) => versions
         .Where(v => SupportedSdks.Contains(v.Sdk))
         .Where(v => Version.TryParse(v.Version, out _))

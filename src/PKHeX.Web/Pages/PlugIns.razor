@@ -1,5 +1,6 @@
 @page "/plugins"
 @using PKHeX.Web.Services.Plugins
+@implements IDisposable
 @inject INotificationService Notification
 
 <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
@@ -164,8 +165,17 @@
 
     protected override Task OnInitializedAsync()
     {
+        Registry.OnPlugInChanged += HandlePlugInChanged;
         return RefreshAvailablePlugIns();
     }
+
+    private void HandlePlugInChanged(string plugInId, PlugInRegistry.ChangeType type) => InvokeAsync(async () =>
+    {
+        await RefreshAvailablePlugIns();
+        StateHasChanged();
+    });
+
+    public void Dispose() => Registry.OnPlugInChanged -= HandlePlugInChanged;
 
     private async Task RefreshAvailablePlugIns()
     {

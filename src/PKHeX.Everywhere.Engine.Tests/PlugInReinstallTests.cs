@@ -27,6 +27,8 @@ public class PlugInReinstallTests
     public void TheHostSupportsSdk2Only()
     {
         PlugInHost.SupportedSdks.Should().BeEquivalentTo([2]);
+        PlugInHost.IsSupported(V2PlugIn).Should().BeTrue();
+        PlugInHost.IsSupported(V1PlugIn).Should().BeFalse();
     }
 
     [Fact]

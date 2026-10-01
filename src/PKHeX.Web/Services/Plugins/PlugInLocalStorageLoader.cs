@@ -69,7 +69,7 @@ public class PlugInLocalStorageLoader(
                 version => httpClient.GetByteArrayAsync(source.GetDownloadUrl(sourcePlugIn, version)));
             if (update is null)
             {
-                logger.LogWarning("Plug-in {id} has no version this app can run and needs reinstall", incompatible.Id);
+                logger.LogWarning("Plug-in {id} couldn't update to a version this app can run and needs reinstall", incompatible.Id);
                 continue;
             }
 

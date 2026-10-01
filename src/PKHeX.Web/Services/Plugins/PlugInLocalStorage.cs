@@ -92,7 +92,7 @@ public class PlugInLocalStorage(
                 {
                     logger.LogInformation("Loading plugin {k}", r!.Id);
                     var stored = new StoredPlugIn(r.Enabled, r.FeatureToggles, await ReadSettings(r));
-                    if (PlugInHost.DetectSdk(r.AssemblyBytes) != PlugInSdk.V2)
+                    if (!PlugInHost.IsSupported(r.AssemblyBytes))
                     {
                         logger.LogWarning("Plug-in {k} was built for an SDK this app can't run", r.Id);
                         return (object)new IncompatiblePlugIn(r.Id, r.PlugInSourceId, r.AssemblyBytes, stored);
