@@ -13,6 +13,7 @@ export const queryTopics: Record<QueryName, readonly Topic[]> = {
   'encounters.versions': ['game'],
   'events.flag': ['events'],
   'events.get': ['events', 'inventory'],
+  'game.blankVersions': [],
   'game.get': ['game'],
   'inventory.get': ['inventory'],
   'party.get': ['party'],

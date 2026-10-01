@@ -24,11 +24,14 @@ public class CommandTopicTests
         ["events.giveTickets"] = (game, _) => game.Events?.Gen3 is null ? [] : [Args(true)],
         ["events.setFlag"] = (game, _) => Flags(game).Select(f => Args(f.Index, !f.Value)),
         ["events.setWork"] = (game, _) => game.Events?.Work.LastOrDefault() is { } work ? [Args(work.Index, work.Value == 7 ? 8 : 7)] : [],
+        ["game.blankVersions"] = (_, _) => ["[]"],
+        ["game.export"] = (_, _) => ["[]"],
         ["game.get"] = (_, _) => ["[]"],
         ["game.load"] = (_, saveFile) =>
         [
             Args(Convert.ToBase64String(File.ReadAllBytes(saveFile == SaveFilePath.HgSs ? SaveFilePath.Emerald : SaveFilePath.HgSs)), "other.sav"),
         ],
+        ["game.loadBlank"] = (game, _) => [Args((int)(game.SaveVersion.Version == GameVersion.SW ? GameVersion.SH : GameVersion.SW))],
         ["game.close"] = (_, _) => ["[]"],
         ["inventory.get"] = (_, _) => ["[]"],
         ["inventory.setItem"] = (game, _) => SetItems(game),

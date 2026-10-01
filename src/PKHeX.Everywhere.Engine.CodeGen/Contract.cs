@@ -37,11 +37,17 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
     {
         var nullability = new NullabilityInfoContext();
 
-        var calls = handlerAssemblies.Prepend(engine)
+        var declared = handlerAssemblies.Prepend(engine)
             .SelectMany(a => a.GetTypes())
             .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
             .Select(m => (Method: m, Attribute: m.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName is $"{Namespace}.QueryAttribute" or $"{Namespace}.CommandAttribute")))
             .Where(m => m.Attribute is not null)
+            .ToList();
+
+        if (declared.FirstOrDefault(m => m.Attribute!.AttributeType.Name == "QueryAttribute" && DeclaredTopics(m.Attribute).Count == 0 && ReadsSave(m.Method)).Attribute is { } query)
+            throw new InvalidOperationException($"Query '{query.ConstructorArguments[0].Value}' reads the save, so it must declare the topics it reads.");
+
+        var calls = declared
             .Select(m => new Call(
                 (string)m.Attribute!.ConstructorArguments[0].Value!,
                 m.Attribute.AttributeType.Name == "QueryAttribute" ? CallKind.Query : CallKind.Command,
@@ -64,16 +70,15 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
         {
             if (!call.Name.Contains('.'))
                 throw new InvalidOperationException($"Call '{call.Name}' must be named 'entity.verb'.");
-            if (call.Kind == CallKind.Query && call.Topics.Count == 0)
-                throw new InvalidOperationException($"Query '{call.Name}' must declare the topics it reads.");
-            if (call.Kind == CallKind.Command && call.Topics.Count == 0 && !call.Parameters.Any(p => p.IsHandle))
-                throw new InvalidOperationException($"Command '{call.Name}' must take a handle or declare the topics it writes.");
             if (call.Topics.FirstOrDefault(t => !topics.Contains(t)) is { } unknown)
                 throw new InvalidOperationException($"Call '{call.Name}' uses '{unknown}', which is not declared in Topics.");
         }
 
         return new Contract(calls, Constants(engine, "ErrorCodes"), topics);
     }
+
+    private static bool ReadsSave(MethodInfo method) =>
+        method.GetParameters().Any(p => InjectedTypes.Contains(p.ParameterType.FullName));
 
     private static List<string> Constants(Assembly engine, string type) => engine.GetType($"{Namespace}.{type}", throwOnError: true)!
         .GetFields(BindingFlags.Public | BindingFlags.Static)

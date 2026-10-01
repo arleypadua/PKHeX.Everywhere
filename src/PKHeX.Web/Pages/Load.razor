@@ -1,6 +1,6 @@
 @page "/load"
-@using PKHeX.Web.Services.Plugins
 @layout EmptyLayout
+@implements IDisposable
 @inject NavigationManager Navigation
 @inject GameService GameService
 @inject HttpClient HttpClient
@@ -18,7 +18,7 @@
                     justify-content: center; 
                     gap: 20px">
             Open a save file
-            <LoadGameComponent />
+            <ReactPage Name="load" RequiresSave="false" />
         </div>
     </Content>
     <PkHexFooter />
@@ -27,6 +27,7 @@
 @code {
     protected override void OnInitialized()
     {
+        GameService.OnGameLoaded += HandleGameLoaded;
         ToHomeIfLoaded();
     }
 
@@ -49,7 +50,7 @@
     }
 #endif
 
-    protected override void OnAfterRender(bool firstRender) => ToHomeIfLoaded();
+    private void HandleGameLoaded(object? sender, EventArgs e) => ToHomeIfLoaded();
 
     private void ToHomeIfLoaded()
     {
@@ -59,4 +60,5 @@
         }
     }
 
+    public void Dispose() => GameService.OnGameLoaded -= HandleGameLoaded;
 }

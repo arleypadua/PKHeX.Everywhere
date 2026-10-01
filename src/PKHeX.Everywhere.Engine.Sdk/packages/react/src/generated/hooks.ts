@@ -38,7 +38,9 @@ export function useLoadedGame() {
   const commands = useMemo(
     () => ({
       close: () => engine.game.close(),
+      export: () => engine.game.export(),
       load: (data: Base64, fileName: string) => engine.game.load(data, fileName),
+      loadBlank: (version: number) => engine.game.loadBlank(version),
     }),
     [engine],
   )

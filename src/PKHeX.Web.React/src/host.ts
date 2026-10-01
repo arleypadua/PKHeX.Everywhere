@@ -12,6 +12,7 @@ export interface DotNetHost {
   invokeMethodAsync(method: 'NotifySuccess', title: string): Promise<void>
   invokeMethodAsync(method: 'SetTheme', theme: Theme): Promise<void>
   invokeMethodAsync(method: 'SetCalculatorUrl', url: string): Promise<string>
+  invokeMethodAsync(method: 'GoHome'): Promise<void>
 }
 
 export interface Calculator {
@@ -90,6 +91,10 @@ export function useNavigate(): (url: string, options?: { replace?: boolean }) =>
   )
 }
 
+export function goHome() {
+  void dotNetHost?.invokeMethodAsync('GoHome').catch(console.error)
+}
+
 // The notification outlives the React root, which unmounts when the host navigates to a Blazor page.
 export async function notifySuccessInHost(title: string) {
   await dotNetHost?.invokeMethodAsync('NotifySuccess', title)
@@ -101,6 +106,15 @@ export function openCalculator(showdown: string) {
 
 function calculatorImportUrl(baseUrl: string, showdown: string) {
   return `${baseUrl}/?import=${toBase64(new TextEncoder().encode(showdown))}`
+}
+
+export function downloadFile(bytes: Uint8Array<ArrayBuffer>, fileName: string) {
+  const url = URL.createObjectURL(new Blob([bytes], { type: 'application/octet-stream' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  link.click()
+  setTimeout(() => URL.revokeObjectURL(url))
 }
 
 export function showCookiePreferences() {

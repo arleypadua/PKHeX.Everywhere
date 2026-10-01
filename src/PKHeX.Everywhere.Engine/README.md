@@ -13,13 +13,13 @@ When the save changes, `Session` raises `Changed` with the changed Topics, and J
 ## Adding a query
 
 1. Add a DTO record under `Dtos/`, with a mapping from the Facade type. Only types in the `PKHeX.Everywhere.Engine` namespaces can cross the boundary.
-2. Add a static method with `[Query("entity.name", Topics.Entity)]` to `Handlers/<Entity>Handlers.cs`, listing the Topics it reads. A `Game` parameter receives the loaded save (or fails with `no-save`). Other parameters come from the JSON arguments.
+2. Add a static method with `[Query("entity.name", Topics.Entity)]` to `Handlers/<Entity>Handlers.cs`, listing the Topics it reads. A query that doesn't read the save lists none, and clients never refetch it. A `Game` parameter receives the loaded save (or fails with `no-save`). Other parameters come from the JSON arguments.
 3. Build the solution. The source generator (`PKHeX.Everywhere.Engine.Generators`) adds the call to the dispatcher and writes its JSON code. Building `PKHeX.Everywhere.Engine.CodeGen` then updates the TypeScript in `PKHeX.Everywhere.Engine.Sdk/packages/engine/src/generated`.
 4. Commit the generated TypeScript. CI fails if it is out of date.
 
 ## Adding a command
 
-1. Add a static method with `[Command("entity.verb")]` to `Handlers/<Entity>Handlers.cs`. A command writes the Topic of each `IHandle` argument it takes, such as the Pokémon at `at` (unless the argument is null), plus any Topics listed on the attribute. When the save decides the Topics, such as a Let's Go party member that also sits in a box, pass them to `session.AlsoWrote`. Return a value only when the command creates something.
+1. Add a static method with `[Command("entity.verb")]` to `Handlers/<Entity>Handlers.cs`. A command writes the Topic of each `IHandle` argument it takes, such as the Pokémon at `at` (unless the argument is null), plus any Topics listed on the attribute. A command that changes nothing in the save, such as `game.export`, lists none. When the save decides the Topics, such as a Let's Go party member that also sits in a box, pass them to `session.AlsoWrote`. Return a value only when the command creates something.
 2. Throw `EngineException` with a code from `ErrorCodes.cs` for expected failures. JS receives it as a rejected `EngineError`.
 3. Build and commit the generated TypeScript, as for queries.
 4. Add sample arguments for the call to `CommandTopicTests`. That test runs every command against the test saves and fails when a query's result changes outside the Topics the command reported.
