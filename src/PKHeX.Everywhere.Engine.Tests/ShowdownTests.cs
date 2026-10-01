@@ -50,11 +50,4 @@ public class ShowdownTests
     [Fact]
     public void PartyShowdownReturnsNoSaveWithoutALoadedSave() =>
         Error(Dispatcher.Dispatch(new Session(), "party.showdown", "[]")).Should().Be("no-save");
-
-    private static Session Loaded(string saveFile)
-    {
-        var session = new Session();
-        session.Load(Game.LoadFrom(saveFile), saveFile);
-        return session;
-    }
 }

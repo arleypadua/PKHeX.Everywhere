@@ -46,7 +46,7 @@ export function openCalculator(showdown: string) {
   window.open(calculatorImportUrl(calculatorUrl, showdown), '_blank')
 }
 
-export function calculatorImportUrl(baseUrl: string, showdown: string) {
+function calculatorImportUrl(baseUrl: string, showdown: string) {
   let binary = ''
   for (const byte of new TextEncoder().encode(showdown)) binary += String.fromCharCode(byte)
   return `${baseUrl}/?import=${btoa(binary)}`
