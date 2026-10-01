@@ -1,15 +1,39 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Everywhere.PlugIns;
 using PKHeX.Facade;
+using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Everywhere.Engine.PlugIns;
 
-public sealed class PlugInHost(Session session)
+public sealed class PlugInHost
 {
+    private const int MaxFailures = 20;
+    private static readonly ConditionalWeakTable<Session, PlugInHost> Hosts = new();
+
+    private readonly Session _session;
     private readonly Dictionary<string, RegisteredPlugIn> _plugIns = new();
-    private readonly IGameProvider _game = new SessionGameProvider(session);
+    private readonly List<PlugInFailure> _failures = [];
+    private readonly IGameProvider _game;
+    private readonly AsyncLocal<bool> _runningHook = new();
+
+    public PlugInHost(Session session)
+    {
+        _session = session;
+        _game = new SessionGameProvider(session);
+        Hosts.AddOrUpdate(session, this);
+        session.AddHandlers(HandlerRegistry.TryInvoke);
+        session.Published += HandlePublished;
+    }
 
     public event Action<PlugInRan>? Ran;
+
+    public IReadOnlyList<PlugInFailure> Failures => _failures.ToList();
+
+    internal static PlugInHost Of(Session session) => Hosts.TryGetValue(session, out var host)
+        ? host
+        : throw new EngineException(ErrorCodes.Unexpected, "No plug-in host is attached to the session.");
 
     public static PlugInSdk DetectSdk(byte[] assembly) => PlugInSdkDetector.Detect(assembly);
 
@@ -42,27 +66,71 @@ public sealed class PlugInHost(Session session)
 
     public void UpdateSetting(string id, string key, Settings.SettingValue value) => Get(id).Settings[key] = value;
 
-    public async Task RunAll<THook>(Func<THook, Task<Outcome>> run) where THook : IPluginHook
+    public void Dismiss(PlugInFailure failure)
+    {
+        if (_failures.Remove(failure)) _session.Invalidate(Topics.All);
+    }
+
+    public Task Handle(IEngineEvent engineEvent) => engineEvent switch
+    {
+        ItemChanged changed => RunAll<IRunOnItemChanged>(h => h.OnItemChanged(new((ushort)changed.ItemId, (uint)changed.Count))),
+        PokemonChanged changed => RunOnPokemonAt<IRunOnPokemonChange>(changed.At, (h, p) => h.OnPokemonChange(p)),
+        PokemonSaved saved => RunOnPokemonAt<IRunOnPokemonSave>(saved.At, (h, p) => h.OnPokemonSaved(p)),
+        _ => Task.CompletedTask,
+    };
+
+    public Task PokemonChanged(Pokemon pokemon) => RunAll<IRunOnPokemonChange>(h => h.OnPokemonChange(pokemon));
+
+    public Task PokemonSaved(Pokemon pokemon) => RunAll<IRunOnPokemonSave>(h => h.OnPokemonSaved(pokemon));
+
+    public Task RunAll<THook>(Func<THook, Task<Outcome>> run) where THook : IPluginHook => Run(run);
+
+    private async Task Run<THook>(Func<THook, Task<Outcome>> run, Action? afterHooks = null) where THook : IPluginHook
     {
         var hooks = _plugIns.Values
             .Where(p => p.Enabled)
             .SelectMany(p => p.EnabledHooksOf<THook>(), (p, h) => (PlugInId: p.Id, HookId: h.Id, h.Hook))
             .ToList();
 
+        _runningHook.Value = true;
         foreach (var (plugInId, hookId, hook) in hooks)
         {
+            PlugInRan ran;
             try
             {
-                var outcome = await run(hook);
-                Ran?.Invoke(new PlugInRan(plugInId, hookId, outcome, null));
+                ran = new PlugInRan(plugInId, hookId, await run(hook), null);
             }
             catch (Exception e)
             {
-                Ran?.Invoke(new PlugInRan(plugInId, hookId, null, e));
+                Record(new PlugInFailure(plugInId, hookId, e.Message, e.StackTrace));
+                ran = new PlugInRan(plugInId, hookId, null, e);
             }
+
+            Ran?.Invoke(ran);
         }
 
-        if (hooks.Count > 0) session.Invalidate(Topics.All);
+        if (hooks.Count == 0) return;
+
+        afterHooks?.Invoke();
+        _session.Invalidate(Topics.All);
+    }
+
+    // Events raised while a hook runs come from the hook's own writes, so running hooks for them could loop.
+    private void HandlePublished(IEngineEvent engineEvent)
+    {
+        if (!_runningHook.Value) _ = Handle(engineEvent);
+    }
+
+    private async Task RunOnPokemonAt<THook>(PokemonHandle at, Func<THook, Pokemon, Task<Outcome>> run) where THook : IPluginHook
+    {
+        var slot = _session.RequireGame().Find(at);
+        await Run<THook>(h => run(h, slot.Pokemon), slot.Save);
+    }
+
+    private void Record(PlugInFailure failure)
+    {
+        if (_failures.Count == MaxFailures) _failures.RemoveAt(0);
+        _failures.Add(failure);
     }
 
     private RegisteredPlugIn Get(string id) =>
@@ -102,3 +170,5 @@ public sealed record StoredPlugIn(
     IReadOnlyDictionary<string, Settings.SettingValue> Settings);
 
 public sealed record PlugInRan(string PlugInId, string HookId, Outcome? Outcome, Exception? Failure);
+
+public sealed record PlugInFailure(string PlugInId, string HookId, string Message, string? StackTrace);

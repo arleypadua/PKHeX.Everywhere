@@ -48,6 +48,7 @@
 
 @code {
     [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
+    [Inject] public required PKHeX.Everywhere.Engine.PlugIns.PlugInHost PlugInHost { get; set; }
     [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
     [Inject] public required GameService GameService { get; set; }
     [Inject] public required JsService Js { get; set; }
@@ -91,6 +92,7 @@
         OriginalPokemon.Game.Trainer.AddOrUpdate(OriginalPokemon.UniqueId, _editingPokemon, PokemonSource);
 
         await PlugInRuntime.RunAll<IRunOnPokemonSave>(h => h.OnPokemonSaved(_editingPokemon));
+        await PlugInHost.PokemonSaved(_editingPokemon);
 
         // some changes might change the id of the Pokémon
         if (idChanged)

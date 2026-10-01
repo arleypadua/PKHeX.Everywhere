@@ -38,6 +38,11 @@ public class PlugInHostTests
             new PlugInHook(Greet, "Greets the trainer", true),
             new PlugInHook(Fail, "Always fails", true),
             new PlugInHook(OpenHello, "Opens the hello page", false),
+            new PlugInHook($"{TestPlugInId}.EchoItem", "Echoes the changed item", true),
+            new PlugInHook($"{TestPlugInId}.FailOnItem", "Fails on every item change", true),
+            new PlugInHook($"{TestPlugInId}.WriteOnItem", "Writes the save on every item change", false),
+            new PlugInHook($"{TestPlugInId}.RenameOnChange", "Renames a changed Pokémon", true),
+            new PlugInHook($"{TestPlugInId}.RenameOnSave", "Renames a saved Pokémon", true),
         ]);
     }
 
@@ -60,7 +65,7 @@ public class PlugInHostTests
         plugIn.Settings.GetString("Greeting").Should().Be("Hi");
         plugIn.Settings.GetString("Locked").Should().Be("fixed");
         plugIn.Settings.ContainsKey("Removed").Should().BeFalse();
-        plugIn.Hooks.Select(h => (h.Id, h.Enabled)).Should().BeEquivalentTo([
+        plugIn.Hooks.Where(h => h.Id is Greet or Fail or OpenHello).Select(h => (h.Id, h.Enabled)).Should().BeEquivalentTo([
             (Greet, false),
             (Fail, true),
             (OpenHello, true),

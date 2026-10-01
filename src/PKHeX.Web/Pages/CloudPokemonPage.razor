@@ -53,6 +53,7 @@
 
 @code {
     [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
+    [Inject] public required PKHeX.Everywhere.Engine.PlugIns.PlugInHost PlugInHost { get; set; }
     [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
     [Inject] public required JsService Js { get; set; }
     [Inject] public required AnalyticsService Analytics { get; set; }
@@ -105,6 +106,7 @@
     {
         if (_originalPokemon is null || _editingPokemon is null) return;
         await PlugInRuntime.RunAll<IRunOnPokemonSave>(h => h.OnPokemonSaved(_editingPokemon));
+        await PlugInHost.PokemonSaved(_editingPokemon);
 
         TrackSaved(_editingPokemon);
 

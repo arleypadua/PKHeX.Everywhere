@@ -1,4 +1,5 @@
 using PKHeX.Everywhere.PlugIns;
+using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Everywhere.Engine.Tests.PlugIn;
 
@@ -14,6 +15,10 @@ public class TestSettings : Settings
 
         EnabledByDefault<Greet>();
         EnabledByDefault<Fail>();
+        EnabledByDefault<EchoItem>();
+        EnabledByDefault<FailOnItem>();
+        EnabledByDefault<RenameOnChange>();
+        EnabledByDefault<RenameOnSave>();
 
         DeclarePage(new PlugInPage("hello", "hello.js", PageLayout.Standard, "Hello"));
     }
@@ -45,4 +50,55 @@ public class OpenHello : IQuickAction
     public IDisable.DisableInfo DisabledInfo => IDisable.Enabled;
 
     public Task<Outcome> OnActionRequested() => Outcome.OpenPage("hello").Completed();
+}
+
+public class EchoItem : IRunOnItemChanged
+{
+    public string Description => "Echoes the changed item";
+
+    public Task<Outcome> OnItemChanged(IRunOnItemChanged.ItemChanged item) =>
+        Outcome.Notify($"{item.Id} x{item.Count}").Completed();
+}
+
+public class FailOnItem : IRunOnItemChanged
+{
+    public string Description => "Fails on every item change";
+
+    public Task<Outcome> OnItemChanged(IRunOnItemChanged.ItemChanged item) =>
+        throw new InvalidOperationException($"Failed on item {item.Id}");
+}
+
+public class WriteOnItem : IRunOnItemChanged
+{
+    public static Action? Write { get; set; }
+
+    public string Description => "Writes the save on every item change";
+
+    public Task<Outcome> OnItemChanged(IRunOnItemChanged.ItemChanged item)
+    {
+        Write?.Invoke();
+        return Outcome.Void.Completed();
+    }
+}
+
+public class RenameOnChange : IRunOnPokemonChange
+{
+    public string Description => "Renames a changed Pokémon";
+
+    public Task<Outcome> OnPokemonChange(Pokemon pokemon)
+    {
+        pokemon.ChangeNickname("Changed");
+        return Outcome.Void.Completed();
+    }
+}
+
+public class RenameOnSave : IRunOnPokemonSave
+{
+    public string Description => "Renames a saved Pokémon";
+
+    public Task<Outcome> OnPokemonSaved(Pokemon pokemon)
+    {
+        pokemon.ChangeNickname("Saved");
+        return Outcome.Void.Completed();
+    }
 }
