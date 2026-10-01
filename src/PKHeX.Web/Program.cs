@@ -70,7 +70,6 @@ builder.Services.AddScoped<UserJourneyService>();
 builder.Services.AddScoped<GeneralSettingsService>();
 builder.Services.AddScoped<AnalyticsService>();
 builder.Services.AddScoped<JsService>();
-builder.Services.AddScoped<GoogleCmpService>();
 builder.Services.AddScoped<AntdThemeService>();
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddScoped<BrowserWindowService.Instance>();
@@ -106,8 +105,6 @@ builder.Services.AddIndexedDB(store =>
 
     store.Stores.Add(PlugInFilesRepository.Schema);
 });
-
-builder.Services.ConfigureCookieConsent();
 
 #if !DEBUG
 builder.UseSentry(options =>
@@ -152,11 +149,6 @@ var app = builder.Build();
 // During startup we replace PKHeX unsupported cryptography APIs with a javascript-based alternative 
 RuntimeCryptographyProvider.Aes = app.Services.GetRequiredService<BlazorAesProvider>();
 RuntimeCryptographyProvider.Md5 = app.Services.GetRequiredService<BlazorMd5Provider>();
-
-if (!app.Services.GetRequiredService<GoogleCmpService>().IsEnabled)
-{
-    await app.ConfigureCookieConsentToggle();
-}
 
 #if DEBUG
 app.Services.GetRequiredService<IAnalytics>()

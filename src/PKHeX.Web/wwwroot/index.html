@@ -5,11 +5,6 @@
     <meta charset="utf-8"/>
     <script>
         (function () {
-            var flag = new URLSearchParams(location.search).get('google-cmp');
-            if (flag === 'on') localStorage.setItem('google-cmp', 'on');
-            if (flag === 'off') localStorage.removeItem('google-cmp');
-            if (localStorage.getItem('google-cmp') !== 'on') return;
-
             window.dataLayer = window.dataLayer || [];
             window.gtag = function () { dataLayer.push(arguments); };
             gtag('consent', 'default', {
@@ -67,11 +62,6 @@
     <link rel="stylesheet" href="css/antd-extensions.css"/>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
     <link href="PKHeX.Web.styles.css" rel="stylesheet"/>
-
-    <script type="text/plain"
-            data-consent-category="google"
-            async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9295410730226031"
-            crossorigin="anonymous"></script>
 
     <script>
         (function () {

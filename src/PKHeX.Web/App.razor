@@ -1,6 +1,5 @@
 ﻿@implements IDisposable
 @inject AntdThemeService ThemeService
-@inject GoogleCmpService GoogleCmp
 
 
 <ConfigProvider
@@ -19,33 +18,17 @@
             </LayoutView>
         </NotFound>
     </Router>
-
-    @if (!_googleCmpEnabled)
-    {
-        <BytexDigital.Blazor.Components.CookieConsent.CookieConsentHandler @rendermode="@RenderMode.InteractiveWebAssembly" />
-    }
 </ConfigProvider>
 <NavigationTracker/>
-
-<link rel="stylesheet" href="_content/BytexDigital.Blazor.Components.CookieConsent/styles.min.css" />
-<style>
-    .cc-isolation-container * {
-        --cc-color-accent: #177ddc;
-        --cc-color-accent-dark: #115696;
-        --cc-color-switch-active:#177ddc;
-    }
-</style>
 
 @code
 {
     private GlobalTheme _theme = GlobalTheme.Light;
     private ConfigProvider _configProvider = default!;
-    private bool _googleCmpEnabled;
 
     protected override void OnInitialized()
     {
         _theme = ThemeService.Theme;
-        _googleCmpEnabled = GoogleCmp.IsEnabled;
         AntdThemeService.ThemeChanged += HandleChangedTheme;
     }
 
