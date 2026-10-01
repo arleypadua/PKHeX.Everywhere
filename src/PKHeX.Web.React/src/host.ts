@@ -10,38 +10,76 @@ declare global {
 export interface DotNetNavigator {
   invokeMethodAsync(method: 'NavigateTo', url: string, replace: boolean): Promise<void>
   invokeMethodAsync(method: 'NotifySuccess', title: string): Promise<void>
+  invokeMethodAsync(method: 'SetTheme', theme: Theme): Promise<void>
+  invokeMethodAsync(method: 'SetCalculatorUrl', url: string): Promise<string>
+}
+
+export interface Calculator {
+  name: string
+  description: string
+  url: string
 }
 
 export interface HostBridge {
   navigator: DotNetNavigator
   theme: Theme
   calculatorUrl: string
+  calculators: Calculator[]
+}
+
+function createStore<T>(initial: T) {
+  let value = initial
+  const listeners = new Set<() => void>()
+  const subscribe = (listener: () => void) => {
+    listeners.add(listener)
+    return () => void listeners.delete(listener)
+  }
+  return {
+    get: () => value,
+    set(next: T) {
+      if (next === value) return
+      value = next
+      listeners.forEach((listener) => listener())
+    },
+    use: () => useSyncExternalStore(subscribe, () => value),
+  }
 }
 
 let dotNetNavigator: DotNetNavigator | undefined
-let theme: Theme = 'light'
-let calculatorUrl = ''
-const listeners = new Set<() => void>()
+let calculators: Calculator[] = []
+const themeStore = createStore<Theme>('light')
+const calculatorUrlStore = createStore('')
 
 export function connectHost(host: HostBridge) {
   dotNetNavigator = host.navigator
-  calculatorUrl = host.calculatorUrl
+  calculators = host.calculators
+  calculatorUrlStore.set(host.calculatorUrl)
   setTheme(host.theme)
 }
 
 export function setTheme(next: Theme) {
-  if (next === theme) return
-  theme = next
-  listeners.forEach((listener) => listener())
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener)
-  return () => void listeners.delete(listener)
+  themeStore.set(next)
 }
 
 export function useTheme(): Theme {
-  return useSyncExternalStore(subscribe, () => theme)
+  return themeStore.use()
+}
+
+export async function changeTheme(next: Theme) {
+  await dotNetNavigator?.invokeMethodAsync('SetTheme', next)
+}
+
+export function useCalculatorUrl(): string {
+  return calculatorUrlStore.use()
+}
+
+export function getCalculators(): Calculator[] {
+  return calculators
+}
+
+export async function changeCalculatorUrl(url: string) {
+  if (!dotNetNavigator) return
+  calculatorUrlStore.set(await dotNetNavigator.invokeMethodAsync('SetCalculatorUrl', url))
 }
 
 export function useNavigate(): (url: string, options?: { replace?: boolean }) => void {
@@ -58,7 +96,7 @@ export async function notifySuccessInHost(title: string) {
 }
 
 export function openCalculator(showdown: string) {
-  window.open(calculatorImportUrl(calculatorUrl, showdown), '_blank')
+  window.open(calculatorImportUrl(calculatorUrlStore.get(), showdown), '_blank')
 }
 
 function calculatorImportUrl(baseUrl: string, showdown: string) {

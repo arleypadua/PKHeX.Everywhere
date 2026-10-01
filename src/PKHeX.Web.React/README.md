@@ -11,4 +11,4 @@ Put anything another page could use in its own file: components under `src/compo
 
 Give every antd `Table` `scroll={{ x: 'max-content' }}`. AntBlazor's `Responsive` flag stacked rows into cards on narrow screens. antd for React has no such flag, so a table without `scroll` grows past the window on phones.
 
-Pages get host state from `src/host.ts`: navigation, the theme and the calculator URL from the user's general settings.
+Pages get host state from `src/host.ts`: navigation, the theme, and the calculator URL and presets from the user's general settings. `changeTheme` and `changeCalculatorUrl` write them back through the host.

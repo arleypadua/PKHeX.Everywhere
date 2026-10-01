@@ -34,7 +34,7 @@
         _module ??= await Js.InvokeAsync<IJSObjectReference>("import", "./Components/ReactPage.razor.js");
         if (_disposed) return;
         _self ??= DotNetObjectReference.Create(this);
-        await _module.InvokeVoidAsync("mount", _id, _element, Configuration["React:DevServerUrl"], Name, Props ?? [], _self, ThemeName(ThemeService.Theme), GeneralSettings.CalculatorUrlOrDefault);
+        await _module.InvokeVoidAsync("mount", _id, _element, Configuration["React:DevServerUrl"], Name, Props ?? [], _self, ThemeName(ThemeService.Theme), GeneralSettings.CalculatorUrlOrDefault, CalculatorRepository.Instance.GetAll());
     }
 
     [JSInvokable]
@@ -42,6 +42,16 @@
 
     [JSInvokable]
     public void NotifySuccess(string title) => _ = Notification.Open(new() { Message = title, NotificationType = NotificationType.Success });
+
+    [JSInvokable]
+    public Task SetTheme(string theme) => theme == "dark" ? ThemeService.SetDarkTheme() : ThemeService.SetLightTheme();
+
+    [JSInvokable]
+    public string SetCalculatorUrl(string? url)
+    {
+        GeneralSettings.CalculatorUrl = url;
+        return GeneralSettings.CalculatorUrlOrDefault;
+    }
 
     private static string ThemeName(GlobalTheme theme) => theme == GlobalTheme.Dark ? "dark" : "light";
 
