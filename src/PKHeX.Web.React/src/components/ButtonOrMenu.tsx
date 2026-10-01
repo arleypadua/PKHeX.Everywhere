@@ -31,8 +31,13 @@ export function ButtonOrMenu({ actions }: ButtonOrMenuProps) {
       <Dropdown
         trigger={['click']}
         menu={{
-          items: rest.map(({ key, label, icon, disabled }) => ({ key, label, icon, disabled })),
-          onClick: ({ key }) => rest.find((action) => action.key === key)?.onClick(),
+          items: rest.map(({ key, label, icon, disabled, onClick }) => ({
+            key,
+            label,
+            icon,
+            disabled,
+            onClick: () => void onClick(),
+          })),
         }}
       >
         <Button type={main.type} icon={<EllipsisOutlined />} aria-label="More actions" />
