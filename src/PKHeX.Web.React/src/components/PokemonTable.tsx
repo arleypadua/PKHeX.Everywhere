@@ -44,6 +44,7 @@ export function PokemonTable({ pokemon }: PokemonTableProps) {
       dataSource={pokemon}
       columns={columns}
       size="small"
+      scroll={{ x: 'max-content' }}
       pagination={{ hideOnSinglePage: true }}
     />
   )
