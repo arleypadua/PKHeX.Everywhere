@@ -8,7 +8,7 @@ public static class PageExtensions
     public static async Task BootAsync(this IPage page)
     {
         await page.GotoAsync("/");
-        await page.GetByRole(AriaRole.Button, new() { Name = "Open" }).WaitForAsync();
+        await page.GetByRole(AriaRole.Button, new() { Name = "Open", Exact = true }).WaitForAsync();
     }
 
     public static async Task UploadSaveAsync(this IPage page, string saveFile)
