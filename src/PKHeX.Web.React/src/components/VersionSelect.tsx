@@ -13,6 +13,7 @@ export function VersionSelect({ value, onChange }: VersionSelectProps) {
   return (
     <Select<number>
       value={value}
+      aria-label="Version"
       placeholder="Version"
       style={{ width: '100%' }}
       showSearch={{ optionFilterProp: 'label' }}

@@ -1,5 +1,6 @@
 using System.Reflection;
 using AwesomeAssertions;
+using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 using PKHeX.Facade.Tests.Base;
@@ -11,7 +12,9 @@ public class CommandTopicTests
 {
     private static readonly Dictionary<string, Func<Game, string, IEnumerable<string>>> SampleArgs = new()
     {
+        ["box.addEncounter"] = (_, _) => [Args(0)],
         ["box.addFromFile"] = (game, _) => [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes))],
+        ["encounters.search"] = (game, _) => [Args(game.GameVersionApproximation.Id, (int)Species.Abra)],
         ["encounters.versions"] = (_, _) => ["[]"],
         ["game.get"] = (_, _) => ["[]"],
         ["game.load"] = (_, saveFile) =>

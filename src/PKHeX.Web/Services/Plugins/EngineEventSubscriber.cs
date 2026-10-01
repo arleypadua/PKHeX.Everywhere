@@ -28,7 +28,13 @@ public sealed class EngineEventSubscriber : IDisposable
         if (_session.Game is not { } game || added.At.Box is not { } box) return;
 
         var pokemon = game.Trainer.PokemonBox.All[box * game.SaveFile.BoxSlotCount + added.At.Slot];
-        if (added.Source == PokemonAddSource.File) _analytics.TrackPokemon("pokemon_loaded_from_file", pokemon);
+        var eventName = added.Source switch
+        {
+            PokemonAddSource.File => "pokemon_loaded_from_file",
+            PokemonAddSource.Encounter => "pokemon_loaded_from_encounter",
+            _ => null,
+        };
+        if (eventName is not null) _analytics.TrackPokemon(eventName, pokemon);
     }
 
     private void HandlePublished(IEngineEvent engineEvent)

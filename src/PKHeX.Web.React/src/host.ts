@@ -3,7 +3,8 @@ import { useCallback, useSyncExternalStore } from 'react'
 export type Theme = 'light' | 'dark'
 
 export interface DotNetNavigator {
-  invokeMethodAsync(method: 'NavigateTo', url: string): Promise<void>
+  invokeMethodAsync(method: 'NavigateTo', url: string, replace: boolean): Promise<void>
+  invokeMethodAsync(method: 'NotifySuccess', title: string): Promise<void>
 }
 
 export interface HostBridge {
@@ -38,8 +39,17 @@ export function useTheme(): Theme {
   return useSyncExternalStore(subscribe, () => theme)
 }
 
-export function useNavigate(): (url: string) => void {
-  return useCallback((url: string) => void dotNetNavigator?.invokeMethodAsync('NavigateTo', url).catch(console.error), [])
+export function useNavigate(): (url: string, options?: { replace?: boolean }) => void {
+  return useCallback(
+    (url: string, { replace = false } = {}) =>
+      void dotNetNavigator?.invokeMethodAsync('NavigateTo', url, replace).catch(console.error),
+    [],
+  )
+}
+
+// The notification outlives the React root, which unmounts when the host navigates to a Blazor page.
+export async function notifySuccessInHost(title: string) {
+  await dotNetNavigator?.invokeMethodAsync('NotifySuccess', title)
 }
 
 export function openCalculator(showdown: string) {

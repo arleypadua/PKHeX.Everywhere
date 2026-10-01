@@ -12,6 +12,7 @@ public sealed record ItemChanged(int ItemId, int Count) : IEngineEvent;
 public enum PokemonAddSource
 {
     File,
+    Encounter,
 }
 
 public sealed record PokemonAdded(PokemonHandle At, PokemonAddSource Source) : IEngineEvent;

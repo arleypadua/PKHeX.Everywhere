@@ -13,6 +13,19 @@ export interface AddedPokemon {
 
 export type Base64 = string
 
+export interface EncounterRow {
+  index: number
+  speciesId: number
+  species: string
+  form: PokemonForm
+  name: string
+  isEgg: boolean
+  ball: string | null
+  levelRange: string
+  location: string
+  version: string
+}
+
 export interface EncounterVersions {
   versions: VersionEntry[]
   default: number
