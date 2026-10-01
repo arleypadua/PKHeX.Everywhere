@@ -7,7 +7,11 @@ const formSuffixes: Record<string, string> = {
   galar: '-galar',
 }
 
-export function PokemonSprite({ pokemon }: { pokemon: Pick<PokemonSummary, 'speciesId' | 'species' | 'form'> }) {
+interface PokemonSpriteProps {
+  pokemon: Pick<PokemonSummary, 'speciesId' | 'species' | 'form'>
+}
+
+export function PokemonSprite({ pokemon }: PokemonSpriteProps) {
   const suffix = formSuffixes[pokemon.form.name.toLowerCase()] ?? ''
   return <img alt={pokemon.species} src={`${iconsUrl}/${pokemon.speciesId}${suffix}.png`} />
 }

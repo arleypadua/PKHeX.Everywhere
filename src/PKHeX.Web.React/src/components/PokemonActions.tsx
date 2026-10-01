@@ -3,8 +3,13 @@ import type { PokemonSummary } from '@pkhex-everywhere/engine'
 import { useEngine } from '@pkhex-everywhere/react'
 import { openCalculator, useNavigate } from '../host'
 import { useCopyShowdown } from '../hooks/useCopyShowdown'
+import { routes } from '../routes'
 
-export function PokemonActions({ pokemon }: { pokemon: PokemonSummary }) {
+interface PokemonActionsProps {
+  pokemon: PokemonSummary
+}
+
+export function PokemonActions({ pokemon }: PokemonActionsProps) {
   const engine = useEngine()
   const navigate = useNavigate()
   const copyShowdown = useCopyShowdown()
@@ -14,10 +19,10 @@ export function PokemonActions({ pokemon }: { pokemon: PokemonSummary }) {
     <Dropdown.Button
       type="link"
       trigger={['click']}
-      onClick={() => navigate(`/pokemon/${pokemon.at.source}/${pokemon.id}`)}
+      onClick={() => navigate(routes.pokemon(pokemon))}
       menu={{
         items: [
-          { key: 'clone', label: 'Clone', onClick: () => navigate(`/pokemon/${pokemon.id}/clone`) },
+          { key: 'clone', label: 'Clone', onClick: () => navigate(routes.clonePokemon(pokemon.id)) },
           { key: 'calculator', label: 'Calculator', onClick: async () => openCalculator(await showdown()) },
           { key: 'showdown', label: 'Showdown', onClick: async () => copyShowdown(await showdown(), pokemon.species) },
         ],

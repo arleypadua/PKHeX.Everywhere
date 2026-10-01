@@ -2,7 +2,11 @@ import { Input } from 'antd'
 import type { FilterDropdownProps } from 'antd/es/table/interface'
 import { FilterPanel } from './FilterPanel'
 
-export function TextFilter({ setSelectedKeys, selectedKeys, confirm, clearFilters, placeholder }: FilterDropdownProps & { placeholder?: string }) {
+interface TextFilterProps extends FilterDropdownProps {
+  placeholder?: string
+}
+
+export function TextFilter({ setSelectedKeys, selectedKeys, confirm, clearFilters, placeholder }: TextFilterProps) {
   return (
     <FilterPanel onConfirm={() => confirm()} onReset={() => clearFilters?.({ confirm: true })}>
       <Input
@@ -15,5 +19,3 @@ export function TextFilter({ setSelectedKeys, selectedKeys, confirm, clearFilter
     </FilterPanel>
   )
 }
-
-export const containsText = (text: string, filter: unknown) => text.toLowerCase().includes(String(filter).toLowerCase())

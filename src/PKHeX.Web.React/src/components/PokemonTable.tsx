@@ -3,7 +3,8 @@ import type { PokemonSummary } from '@pkhex-everywhere/engine'
 import { PokemonActions } from './PokemonActions'
 import { PokemonSprite } from './PokemonSprite'
 import { NumberFilter } from './filters/NumberFilter'
-import { containsText, TextFilter } from './filters/TextFilter'
+import { containsText } from './filters/containsText'
+import { TextFilter } from './filters/TextFilter'
 
 const columns: TableColumnsType<PokemonSummary> = [
   {
@@ -32,11 +33,15 @@ const columns: TableColumnsType<PokemonSummary> = [
   },
 ]
 
-export function PokemonTable({ pokemons }: { pokemons: PokemonSummary[] }) {
+interface PokemonTableProps {
+  pokemon: PokemonSummary[]
+}
+
+export function PokemonTable({ pokemon }: PokemonTableProps) {
   return (
     <Table
       rowKey={(pokemon) => JSON.stringify(pokemon.at)}
-      dataSource={pokemons}
+      dataSource={pokemon}
       columns={columns}
       size="small"
       pagination={{ hideOnSinglePage: true }}

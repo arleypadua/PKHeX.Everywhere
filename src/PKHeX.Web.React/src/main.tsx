@@ -45,7 +45,7 @@ function PageShell({ name, props }: { name: string; props: Record<string, unknow
         token: { fontFamily },
       }}
     >
-      <App>
+      <App component={false}>
         <NotifyingEngineProvider>
           <PageErrorBoundary engine={engine}>
             <Suspense fallback={<Spin />}>
