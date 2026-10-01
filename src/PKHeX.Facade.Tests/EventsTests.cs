@@ -74,6 +74,22 @@ public class EventsTests
         Reload(game, reloaded => reloaded.Events!.GetFlag(index).Should().Be(!original));
     }
 
+    [Fact]
+    public void Events_BrilliantDiamond_ShouldIndexSystemFlagsAfterTheOtherFlags()
+    {
+        var events = Load(GameVersion.BD).Events!;
+        var system = events.Flags.First(f => f.Category == "System");
+        var regular = events.Flags.Where(f => f.Category != "System").ToList();
+        var original = system.Value;
+
+        events.SetFlag(system.Index, !original);
+
+        system.Value.Should().Be(!original);
+        events.Flags.Select(f => f.Index).Should().OnlyHaveUniqueItems();
+        system.Index.Should().BeGreaterThan(regular.Max(f => f.Index));
+        events.FlagCount.Should().BeGreaterThan(events.Flags.Max(f => f.Index));
+    }
+
     [Theory]
     [InlineData(GameVersion.RD)]
     [InlineData(GameVersion.SW)]

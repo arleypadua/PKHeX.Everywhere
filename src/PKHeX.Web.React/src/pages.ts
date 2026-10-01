@@ -4,6 +4,7 @@ export const pages: Record<string, LazyExoticComponent<ComponentType<Record<stri
   box: lazy(() => import('./pages/box/BoxPage')),
   credits: lazy(() => import('./pages/static/CreditsPage')),
   encounters: lazy(() => import('./pages/encounters/EncountersPage')),
+  events: lazy(() => import('./pages/events/EventsPage')),
   items: lazy(() => import('./pages/items/ItemsPage')),
   party: lazy(() => import('./pages/party/PartyPage')),
   'privacy-policy': lazy(() => import('./pages/static/PrivacyPolicyPage')),

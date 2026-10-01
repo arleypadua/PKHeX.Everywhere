@@ -7,4 +7,5 @@ public static class Topics
     public const string Party = "party";
     public const string Box = "box";
     public const string Inventory = "inventory";
+    public const string Events = "events";
 }
