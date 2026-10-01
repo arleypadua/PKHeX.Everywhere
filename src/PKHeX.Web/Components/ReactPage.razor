@@ -1,9 +1,11 @@
+@using PKHeX.Web.Services.GeneralSettings
 @implements IAsyncDisposable
 @inject IJSRuntime Js
 @inject GameService GameService
 @inject AntdThemeService ThemeService
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
+@inject GeneralSettingsService GeneralSettings
 
 <div @ref="_element" style="width: 100%"></div>
 
@@ -30,7 +32,7 @@
         _module ??= await Js.InvokeAsync<IJSObjectReference>("import", "./Components/ReactPage.razor.js");
         if (_disposed) return;
         _self ??= DotNetObjectReference.Create(this);
-        await _module.InvokeVoidAsync("mount", _id, _element, Configuration["React:DevServerUrl"], Name, Props ?? [], _self, ThemeName(ThemeService.Theme));
+        await _module.InvokeVoidAsync("mount", _id, _element, Configuration["React:DevServerUrl"], Name, Props ?? [], _self, ThemeName(ThemeService.Theme), GeneralSettings.CalculatorUrlOrDefault);
     }
 
     [JSInvokable]

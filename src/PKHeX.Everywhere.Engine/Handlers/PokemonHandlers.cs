@@ -1,5 +1,6 @@
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
+using PKHeX.Facade.Extensions;
 
 namespace PKHeX.Everywhere.Engine.Handlers;
 
@@ -7,6 +8,9 @@ public static class PokemonHandlers
 {
     [Query("pokemon.get", Topics.Party, Topics.Box)]
     public static PokemonSummary Get(Game game, PokemonHandle at) => game.Find(at).Pokemon.ToSummary(at);
+
+    [Query("pokemon.showdown", Topics.Party, Topics.Box)]
+    public static string Showdown(Game game, PokemonHandle at) => game.Find(at).Pokemon.Showdown();
 
     [Command("pokemon.setLevel")]
     public static void SetLevel(Game game, PokemonHandle at, int level)

@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.3.4",
     "@pkhex-everywhere/engine": "file:../PKHeX.Everywhere.Engine.Sdk/packages/engine",
     "@pkhex-everywhere/react": "file:../PKHeX.Everywhere.Engine.Sdk/packages/react",
     "antd": "^6.6.5",

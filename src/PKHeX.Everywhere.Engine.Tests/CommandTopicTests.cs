@@ -18,7 +18,9 @@ public class CommandTopicTests
         ],
         ["game.close"] = (_, _) => ["[]"],
         ["party.get"] = (_, _) => ["[]"],
+        ["party.showdown"] = (_, _) => ["[]"],
         ["pokemon.get"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
+        ["pokemon.showdown"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
         ["pokemon.setLevel"] = (game, _) => Pokemons(game).Select(p => Args(p.At, p.Level == 50 ? 51 : 50)),
     };
 

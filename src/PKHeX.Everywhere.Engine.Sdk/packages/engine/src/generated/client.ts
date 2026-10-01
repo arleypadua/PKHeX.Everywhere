@@ -4,7 +4,7 @@ import type { Base64, PokemonHandle, PokemonSummary, SaveSummary } from './types
 
 export type Invoke = <T>(call: CallName, args: unknown[]) => Promise<T>
 
-export const queries = ['game.get', 'party.get', 'pokemon.get'] as const
+export const queries = ['game.get', 'party.get', 'party.showdown', 'pokemon.get', 'pokemon.showdown'] as const
 
 export const commands = ['game.close', 'game.load', 'pokemon.setLevel'] as const
 
@@ -22,10 +22,12 @@ export interface EngineClient {
   }
   party: {
     get(): Promise<PokemonSummary[]>
+    showdown(): Promise<string>
   }
   pokemon: {
     get(at: PokemonHandle): Promise<PokemonSummary>
     setLevel(at: PokemonHandle, level: number): Promise<void>
+    showdown(at: PokemonHandle): Promise<string>
   }
 }
 
@@ -38,10 +40,12 @@ export function createClient(invoke: Invoke): EngineClient {
     },
     party: {
       get: () => invoke('party.get', []),
+      showdown: () => invoke('party.showdown', []),
     },
     pokemon: {
       get: (at) => invoke('pokemon.get', [at]),
       setLevel: (at, level) => invoke('pokemon.setLevel', [at, level]),
+      showdown: (at) => invoke('pokemon.showdown', [at]),
     },
   }
 }
