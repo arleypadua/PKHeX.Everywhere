@@ -1,0 +1,26 @@
+{
+  "name": "@pkhex-everywhere/web-react",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "./dev.sh",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@pkhex-everywhere/engine": "file:../PKHeX.Everywhere.Engine.Sdk/packages/engine",
+    "@pkhex-everywhere/react": "file:../PKHeX.Everywhere.Engine.Sdk/packages/react",
+    "antd": "^6.6.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.2"
+  }
+}

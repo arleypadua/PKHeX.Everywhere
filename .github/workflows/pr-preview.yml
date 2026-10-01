@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'src/PKHeX.Web/**'
+      - 'src/PKHeX.Web.React/**'
       - 'src/PKHeX.Facade/**'
       - 'src/PKHeX.Everywhere.Engine*/**'
   workflow_dispatch:
@@ -47,6 +48,13 @@ jobs:
           npm run build
 
           cd ../../../
+
+      - name: Install NPM dependencies and build PKHeX.Web.React
+        run: |
+          cd src/PKHeX.Web.React
+
+          npm ci
+          npm run build
 
       - name: Install NPM dependencies and build PKHeX.Web/_blog
         run: |
