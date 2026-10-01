@@ -61,6 +61,13 @@ export interface EditablePokemon {
   types: number[]
   isInfected: boolean
   isCured: boolean
+  trainerId: number
+  secretId: number
+  originalTrainerName: string
+  originalTrainerGender: TrainerGender
+  handlingTrainerName: string
+  handlingTrainerGender: TrainerGender
+  currentHandler: PokemonHandler
   legality: Legality
 }
 
@@ -193,6 +200,8 @@ export interface PokemonHandle {
   box?: number | null
 }
 
+export type PokemonHandler = 'originalTrainer' | 'handlingTrainer'
+
 export type PokemonId = string & { readonly __brand: 'PokemonId' }
 
 export interface PokemonOptions {
@@ -216,6 +225,13 @@ export interface PokemonPatch {
   isEgg?: boolean | null
   nickname?: string | null
   level?: number | null
+  trainerId?: number | null
+  secretId?: number | null
+  originalTrainerName?: string | null
+  originalTrainerGender?: TrainerGender | null
+  handlingTrainerName?: string | null
+  handlingTrainerGender?: TrainerGender | null
+  currentHandler?: PokemonHandler | null
 }
 
 export interface PokemonSummary {

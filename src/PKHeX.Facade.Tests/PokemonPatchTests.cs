@@ -101,3 +101,117 @@ public class PokemonPatchTests
         pokemon.Details().Legality.Messages.Should().BeEmpty();
     }
 }
+
+public class PokemonTrainerPatchTests
+{
+    [Theory]
+    [SupportedSaveFiles]
+    public void AppliesTheOriginalTrainer(string saveFile)
+    {
+        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+
+        pokemon.Update(new PokemonPatch(TrainerId: 12345, OriginalTrainerName: "Red", OriginalTrainerGender: Gender.Male));
+
+        pokemon.Details().Should().BeEquivalentTo(new { TrainerId = 12345u, OriginalTrainerName = "Red", OriginalTrainerGender = Gender.Male });
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Emerald)]
+    [InlineData(SaveFilePath.HgSs)]
+    [InlineData(SaveFilePath.LetsGoPikachu)]
+    public void AppliesTheSecretIdAndAFemaleOriginalTrainer(string saveFile)
+    {
+        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+
+        pokemon.Update(new PokemonPatch(SecretId: 1234, OriginalTrainerGender: Gender.Female));
+
+        pokemon.Details().Should().BeEquivalentTo(new { SecretId = 1234u, OriginalTrainerGender = Gender.Female });
+    }
+
+    [Fact]
+    public void AppliesTheHandlingTrainer()
+    {
+        var pokemon = Game.LoadFrom(SaveFilePath.LetsGoPikachu).Trainer.Party.Pokemons[0];
+
+        pokemon.Update(new PokemonPatch(
+            HandlingTrainerName: "Blue",
+            HandlingTrainerGender: Gender.Female,
+            CurrentHandler: Owner.Handler.SomeoneElse));
+
+        pokemon.Details().Should().BeEquivalentTo(new
+        {
+            HandlingTrainerName = "Blue",
+            HandlingTrainerGender = Gender.Female,
+            CurrentHandler = Owner.Handler.SomeoneElse,
+        });
+    }
+
+    [Fact]
+    public void AppliesATrainerIdThatOnlyFitsWithTheNewSecretId()
+    {
+        var pokemon = Game.LoadFrom(SaveFilePath.LetsGoPikachu).Trainer.Party.Pokemons[0];
+        pokemon.Update(new PokemonPatch(TrainerId: 0, SecretId: 4294));
+
+        pokemon.Update(new PokemonPatch(TrainerId: 999999, SecretId: 0));
+
+        pokemon.Details().Should().BeEquivalentTo(new { TrainerId = 999999u, SecretId = 0u });
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Emerald, 70000u)]
+    [InlineData(SaveFilePath.LetsGoPikachu, 1000000u)]
+    public void RejectsATrainerIdTheSaveCantStore(string saveFile, uint trainerId)
+    {
+        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+
+        var update = () => pokemon.Update(new PokemonPatch(TrainerId: trainerId));
+
+        update.Should().Throw<InvalidPatchException>().Which.Field.Should().Be(nameof(PokemonPatch.TrainerId));
+    }
+
+    public static TheoryData<string, PokemonPatch, string> Unrepresentable() => new()
+    {
+        { SaveFilePath.Yellow, new PokemonPatch(SecretId: 1), nameof(PokemonPatch.SecretId) },
+        { SaveFilePath.Yellow, new PokemonPatch(OriginalTrainerGender: Gender.Female), nameof(PokemonPatch.OriginalTrainerGender) },
+        { SaveFilePath.HgSs, new PokemonPatch(OriginalTrainerGender: Gender.Genderless), nameof(PokemonPatch.OriginalTrainerGender) },
+        { SaveFilePath.Emerald, new PokemonPatch(OriginalTrainerName: "Sparkysparky"), nameof(PokemonPatch.OriginalTrainerName) },
+        { SaveFilePath.Emerald, new PokemonPatch(OriginalTrainerName: "Red✨"), nameof(PokemonPatch.OriginalTrainerName) },
+        { SaveFilePath.Emerald, new PokemonPatch(HandlingTrainerName: "Blue"), nameof(PokemonPatch.HandlingTrainerName) },
+        { SaveFilePath.Emerald, new PokemonPatch(HandlingTrainerGender: Gender.Female), nameof(PokemonPatch.HandlingTrainerGender) },
+        { SaveFilePath.Emerald, new PokemonPatch(CurrentHandler: Owner.Handler.SomeoneElse), nameof(PokemonPatch.CurrentHandler) },
+    };
+
+    [Theory]
+    [MemberData(nameof(Unrepresentable))]
+    public void RejectsTrainerDetailsTheSaveCantStore(string saveFile, PokemonPatch patch, string field)
+    {
+        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+
+        var update = () => pokemon.Update(patch);
+
+        update.Should().Throw<InvalidPatchException>().Which.Field.Should().Be(field);
+    }
+
+    [Fact]
+    public void AnInvalidTrainerFieldLeavesTheWholePatchUnapplied()
+    {
+        var pokemon = Game.LoadFrom(SaveFilePath.Emerald).Trainer.Party.Pokemons[0];
+        var before = pokemon.Details();
+
+        var update = () => pokemon.Update(new PokemonPatch(OriginalTrainerName: "Red", TrainerId: 70000));
+
+        update.Should().Throw<InvalidPatchException>();
+        pokemon.Details().Should().BeEquivalentTo(before);
+    }
+
+    [Fact]
+    public void AppliesAnIllegalOriginalTrainerAndReportsIt()
+    {
+        var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Details().Legality.Valid);
+
+        pokemon.Update(new PokemonPatch(OriginalTrainerName: ""));
+
+        pokemon.Details().OriginalTrainerName.Should().BeEmpty();
+        pokemon.Details().Legality.Valid.Should().BeFalse();
+    }
+}

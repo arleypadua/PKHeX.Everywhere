@@ -175,6 +175,58 @@ public class DraftHandlerTests
         session.Game!.SaveAndReload(reloaded => reloaded.Trainer.Party.Pokemons[0].Nickname.Should().Be("Sparky"));
     }
 
+    [Theory]
+    [MemberData(nameof(SavesAndSlots))]
+    public void UpdateChangesTheOriginalTrainer(string saveFile, bool inBox)
+    {
+        var session = Loaded(saveFile);
+        var at = Slot(session, inBox);
+        Edit(session, at);
+
+        Update(session, Draft, new { trainerId = 12345, originalTrainerName = "Red", originalTrainerGender = "male" });
+
+        var details = Details(session, Draft);
+        details["trainerId"]!.GetValue<uint>().Should().Be(12345);
+        details["originalTrainerName"]!.GetValue<string>().Should().Be("Red");
+        details["originalTrainerGender"]!.GetValue<string>().Should().Be("male");
+        Value(Dispatch(session, "pokemon.commit", "[]"));
+        session.Game!.SaveAndReload(reloaded =>
+        {
+            var pokemon = inBox ? reloaded.Trainer.PokemonBox.All[BoxIndex(reloaded, at)] : reloaded.Trainer.Party.Pokemons[at.Slot];
+            pokemon.Owner.TID.Should().Be(12345);
+            pokemon.Owner.Name.Should().Be("Red");
+            pokemon.Owner.Gender.Should().Be(PKHeX.Facade.Gender.Male);
+        });
+    }
+
+    [Fact]
+    public void UpdateChangesTheHandlingTrainer()
+    {
+        var session = Loaded(SaveFilePath.LetsGoPikachu);
+        Edit(session, PokemonHandle.Party(0));
+
+        Update(session, Draft, new { secretId = 1234, handlingTrainerName = "Blue", handlingTrainerGender = "female", currentHandler = "handlingTrainer" });
+
+        var details = Details(session, Draft);
+        details["secretId"]!.GetValue<uint>().Should().Be(1234);
+        details["handlingTrainerName"]!.GetValue<string>().Should().Be("Blue");
+        details["handlingTrainerGender"]!.GetValue<string>().Should().Be("female");
+        details["currentHandler"]!.GetValue<string>().Should().Be("handlingTrainer");
+    }
+
+    [Fact]
+    public void UpdateRejectsTrainerDetailsTheSaveCantStore()
+    {
+        var session = Loaded(SaveFilePath.Emerald);
+        Edit(session, PokemonHandle.Party(0));
+        var before = Details(session, Draft);
+
+        var result = JsonNode.Parse(Dispatch(session, "pokemon.update", Args(Draft, new { originalTrainerName = "Red", currentHandler = "handlingTrainer" })))!;
+
+        result["error"]!["code"]!.GetValue<string>().Should().Be("invalid-patch");
+        Details(session, Draft).ToJsonString().Should().Be(before.ToJsonString());
+    }
+
     [Fact]
     public void UpdateRejectsTheWholePatchWhenAFieldCantBeStored()
     {

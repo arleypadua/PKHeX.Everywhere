@@ -1,14 +1,14 @@
 import { useState } from 'react'
-import { App, ConfigProvider, Descriptions, Flex, Input, InputNumber, Radio, Space, Typography } from 'antd'
-import { EngineError, type TrainerGender } from '@pkhex-everywhere/engine'
+import { App, Descriptions, Flex, Input, InputNumber, Space, Typography } from 'antd'
+import { EngineError } from '@pkhex-everywhere/engine'
 import { useLoadedGame, useQuery, useTrainer } from '@pkhex-everywhere/react'
 import { AdSlot } from '../../components/AdSlot'
 import { PlugInActionButton } from '../../components/PlugInActionButton'
+import { TrainerGenderRadio } from '../../components/TrainerGenderRadio'
 
 const multiplexAdSlot = '7470710144'
 const maxMoney = 999_999
 const maxBattlePoints = 65_535
-const genderColors: Record<TrainerGender, string> = { male: '#1890ff', female: '#b218ff' }
 
 export default function HomePage() {
   const { game } = useLoadedGame()
@@ -60,18 +60,7 @@ function TrainerCard() {
           key: 'gender',
           label: 'Gender',
           children: (
-            <ConfigProvider theme={{ token: { colorPrimary: genderColors[trainer.gender] } }}>
-              <Radio.Group
-                optionType="button"
-                buttonStyle="solid"
-                value={trainer.gender}
-                onChange={(event) => edit(() => setGender(event.target.value as TrainerGender))}
-                options={[
-                  { value: 'male', label: '♂' },
-                  { value: 'female', label: '♀' },
-                ]}
-              />
-            </ConfigProvider>
+            <TrainerGenderRadio value={trainer.gender} onChange={(gender) => edit(() => setGender(gender))} />
           ),
         },
         {

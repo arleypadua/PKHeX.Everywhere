@@ -25,6 +25,13 @@ public partial class Pokemon
         Types.HasSecondary ? [Types.Type1, Types.Type2] : [Types.Type1],
         Flags.IsInfected,
         Flags.IsCured,
+        Owner.TID,
+        Owner.SID,
+        Owner.Name,
+        Owner.Gender,
+        Owner.HandlingTrainerName,
+        Owner.HandlingTrainerGender,
+        Owner.CurrentHandler,
         this.LegalityReport());
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices());
@@ -55,6 +62,14 @@ public partial class Pokemon
         if (patch.Level is { } level) ApplyLevel(level);
         if (patch.IsShiny is { } isShiny) ApplyIsShiny(isShiny);
         if (patch.IsAlpha is { } isAlpha) ApplyIsAlpha(isAlpha);
+        if (patch.TrainerId is not null || patch.SecretId is not null) ApplyTrainerIds(patch.TrainerId ?? Pkm.DisplayTID, patch.SecretId ?? Pkm.DisplaySID);
+        if (patch.OriginalTrainerName is { } originalTrainerName) ApplyOriginalTrainerName(originalTrainerName);
+        if (patch.OriginalTrainerGender is { } originalTrainerGender)
+            ApplyTrainerGender(originalTrainerGender, nameof(PokemonPatch.OriginalTrainerGender), "original trainer", value => Pkm.OriginalTrainerGender = value, () => Pkm.OriginalTrainerGender);
+        if (patch.HandlingTrainerName is { } handlingTrainerName) ApplyHandlingTrainerName(handlingTrainerName);
+        if (patch.HandlingTrainerGender is { } handlingTrainerGender)
+            ApplyTrainerGender(handlingTrainerGender, nameof(PokemonPatch.HandlingTrainerGender), "handling trainer", value => Pkm.HandlingTrainerGender = value, () => Pkm.HandlingTrainerGender);
+        if (patch.CurrentHandler is { } currentHandler) ApplyCurrentHandler(currentHandler);
     }
 
     private void ApplySpecies(int id)
@@ -158,6 +173,42 @@ public partial class Pokemon
     {
         Require(SupportsAlpha, nameof(PokemonPatch.IsAlpha), "Alpha Pokémon aren't in this game.");
         IsAlpha = isAlpha;
+    }
+
+    private void ApplyTrainerIds(uint trainerId, uint secretId)
+    {
+        Pkm.SetDisplayID(trainerId, secretId);
+        Require(Pkm.DisplayTID == trainerId, nameof(PokemonPatch.TrainerId), $"Trainer ID {trainerId} doesn't fit this game.");
+        Require(Pkm.DisplaySID == secretId, nameof(PokemonPatch.SecretId), $"Secret ID {secretId} doesn't fit this game.");
+    }
+
+    private void ApplyOriginalTrainerName(string name)
+    {
+        Require(name.Length <= Pkm.MaxStringLengthTrainer, nameof(PokemonPatch.OriginalTrainerName),
+            $"Original trainer name can have at most {Pkm.MaxStringLengthTrainer} characters, got {name.Length}.");
+        Pkm.OriginalTrainerName = name;
+        Require(Pkm.OriginalTrainerName == name, nameof(PokemonPatch.OriginalTrainerName),
+            $"Original trainer name \"{name}\" has characters this game can't store.");
+    }
+
+    private void ApplyHandlingTrainerName(string name)
+    {
+        Pkm.HandlingTrainerName = name;
+        Require(Pkm.HandlingTrainerName == name, nameof(PokemonPatch.HandlingTrainerName),
+            $"This game can't store the handling trainer name \"{name}\".");
+    }
+
+    private void ApplyTrainerGender(Gender gender, string field, string trainer, Action<byte> set, Func<byte> get)
+    {
+        Require(gender.Equals(Gender.Male) || gender.Equals(Gender.Female), field, $"Trainer gender must be male or female, got {gender.Name}.");
+        set(gender.ToByte());
+        Require(get() == gender.ToByte(), field, $"This game can't store a {gender.Name.ToLowerInvariant()} {trainer}.");
+    }
+
+    private void ApplyCurrentHandler(Owner.Handler handler)
+    {
+        Pkm.CurrentHandler = (byte)handler;
+        Require(Pkm.CurrentHandler == (byte)handler, nameof(PokemonPatch.CurrentHandler), "This game can't store a handling trainer.");
     }
 
     private static void Require(bool condition, string field, string message)
