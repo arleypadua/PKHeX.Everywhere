@@ -1,7 +1,7 @@
 export { createEngine, EngineError, type Engine } from './engine'
 export { blazorHost } from './blazorHost'
 export type { AssemblyExports, EngineExports, EngineHost } from './host'
-export type { CallName, EngineClient } from './generated/client'
+export { createClient, type CallName, type CommandName, type EngineClient, type Invoke, type QueryName } from './generated/client'
 export { errorCodes, type ErrorCode } from './generated/errors'
 export { queryTopics, topics, type Topic } from './generated/topics'
 export { affects } from './topics'

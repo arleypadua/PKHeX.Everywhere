@@ -4,7 +4,7 @@ using PKHeX.Everywhere.Engine.CodeGen;
 
 if (args.Length != 2)
 {
-    Console.Error.WriteLine("Usage: PKHeX.Everywhere.Engine.CodeGen <engine assembly> <output directory>");
+    Console.Error.WriteLine("Usage: PKHeX.Everywhere.Engine.CodeGen <engine assembly> <SDK packages directory>");
     return 1;
 }
 
@@ -22,11 +22,11 @@ context.Resolving += (alc, name) =>
 var engine = context.LoadFromAssemblyPath(enginePath);
 var contract = Contract.Read(engine);
 
-Directory.CreateDirectory(outputDirectory);
 foreach (var (file, generated) in TypeScript.Write(contract))
 {
     var content = generated.ReplaceLineEndings("\n");
     var path = Path.Combine(outputDirectory, file);
+    Directory.CreateDirectory(Path.GetDirectoryName(path)!);
     if (File.Exists(path) && File.ReadAllText(path) == content) continue;
 
     File.WriteAllText(path, content);

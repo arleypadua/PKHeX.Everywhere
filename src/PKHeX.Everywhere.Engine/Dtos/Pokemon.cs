@@ -11,9 +11,14 @@ public enum SlotSource
     Box,
 }
 
-public record PokemonHandle(SlotSource Source, int Slot, int? Box = null)
+public record PokemonHandle(SlotSource Source, int Slot, int? Box = null) : IHandle
 {
     public static PokemonHandle Party(int slot) => new(SlotSource.Party, slot);
+    public static PokemonHandle InBox(int box, int slot) => new(SlotSource.Box, slot, box);
+
+    public string Topic() => Source == SlotSource.Party ? Topics.Party
+        : Box is { } box ? $"{Topics.Box}/{box}"
+        : Topics.Box;
 }
 
 public record PokemonForm(int Id, string Name);

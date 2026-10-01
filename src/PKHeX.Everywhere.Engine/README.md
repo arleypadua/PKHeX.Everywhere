@@ -15,4 +15,22 @@ When the save changes, `Session` raises `Changed` with the changed Topics, and J
 3. Build. The source generator (`PKHeX.Everywhere.Engine.Generators`) adds the call to the dispatcher and writes its JSON code. `PKHeX.Everywhere.Engine.CodeGen` then updates the TypeScript in `PKHeX.Everywhere.Engine.Sdk/packages/engine/src/generated`.
 4. Commit the generated TypeScript. CI fails if it is out of date.
 
+## Adding a command
+
+1. Add a static method with `[Command("entity.verb")]` to `Handlers/<Entity>Handlers.cs`. A command writes the Topic of each `IHandle` argument it takes, such as the Pokémon at `at`, plus any Topics listed on the attribute. Return a value only when the command creates something.
+2. Throw `EngineException` with a code from `ErrorCodes.cs` for expected failures. JS receives it as a rejected `EngineError`.
+3. Build and commit the generated TypeScript, as for queries.
+4. Add sample arguments for the call to `CommandTopicTests`. That test runs every command against the test saves and fails when a query's result changes outside the Topics the command reported.
+
+## Entity hooks
+
+CodeGen groups calls by entity, the part of the call name before the dot, and writes a React hook for each entity with a `get` query to `PKHeX.Everywhere.Engine.Sdk/packages/react/src/generated/hooks.ts`:
+
+- A `get` without arguments makes a collection hook, such as `useParty()`, returning `{ party }` plus the entity's commands.
+- A `get` taking one handle makes an item hook, such as `usePokemon(at)`, returning `{ pokemon }` plus the entity's commands with the handle bound.
+
+The hook is named `use{Entity}` unless the handler class has `[EntityHook("...")]`. Wrap a generated hook in a hand-written one when an entity needs more; don't edit generated code.
+
+`byte[]` crosses the boundary as a base64 string, typed `Base64` in TypeScript.
+
 Contract tests live in `PKHeX.Everywhere.Engine.Tests`.

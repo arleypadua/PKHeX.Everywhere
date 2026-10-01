@@ -11,6 +11,8 @@ namespace PKHeX.Everywhere.Engine.Generators;
 public sealed class HandlerGenerator : IIncrementalGenerator
 {
     private const string QueryAttribute = "PKHeX.Everywhere.Engine.QueryAttribute";
+    private const string CommandAttribute = "PKHeX.Everywhere.Engine.CommandAttribute";
+    private const string HandleInterface = "PKHeX.Everywhere.Engine.IHandle";
 
     private static readonly DiagnosticDescriptor NotStatic = new(
         "PKE001", "Handler must be static", "Handler '{0}' must be a static method", "Engine", DiagnosticSeverity.Error, true);
@@ -20,13 +22,17 @@ public sealed class HandlerGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var handlers = context.SyntaxProvider.ForAttributeWithMetadataName(
-            QueryAttribute,
-            static (node, _) => node is MethodDeclarationSyntax,
-            static (ctx, _) => (IMethodSymbol)ctx.TargetSymbol);
+        var queries = Handlers(context, QueryAttribute);
+        var commands = Handlers(context, CommandAttribute);
 
-        context.RegisterSourceOutput(handlers.Collect(), static (spc, methods) => Emit(spc, methods));
+        context.RegisterSourceOutput(queries.Combine(commands), static (spc, methods) => Emit(spc, methods.Left.AddRange(methods.Right)));
     }
+
+    private static IncrementalValueProvider<ImmutableArray<IMethodSymbol>> Handlers(IncrementalGeneratorInitializationContext context, string attribute) =>
+        context.SyntaxProvider.ForAttributeWithMetadataName(
+            attribute,
+            static (node, _) => node is MethodDeclarationSyntax,
+            static (ctx, _) => (IMethodSymbol)ctx.TargetSymbol).Collect();
 
     private static void Emit(SourceProductionContext context, ImmutableArray<IMethodSymbol> methods)
     {
@@ -97,15 +103,24 @@ public sealed class HandlerGenerator : IIncrementalGenerator
         context.AddSource("GeneratedJson.g.cs", json.Build());
     }
 
-    private static string CallName(IMethodSymbol method) =>
-        method.GetAttributes()
-            .First(a => a.AttributeClass?.ToDisplayString() == QueryAttribute)
-            .ConstructorArguments[0].Value as string ?? "";
+    private static AttributeData HandlerAttribute(IMethodSymbol method) =>
+        method.GetAttributes().First(a => a.AttributeClass?.ToDisplayString() is QueryAttribute or CommandAttribute);
+
+    private static string CallName(IMethodSymbol method) => HandlerAttribute(method).ConstructorArguments[0].Value as string ?? "";
+
+    private static bool IsCommand(IMethodSymbol method) => HandlerAttribute(method).AttributeClass?.ToDisplayString() == CommandAttribute;
+
+    private static IEnumerable<string> DeclaredTopics(IMethodSymbol method) =>
+        HandlerAttribute(method).ConstructorArguments[1].Values.Select(v => $"\"{v.Value}\"");
+
+    private static bool IsHandle(ITypeSymbol type) =>
+        type.AllInterfaces.Any(i => i.ToDisplayString() == HandleInterface);
 
     private static string EmitCase(JsonEmitter json, IMethodSymbol method, string name, Location? location)
     {
         var sb = new StringBuilder();
         var arguments = new List<string>();
+        var written = new List<string>();
         var jsonIndex = 0;
 
         sb.AppendLine($"            case \"{name}\":");
@@ -119,17 +134,27 @@ public sealed class HandlerGenerator : IIncrementalGenerator
             var type = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             if (Injected(parameter.Type) is { } injected)
             {
-                arguments.Add(injected);
+                sb.AppendLine($"                var i{arguments.Count} = {injected};");
+                arguments.Add($"i{arguments.Count}");
                 continue;
             }
 
             var read = json.Read(parameter.Type, $"args[{jsonIndex}]", location);
             sb.AppendLine($"                var a{jsonIndex} = Arg<{type}>(\"{parameter.Name}\", () => {read});");
             arguments.Add($"a{jsonIndex}");
+            if (IsHandle(parameter.Type)) written.Add($"a{jsonIndex}.Topic()");
             jsonIndex++;
         }
 
         var invocation = $"{method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{method.Name}({string.Join(", ", arguments)})";
+
+        if (IsCommand(method))
+        {
+            var topics = string.Join(", ", written.Concat(DeclaredTopics(method)));
+            invocation = method.ReturnsVoid
+                ? $"session.RunCommand(new string[] {{ {topics} }}, () => {{ {invocation}; return true; }})"
+                : $"session.RunCommand(new string[] {{ {topics} }}, () => {invocation})";
+        }
 
         if (method.ReturnsVoid)
         {

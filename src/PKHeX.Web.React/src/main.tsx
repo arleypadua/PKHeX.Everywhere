@@ -1,7 +1,7 @@
-import { Suspense } from 'react'
+import { Suspense, useCallback, type ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { ConfigProvider, Spin, theme as antdTheme } from 'antd'
-import { blazorHost, createEngine } from '@pkhex-everywhere/engine'
+import { ConfigProvider, notification, Spin, theme as antdTheme } from 'antd'
+import { blazorHost, createEngine, type EngineError } from '@pkhex-everywhere/engine'
 import { EngineProvider } from '@pkhex-everywhere/react'
 import { connectHost, useTheme, type HostBridge } from './host'
 import { PageErrorBoundary } from './PageErrorBoundary'
@@ -21,6 +21,20 @@ function Page({ name, props }: { name: string; props: Record<string, unknown> })
   return <Component {...props} />
 }
 
+function NotifyingEngineProvider({ children }: { children: ReactNode }) {
+  const [api, contextHolder] = notification.useNotification()
+  const onUnhandledError = useCallback(
+    (error: EngineError) => api.error({ title: 'Something went wrong', description: error.message }),
+    [api],
+  )
+  return (
+    <EngineProvider engine={engine} onUnhandledError={onUnhandledError}>
+      {contextHolder}
+      {children}
+    </EngineProvider>
+  )
+}
+
 function PageShell({ name, props }: { name: string; props: Record<string, unknown> }) {
   const theme = useTheme()
   return (
@@ -32,13 +46,13 @@ function PageShell({ name, props }: { name: string; props: Record<string, unknow
         token: { fontFamily },
       }}
     >
-      <EngineProvider engine={engine}>
+      <NotifyingEngineProvider>
         <PageErrorBoundary engine={engine}>
           <Suspense fallback={<Spin />}>
             <Page name={name} props={props} />
           </Suspense>
         </PageErrorBoundary>
-      </EngineProvider>
+      </NotifyingEngineProvider>
     </ConfigProvider>
   )
 }

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { queryTopics, type CallName, type EngineClient } from '@pkhex-everywhere/engine'
+import { queryTopics, type CallName, type EngineClient, type QueryName } from '@pkhex-everywhere/engine'
 import { useEngineContext } from './EngineProvider'
 
 type Lookup<T, Path extends string> = Path extends `${infer Head}.${infer Rest}`
@@ -15,7 +15,7 @@ type CallFunction<Name extends CallName> = Extract<Lookup<EngineClient, Name>, (
 export type CallArgs<Name extends CallName> = Parameters<CallFunction<Name>>
 export type CallResult<Name extends CallName> = Awaited<ReturnType<CallFunction<Name>>>
 
-export function useQuery<Name extends CallName>(call: Name, ...args: CallArgs<Name>): CallResult<Name> {
+export function useQuery<Name extends QueryName>(call: Name, ...args: CallArgs<Name>): CallResult<Name> {
   const { engine, cache } = useEngineContext()
   const key = JSON.stringify([call, args])
   // Starting the fetch during render is safe: a missing entry always suspends, so nothing renders from this pass.

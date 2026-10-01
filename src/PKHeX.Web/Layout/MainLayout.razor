@@ -148,6 +148,7 @@
     protected override void OnInitialized()
     {
         GameService.OnGameLoaded += OnGameLoaded;
+        GameService.OnGameClosed += OnGameClosed;
         PlugInRegistry.OnPlugInChanged += OnPlugInChanged;
         BrowserWindowService.LoadRequested += OnLoadRequested;
     }
@@ -168,6 +169,11 @@
     private void OnGameLoaded(object? sender, EventArgs args)
     {
         Navigation.NavigateTo("/");
+    }
+
+    private void OnGameClosed(object? sender, EventArgs args)
+    {
+        Navigation.NavigateTo("/load");
     }
 
 
@@ -204,6 +210,7 @@
     public void Dispose()
     {
         GameService.OnGameLoaded -= OnGameLoaded;
+        GameService.OnGameClosed -= OnGameClosed;
         PlugInRegistry.OnPlugInChanged -= OnPlugInChanged;
         BrowserWindowService.LoadRequested -= OnLoadRequested;
     }
