@@ -7,7 +7,7 @@ namespace PKHeX.Everywhere.Engine.Tests;
 public class PlugInVersionTests
 {
     private static byte[] V2PlugIn => PlugInBytes("PKHeX.Everywhere.Engine.Tests.PlugIn");
-    private static byte[] V1PlugIn => PlugInBytes("PKHeX.Web.Plugins.LiveRun");
+    private static byte[] V1PlugIn => PlugInBytes("PKHeX.Everywhere.Engine.Tests.PlugInV1");
 
     private static byte[] PlugInBytes(string name) =>
         File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "plugins", $"{name}.dll"));

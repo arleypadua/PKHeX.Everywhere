@@ -30,4 +30,11 @@ public static class PlugInHandlers
         slot?.Save();
         return PlugInOutcome.From(ran.Outcome!);
     }
+
+    [Query("plugins.pages", Topics.All)]
+    public static DeclaredPage[] Pages(Session session) => PlugInHost.Of(session).Pages().ToArray();
+
+    [Query("plugins.pageModule", Topics.All)]
+    public static string PageModule(Session session, string plugInId, string path) =>
+        PlugInHost.Of(session).PageModule(plugInId, path);
 }

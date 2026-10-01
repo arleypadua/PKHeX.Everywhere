@@ -12,7 +12,10 @@ public class LiveRunPlugin : Settings
         this[GoldSilverCrystal] = new SettingValue.FileValue([], string.Empty);
         this[RubySapphire] = new SettingValue.FileValue([], string.Empty);
         
-        EnabledByDefault<GoToLiveRun>();    }
+        EnabledByDefault<GoToLiveRun>();
+
+        DeclarePage(new PlugInPage(PagePath, "live-run.js", PageLayout.Empty, "Live Run"));
+    }
 
     private static readonly PlugInManifest PlugInManifest = new(
         "Live Run (Browser Emulator)", 
@@ -26,4 +29,6 @@ public class LiveRunPlugin : Settings
     public const string GoldSilverCrystal = "Gold/Silver/Crystal ROM";
     public const string RubySapphire = "Ruby/Sapphire ROM";
     public const string ShowFrameCount = "Show frame count";
+
+    public const string PagePath = "live-run";
 }

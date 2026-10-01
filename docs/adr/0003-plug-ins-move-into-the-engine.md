@@ -36,7 +36,7 @@ Each `PublishedVersions` entry in a source manifest declares the SDK major it ta
 
 ### Page modules
 
-A plug-in declares its pages as `{ path, module, title?, layout }`. `module` names a JS module embedded in the plug-in assembly. The module exports `mount(element, ctx)`, which returns an `unmount` function. `ctx` is `{ plugInId, theme, getSave(), getSetting(key), loadSave(bytes, fileName), navigate(url) }`. The app imports the module from a Blob URL, so a page works on reload and from a link.
+A plug-in declares its pages as `{ path, module, title?, layout }`. `module` names a JS module embedded in the plug-in assembly. The module exports `mount(element, ctx)`, which returns an `unmount` function. `ctx` is `{ plugInId, theme, getSave(), getSetting(key), loadSave(bytes, fileName), navigate(url) }`. `getSave()` returns `{ bytes, fileName, version }`, where `version` lets a page such as LiveRun pick the ROM for the save. `getSetting` returns file settings as bytes. The types ship as `@pkhex-everywhere/plugin-sdk`. The app imports the module from a Blob URL, so a page works on reload and from a link.
 
 ### Stored v1 plug-ins
 

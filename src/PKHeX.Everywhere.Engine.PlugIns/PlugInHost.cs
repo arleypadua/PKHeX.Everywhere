@@ -115,6 +115,23 @@ public sealed class PlugInHost
         return ran;
     }
 
+    public IReadOnlyList<DeclaredPage> Pages() => _plugIns.Values
+        .Where(p => p.Enabled)
+        .SelectMany(p => p.Settings.Pages, (p, page) => new DeclaredPage(p.Id, page.Path, page.Title, page.Layout))
+        .ToList();
+
+    public string PageModule(string plugInId, string path)
+    {
+        var plugIn = _plugIns.GetValueOrDefault(plugInId) is { Enabled: true } enabled
+            ? enabled
+            : throw new EngineException(ErrorCodes.NotFound, $"No enabled plug-in {plugInId}.");
+        var page = plugIn.Settings.Pages.FirstOrDefault(p => p.Path == path)
+                   ?? throw new EngineException(ErrorCodes.NotFound, $"{plugInId} has no page {path}.");
+
+        return plugIn.ReadModule(page.Module)
+               ?? throw new EngineException(ErrorCodes.NotFound, $"{plugInId} has no embedded module {page.Module}.");
+    }
+
     public void Dismiss(PlugInFailure failure)
     {
         if (_failures.Remove(failure)) _session.Invalidate(Topics.All);

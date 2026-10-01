@@ -22,34 +22,6 @@ public static class Extensions
         };
     }
 
-    public static Settings.SettingValue.FileValue? GetFileSettings(this Game game, Settings settings)
-    {
-        var version = game.GameVersionApproximation;
-        return version.Version switch
-        {
-            GameVersion.RBY or GameVersion.RD or GameVersion.GN or GameVersion.BU or GameVersion.YW => settings[LiveRunPlugin.RedBlueYellow],
-            GameVersion.GSC or GameVersion.GS or GameVersion.GD or GameVersion.SI or GameVersion.C => settings[LiveRunPlugin.GoldSilverCrystal],
-            GameVersion.FRLG or GameVersion.FR or GameVersion.LG => settings[LiveRunPlugin.FireredLeafgreen],
-            GameVersion.E => settings[LiveRunPlugin.EmeraldRomFile],
-            GameVersion.RS or GameVersion.R or GameVersion.S => settings[LiveRunPlugin.RubySapphire],
-            _ => null,
-        } as Settings.SettingValue.FileValue;
-    }
-    
-    public static string? GetEmulatorCore(this Game game)
-    {
-        var version = game.SaveVersion;
-        return version.Version switch
-        {
-            GameVersion.RBY or GameVersion.RD or GameVersion.GN or GameVersion.BU or GameVersion.YW => "mgba",
-            GameVersion.GSC or GameVersion.GS or GameVersion.GD or GameVersion.SI or GameVersion.C => "mgba",
-            GameVersion.FRLG or GameVersion.FR or GameVersion.LG => "mgba",
-            GameVersion.E => "mgba",
-            GameVersion.RS or GameVersion.R or GameVersion.S => "mgba",
-            _ => null,
-        };
-    }
-
     private static IDisable.DisableInfo GetDisabled(this LiveRunPlugin settings, string key,
         IDisable.DisableInfo fallback) => settings.GetFile(key).Any()
         ? IDisable.Enabled

@@ -150,7 +150,6 @@
         GameService.OnGameLoaded += OnGameLoaded;
         GameService.OnGameClosed += OnGameClosed;
         PlugInRegistry.OnPlugInChanged += OnPlugInChanged;
-        BrowserWindowService.LoadRequested += OnLoadRequested;
     }
 
     protected override void OnAfterRender(bool firstRender) => ToLoadIfNotLoaded();
@@ -185,14 +184,6 @@
             Navigation.NavigateToPlugIn(plugin);
     }
 
-    private Task OnLoadRequested(BrowserWindowService.SaveLoadedRequested arg)
-    {
-        GameService.Load(arg.Bytes, arg.FileName);
-        Navigation.NavigateToHomePage();
-
-        return Task.CompletedTask;
-    }
-
     private RenderFragment RenderMenu(MenuItem item) =>
         @<MenuItem Key="@item.Route">
             @if (item.Icon is not null)
@@ -212,7 +203,6 @@
         GameService.OnGameLoaded -= OnGameLoaded;
         GameService.OnGameClosed -= OnGameClosed;
         PlugInRegistry.OnPlugInChanged -= OnPlugInChanged;
-        BrowserWindowService.LoadRequested -= OnLoadRequested;
     }
 
     private void HandleSettingsClick()
