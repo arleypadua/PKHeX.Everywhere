@@ -1,4 +1,5 @@
 @using System.Collections.Immutable
+@using PKHeX.Everywhere.Engine
 @using PKHeX.Facade.Events
 @using PKHeX.Facade.Repositories
 @using PKHeX.Web.Plugins
@@ -6,6 +7,7 @@
 @inject IMessageService Message
 @inject ModalService Modal
 @inject PlugInRuntime PlugInRuntime
+@inject Session Session
 
 <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 16px;">
     <Card Size="CardSize.Small" Title="Tickets">
@@ -70,6 +72,8 @@
             Message.Info("No tickets were added.");
             return;
         }
+
+        Session.Invalidate(Topics.Inventory);
 
         foreach (var ticket in added)
             await PlugInRuntime.RunAll<IRunOnItemChanged>(h => h.OnItemChanged(new(ticket.Id, 1)));
