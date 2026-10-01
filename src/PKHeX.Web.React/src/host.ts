@@ -1,4 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react'
+import { toBase64 } from './base64'
 
 export type Theme = 'light' | 'dark'
 
@@ -57,7 +58,5 @@ export function openCalculator(showdown: string) {
 }
 
 function calculatorImportUrl(baseUrl: string, showdown: string) {
-  let binary = ''
-  for (const byte of new TextEncoder().encode(showdown)) binary += String.fromCharCode(byte)
-  return `${baseUrl}/?import=${btoa(binary)}`
+  return `${baseUrl}/?import=${toBase64(new TextEncoder().encode(showdown))}`
 }

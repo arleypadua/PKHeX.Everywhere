@@ -10,6 +10,8 @@ import { openCalculator, useNavigate } from '../../host'
 import { routes } from '../../routes'
 import { useLoadPokemonFile } from './useLoadPokemonFile'
 
+const selectionKey = (pokemon: PokemonSummary) => `${pokemon.id}@${JSON.stringify(pokemon.at)}`
+
 const boxNumber = (pokemon: PokemonSummary) => (pokemon.at.box ?? 0) + 1
 
 const boxColumns: TableColumnsType<PokemonSummary> = [
@@ -29,9 +31,9 @@ export default function BoxPage() {
   const { notification } = App.useApp()
   const loadPokemonFile = useLoadPokemonFile()
   const fileInput = useRef<HTMLInputElement>(null)
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
 
-  const selected = box.filter((pokemon) => selectedIds.includes(pokemon.id))
+  const selected = box.filter((pokemon) => selectedKeys.includes(selectionKey(pokemon)))
 
   const openSelectedInCalculator = async () => {
     const showdown = selected.length
@@ -80,7 +82,7 @@ export default function BoxPage() {
         pokemon={box}
         extraColumns={boxColumns}
         selected={selected}
-        onSelectedChange={(rows) => setSelectedIds(rows.map((pokemon) => pokemon.id))}
+        onSelectedChange={(rows) => setSelectedKeys(rows.map(selectionKey))}
       />
     </Flex>
   )

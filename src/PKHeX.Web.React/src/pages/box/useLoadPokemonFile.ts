@@ -2,14 +2,9 @@ import { useCallback } from 'react'
 import { App } from 'antd'
 import { EngineError } from '@pkhex-everywhere/engine'
 import { useEngine } from '@pkhex-everywhere/react'
+import { toBase64 } from '../../base64'
 import { useNavigate } from '../../host'
 import { routes } from '../../routes'
-
-async function toBase64(file: File) {
-  let binary = ''
-  for (const byte of new Uint8Array(await file.arrayBuffer())) binary += String.fromCharCode(byte)
-  return btoa(binary)
-}
 
 export function useLoadPokemonFile(): (file: File) => Promise<void> {
   const engine = useEngine()
@@ -19,10 +14,9 @@ export function useLoadPokemonFile(): (file: File) => Promise<void> {
   return useCallback(
     async (file: File) => {
       try {
-        const added = await engine.box.addFromFile(await toBase64(file))
-        const pokemon = await engine.pokemon.get(added.at)
-        notification.success({ title: `${pokemon.species} Created`, description: `${pokemon.species} added to your box` })
-        navigate(routes.pokemon(pokemon))
+        const added = await engine.box.addFromFile(toBase64(new Uint8Array(await file.arrayBuffer())))
+        notification.success({ title: 'Pokémon added to your box' })
+        navigate(routes.pokemon(added))
       } catch (error) {
         if (!(error instanceof EngineError)) throw error
         notification.error({ title: error.message })
