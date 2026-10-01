@@ -17,6 +17,7 @@ public class Game
         PokemonRepository = new PokemonRepository(this);
         LocationRepository = new LocationRepository(this);
         ItemRepository = new ItemRepository(saveFile);
+        Options = new GameOptions(saveFile);
 
         Trainer = new Trainer(this);
         BattlePoints = BattlePoints.GetInstance(saveFile);
@@ -29,6 +30,7 @@ public class Game
     public PokemonRepository PokemonRepository { get; }
     public LocationRepository LocationRepository { get; }
     public ItemRepository ItemRepository { get; }
+    public GameOptions Options { get; }
     public Trainer Trainer { get; }
     public BattlePoints BattlePoints { get; }
     public GameEvents? Events => _events.Value;

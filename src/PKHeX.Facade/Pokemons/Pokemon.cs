@@ -4,7 +4,7 @@ using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade.Pokemons;
 
-public class Pokemon(PKM pokemon, Game game)
+public partial class Pokemon(PKM pokemon, Game game)
 {
     // for some reflection
     public Pokemon() : this(default!, default!)
@@ -35,10 +35,11 @@ public class Pokemon(PKM pokemon, Game game)
         {
             if (Pkm.Species == value.ShortId) return;
 
+            var nicknamed = NicknameSet;
             Pkm.Species = value.ShortId;
 
             if (Pkm is ICombatPower combatPower) combatPower.ResetCP();
-            if (!NicknameSet) Pkm.ClearNickname();
+            if (!nicknamed) Pkm.ClearNickname();
         }
     }
 
@@ -132,30 +133,6 @@ public class Pokemon(PKM pokemon, Game game)
     public void ChangeNickname(string nickname)
     {
         pokemon.SetNickname(nickname);
-    }
-
-    public PokemonDetails Details() => new(Nickname, Level, this.LegalityReport());
-
-    public void Update(PokemonPatch patch)
-    {
-        if (patch.Nickname is { } nickname && NicknameProblem(nickname.Trim()) is { } problem)
-            throw new InvalidPatchException(nameof(PokemonPatch.Nickname), problem);
-        if (patch.Level is { } level && level is < 1 or > 100)
-            throw new InvalidPatchException(nameof(PokemonPatch.Level), $"Level must be between 1 and 100, got {level}.");
-
-        if (patch.Nickname is { } newNickname) ChangeNickname(newNickname.Trim());
-        if (patch.Level is { } newLevel) ChangeLevel(newLevel);
-    }
-
-    private string? NicknameProblem(string nickname)
-    {
-        if (nickname.Length > pokemon.MaxStringLengthNickname)
-            return $"Nickname can have at most {pokemon.MaxStringLengthNickname} characters, got {nickname.Length}.";
-        if (nickname.Length == 0) return null;
-
-        var probe = pokemon.Clone();
-        probe.SetNickname(nickname);
-        return probe.Nickname == nickname ? null : $"Nickname \"{nickname}\" has characters this game can't store.";
     }
 
     public void SetShiny(bool shiny)

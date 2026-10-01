@@ -17,6 +17,9 @@ public static class PokemonHandlers
     [Query("pokemon.details", Topics.Party, Topics.Box, Topics.Draft)]
     public static EditablePokemon Details(Session session, PokemonHandle at) => session.Find(at).Pokemon.Details().ToEditable();
 
+    [Query("pokemon.options", Topics.Party, Topics.Box, Topics.Draft)]
+    public static Dtos.PokemonOptions Options(Session session, PokemonHandle at) => session.Find(at).Pokemon.Options().ToDto();
+
     [Command("pokemon.setLevel")]
     public static void SetLevel(Session session, PokemonHandle at, int level)
     {

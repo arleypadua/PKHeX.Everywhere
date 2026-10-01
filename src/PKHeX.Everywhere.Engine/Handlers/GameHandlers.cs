@@ -34,6 +34,18 @@ public static class GameHandlers
         return new ExportedSave(bytes, session.FileName ?? string.Empty);
     }
 
+    [Query("game.natures", Topics.Game)]
+    public static Choice[] Natures(Game game) => game.Options.Natures.ToChoices();
+
+    [Query("game.balls", Topics.Game)]
+    public static Choice[] Balls(Game game) => game.Options.Balls.ToChoices();
+
+    [Query("game.languages", Topics.Game)]
+    public static Choice[] Languages(Game game) => game.Options.Languages.ToChoices();
+
+    [Query("game.heldItems", Topics.Game)]
+    public static Choice[] HeldItems(Game game) => game.Options.HeldItems.ToChoices();
+
     [Query("game.blankVersions")]
     public static VersionEntry[] BlankVersions() =>
         GameVersionRepository.Instance.Blank.Select(version => version.ToEntry()).ToArray();

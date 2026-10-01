@@ -145,7 +145,27 @@ describe('entity hooks', () => {
   })
 
   it('usePokemonDetails refreshes after update changes the Pokémon', async () => {
-    let details: EditablePokemon = { nickname: 'Pikachu', level: 12, legality: { valid: true, messages: [] } }
+    let details: EditablePokemon = {
+      species: 25,
+      form: 0,
+      gender: 'male',
+      nature: 3,
+      ability: 9,
+      heldItem: 0,
+      ball: 4,
+      friendship: 70,
+      language: 2,
+      isShiny: false,
+      isAlpha: null,
+      isEgg: false,
+      nickname: 'Pikachu',
+      level: 12,
+      pid: 1,
+      types: [12],
+      isInfected: false,
+      isCured: false,
+      legality: { valid: true, messages: [] },
+    }
     const { engine, emitChange } = fakeEngine((name, args) => {
       if (name === 'pokemon.details') return details
       details = { ...details, ...(args[1] as PokemonPatch) } as EditablePokemon

@@ -30,6 +30,11 @@ export interface CatalogNamesRequest {
   itemIds: number[]
 }
 
+export interface Choice {
+  id: number
+  name: string
+}
+
 export interface DeclaredPage {
   plugInId: string
   path: string
@@ -38,8 +43,24 @@ export interface DeclaredPage {
 }
 
 export interface EditablePokemon {
+  species: number
+  form: number
+  gender: PokemonGender
+  nature: number
+  ability: number
+  heldItem: number
+  ball: number
+  friendship: number
+  language: number
+  isShiny: boolean
+  isAlpha: boolean | null
+  isEgg: boolean
   nickname: string
   level: number
+  pid: number
+  types: number[]
+  isInfected: boolean
+  isCured: boolean
   legality: Legality
 }
 
@@ -164,6 +185,8 @@ export interface PokemonForm {
   name: string
 }
 
+export type PokemonGender = 'male' | 'female' | 'genderless'
+
 export interface PokemonHandle {
   source: SlotSource
   slot: number
@@ -172,7 +195,25 @@ export interface PokemonHandle {
 
 export type PokemonId = string & { readonly __brand: 'PokemonId' }
 
+export interface PokemonOptions {
+  species: Choice[]
+  abilities: Choice[]
+  forms: Choice[]
+}
+
 export interface PokemonPatch {
+  species?: number | null
+  form?: number | null
+  gender?: PokemonGender | null
+  nature?: number | null
+  ability?: number | null
+  heldItem?: number | null
+  ball?: number | null
+  friendship?: number | null
+  language?: number | null
+  isShiny?: boolean | null
+  isAlpha?: boolean | null
+  isEgg?: boolean | null
   nickname?: string | null
   level?: number | null
 }
