@@ -89,4 +89,26 @@ public class PlugInVersionTests
         PlugInHost.SdkUpdateFor(V1PlugIn, Versions("""["1.1.3", { "Version": "3.0.0", "Sdk": 3 }]""")).Should().BeNull();
         PlugInHost.SdkUpdateFor(V2PlugIn, Versions("""[{ "Version": "2.1.0", "Sdk": 2 }]""")).Should().BeNull();
     }
+
+    [Fact]
+    public void AnInstalledV1PlugInUpdatesToANewerSdkEvenWhenAV1VersionHasAHigherNumber()
+    {
+        PlugInHost.SdkUpdateFor(V1PlugIn, Versions("""["1.1.3", { "Version": "1.0.0", "Sdk": 2 }]"""))
+            .Should().Be(new PublishedVersion("1.0.0", 2));
+    }
+
+    [Fact]
+    public void AnUnknownInstalledSdkDoesntUpdate()
+    {
+        PlugInHost.SdkUpdateFor([1, 2, 3], Versions("""[{ "Version": "2.0.0", "Sdk": 2 }]""")).Should().BeNull();
+    }
+
+    [Fact]
+    public void TheNewestUpdateNeverGoesBackToAnOlderSdk()
+    {
+        var versions = Versions("""[{ "Version": "2.0.0", "Sdk": 2 }, "2.0.1"]""");
+
+        PlugInHost.NewestUpdateFor(V2PlugIn, versions).Should().Be(new PublishedVersion("2.0.0", 2));
+        PlugInHost.NewestUpdateFor(V1PlugIn, versions).Should().Be(new PublishedVersion("2.0.1", 1));
+    }
 }

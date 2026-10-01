@@ -45,7 +45,12 @@ public sealed class PlugInHost
         .MaxBy(v => Version.Parse(v.Version));
 
     public static PublishedVersion? SdkUpdateFor(byte[] installed, IEnumerable<PublishedVersion> versions) =>
-        NewestCompatible(versions) is { } newest && newest.Sdk > (int)DetectSdk(installed) ? newest : null;
+        DetectSdk(installed) is var sdk && sdk == PlugInSdk.None
+            ? null
+            : NewestCompatible(versions.Where(v => v.Sdk > (int)sdk));
+
+    public static PublishedVersion? NewestUpdateFor(byte[] installed, IEnumerable<PublishedVersion> versions) =>
+        NewestCompatible(versions.Where(v => v.Sdk >= (int)DetectSdk(installed)));
 
     public RegisteredPlugIn Register(byte[] assembly, StoredPlugIn? stored = null)
     {

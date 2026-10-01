@@ -23,9 +23,12 @@ public class PlugInService(
         if (source is null) return false;
 
         var sourcePlugIn = source.PlugIns.FirstOrDefault(p => p.Id == plugIn.Id);
-        if (sourcePlugIn?.NewestCompatibleVersion is null) return false;
+        if (sourcePlugIn is null) return false;
 
-        var downloadUrl = source.GetLatestDownloadUrl(sourcePlugIn);
+        var version = PlugInHost.NewestUpdateFor(plugIn.AssemblyRawBytes, sourcePlugIn.PublishedVersions);
+        if (version is null) return false;
+
+        var downloadUrl = source.GetDownloadUrl(sourcePlugIn, version);
         var updatedPlugIn = await InstallFrom(source.SourceUrl, downloadUrl);
 
         analyticsService.TrackUpdated(updatedPlugIn);

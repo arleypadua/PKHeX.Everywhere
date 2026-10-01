@@ -58,12 +58,12 @@ public class PlugInLocalStorageLoader(
 
     private async Task UpdateToNewerSdks()
     {
-        var sources = plugInSourceLocalStorage.GetSources().ToDictionary(s => s.SourceUrl);
         foreach (var installed in registry.GetAllPlugins().ToList())
         {
             try
             {
-                if (!sources.TryGetValue(installed.SourceId, out var source)) continue;
+                var source = plugInSourceLocalStorage.GetSources().FirstOrDefault(s => s.SourceUrl == installed.SourceId);
+                if (source is null) continue;
                 var sourcePlugIn = source.PlugIns.FirstOrDefault(p => p.Id == installed.Id);
                 if (sourcePlugIn is null) continue;
 
@@ -126,7 +126,7 @@ public class PlugInLocalStorageLoader(
                         continue;
                     }
 
-                    var latestVersionString = plugInManifest.NewestCompatibleVersion?.Version;
+                    var latestVersionString = PlugInHost.NewestUpdateFor(installedPlugIn.AssemblyRawBytes, plugInManifest.PublishedVersions)?.Version;
                     if (latestVersionString is null)
                     {
                         logger.LogWarning(
