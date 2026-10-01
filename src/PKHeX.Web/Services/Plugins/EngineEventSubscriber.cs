@@ -17,7 +17,7 @@ public sealed class EngineEventSubscriber : IDisposable
         _session.Published += HandlePublished;
     }
 
-    public async Task OnItemChanged(int itemId, int count)
+    private async Task OnItemChanged(int itemId, int count)
     {
         await _runtime.RunAll<IRunOnItemChanged>(h => h.OnItemChanged(new((ushort)itemId, (uint)count)));
         _analytics.TrackItemModified(itemId, count);
