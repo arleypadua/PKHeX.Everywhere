@@ -1,9 +1,9 @@
-using System.Text.Json;
 using AwesomeAssertions;
 using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 using PKHeX.Facade.Tests.Base;
+using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 using static PKHeX.Everywhere.Engine.Tests.EngineResults;
 
 namespace PKHeX.Everywhere.Engine.Tests;
@@ -63,6 +63,18 @@ public class PokemonHandlerTests
         changes.Should().BeEquivalentTo([new[] { Topics.Party }, new[] { $"box/{at.Box}" }], o => o.WithStrictOrdering());
     }
 
+    [Fact]
+    public void AFailedCommandChangesNothing()
+    {
+        var session = Loaded(SaveFilePath.HgSs);
+        var changes = new List<string[]>();
+        session.Changed += changes.Add;
+
+        Dispatcher.Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Party(0), 101));
+
+        changes.Should().BeEmpty();
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(101)]
@@ -110,22 +122,4 @@ public class PokemonHandlerTests
         Value(Dispatcher.Dispatch(session, "pokemon.get", Args(at)))!["level"]!.GetValue<int>();
 
     private static int OtherLevel(int level) => level == 50 ? 51 : 50;
-
-    // Let's Go keeps party members in box storage, so their box slots alias party slots. The Eevee save has no other box Pokémon.
-    internal static (PokemonHandle At, int Index)? FirstBoxPokemon(Game game)
-    {
-        var all = game.Trainer.PokemonBox.All;
-        var index = Enumerable.Range(0, all.Count).FirstOrDefault(i => all[i].Pkm.Species != 0 && !InParty(game, i), -1);
-        var slots = game.SaveFile.BoxSlotCount;
-        return index < 0 ? null : (PokemonHandle.InBox(index / slots, index % slots), index);
-    }
-
-    private static bool InParty(Game game, int boxIndex) =>
-        game.SaveFile is SAV7b { Blocks.Storage: var storage } && storage.IsParty(boxIndex);
-
-    internal static string Args(params object[] args) => JsonSerializer.Serialize(args.Select(Arg));
-
-    private static object Arg(object arg) => arg is PokemonHandle at
-        ? new { source = at.Source == SlotSource.Party ? "party" : "box", slot = at.Slot, box = at.Box }
-        : arg;
 }

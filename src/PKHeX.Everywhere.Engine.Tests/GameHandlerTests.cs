@@ -2,7 +2,7 @@ using AwesomeAssertions;
 using PKHeX.Facade;
 using PKHeX.Facade.Tests.Base;
 using static PKHeX.Everywhere.Engine.Tests.EngineResults;
-using static PKHeX.Everywhere.Engine.Tests.PokemonHandlerTests;
+using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 
 namespace PKHeX.Everywhere.Engine.Tests;
 

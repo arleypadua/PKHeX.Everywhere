@@ -103,13 +103,10 @@ public static class TypeScript
             var get = entity.FirstOrDefault(c => c is { Kind: CallKind.Query, Verb: "get" });
             if (get is null) continue;
 
-            var handle = get.Parameters switch
-            {
-                [] => null,
-                [{ IsHandle: true } single] => single,
-                _ => null,
-            };
-            if (handle is null && get.Parameters.Count > 0) continue;
+            Parameter? handle;
+            if (get.Parameters is []) handle = null;
+            else if (get.Parameters is [{ IsHandle: true } single]) handle = single;
+            else continue;
 
             var name = entity.Select(c => c.Hook).FirstOrDefault(h => h is not null) ?? $"use{char.ToUpperInvariant(entity.Key[0])}{entity.Key[1..]}";
             var commands = entity.Where(c => c.Kind == CallKind.Command).ToList();

@@ -48,16 +48,19 @@ public sealed class Session
     // instead of a Facade event covering for them.
     internal T RunCommand<T>(string[] written, Func<T> command)
     {
+        T result;
         _inCommand = true;
         try
         {
-            return command();
+            result = command();
         }
         finally
         {
             _inCommand = false;
-            Invalidate(written);
         }
+
+        Invalidate(written);
+        return result;
     }
 
     internal Game RequireGame() =>

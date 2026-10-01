@@ -3,13 +3,10 @@ using AwesomeAssertions;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 using PKHeX.Facade.Tests.Base;
-using static PKHeX.Everywhere.Engine.Tests.PokemonHandlerTests;
+using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 
 namespace PKHeX.Everywhere.Engine.Tests;
 
-/// <summary>
-/// Runs every command against the test saves and fails when a query's result changes while the command reported no Topic the query reads.
-/// </summary>
 public class CommandTopicTests
 {
     private static readonly Dictionary<string, Func<Game, string, IEnumerable<string>>> SampleArgs = new()
