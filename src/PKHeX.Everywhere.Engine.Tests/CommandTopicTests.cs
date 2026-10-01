@@ -17,6 +17,7 @@ public class CommandTopicTests
             Args(Convert.ToBase64String(File.ReadAllBytes(saveFile == SaveFilePath.HgSs ? SaveFilePath.Emerald : SaveFilePath.HgSs)), "other.sav"),
         ],
         ["game.close"] = (_, _) => ["[]"],
+        ["inventory.get"] = (_, _) => ["[]"],
         ["party.get"] = (_, _) => ["[]"],
         ["party.showdown"] = (_, _) => ["[]"],
         ["pokemon.get"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),

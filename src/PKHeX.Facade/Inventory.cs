@@ -32,7 +32,12 @@ public class Inventory : IEnumerable<Inventory.Item>
     /// Returns the max count a single item can have
     /// </summary>
     public int MaxItemCountAllowed => _pouch.MaxCount;
-    
+
+    /// <summary>
+    /// Returns the max count of a specific item, which can be lower than <see cref="MaxItemCountAllowed"/> (e.g. HMs)
+    /// </summary>
+    public int MaxCountOf(ushort itemId) => _bag.GetMaxCount(_pouch.Type, itemId);
+
     /// <summary>
     /// Returns a list of all items supported in this inventory
     /// </summary>

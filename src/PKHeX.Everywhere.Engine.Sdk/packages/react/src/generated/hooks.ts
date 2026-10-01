@@ -18,6 +18,11 @@ export function useLoadedGame() {
   return { game, ...commands }
 }
 
+export function useInventory() {
+  const inventory = useQuery('inventory.get')
+  return { inventory }
+}
+
 export function useParty() {
   const party = useQuery('party.get')
   return { party }
