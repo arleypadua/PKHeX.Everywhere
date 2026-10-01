@@ -11,6 +11,25 @@ public class BoxHandlerTests
 {
     [Theory]
     [SupportedSaveFiles]
+    public void GetReturnsEveryBoxedPokemonInBoxAndSlotOrder(string saveFile)
+    {
+        var session = Loaded(saveFile);
+        var game = session.Game!;
+
+        var box = Value(Dispatcher.Dispatch(session, "box.get", "[]"))!.AsArray();
+
+        var expected = BoxedPokemon(game).ToList();
+        box.Select(p => p!["id"]!.GetValue<string>()).Should().Equal(expected.Select(p => p.Pokemon.UniqueId.Value));
+        box.Select(p => p!["at"]!.ToJsonString()).Should().Equal(expected.Select(p => Args(p.At)[1..^1]));
+        box.Select(p => p!["species"]!.GetValue<string>()).Should().Equal(expected.Select(p => p.Pokemon.Species.Name));
+    }
+
+    [Fact]
+    public void GetFailsWithNoSaveWithoutALoadedSave() =>
+        Error(Dispatcher.Dispatch(new Session(), "box.get", "[]")).Should().Be("no-save");
+
+    [Theory]
+    [SupportedSaveFiles]
     public void AddFromFileAddsAPokemonExportedFromTheSaveToTheFirstEmptyBoxSlot(string saveFile)
     {
         var session = Loaded(saveFile);

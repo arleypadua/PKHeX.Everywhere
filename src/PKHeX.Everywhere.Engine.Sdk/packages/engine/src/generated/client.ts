@@ -4,7 +4,7 @@ import type { AddedPokemon, Base64, EncounterRow, EncounterVersions, ItemHandle,
 
 export type Invoke = <T>(call: CallName, args: unknown[]) => Promise<T>
 
-export const queries = ['encounters.search', 'encounters.versions', 'game.get', 'inventory.get', 'party.get', 'party.showdown', 'plugins.failures', 'pokemon.get', 'pokemon.showdown', 'species.list'] as const
+export const queries = ['box.get', 'box.showdown', 'encounters.search', 'encounters.versions', 'game.get', 'inventory.get', 'party.get', 'party.showdown', 'plugins.failures', 'pokemon.get', 'pokemon.showdown', 'species.list'] as const
 
 export const commands = ['box.addEncounter', 'box.addFromFile', 'game.close', 'game.load', 'inventory.setItem', 'pokemon.setLevel'] as const
 
@@ -18,6 +18,8 @@ export interface EngineClient {
   box: {
     addEncounter(index: number): Promise<AddedPokemon>
     addFromFile(bytes: Base64): Promise<AddedPokemon>
+    get(): Promise<PokemonSummary[]>
+    showdown(): Promise<string>
   }
   encounters: {
     search(version: number, species: number): Promise<EncounterRow[]>
@@ -54,6 +56,8 @@ export function createClient(invoke: Invoke): EngineClient {
     box: {
       addEncounter: (index) => invoke('box.addEncounter', [index]),
       addFromFile: (bytes) => invoke('box.addFromFile', [bytes]),
+      get: () => invoke('box.get', []),
+      showdown: () => invoke('box.showdown', []),
     },
     encounters: {
       search: (version, species) => invoke('encounters.search', [version, species]),

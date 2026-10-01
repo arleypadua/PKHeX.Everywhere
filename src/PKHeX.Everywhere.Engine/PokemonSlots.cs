@@ -55,7 +55,7 @@ internal static class PokemonSlots
         return new PokemonSlot(pokemons.All[index], pokemons.Commit, [at.Topic()]);
     }
 
-    private static PokemonHandle BoxHandle(SaveFile save, int index) =>
+    public static PokemonHandle BoxHandle(SaveFile save, int index) =>
         PokemonHandle.InBox(index / save.BoxSlotCount, index % save.BoxSlotCount);
 
     private static EngineException NotFound(PokemonHandle at) =>

@@ -27,4 +27,32 @@ public class PokemonBoxTests
             p.BaseStats.SpecialDefense.Should().BeGreaterThan(0);
         });
     }
+
+    [Theory]
+    [SupportedSaveFiles]
+    public void BoxedListsTheNonEmptySlotsInOrder(string saveFile)
+    {
+        var game = Game.LoadFrom(saveFile);
+        var partyMembers = Enumerable.Range(0, game.Trainer.Party.Pokemons.Count).Select(game.Trainer.Party.BoxIndexOf).ToHashSet();
+        var expected = game.Trainer.PokemonBox.All
+            .Select((pokemon, index) => (index, pokemon))
+            .Where(p => p.pokemon.Species != SpeciesDefinition.None && !partyMembers.Contains(p.index))
+            .ToList();
+
+        game.Trainer.PokemonBox.Boxed().Should().Equal(expected);
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.LetsGoPikachu)]
+    [InlineData(SaveFilePath.LetsGoEevee)]
+    public void BoxedLeavesOutLetsGoPartyMembers(string saveFile)
+    {
+        var game = Game.LoadFrom(saveFile);
+        var partyMembers = Enumerable.Range(0, game.Trainer.Party.Pokemons.Count)
+            .Select(slot => game.Trainer.Party.BoxIndexOf(slot)!.Value)
+            .ToList();
+
+        partyMembers.Should().NotBeEmpty();
+        game.Trainer.PokemonBox.Boxed().Select(p => p.Index).Should().NotIntersectWith(partyMembers);
+    }
 }

@@ -22,6 +22,16 @@ public class ShowdownTests
 
     [Theory]
     [SupportedSaveFiles]
+    public void BoxShowdownCoversTheBoxedPokemon(string saveFile)
+    {
+        var session = Loaded(saveFile);
+
+        Value(Dispatcher.Dispatch(session, "box.showdown", "[]"))!.GetValue<string>()
+            .Should().Be(BoxedPokemon(session.Game!).Select(p => p.Pokemon).Showdown());
+    }
+
+    [Theory]
+    [SupportedSaveFiles]
     public void PokemonShowdownMatchesTheFacadeForAPartyPokemon(string saveFile)
     {
         var session = Loaded(saveFile);

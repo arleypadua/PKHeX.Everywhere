@@ -1,11 +1,20 @@
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
+using PKHeX.Facade.Extensions;
 using Pokemon = PKHeX.Facade.Pokemons.Pokemon;
 
 namespace PKHeX.Everywhere.Engine.Handlers;
 
 public static class BoxHandlers
 {
+    [Query("box.get", Topics.Box)]
+    public static PokemonSummary[] Get(Game game) => game.Trainer.PokemonBox.Boxed()
+        .Select(boxed => boxed.Pokemon.ToSummary(PokemonSlots.BoxHandle(game.SaveFile, boxed.Index)))
+        .ToArray();
+
+    [Query("box.showdown", Topics.Box)]
+    public static string Showdown(Game game) => game.Trainer.PokemonBox.Boxed().Select(boxed => boxed.Pokemon).Showdown();
+
     [Command("box.addFromFile", Topics.Box)]
     public static AddedPokemon AddFromFile(Session session, Game game, byte[] bytes)
     {
@@ -43,8 +52,7 @@ public static class BoxHandlers
         if (!box.AddOnEmptySlot(pokemon, out var index))
             throw new EngineException(ErrorCodes.BoxFull, "Your box is full.");
 
-        var slots = game.SaveFile.BoxSlotCount;
-        var at = PokemonHandle.InBox(index / slots, index % slots);
+        var at = PokemonSlots.BoxHandle(game.SaveFile, index);
         session.Raise(new PokemonAdded(at, source));
         return new AddedPokemon(new PokemonId(box.All[index].UniqueId.Value), at);
     }
