@@ -18,6 +18,20 @@ export function useBox() {
   return { box, ...commands }
 }
 
+export function useEvents() {
+  const engine = useEngine()
+  const events = useQuery('events.get')
+  const commands = useMemo(
+    () => ({
+      giveTickets: (includeOldSeaMap: boolean) => engine.events.giveTickets(includeOldSeaMap),
+      setFlag: (index: number, value: boolean) => engine.events.setFlag(index, value),
+      setWork: (index: number, value: number) => engine.events.setWork(index, value),
+    }),
+    [engine],
+  )
+  return { events, ...commands }
+}
+
 export function useLoadedGame() {
   const engine = useEngine()
   const game = useQuery('game.get')

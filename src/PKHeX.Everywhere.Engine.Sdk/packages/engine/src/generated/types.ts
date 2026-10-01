@@ -40,6 +40,28 @@ export interface EncounterVersions {
   default: number
 }
 
+export interface EventFlag {
+  index: number
+  name: string
+  category: string
+  value: boolean
+}
+
+export interface EventWork {
+  index: number
+  name: string
+  category: string
+  value: number
+  options: WorkOption[]
+}
+
+export interface Gen3Extras {
+  tickets: string[]
+  anyTicketMissing: boolean
+  oldSeaMapNeedsConfirmation: boolean
+  islands: EventFlag[]
+}
+
 export interface ItemHandle {
   pouch: string
   itemId: number
@@ -112,6 +134,16 @@ export interface Pouch {
   addable: AddableItem[]
 }
 
+export interface SaveEvents {
+  flags: EventFlag[]
+  work: EventWork[]
+  flagCount: number
+  workCount: number
+  workMin: number
+  workMax: number
+  gen3: Gen3Extras | null
+}
+
 export interface SaveSummary {
   fileName: string | null
   version: string
@@ -128,4 +160,9 @@ export interface SpeciesEntry {
 export interface VersionEntry {
   id: number
   name: string
+}
+
+export interface WorkOption {
+  name: string
+  value: number
 }

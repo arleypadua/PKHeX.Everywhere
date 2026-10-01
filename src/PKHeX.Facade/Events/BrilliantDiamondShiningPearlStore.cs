@@ -21,7 +21,7 @@ internal sealed class BrilliantDiamondShiningPearlStore : IEventStore
                 () => block.GetFlag(l.Index),
                 v => block.SetFlag(l.Index, v)));
         var system = labels.System
-            .Select(l => new EventFlagEntry(l.Index, l.Name, SystemCategory,
+            .Select(l => new EventFlagEntry(block.CountFlag + l.Index, l.Name, SystemCategory,
                 () => block.GetSystemFlag(l.Index),
                 v => block.SetSystemFlag(l.Index, v)));
 
@@ -37,13 +37,20 @@ internal sealed class BrilliantDiamondShiningPearlStore : IEventStore
     public ImmutableList<EventFlagEntry> Flags { get; }
     public ImmutableList<EventWorkEntry> Work { get; }
 
-    public int FlagCount => _block.CountFlag;
+    // System flags have their own index range in the save, so they follow the other flags to keep indices unique.
+    public int FlagCount => _block.CountFlag + _block.CountSystem;
     public int WorkCount => _block.CountWork;
     public int WorkMin => int.MinValue;
     public int WorkMax => int.MaxValue;
 
-    public bool GetFlag(int index) => _block.GetFlag(index);
-    public void SetFlag(int index, bool value) => _block.SetFlag(index, value);
+    public bool GetFlag(int index) =>
+        index < _block.CountFlag ? _block.GetFlag(index) : _block.GetSystemFlag(index - _block.CountFlag);
+
+    public void SetFlag(int index, bool value)
+    {
+        if (index < _block.CountFlag) _block.SetFlag(index, value);
+        else _block.SetSystemFlag(index - _block.CountFlag, value);
+    }
     public int GetWork(int index) => _block.GetWork(index);
     public void SetWork(int index, int value) => _block.SetWork(index, value);
 }

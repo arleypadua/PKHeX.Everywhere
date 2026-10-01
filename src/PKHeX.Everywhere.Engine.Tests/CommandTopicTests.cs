@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
+using PKHeX.Facade.Events;
 using PKHeX.Facade.Tests.Base;
 using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 
@@ -18,6 +19,11 @@ public class CommandTopicTests
         ["box.showdown"] = (_, _) => ["[]"],
         ["encounters.search"] = (game, _) => [Args(game.GameVersionApproximation.Id, (int)Species.Abra)],
         ["encounters.versions"] = (_, _) => ["[]"],
+        ["events.flag"] = (game, _) => Flags(game).Select(f => Args(f.Index)),
+        ["events.get"] = (_, _) => ["[]"],
+        ["events.giveTickets"] = (game, _) => game.Events?.Gen3 is null ? [] : [Args(true)],
+        ["events.setFlag"] = (game, _) => Flags(game).Select(f => Args(f.Index, !f.Value)),
+        ["events.setWork"] = (game, _) => game.Events?.Work.LastOrDefault() is { } work ? [Args(work.Index, work.Value == 7 ? 8 : 7)] : [],
         ["game.get"] = (_, _) => ["[]"],
         ["game.load"] = (_, saveFile) =>
         [
@@ -89,7 +95,11 @@ public class CommandTopicTests
     {
         if (AddableItem(game) is var (at, maxCount)) yield return Args(at, maxCount);
         if (OwnedItem(game) is { } owned) yield return Args(owned, 0);
+        if (game.Events?.Gen3?.Tickets.Missing.FirstOrDefault() is { } ticket) yield return Args(new ItemHandle("KeyItems", ticket.Id), 1);
     }
+
+    private static IEnumerable<EventFlagEntry> Flags(Game game) =>
+        game.Events is { } events ? [events.Flags.Last(), .. events.Gen3?.Islands.Take(1) ?? []] : [];
 
     private static bool Affects(IEnumerable<string> changed, IEnumerable<string> read) =>
         changed.Any(c => read.Any(r => Covers(c, r) || Covers(r, c)));
