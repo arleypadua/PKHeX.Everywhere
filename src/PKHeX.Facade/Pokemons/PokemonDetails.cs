@@ -19,6 +19,13 @@ public record PokemonDetails(
     IReadOnlyList<int> Types,
     bool IsInfected,
     bool IsCured,
+    uint TrainerId,
+    uint SecretId,
+    string OriginalTrainerName,
+    Gender OriginalTrainerGender,
+    string HandlingTrainerName,
+    Gender HandlingTrainerGender,
+    Owner.Handler CurrentHandler,
     PokemonLegality Legality);
 
 public record PokemonLegality(bool Valid, IReadOnlyList<string> Messages);
@@ -40,7 +47,14 @@ public record PokemonPatch(
     bool? IsAlpha = null,
     bool? IsEgg = null,
     string? Nickname = null,
-    int? Level = null);
+    int? Level = null,
+    uint? TrainerId = null,
+    uint? SecretId = null,
+    string? OriginalTrainerName = null,
+    Gender? OriginalTrainerGender = null,
+    string? HandlingTrainerName = null,
+    Gender? HandlingTrainerGender = null,
+    Owner.Handler? CurrentHandler = null);
 
 /// <summary>
 /// Thrown when a patch holds a value the save can't store. The Pokémon is left unchanged.

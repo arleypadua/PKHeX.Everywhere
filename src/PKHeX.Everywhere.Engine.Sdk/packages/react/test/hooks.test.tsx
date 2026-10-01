@@ -164,6 +164,13 @@ describe('entity hooks', () => {
       types: [12],
       isInfected: false,
       isCured: false,
+      trainerId: 12345,
+      secretId: 54321,
+      originalTrainerName: 'Red',
+      originalTrainerGender: 'male',
+      handlingTrainerName: '',
+      handlingTrainerGender: 'male',
+      currentHandler: 'originalTrainer',
       legality: { valid: true, messages: [] },
     }
     const { engine, emitChange } = fakeEngine((name, args) => {

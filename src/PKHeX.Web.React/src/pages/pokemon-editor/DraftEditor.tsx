@@ -5,6 +5,7 @@ import { PageHeader } from '../../components/PageHeader'
 import { PokemonSprite } from '../../components/PokemonSprite'
 import { DescriptionTab } from './DescriptionTab'
 import { LegalityBanner } from './LegalityBanner'
+import { TrainerTab } from './TrainerTab'
 
 interface DraftEditorProps {
   onSave: () => void
@@ -18,7 +19,12 @@ export function DraftEditor({ onSave }: DraftEditorProps) {
     <Flex vertical gap={20}>
       <PageHeader title="Pokemon" extra={<PokemonSprite pokemon={pokemon} />} />
       <LegalityBanner legality={details.legality} />
-      <Tabs items={[{ key: 'description', label: 'Description', children: <DescriptionTab /> }]} />
+      <Tabs
+        items={[
+          { key: 'description', label: 'Description', children: <DescriptionTab /> },
+          { key: 'trainer', label: 'Trainer', children: <TrainerTab /> },
+        ]}
+      />
       <Flex justify="end">
         <Button type="primary" onClick={onSave}>
           Save

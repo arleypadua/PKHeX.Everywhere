@@ -50,6 +50,12 @@ public enum PokemonGender
     Genderless,
 }
 
+public enum PokemonHandler
+{
+    OriginalTrainer,
+    HandlingTrainer,
+}
+
 public record EditablePokemon(
     int Species,
     int Form,
@@ -69,6 +75,13 @@ public record EditablePokemon(
     int[] Types,
     bool IsInfected,
     bool IsCured,
+    uint TrainerId,
+    uint SecretId,
+    string OriginalTrainerName,
+    TrainerGender OriginalTrainerGender,
+    string HandlingTrainerName,
+    TrainerGender HandlingTrainerGender,
+    PokemonHandler CurrentHandler,
     Legality Legality);
 
 public record PokemonPatch(
@@ -85,7 +98,14 @@ public record PokemonPatch(
     bool? IsAlpha = null,
     bool? IsEgg = null,
     string? Nickname = null,
-    int? Level = null);
+    int? Level = null,
+    uint? TrainerId = null,
+    uint? SecretId = null,
+    string? OriginalTrainerName = null,
+    TrainerGender? OriginalTrainerGender = null,
+    string? HandlingTrainerName = null,
+    TrainerGender? HandlingTrainerGender = null,
+    PokemonHandler? CurrentHandler = null);
 
 public record Choice(int Id, string Name);
 
@@ -126,6 +146,13 @@ public static class PokemonMapping
         details.Types.ToArray(),
         details.IsInfected,
         details.IsCured,
+        details.TrainerId,
+        details.SecretId,
+        details.OriginalTrainerName,
+        details.OriginalTrainerGender.ToTrainerGender(),
+        details.HandlingTrainerName,
+        details.HandlingTrainerGender.ToTrainerGender(),
+        details.CurrentHandler.ToDto(),
         new Legality(details.Legality.Valid, details.Legality.Messages.ToArray()));
 
     public static Facade.Pokemons.PokemonPatch ToFacade(this PokemonPatch patch) => new(
@@ -142,7 +169,20 @@ public static class PokemonMapping
         patch.IsAlpha,
         patch.IsEgg,
         patch.Nickname,
-        patch.Level);
+        patch.Level,
+        patch.TrainerId,
+        patch.SecretId,
+        patch.OriginalTrainerName,
+        patch.OriginalTrainerGender?.ToGender(),
+        patch.HandlingTrainerName,
+        patch.HandlingTrainerGender?.ToGender(),
+        patch.CurrentHandler?.ToHandler());
+
+    public static PokemonHandler ToDto(this Owner.Handler handler) =>
+        handler == Owner.Handler.SomeoneElse ? PokemonHandler.HandlingTrainer : PokemonHandler.OriginalTrainer;
+
+    public static Owner.Handler ToHandler(this PokemonHandler handler) =>
+        handler == PokemonHandler.HandlingTrainer ? Owner.Handler.SomeoneElse : Owner.Handler.OriginalTrainer;
 
     public static PokemonGender ToDto(this Gender gender) =>
         gender == Gender.Male ? PokemonGender.Male : gender == Gender.Female ? PokemonGender.Female : PokemonGender.Genderless;
