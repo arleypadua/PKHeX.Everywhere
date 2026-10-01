@@ -205,7 +205,7 @@ public class InventoryHandlerTests
     {
         var session = Loaded(saveFile);
         var inventory = session.Game!.Trainer.Inventories["Items"];
-        var rejected = inventory.CurrentSupportedItems.First(item => !inventory.Set(item.Id, 1));
+        var rejected = inventory.CurrentSupportedItems.First(item => !inventory.TrySet(item.Id, 1));
         var at = new ItemHandle("Items", rejected.Id);
         var changes = new List<string[]>();
         session.Changed += changes.Add;

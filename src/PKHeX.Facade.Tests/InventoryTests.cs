@@ -111,14 +111,14 @@ public class InventoryTests
     [Theory]
     [InlineData(SaveFilePath.Emerald, "Items")]
     [InlineData(SaveFilePath.Crystal, "Items")]
-    public void Set_NewItemInAFullPouch_ShouldReturnFalseAndLeaveThePouchUnchanged(string saveFile, string pouch)
+    public void TrySet_NewItemInAFullPouch_ShouldReturnFalseAndLeaveThePouchUnchanged(string saveFile, string pouch)
     {
         var game = Game.LoadFrom(saveFile);
         var inventory = game.Trainer.Inventories[pouch];
         var rejected = Fill(inventory);
         var before = inventory.Items.Select(i => (i.Id, i.Count)).ToList();
 
-        inventory.Set(rejected.Id, 1).Should().BeFalse();
+        inventory.TrySet(rejected.Id, 1).Should().BeFalse();
 
         inventory.Items.Select(i => (i.Id, i.Count)).Should().Equal(before);
         game.SaveAndReload(reloaded => reloaded.Trainer.Inventories[pouch].Items
@@ -128,17 +128,17 @@ public class InventoryTests
     [Theory]
     [InlineData(SaveFilePath.Emerald, "Items")]
     [InlineData(SaveFilePath.Crystal, "Items")]
-    public void Set_OwnedItemInAFullPouch_ShouldReturnTrue(string saveFile, string pouch)
+    public void TrySet_OwnedItemInAFullPouch_ShouldReturnTrue(string saveFile, string pouch)
     {
         var inventory = Game.LoadFrom(saveFile).Trainer.Inventories[pouch];
         Fill(inventory);
         var owned = inventory.AllExceptNone().First();
 
-        inventory.Set(owned.Id, 2).Should().BeTrue();
+        inventory.TrySet(owned.Id, 2).Should().BeTrue();
 
         inventory.Items.Should().ContainSingle(i => i.Id == owned.Id && i.Count == 2);
     }
 
     private static ItemDefinition Fill(Inventory inventory) =>
-        inventory.CurrentSupportedItems.First(item => !inventory.Set(item.Id, 1));
+        inventory.CurrentSupportedItems.First(item => !inventory.TrySet(item.Id, 1));
 }

@@ -67,8 +67,11 @@ public class Inventory : IEnumerable<Inventory.Item>
         Commit();
     }
 
+    // Published plug-in DLLs bind to this exact signature; changing its return type breaks them at runtime.
+    public void Set(ushort itemId, uint count) => TrySet(itemId, count);
+
     /// <returns>false when the item isn't owned and the pouch has no free slot</returns>
-    public bool Set(ushort itemId, uint count)
+    public bool TrySet(ushort itemId, uint count)
     {
         if (itemId == ItemDefinition.None)
         {
