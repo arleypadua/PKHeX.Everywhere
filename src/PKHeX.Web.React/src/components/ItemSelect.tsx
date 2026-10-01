@@ -24,8 +24,8 @@ export function ItemSelect<T extends Item>({ items, value, onChange }: ItemSelec
       showSearch={{ searchValue: search, onSearch: setSearch, optionFilterProp: 'label' }}
       virtual
       options={items.map((item) => ({ value: item.id, label: item.name }))}
-      optionRender={({ data }) => <ItemOption name={data.label} />}
-      labelRender={({ label }) => <ItemOption name={String(label)} />}
+      optionRender={({ data }) => <ItemOption id={data.value} name={data.label} />}
+      labelRender={({ value, label }) => <ItemOption id={Number(value)} name={String(label)} />}
       onSelect={() => setSearch('')}
       onChange={(id) => {
         const item = items.find((item) => item.id === id)
@@ -35,10 +35,10 @@ export function ItemSelect<T extends Item>({ items, value, onChange }: ItemSelec
   )
 }
 
-function ItemOption({ name }: { name: string }) {
+function ItemOption({ id, name }: { id: number; name: string }) {
   return (
     <Space size={5}>
-      <ItemIcon name={name} />
+      {id !== 0 && <ItemIcon name={name} />}
       <span>{name}</span>
     </Space>
   )

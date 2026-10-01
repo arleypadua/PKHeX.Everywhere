@@ -1,0 +1,52 @@
+using AwesomeAssertions;
+using PKHeX.Core;
+using PKHeX.Facade.Tests.Base;
+
+namespace PKHeX.Facade.Tests;
+
+public class GameOptionsTests
+{
+    [Theory]
+    [InlineData(SaveFilePath.Crystal, 0)]
+    [InlineData(SaveFilePath.Emerald, 25)]
+    [InlineData(SaveFilePath.HgSs, 25)]
+    [InlineData(SaveFilePath.LetsGoPikachu, 25)]
+    public void NaturesExistFromGenerationThree(string saveFile, int count) =>
+        Game.LoadFrom(saveFile).Options.Natures.Should().HaveCount(count);
+
+    [Theory]
+    [InlineData(SaveFilePath.Crystal, 0)]
+    [InlineData(SaveFilePath.Emerald, 12)]
+    [InlineData(SaveFilePath.HgSs, 24)]
+    public void BallsAreTheOnesTheSaveCanStore(string saveFile, int count)
+    {
+        var balls = Game.LoadFrom(saveFile).Options.Balls;
+
+        balls.Should().HaveCount(count);
+        balls.Select(b => b.Id).Should().NotContain(0);
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Crystal, false, false)]
+    [InlineData(SaveFilePath.Emerald, true, false)]
+    [InlineData(SaveFilePath.HgSs, true, true)]
+    public void LanguagesAreTheOnesTheGenerationKnows(string saveFile, bool english, bool korean)
+    {
+        var languages = Game.LoadFrom(saveFile).Options.Languages.Select(l => (LanguageID)l.Id).ToList();
+
+        languages.Contains(LanguageID.English).Should().Be(english);
+        languages.Contains(LanguageID.Korean).Should().Be(korean);
+    }
+
+    [Theory]
+    [SupportedSaveFiles]
+    public void HeldItemsIncludeNoItemAndTheItemsPartyPokemonHold(string saveFile)
+    {
+        var game = Game.LoadFrom(saveFile);
+
+        var heldItems = game.Options.HeldItems.Select(i => i.Id).ToList();
+
+        heldItems.Should().Contain(0);
+        heldItems.Should().Contain(game.Trainer.Party.Pokemons.Select(p => p.Pkm.HeldItem));
+    }
+}
