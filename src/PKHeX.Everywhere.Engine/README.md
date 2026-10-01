@@ -2,6 +2,8 @@
 
 The save-editing API that JavaScript calls. It has no Blazor dependency.
 
+Handlers stay thin and call `PKHeX.Facade` for every editing rule. See [ADR 0004](../../docs/adr/0004-domain-logic-lives-in-the-facade.md).
+
 JS calls one `[JSExport]`, `EngineExports.Call(name, argsJson)`. Arguments are a JSON array, and every response is `{ ok: true, value }` or `{ ok: false, error: { code, message } }`. Error codes are listed in `ErrorCodes.cs`.
 
 The loaded save lives in `Session.Current`, which `GameService` in PKHeX.Web uses too.

@@ -14,6 +14,10 @@ Run the `unslop` skill on any text we produce: PR descriptions, issue text, UI c
 
 **Do not add comments by default.** Only comment when the code makes a hacky or non-obvious decision a future reader couldn't infer. No comments restating what the code does, no section headers, no "added X" notes.
 
+### Layers
+
+Domain logic goes in `PKHeX.Facade`, and the Engine stays thin: resolve Handles, call the Facade, map DTOs, report Topics. If an Engine handler needs a rule or a save-type check, add it to the Facade instead. See [ADR 0004](docs/adr/0004-domain-logic-lives-in-the-facade.md).
+
 ### Tests
 
 New coverage goes in `PKHeX.Facade.Tests`, or in `PKHeX.Everywhere.Engine.Tests` when it tests the Engine. Only add an E2E test when [ADR 0001](docs/adr/0001-keep-the-e2e-suite-small.md) allows it.
