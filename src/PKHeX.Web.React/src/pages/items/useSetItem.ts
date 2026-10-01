@@ -8,7 +8,7 @@ export function useSetItem() {
   const { notification } = App.useApp()
   const [saving, setSaving] = useState(false)
 
-  const save = async (at: ItemHandle, count: number) => {
+  const submit = async (at: ItemHandle, count: number) => {
     setSaving(true)
     try {
       await setItem(at, count)
@@ -22,5 +22,5 @@ export function useSetItem() {
     }
   }
 
-  return { save, saving }
+  return { submit, saving }
 }

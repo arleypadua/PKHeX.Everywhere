@@ -26,8 +26,8 @@ export function ItemSelect<T extends Item>({ items, value, onChange }: ItemSelec
       options={items.map((item) => ({ value: item.id, label: item.name }))}
       optionRender={({ data }) => <ItemOption name={data.label} />}
       labelRender={({ label }) => <ItemOption name={String(label)} />}
+      onSelect={() => setSearch('')}
       onChange={(id) => {
-        setSearch('')
         const item = items.find((item) => item.id === id)
         if (item) onChange(item)
       }}

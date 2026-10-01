@@ -4,18 +4,18 @@ import type { OwnedItem } from '@pkhex-everywhere/engine'
 import { useSetItem } from './useSetItem'
 
 interface EditItemModalProps {
-  pouch: string
+  pouchName: string
   item: OwnedItem
   onClose: () => void
 }
 
-export function EditItemModal({ pouch, item, onClose }: EditItemModalProps) {
+export function EditItemModal({ pouchName, item, onClose }: EditItemModalProps) {
   const [count, setCount] = useState<number | null>(item.count)
-  const { save, saving } = useSetItem()
+  const { submit, saving } = useSetItem()
 
   const handleOk = async () => {
     if (count === null) return
-    if (await save({ pouch, itemId: item.id }, count)) onClose()
+    if (await submit({ pouch: pouchName, itemId: item.id }, count)) onClose()
   }
 
   return (

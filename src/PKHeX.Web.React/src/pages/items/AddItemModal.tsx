@@ -12,7 +12,7 @@ interface AddItemModalProps {
 export function AddItemModal({ pouch, onClose }: AddItemModalProps) {
   const [item, setItem] = useState<AddableItem>()
   const [count, setCount] = useState<number | null>(null)
-  const { save, saving } = useSetItem()
+  const { submit, saving } = useSetItem()
 
   const selectItem = (selected: AddableItem) => {
     setItem(selected)
@@ -21,7 +21,7 @@ export function AddItemModal({ pouch, onClose }: AddItemModalProps) {
 
   const handleOk = async () => {
     if (!item || count === null) return
-    if (await save({ pouch: pouch.name, itemId: item.id }, count)) onClose()
+    if (await submit({ pouch: pouch.name, itemId: item.id }, count)) onClose()
   }
 
   return (
