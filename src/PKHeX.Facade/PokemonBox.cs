@@ -7,14 +7,16 @@ namespace PKHeX.Facade;
 
 public class PokemonBox : IMutablePokemonCollection
 {
-    public PokemonBox(Game game)
+    public PokemonBox(Game game, PokemonParty party)
     {
         _game = game;
+        _party = party;
 
         PopulateFromSave();
     }
 
     private readonly Game _game;
+    private readonly PokemonParty _party;
     private IList<Pokemon> _pokemonList = default!;
 
     public IDictionary<Species, List<Pokemon>> BySpecies { get; private set; } = default!;
@@ -31,6 +33,9 @@ public class PokemonBox : IMutablePokemonCollection
         _game.SaveFile.BoxData = _pokemonList
             .Select(p => p.Pkm)
             .ToList();
+
+        foreach (var (index, pkm) in _party.BoxedMembers())
+            _game.SaveFile.SetBoxSlotAtIndex(pkm, index);
     }
 
     public bool AddOnEmptySlot(Pokemon pokemon) => AddOnEmptySlot(pokemon, out _);
@@ -46,12 +51,10 @@ public class PokemonBox : IMutablePokemonCollection
         return true;
     }
 
-    internal void RefreshPartyMembers()
+    internal void SharePartyMembers()
     {
-        if (_game.SaveFile is not SAV7b { Blocks.Storage: var storage } save) return;
-
-        for (var i = 0; i < _pokemonList.Count; i++)
-            if (storage.IsParty(i)) _pokemonList[i] = new Pokemon(save.GetBoxSlotAtIndex(i), _game);
+        foreach (var (index, pkm) in _party.BoxedMembers())
+            _pokemonList[index] = new Pokemon(pkm, _game);
 
         IndexBySpecies();
     }
@@ -62,7 +65,7 @@ public class PokemonBox : IMutablePokemonCollection
             .Select(p => new Pokemon(p, _game))
             .ToList();
 
-        IndexBySpecies();
+        SharePartyMembers();
     }
 
     private void IndexBySpecies()
@@ -93,6 +96,7 @@ public class PokemonBox : IMutablePokemonCollection
     {
         var index = _pokemonList.IndexOf(existing);
         _pokemonList[index] = pokemon;
+        if (_party.SlotOf(index) is { } slot) _party.Replace(slot, pokemon.Pkm);
 
         Commit();
         PopulateFromSave();

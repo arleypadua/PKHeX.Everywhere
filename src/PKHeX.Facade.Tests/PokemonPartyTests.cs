@@ -61,6 +61,36 @@ public class PokemonPartyTests
         game.Trainer.PokemonBox.BySpecies[member.Species.Species].Should().Contain(p => p.Level == level);
     }
 
+    [Theory]
+    [InlineData(SaveFilePath.LetsGoPikachu)]
+    [InlineData(SaveFilePath.LetsGoEevee)]
+    public void LetsGoPartyShowsCommittedBoxChanges(string saveFile)
+    {
+        var game = Game.LoadFrom(saveFile);
+        var boxed = game.Trainer.PokemonBox.All[game.Trainer.Party.BoxIndexOf(0)!.Value];
+        var level = boxed.Level == 50 ? 51 : 50;
+
+        boxed.ChangeLevel(level);
+        game.Trainer.PokemonBox.Commit();
+
+        game.Trainer.Party.Pokemons[0].Level.Should().Be(level);
+        game.SaveAndReload(reloaded => reloaded.Trainer.Party.Pokemons[0].Level.Should().Be(level));
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.LetsGoPikachu)]
+    [InlineData(SaveFilePath.LetsGoEevee)]
+    public void LetsGoBoxChangesToAPartyMemberSurviveASaveExport(string saveFile)
+    {
+        var game = Game.LoadFrom(saveFile);
+        var boxed = game.Trainer.PokemonBox.All[game.Trainer.Party.BoxIndexOf(0)!.Value];
+        var level = boxed.Level == 50 ? 51 : 50;
+
+        boxed.ChangeLevel(level);
+
+        game.SaveAndReload(reloaded => reloaded.Trainer.Party.Pokemons[0].Level.Should().Be(level));
+    }
+
     [Fact]
     public void OwnerTidShouldBeSixteenBitBeforeGen7()
     {
