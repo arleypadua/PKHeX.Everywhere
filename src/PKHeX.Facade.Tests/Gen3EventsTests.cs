@@ -88,6 +88,21 @@ public class Gen3EventsTests
             reloaded.Events!.Gen3!.Islands.Single(i => i.Name == faraway.Name).Value.Should().Be(!original));
     }
 
+    [Fact]
+    public void Islands_ShouldSurviveLaterFlagEdits()
+    {
+        var game = Game.LoadFrom(SaveFilePath.Emerald);
+        var faraway = game.Events!.Gen3!.Islands.Single(i => i.Name == "Reachable: Faraway Island");
+        var original = faraway.Value;
+
+        faraway.Value = !original;
+        var cut = game.Events.Flags.Single(f => f.Name == "Received HM01 Cut");
+        cut.Value = !cut.Value;
+
+        game.SaveAndReload(reloaded =>
+            reloaded.Events!.Gen3!.Islands.Single(i => i.Name == faraway.Name).Value.Should().Be(!original));
+    }
+
     [Theory]
     [InlineData(GameVersion.R)]
     [InlineData(GameVersion.FR)]

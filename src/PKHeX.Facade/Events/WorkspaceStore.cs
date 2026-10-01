@@ -8,18 +8,19 @@ internal sealed class WorkspaceStore<TSave, TWork> : IEventStore
     where TSave : class, IEventFlagArray, IEventWorkArray<TWork>
     where TWork : unmanaged, IBinaryInteger<TWork>, IMinMaxValue<TWork>
 {
-    private readonly EventWorkspace<TSave, TWork> _workspace;
+    private readonly TSave _save;
 
     public WorkspaceStore(TSave save, GameVersion version)
     {
-        _workspace = new EventWorkspace<TSave, TWork>(save, version);
+        _save = save;
+        var labels = new EventWorkspace<TSave, TWork>(save, version).Labels;
 
-        Flags = _workspace.Labels.Flag
+        Flags = labels.Flag
             .Select(l => new EventFlagEntry(l.Index, l.Name, l.Type.ToString(),
                 () => GetFlag(l.Index),
                 v => SetFlag(l.Index, v)))
             .ToImmutableList();
-        Work = _workspace.Labels.Work
+        Work = labels.Work
             .Select(l => new EventWorkEntry(l.Index, l.Name, l.Type.ToString(),
                 l.PredefinedValues
                     .Where(v => !v.IsCustom)
@@ -33,24 +34,32 @@ internal sealed class WorkspaceStore<TSave, TWork> : IEventStore
     public IReadOnlyList<EventFlagEntry> Flags { get; }
     public IReadOnlyList<EventWorkEntry> Work { get; }
 
-    public int FlagCount => _workspace.Flags.Length;
-    public int WorkCount => _workspace.Values.Length;
+    public int FlagCount => _save.EventFlagCount;
+    public int WorkCount => _save.EventWorkCount;
     public int WorkMin => int.CreateChecked(TWork.MinValue);
     public int WorkMax => int.CreateChecked(TWork.MaxValue);
 
-    public bool GetFlag(int index) => _workspace.Flags[index];
+    public bool GetFlag(int index) => _save.GetEventFlag(index);
 
     public void SetFlag(int index, bool value)
     {
-        _workspace.Flags[index] = value;
-        _workspace.Save();
+        _save.SetEventFlag(index, value);
+        UpdateQrConstants();
     }
 
-    public int GetWork(int index) => int.CreateChecked(_workspace.Values[index]);
+    public int GetWork(int index) => int.CreateChecked(_save.GetWork(index));
 
     public void SetWork(int index, int value)
     {
-        _workspace.Values[index] = TWork.CreateChecked(value);
-        _workspace.Save();
+        _save.SetWork(index, TWork.CreateChecked(value));
+        UpdateQrConstants();
+    }
+
+    // Writes go straight to the save rather than through EventWorkspace.Save, which would overwrite flags changed
+    // elsewhere with its stale copy, so its Gen7 QR fix-up is repeated here.
+    private void UpdateQrConstants()
+    {
+        if (_save is EventWork7 sm)
+            sm.UpdateQrConstants();
     }
 }
