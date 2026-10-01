@@ -78,6 +78,7 @@ jobs:
           filters: |
             web:
               - 'src/PKHeX.Web/**'
+              - 'src/PKHeX.Web.React/**'
               - 'src/PKHeX.Facade/**'
               - 'src/PKHeX.Everywhere.Engine*/**'
               - 'src/PKHeX.Web.E2E/**'
@@ -108,6 +109,11 @@ jobs:
         working-directory: src/PKHeX.Web/_js
         env:
           VITE_FIREBASE_ENABLED: 'false'
+        run: |
+          npm ci
+          npm run build
+      - name: Build PKHeX.Web.React
+        working-directory: src/PKHeX.Web.React
         run: |
           npm ci
           npm run build
