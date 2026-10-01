@@ -16,7 +16,11 @@ Run the `unslop` skill on any text we produce: PR descriptions, issue text, UI c
 
 ### Tests
 
-New coverage goes in `PKHeX.Facade.Tests`. Only add an E2E test when [ADR 0001](docs/adr/0001-keep-the-e2e-suite-small.md) allows it.
+New coverage goes in `PKHeX.Facade.Tests`, and Engine coverage goes in `PKHeX.Everywhere.Engine.Tests`. Only add an E2E test when [ADR 0001](docs/adr/0001-keep-the-e2e-suite-small.md) allows it.
+
+### Naming
+
+New projects use `PKHeX.Everywhere.*` and new npm packages use `@pkhex-everywhere/*`. Existing projects keep their names.
 
 ### Submodules
 
