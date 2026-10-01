@@ -7,6 +7,8 @@ export const topics = ['*', 'game', 'party', 'box', 'inventory'] as const
 export type Topic = (typeof topics)[number] | `${(typeof topics)[number]}/${string}`
 
 export const queryTopics: Record<QueryName, readonly Topic[]> = {
+  'box.get': ['box'],
+  'box.showdown': ['box'],
   'encounters.search': ['game'],
   'encounters.versions': ['game'],
   'game.get': ['game'],

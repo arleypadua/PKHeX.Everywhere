@@ -5,6 +5,19 @@ import type { Base64, ItemHandle, PokemonHandle } from '@pkhex-everywhere/engine
 import { useEngine } from '../EngineProvider'
 import { useQuery } from '../useQuery'
 
+export function useBox() {
+  const engine = useEngine()
+  const box = useQuery('box.get')
+  const commands = useMemo(
+    () => ({
+      addEncounter: (index: number) => engine.box.addEncounter(index),
+      addFromFile: (bytes: Base64) => engine.box.addFromFile(bytes),
+    }),
+    [engine],
+  )
+  return { box, ...commands }
+}
+
 export function useLoadedGame() {
   const engine = useEngine()
   const game = useQuery('game.get')
