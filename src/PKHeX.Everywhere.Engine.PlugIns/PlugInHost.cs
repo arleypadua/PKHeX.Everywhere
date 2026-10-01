@@ -74,7 +74,7 @@ public sealed class PlugInHost(Session session)
         .Where(t => t.GetConstructor(Type.EmptyTypes) != null)
         .Select(t => (Settings)Activator.CreateInstance(t)!)
         .FirstOrDefault() ?? throw new InvalidOperationException(
-        $"{assembly.GetName().Name} needs exactly one class extending {typeof(Settings).FullName} with a parameterless constructor.");
+        $"{assembly.GetName().Name} needs a class extending {typeof(Settings).FullName} with a parameterless constructor.");
 
     private static void Restore(RegisteredPlugIn plugIn, StoredPlugIn stored)
     {
@@ -83,7 +83,7 @@ public sealed class PlugInHost(Session session)
         foreach (var (key, value) in stored.Settings)
         {
             var current = plugIn.Settings.GetOrDefault(key);
-            if (current is { ReadOnly: true } || current is not null && current.GetType() != value.GetType()) continue;
+            if (current is null || current.ReadOnly || current.GetType() != value.GetType()) continue;
             plugIn.Settings[key] = value;
         }
     }

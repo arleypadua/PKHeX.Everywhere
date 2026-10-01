@@ -40,7 +40,9 @@ internal static class PlugInSdkDetector
 }
 
 public sealed class IncompatiblePlugInException(PlugInSdk sdk)
-    : Exception($"The plug-in host can't load an assembly built against SDK {sdk}.")
+    : Exception(sdk == PlugInSdk.None
+        ? "The assembly isn't a plug-in."
+        : $"The plug-in host can't load a plug-in built against SDK {sdk}.")
 {
     public PlugInSdk Sdk { get; } = sdk;
 }

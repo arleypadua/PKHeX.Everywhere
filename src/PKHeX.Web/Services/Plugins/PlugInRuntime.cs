@@ -80,7 +80,7 @@ public partial class PlugInRuntime : IDisposable
 
     private void HandleRan(PlugInRan ran)
     {
-        _analyticsService.TrackPlugInHookExecuted(ran.HookId.Split('.').Last(), ran.Failure);
+        _analyticsService.TrackPlugInHookExecuted(ran.HookId.Split('.', '+').Last(), ran.Failure);
 
         if (ran.Failure is not null)
         {

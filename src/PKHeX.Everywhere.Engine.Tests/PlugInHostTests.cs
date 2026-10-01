@@ -53,11 +53,13 @@ public class PlugInHostTests
             {
                 ["Greeting"] = new Settings.SettingValue.StringValue("Hi"),
                 ["Locked"] = new Settings.SettingValue.StringValue("changed"),
+                ["Removed"] = new Settings.SettingValue.StringValue("stale"),
             }));
 
         plugIn.Enabled.Should().BeFalse();
         plugIn.Settings.GetString("Greeting").Should().Be("Hi");
         plugIn.Settings.GetString("Locked").Should().Be("fixed");
+        plugIn.Settings.ContainsKey("Removed").Should().BeFalse();
         plugIn.Hooks.Select(h => (h.Id, h.Enabled)).Should().BeEquivalentTo([
             (Greet, false),
             (Fail, true),

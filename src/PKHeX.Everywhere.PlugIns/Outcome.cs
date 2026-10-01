@@ -17,9 +17,6 @@ public abstract class Outcome
         Type = type
     };
 
-    /// <summary>
-    /// Asks the app to open one of the pages the plug-in declares
-    /// </summary>
     public static PageRequest OpenPage(string path) => new() { Path = path };
 
     public sealed class Notification : Outcome
