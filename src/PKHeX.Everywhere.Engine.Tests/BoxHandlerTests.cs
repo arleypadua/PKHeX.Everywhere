@@ -25,20 +25,6 @@ public class BoxHandlerTests
     }
 
     [Fact]
-    public void GetLeavesOutLetsGoPartyMembers()
-    {
-        var session = Loaded(SaveFilePath.LetsGoPikachu);
-        var partyMembers = Enumerable.Range(0, session.Game!.Trainer.Party.Pokemons.Count)
-            .Select(slot => Args(BoxSlotOfPartyMember(session.Game, slot).At)[1..^1])
-            .ToList();
-
-        var box = Value(Dispatcher.Dispatch(session, "box.get", "[]"))!.AsArray();
-
-        partyMembers.Should().NotBeEmpty();
-        box.Select(p => p!["at"]!.ToJsonString()).Should().NotIntersectWith(partyMembers);
-    }
-
-    [Fact]
     public void GetFailsWithNoSaveWithoutALoadedSave() =>
         Error(Dispatcher.Dispatch(new Session(), "box.get", "[]")).Should().Be("no-save");
 

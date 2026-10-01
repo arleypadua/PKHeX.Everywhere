@@ -20,6 +20,12 @@ public class PokemonBox : IMutablePokemonCollection
     public IDictionary<Species, List<Pokemon>> BySpecies { get; private set; } = default!;
     public IList<Pokemon> All => _pokemonList;
 
+    public IEnumerable<(int Index, Pokemon Pokemon)> Boxed() => _pokemonList
+        .Select((pokemon, index) => (index, pokemon))
+        .Where(p => p.pokemon.Pkm.Species != 0 && !IsPartyMember(p.index));
+
+    private bool IsPartyMember(int index) => _game.SaveFile is SAV7b { Blocks.Storage: var storage } && storage.IsParty(index);
+
     public void Commit()
     {
         _game.SaveFile.BoxData = _pokemonList
