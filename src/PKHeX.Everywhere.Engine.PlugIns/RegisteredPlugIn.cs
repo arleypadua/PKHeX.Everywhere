@@ -49,6 +49,15 @@ public sealed class RegisteredPlugIn
         .Where(t => t.IsAssignableTo(typeof(T)) && IsHookEnabled(HookIdOf(t)))
         .Select(t => (HookIdOf(t), (T)Create(t)));
 
+    internal string? ReadModule(string module)
+    {
+        using var stream = Assembly.GetManifestResourceStream(module);
+        if (stream is null) return null;
+
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
+
     internal void Dispose() => _services.Dispose();
 
     private IPluginHook Create(Type hookType) => (IPluginHook)_services.GetRequiredService(hookType);

@@ -40,8 +40,8 @@ public static class NavigationManagerExtensions
         navigation.NavigateTo($"/plugins/{plugIn.Id}");
     
     public static void NavigateToPlugInPage(this NavigationManager navigation, string plugInId, string path,
-        string layout) =>
-        navigation.NavigateTo($"/plugins/{plugInId}/{path}/{layout.ToLowerInvariant()}");
+        string layout, bool replace = false) =>
+        navigation.NavigateTo($"/plugins/{plugInId}/{path}/{layout.ToLowerInvariant()}", replace: replace);
     
     public static void NavigateToAnalyticsResults(this NavigationManager navigation) =>
         navigation.NavigateTo($"/analytics");

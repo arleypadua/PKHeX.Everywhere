@@ -12,4 +12,8 @@
         <ProjectReference Include="..\PKHeX.Everywhere.PlugIns\PKHeX.Everywhere.PlugIns.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <EmbeddedResource Include="Pages\hello.js" LogicalName="hello.js" />
+    </ItemGroup>
+
 </Project>

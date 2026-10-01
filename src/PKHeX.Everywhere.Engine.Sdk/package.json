@@ -6,6 +6,6 @@
   ],
   "scripts": {
     "typecheck": "npm run typecheck --workspaces",
-    "test": "npm run test --workspaces"
+    "test": "npm run test --workspaces --if-present"
   }
 }

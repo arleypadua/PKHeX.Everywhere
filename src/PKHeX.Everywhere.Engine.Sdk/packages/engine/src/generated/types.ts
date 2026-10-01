@@ -15,6 +15,13 @@ export interface AddedPokemon {
 
 export type Base64 = string
 
+export interface DeclaredPage {
+  plugInId: string
+  path: string
+  title: string | null
+  layout: PageLayout
+}
+
 export interface EncounterRow {
   index: number
   speciesId: number
@@ -44,6 +51,8 @@ export interface OwnedItem {
   count: number
   maxCount: number
 }
+
+export type PageLayout = 'standard' | 'empty'
 
 export interface PlugInAction {
   id: string
