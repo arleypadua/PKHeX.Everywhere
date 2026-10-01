@@ -1,4 +1,3 @@
-using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Facade.Repositories;
@@ -127,5 +126,3 @@ public sealed class Session
 
     private sealed record CommandScope(List<string> Written, List<IEngineEvent> Raised);
 }
-
-internal sealed record Draft(Pokemon Pokemon, PokemonHandle From);

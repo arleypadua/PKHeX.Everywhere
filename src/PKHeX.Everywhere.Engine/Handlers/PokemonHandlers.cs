@@ -53,14 +53,13 @@ public static class PokemonHandlers
     [Command("pokemon.commit", Topics.Draft)]
     public static PokemonId Commit(Session session, Game game)
     {
-        var draft = session.Draft ?? throw new EngineException(ErrorCodes.NotFound, "No Pokémon is open for editing.");
+        var draft = session.RequireDraft();
         var replaced = game.FindSaved(draft.From).Pokemon;
         var source = draft.From.Source == SlotSource.Party ? PokemonSource.Party : PokemonSource.Box;
         game.Trainer.AddOrUpdate(replaced.UniqueId, draft.Pokemon, source);
 
-        // AddOrUpdate leaves party stats as they were, so commit the slot again to recalculate them and report its Topics.
         var saved = game.FindSaved(draft.From);
-        saved.Commit(session);
+        session.AlsoWrote(saved.Topics);
         session.Draft = null;
         session.Raise(new PokemonSaved(draft.From));
         return new PokemonId(saved.Pokemon.UniqueId.Value);

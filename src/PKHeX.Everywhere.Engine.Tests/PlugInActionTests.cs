@@ -39,7 +39,7 @@ public class PlugInActionTests
     }
 
     private static string Call(params object?[] args) => JsonSerializer.Serialize(args.Select(arg => arg is PokemonHandle at
-        ? (object)new { source = at.Source == SlotSource.Party ? "party" : "box", slot = at.Slot, box = at.Box }
+        ? (object)new { source = at.Source.ToString().ToLowerInvariant(), slot = at.Slot, box = at.Box }
         : arg));
 
     private static JsonArray Actions(Session session, string placement, PokemonHandle? target = null) =>

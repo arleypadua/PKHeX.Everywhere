@@ -16,8 +16,8 @@ export function LegalityBanner({ legality }: LegalityBannerProps) {
       closable
       description={
         <ul>
-          {legality.messages.map((message) => (
-            <li key={message}>{message}</li>
+          {legality.messages.map((message, index) => (
+            <li key={index}>{message}</li>
           ))}
         </ul>
       }

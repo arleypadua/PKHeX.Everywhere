@@ -21,9 +21,11 @@ internal static class PokemonSlots
         var game = session.RequireGame();
         if (at.Source != SlotSource.Draft) return game.FindSaved(at);
 
-        var draft = session.Draft ?? throw new EngineException(ErrorCodes.NotFound, "No Pokémon is open for editing.");
-        return new PokemonSlot(draft.Pokemon, () => { }, [Topics.Draft]);
+        return new PokemonSlot(session.RequireDraft().Pokemon, () => { }, [Topics.Draft]);
     }
+
+    public static Draft RequireDraft(this Session session) =>
+        session.Draft ?? throw new EngineException(ErrorCodes.NotFound, "No Pokémon is open for editing.");
 
     public static PokemonSlot FindSaved(this Game game, PokemonHandle at) => at.Source switch
     {

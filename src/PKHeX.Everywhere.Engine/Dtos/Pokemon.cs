@@ -44,9 +44,6 @@ public record Legality(bool Valid, string[] Messages);
 
 public record EditablePokemon(string Nickname, int Level, Legality Legality);
 
-/// <summary>
-/// A partial <see cref="EditablePokemon"/>. Fields left out stay as they are.
-/// </summary>
 public record PokemonPatch(string? Nickname = null, int? Level = null);
 
 public static class PokemonMapping
