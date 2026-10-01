@@ -4,9 +4,13 @@ repo="$(cd "$(dirname "$0")/../../.." && pwd)"
 out="${TMPDIR:-/tmp}/pkhex-shell-spike"
 port="${PORT:-5180}"
 
-(cd "$repo/src/PKHeX.Web/_js" && npm ci --silent && VITE_FIREBASE_ENABLED=false npm run build >/dev/null)
-dotnet publish "$repo/src/PKHeX.Web/PKHeX.Web.csproj" -c Release -o "$out/publish" -nodeReuse:false | tail -1
-(cd "$repo/src/PKHeX.Web.Shell" && npm ci --silent && npm run build >/dev/null)
+echo "[1/4] Building PKHeX.Web JS assets"
+(cd "$repo/src/PKHeX.Web/_js" && npm ci --silent && VITE_FIREBASE_ENABLED=false npm run build >/dev/null 2>&1)
+echo "[2/4] Publishing PKHeX.Web in Release (trimming takes a few minutes)"
+dotnet publish "$repo/src/PKHeX.Web/PKHeX.Web.csproj" -c Release -o "$out/publish" -nodeReuse:false -v minimal
+echo "[3/4] Building the React shell"
+(cd "$repo/src/PKHeX.Web.Shell" && npm ci --silent && npm run build >/dev/null 2>&1)
+echo "[4/4] Assembling $out/shell"
 
 rm -rf "$out/shell"
 cp -R "$out/publish/wwwroot" "$out/shell"
