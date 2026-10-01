@@ -26,9 +26,21 @@ internal static class EngineCalls
     private static bool InParty(Game game, int boxIndex) =>
         game.SaveFile is SAV7b { Blocks.Storage: var storage } && storage.IsParty(boxIndex);
 
+    internal static (ItemHandle At, int MaxCount)? AddableItem(Game game) => game.Trainer.Inventories.InventoryItems.Values
+        .OrderBy(inventory => inventory.Type, StringComparer.Ordinal)
+        .Where(inventory => inventory.Items.Any(item => item.IsNone))
+        .SelectMany(inventory => inventory.CurrentSupportedItems
+            .Select(item => (At: new ItemHandle(inventory.Type, item.Id), MaxCount: inventory.MaxCountOf(item.Id))))
+        .Where(item => item.MaxCount > 1)
+        .Cast<(ItemHandle, int)?>()
+        .FirstOrDefault();
+
     internal static string Args(params object[] args) => JsonSerializer.Serialize(args.Select(Arg));
 
-    private static object Arg(object arg) => arg is PokemonHandle at
-        ? new { source = at.Source == SlotSource.Party ? "party" : "box", slot = at.Slot, box = at.Box }
-        : arg;
+    private static object Arg(object arg) => arg switch
+    {
+        PokemonHandle at => new { source = at.Source == SlotSource.Party ? "party" : "box", slot = at.Slot, box = at.Box },
+        ItemHandle at => new { pouch = at.Pouch, itemId = at.ItemId },
+        _ => arg,
+    };
 }
