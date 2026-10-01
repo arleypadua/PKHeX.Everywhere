@@ -49,5 +49,5 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
     public static bool IsObject(Type type) =>
         (type.IsClass || (type.IsValueType && !type.IsPrimitive && !type.IsEnum)) &&
         !type.IsGenericType &&
-        type.Namespace?.StartsWith(Namespace) == true;
+        (type.Namespace == Namespace || type.Namespace?.StartsWith(Namespace + ".") == true);
 }

@@ -6,7 +6,6 @@ using Microsoft.CodeAnalysis;
 namespace PKHeX.Everywhere.Engine.Generators;
 
 /// <summary>
-/// Writes JSON readers and writers for handler arguments and results.
 /// System.Text.Json's own generator can't see types registered by another generator, so the engine emits its own.
 /// The rules here must match the TypeScript that PKHeX.Everywhere.Engine.CodeGen writes.
 /// </summary>
@@ -202,7 +201,7 @@ internal sealed class JsonEmitter(SourceProductionContext context)
             sb.AppendLine("        {");
             foreach (var member in EnumMembers(type))
                 sb.AppendLine($"            {Name(type)}.{member} => \"{Naming.CamelCase(member)}\",");
-            sb.AppendLine("            _ => value.ToString(),");
+            sb.AppendLine($"            _ => throw new System.ArgumentOutOfRangeException(nameof(value), value, null),");
             sb.AppendLine("        });");
         }
         else
@@ -289,7 +288,7 @@ internal sealed class JsonEmitter(SourceProductionContext context)
     private static bool IsObject(ITypeSymbol type) =>
         type is INamedTypeSymbol { TypeKind: TypeKind.Class or TypeKind.Struct, IsGenericType: false } &&
         type.SpecialType == SpecialType.None &&
-        type.ContainingNamespace.ToDisplayString().StartsWith("PKHeX.Everywhere.Engine");
+        type.ContainingNamespace.ToDisplayString() is var ns && (ns == "PKHeX.Everywhere.Engine" || ns.StartsWith("PKHeX.Everywhere.Engine."));
 
     private static ITypeSymbol? ElementType(ITypeSymbol type)
     {

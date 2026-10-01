@@ -64,8 +64,6 @@ public sealed class HandlerGenerator : IIncrementalGenerator
 
             internal static class HandlerRegistry
             {
-                public static readonly string[] Calls = [{{string.Join(", ", names.Select(n => $"\"{n}\""))}}];
-
                 public static bool TryInvoke(Session session, string call, JsonElement args, Utf8JsonWriter writer)
                 {
                     switch (call)
@@ -102,7 +100,7 @@ public sealed class HandlerGenerator : IIncrementalGenerator
     private static string CallName(IMethodSymbol method) =>
         method.GetAttributes()
             .First(a => a.AttributeClass?.ToDisplayString() == QueryAttribute)
-            .ConstructorArguments.FirstOrDefault().Value as string ?? method.Name;
+            .ConstructorArguments[0].Value as string ?? "";
 
     private static string EmitCase(JsonEmitter json, IMethodSymbol method, string name, Location? location)
     {
@@ -113,27 +111,22 @@ public sealed class HandlerGenerator : IIncrementalGenerator
         sb.AppendLine($"            case \"{name}\":");
         sb.AppendLine("            {");
 
-        var jsonParameters = method.Parameters.Where(p => !IsInjected(p.Type)).ToList();
+        var jsonParameters = method.Parameters.Where(p => Injected(p.Type) is null).ToList();
         sb.AppendLine($"                ExpectArgs(call, args, {jsonParameters.Count});");
 
         foreach (var parameter in method.Parameters)
         {
             var type = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            switch (parameter.Type.ToDisplayString())
+            if (Injected(parameter.Type) is { } injected)
             {
-                case "PKHeX.Facade.Game":
-                    arguments.Add("session.RequireGame()");
-                    break;
-                case "PKHeX.Everywhere.Engine.Session":
-                    arguments.Add("session");
-                    break;
-                default:
-                    var read = json.Read(parameter.Type, $"args[{jsonIndex}]", location);
-                    sb.AppendLine($"                var a{jsonIndex} = Arg<{type}>(\"{parameter.Name}\", () => {read});");
-                    arguments.Add($"a{jsonIndex}");
-                    jsonIndex++;
-                    break;
+                arguments.Add(injected);
+                continue;
             }
+
+            var read = json.Read(parameter.Type, $"args[{jsonIndex}]", location);
+            sb.AppendLine($"                var a{jsonIndex} = Arg<{type}>(\"{parameter.Name}\", () => {read});");
+            arguments.Add($"a{jsonIndex}");
+            jsonIndex++;
         }
 
         var invocation = $"{method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{method.Name}({string.Join(", ", arguments)})";
@@ -154,6 +147,10 @@ public sealed class HandlerGenerator : IIncrementalGenerator
         return sb.ToString();
     }
 
-    private static bool IsInjected(ITypeSymbol type) =>
-        type.ToDisplayString() is "PKHeX.Facade.Game" or "PKHeX.Everywhere.Engine.Session";
+    private static string? Injected(ITypeSymbol type) => type.ToDisplayString() switch
+    {
+        "PKHeX.Facade.Game" => "session.RequireGame()",
+        "PKHeX.Everywhere.Engine.Session" => "session",
+        _ => null,
+    };
 }
