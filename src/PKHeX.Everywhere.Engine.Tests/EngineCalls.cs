@@ -35,6 +35,10 @@ internal static class EngineCalls
         .Cast<(ItemHandle, int)?>()
         .FirstOrDefault();
 
+    internal static ItemHandle? OwnedItem(Game game) => game.Trainer.Inventories.InventoryItems.Values
+        .SelectMany(inventory => inventory.AllExceptNone().Select(item => new ItemHandle(inventory.Type, item.Id)))
+        .FirstOrDefault();
+
     internal static string Args(params object[] args) => JsonSerializer.Serialize(args.Select(Arg));
 
     private static object Arg(object arg) => arg switch

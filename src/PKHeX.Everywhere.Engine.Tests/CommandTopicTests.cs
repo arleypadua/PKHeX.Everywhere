@@ -80,8 +80,7 @@ public class CommandTopicTests
     private static IEnumerable<string> SetItems(Game game)
     {
         if (AddableItem(game) is var (at, maxCount)) yield return Args(at, maxCount);
-        if (game.Trainer.Inventories.InventoryItems.Values.SelectMany(i => i.AllExceptNone().Select(item => new ItemHandle(i.Type, item.Id))).FirstOrDefault() is { } owned)
-            yield return Args(owned, 0);
+        if (OwnedItem(game) is { } owned) yield return Args(owned, 0);
     }
 
     private static bool Affects(IEnumerable<string> changed, IEnumerable<string> read) =>

@@ -181,22 +181,36 @@ public class InventoryHandlerTests
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
-    [InlineData(1)]
-    public void SetItemFailsWithBadArgumentsForAnItemThePouchDoesNotSupport(int itemId)
+    public void SetItemFailsWithBadArgumentsForAnInvalidItemId(int itemId) =>
+        Error(Dispatcher.Dispatch(Loaded(SaveFilePath.HgSs), "inventory.setItem", Args(new ItemHandle("Balls", itemId), 1)))
+            .Should().Be("bad-arguments");
+
+    [Fact]
+    public void SetItemFailsWithBadArgumentsForAnItemThePouchDoesNotSupport()
     {
         var session = Loaded(SaveFilePath.HgSs);
-        var balls = session.Game!.Trainer.Inventories["Balls"];
-        var at = new ItemHandle("Balls", itemId == 1 ? FirstItemNotIn(session.Game!.Trainer.Inventories["Items"], balls) : itemId);
+        var inventories = session.Game!.Trainer.Inventories;
+        var notABall = inventories["Items"].AllSupportedItems.First(item => !inventories["Balls"].Supports(item));
 
-        Error(Dispatcher.Dispatch(session, "inventory.setItem", Args(at, 1))).Should().Be("bad-arguments");
+        Error(Dispatcher.Dispatch(session, "inventory.setItem", Args(new ItemHandle("Balls", notABall.Id), 1)))
+            .Should().Be("bad-arguments");
+    }
+
+    [Fact]
+    public void SetItemWithACountOfZeroDoesNothingForAnItemTheSaveDoesNotOwn()
+    {
+        var session = Loaded(SaveFilePath.HgSs);
+        var (at, _) = AddableItem(session.Game!)!.Value;
+        var before = Dispatcher.Dispatch(session, "inventory.get", "[]");
+
+        Value(Dispatcher.Dispatch(session, "inventory.setItem", Args(at, 0))).Should().BeNull();
+
+        Dispatcher.Dispatch(session, "inventory.get", "[]").Should().Be(before);
     }
 
     [Fact]
     public void SetItemFailsWithNoSaveWithoutALoadedSave() =>
         Error(Dispatcher.Dispatch(new Session(), "inventory.setItem", Args(new ItemHandle("Items", 1), 1))).Should().Be("no-save");
-
-    private static int FirstItemNotIn(Inventory source, Inventory target) =>
-        source.AllSupportedItems.First(item => !target.Supports(item)).Id;
 
     private static int? Count(Session session, ItemHandle at) => Value(Dispatcher.Dispatch(session, "inventory.get", "[]"))!
         .AsArray()

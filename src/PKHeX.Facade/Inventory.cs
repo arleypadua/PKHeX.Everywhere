@@ -67,9 +67,6 @@ public class Inventory : IEnumerable<Inventory.Item>
         Commit();
     }
 
-    /// <summary>
-    /// Sets the count of an item, replacing its existing slots
-    /// </summary>
     /// <returns>false when the item isn't owned and the pouch has no free slot</returns>
     public bool Set(ushort itemId, uint count)
     {
