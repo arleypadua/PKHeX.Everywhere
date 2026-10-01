@@ -13,12 +13,16 @@ The TypeScript packages that call the Engine: a client package and its React bin
 _Avoid_: API client
 
 **Handle**:
-Where a Pokémon sits in the save, such as a party slot or a box slot. A Pokémon crosses to JavaScript as `{ id, at }`, with its opaque id and its Handle.
+Where something sits in the save, such as a Pokémon's party or box slot, or a pouch item as `{ pouch, itemId }`. A Pokémon crosses to JavaScript as `{ id, at }`, with its opaque id and its Handle.
 _Avoid_: pointer, reference
 
 **Topic**:
-A hierarchical path, such as `party`, `box/3` or `items/balls`, naming a part of the save that queries read and commands write. A Topic covers every path beneath it.
+A hierarchical path, such as `party`, `box/3` or `inventory`, naming a part of the save that queries read and commands write. A Topic covers every path beneath it.
 _Avoid_: cache key, channel
+
+**Engine event**:
+A typed record a command raises through the Session, published after the command succeeds.
+_Avoid_: notification, message
 
 **Entity hook**:
 A generated React hook, such as `useParty()` or `usePokemon(at)`, that returns an entity's data together with its commands.
