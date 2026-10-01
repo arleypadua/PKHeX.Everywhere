@@ -23,9 +23,18 @@ public sealed class EngineEventSubscriber : IDisposable
         _analytics.TrackItemModified(itemId, count);
     }
 
+    private void OnPokemonAdded(PokemonAdded added)
+    {
+        if (_session.Game is not { } game || added.At.Box is not { } box) return;
+
+        var pokemon = game.Trainer.PokemonBox.All[box * game.SaveFile.BoxSlotCount + added.At.Slot];
+        if (added.Source == PokemonAddSource.File) _analytics.TrackPokemon("pokemon_loaded_from_file", pokemon);
+    }
+
     private void HandlePublished(IEngineEvent engineEvent)
     {
         if (engineEvent is ItemChanged changed) _ = OnItemChanged(changed.ItemId, changed.Count);
+        if (engineEvent is PokemonAdded added) OnPokemonAdded(added);
     }
 
     public void Dispose() => _session.Published -= HandlePublished;

@@ -7,6 +7,10 @@ public static class ErrorCodes
     public const string NotFound = "not-found";
     public const string OutOfRange = "out-of-range";
     public const string PouchFull = "pouch-full";
+    public const string BoxFull = "box-full";
+    public const string Unparseable = "unparseable";
+    public const string ConversionFailed = "conversion-failed";
+    public const string NotInGame = "not-in-game";
     public const string UnknownCall = "unknown-call";
     public const string BadArguments = "bad-arguments";
     public const string Unexpected = "unexpected";

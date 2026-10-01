@@ -33,6 +33,8 @@ public record PokemonSummary(
     int Level,
     bool IsShiny);
 
+public record AddedPokemon(PokemonId Id, PokemonHandle At);
+
 public static class PokemonMapping
 {
     public static PokemonSummary ToSummary(this Pokemon pokemon, PokemonHandle at)
