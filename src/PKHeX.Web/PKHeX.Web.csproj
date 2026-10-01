@@ -55,16 +55,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <AdditionalFiles Include="Components\Images\ItemIcon.razor"/>
-        <AdditionalFiles Include="Components\Images\PokemonIcon.razor"/>
-        <AdditionalFiles Include="Components\Images\PokemonImage.razor"/>
-        <AdditionalFiles Include="Components\Pokemons\PokemonDescription.razor"/>
-        <AdditionalFiles Include="Components\Pokemons\PokemonLegalityBanner.razor"/>
-        <AdditionalFiles Include="Components\Pokemons\PokemonMetConditions.razor"/>
-        <AdditionalFiles Include="Components\Selects\ItemSelect.razor"/>
-    </ItemGroup>
-
-    <ItemGroup>
       <None Include="wwwroot\js\.gitignore" />
     </ItemGroup>
 
