@@ -49,6 +49,7 @@ builder.Services.AddHttpClient("BackendApi.Anonymous", client =>
 
 builder.Services.AddScoped<BackendApiAuthHandler>();
 
+builder.Services.AddSingleton(PKHeX.Everywhere.Engine.Session.Current);
 builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<EncounterService>();
 builder.Services.AddScoped<LoadPokemonService>();

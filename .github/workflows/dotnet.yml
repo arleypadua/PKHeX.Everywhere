@@ -37,8 +37,31 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
+      - name: Check generated engine TypeScript
+        run: |
+          changes=$(git status --porcelain -- src/PKHeX.Everywhere.Engine.Sdk)
+          if [ -n "$changes" ]; then
+            echo "$changes"
+            git diff -- src/PKHeX.Everywhere.Engine.Sdk
+            echo "::error::Generated engine TypeScript is out of date. Build PKHeX.Everywhere.Engine and commit the changes."
+            exit 1
+          fi
       - name: Test
         run: dotnet test --no-build --verbosity normal --filter Category!=E2E
+
+  engine_sdk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
 
   changes:
     runs-on: ubuntu-latest
@@ -56,6 +79,7 @@ jobs:
             web:
               - 'src/PKHeX.Web/**'
               - 'src/PKHeX.Facade/**'
+              - 'src/PKHeX.Everywhere.Engine*/**'
               - 'src/PKHeX.Web.E2E/**'
               - 'external/**'
 
