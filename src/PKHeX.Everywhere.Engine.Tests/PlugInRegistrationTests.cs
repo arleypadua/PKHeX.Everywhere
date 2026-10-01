@@ -169,12 +169,13 @@ public class PlugInRegistrationTests
     {
         var session = Hosted();
         Register(session, TestPlugIn);
+        var changed = new List<string>();
+        session.Changed += changed.AddRange;
 
         Dispatch(session, "plugins.newestCompatible", $"[{Versions(new { version = "1.2.3", sdk = 2 })}, \"{TestPlugInId}\"]");
         Installed(session)[0]!["hasNewerVersion"]!.GetValue<bool>().Should().BeFalse();
+        changed.Should().BeEmpty();
 
-        var changed = new List<string>();
-        session.Changed += changed.AddRange;
         Dispatch(session, "plugins.newestCompatible", $"[{Versions(new { version = "1.3.0", sdk = 2 })}, \"{TestPlugInId}\"]");
 
         Installed(session)[0]!["hasNewerVersion"]!.GetValue<bool>().Should().BeTrue();

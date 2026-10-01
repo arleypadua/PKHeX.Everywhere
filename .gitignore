@@ -407,6 +407,8 @@ FodyWeavers.xsd
 
 # PKHeX.Web
 plugins/
+!src/PKHeX.Web/Services/Plugins/
+!src/PKHeX.Web.React/src/plugins/
 
 # Agent Auto-Pilot runtime state & worktrees
 .autopilot/*

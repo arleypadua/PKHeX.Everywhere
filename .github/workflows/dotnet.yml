@@ -114,6 +114,7 @@ jobs:
         working-directory: src/PKHeX.Web.React
         run: |
           npm ci
+          npm test
           npm run build
       - name: Build
         run: dotnet build src/PKHeX.Web.E2E/PKHeX.Web.E2E.csproj

@@ -6,10 +6,21 @@ import { EngineProvider } from '@pkhex-everywhere/react'
 import { connectHost, useTheme, type HostBridge } from './host'
 import { PageErrorBoundary } from './PageErrorBoundary'
 import { pages } from './pages'
+import { createPlugIns } from './plugins/plugIns'
+import { createPlugInStore } from './plugins/store'
 
 export { setTheme } from './host'
 
 const engine = createEngine({ host: blazorHost() })
+
+// Blazor still runs the plug-in management pages, and calls these through ReactPage.razor.js until they move to React.
+export const plugIns = createPlugIns(engine, createPlugInStore())
+
+const plugInsLoaded = engine.ready.then(async () => {
+  await plugIns.registerStored().catch((error) => console.error("Couldn't load plug-ins.", error))
+  plugIns.refresh().catch((error) => console.error("Couldn't refresh plug-ins.", error))
+})
+
 const roots = new WeakMap<HTMLElement, Root>()
 const unmounted = new WeakSet<HTMLElement>()
 
@@ -61,7 +72,7 @@ function PageShell({ name, props }: { name: string; props: Record<string, unknow
 export async function mount(element: HTMLElement, name: string, props: Record<string, unknown>, host: HostBridge) {
   unmounted.delete(element)
   connectHost(host)
-  await engine.ready
+  await plugInsLoaded
   if (unmounted.has(element)) return
 
   // A new <ReactPage> brings a new element, so a new root and an empty cache. This is the migration backstop for Blazor writes that report no topics.

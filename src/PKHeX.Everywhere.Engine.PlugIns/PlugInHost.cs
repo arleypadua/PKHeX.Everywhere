@@ -87,7 +87,10 @@ public sealed class PlugInHost
         if (id is null || Find(id) is not { } plugIn) return newest;
 
         var hasNewer = newest is not null && Version.Parse(newest.Version) > plugIn.Version;
-        if (hasNewer ? _hasNewerVersion.Add(id) : _hasNewerVersion.Remove(id)) _session.Invalidate(Topics.PlugIns);
+        if (!(hasNewer ? _hasNewerVersion.Add(id) : _hasNewerVersion.Remove(id))) return newest;
+
+        _session.AlsoWrote(Topics.PlugIns);
+        _session.Invalidate(Topics.PlugIns);
         return newest;
     }
 

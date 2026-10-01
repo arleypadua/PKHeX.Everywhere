@@ -3,7 +3,6 @@ using PKHeX.Facade;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Web.Components;
 using PKHeX.Web.Extensions;
-using PKHeX.Web.Services.Plugins;
 
 namespace PKHeX.Web.Services;
 
@@ -84,23 +83,15 @@ public class AnalyticsService(
         });
     }
 
-    public void TrackInstalled(InstalledPlugIn plugIn)
+    public void TrackPlugInInstalled(string id, string version)
     {
-        analytics.TrackEvent("plug_in_installed", GetPayloadFrom(plugIn));
+        analytics.TrackEvent("plug_in_installed", new { id, version });
     }
 
-    public void TrackUpdated(InstalledPlugIn plugIn)
+    public void TrackPlugInUpdated(string id, string version)
     {
-        analytics.TrackEvent("plug_in_updated", GetPayloadFrom(plugIn));
+        analytics.TrackEvent("plug_in_updated", new { id, version });
     }
-
-    private object GetPayloadFrom(InstalledPlugIn plugIn) => new
-    {
-        id = plugIn.Id,
-        source_id = plugIn.SourceId,
-        file_url = plugIn.FileUrl,
-        version = plugIn.Version.ToString(),
-    };
 
     public void TrackError(Exception exception, string? currentRoute = null, Game? currentGame = null)
     {

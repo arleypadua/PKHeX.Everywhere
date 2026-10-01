@@ -52,7 +52,7 @@ public static class PlugInHandlers
     [Query("plugins.isSupported")]
     public static bool IsSupported(byte[] assembly) => PlugInHost.IsSupported(assembly);
 
-    [Command("plugins.newestCompatible", Topics.PlugIns)]
+    [Command("plugins.newestCompatible")]
     public static PublishedVersion? NewestCompatible(Session session, PublishedVersion[] versions, string? plugInId) =>
         PlugInHost.Of(session).NewestCompatible(plugInId, versions);
 
