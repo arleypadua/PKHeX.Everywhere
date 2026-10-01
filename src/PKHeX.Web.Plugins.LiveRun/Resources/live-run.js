@@ -19,6 +19,7 @@ export function mount(element, ctx) {
     let save
     let frame
     let unmounted = false
+    const listening = new AbortController()
     const receiveMessage = async (event) => {
         if (!frame || event.source !== frame.contentWindow) return
 
@@ -48,22 +49,22 @@ export function mount(element, ctx) {
         const showFrameCount = await ctx.getSetting("Show frame count")
         if (unmounted) return
 
-        window.addEventListener("message", receiveMessage)
+        window.addEventListener("message", receiveMessage, { signal: listening.signal })
         frame = webretroEmbed(container, webretroUrl, { core: "mgba" })
-        await waitForIframeReady(frame)
+        await waitForIframeReady(frame, listening.signal)
         if (unmounted) return
 
         frame.contentWindow.postMessage({
             type: "load_game",
             saveFile: { name: save.fileName, bytes: save.bytes },
-            romFile: { name: `live-run.${rom.extension}`, bytes: romBytes },
+            romFile: { name: `live-run-${save.version}.${rom.extension}`, bytes: romBytes },
             showFrameCount: showFrameCount === true,
         }, "*")
     }
 
     return () => {
         unmounted = true
-        window.removeEventListener("message", receiveMessage)
+        listening.abort()
         container.remove()
     }
 }
@@ -78,7 +79,7 @@ function webretroEmbed(node, path, queries) {
     return frame
 }
 
-function waitForIframeReady(frame) {
+function waitForIframeReady(frame, signal) {
     return new Promise((resolve) => {
         const onMessage = (event) => {
             if (event.source === frame.contentWindow && event.data === "iframe-ready") {
@@ -87,6 +88,6 @@ function waitForIframeReady(frame) {
             }
         }
 
-        window.addEventListener("message", onMessage)
+        window.addEventListener("message", onMessage, { signal })
     })
 }
