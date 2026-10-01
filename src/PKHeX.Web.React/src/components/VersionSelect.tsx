@@ -15,6 +15,7 @@ export function VersionSelect({ value, onChange }: VersionSelectProps) {
       value={value}
       placeholder="Version"
       style={{ width: '100%' }}
+      showSearch={{ optionFilterProp: 'label' }}
       options={versions.map((version) => ({ value: version.id, label: version.name }))}
       onChange={(id) => {
         const version = versions.find((version) => version.id === id)

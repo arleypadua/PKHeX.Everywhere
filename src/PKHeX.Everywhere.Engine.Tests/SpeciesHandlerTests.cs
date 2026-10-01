@@ -21,6 +21,7 @@ public class SpeciesHandlerTests
             .Where(SpeciesDefinition.IsSome)
             .Select(s => JsonSerializer.Serialize(new { id = s.Id, name = s.Name }));
         species.Select(s => s!.ToJsonString()).Should().BeEquivalentTo(expected);
+        species.Select(s => s!["name"]!.GetValue<string>()).Should().BeInAscendingOrder(StringComparer.Ordinal);
     }
 
     [Theory]
