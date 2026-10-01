@@ -1,7 +1,11 @@
 @page "/plugins"
+@using PKHeX.Everywhere.Engine
 @using PKHeX.Web.Services.Plugins
 @implements IDisposable
 @inject INotificationService Notification
+@inject Session Session
+@inject PlugInStore PlugInStore
+@inject NavigationManager Navigation
 
 <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
     <PageHeader BackIcon="true" Style="max-width: 100%">
@@ -12,7 +16,7 @@
     {
         <Title Level="2">Installed</Title>
         <Table
-            TItem="InstalledRow"
+            TItem="InstalledPlugIn"
             DataSource="@InstalledPlugIns"
             @bind-PageIndex="_installedPlugInsPageIndex"
             @bind-PageSize="_installedPlugInsPageSize"
@@ -20,7 +24,7 @@
             Responsive
             EnableVirtualization>
             <PropertyColumn Title="Name" Property="@(c => c.Name)" Sortable Filterable>
-                @if (context.PlugIn is not null)
+                @if (!context.NeedsReinstall)
                 {
                     <a href="@($"/plugins/{context.Id}")">@context.Name</a>
                 }
@@ -30,7 +34,7 @@
                 }
             </PropertyColumn>
             <PropertyColumn Title="Version" Property="@(c => c.Version)" Sortable Filterable>
-                @if (context.PlugIn is null)
+                @if (context.NeedsReinstall)
                 {
                     <Tooltip Title="@("This plug-in doesn't work with this version of the app. Uninstall it and install it again.")">
                         <Tag Color="@TagColor.Warning">Needs reinstall</Tag>
@@ -52,11 +56,11 @@
                         </Button>
                     </SpaceItem>
 
-                    @if (context.PlugIn is { HasNewerVersion: true } plugIn)
+                    @if (context.HasNewerVersion)
                     {
                         <SpaceItem>
                             <Button
-                                OnClick="() => HandleUpdateClick(plugIn)"
+                                OnClick="() => HandleUpdateClick(context.Id)"
                                 Type="@ButtonType.Link">
                                 Update
                             </Button>
@@ -71,27 +75,27 @@
     {
         <Title Level="2">Discover</Title>
         <Table
-            TItem="PlugInAndSource"
+            TItem="AvailablePlugIn"
             DataSource="@_availablePlugIns"
             @bind-PageIndex="_availablePlugInsPageIndex"
             @bind-PageSize="_availablePlugInsPageSize"
             Size="TableSize.Small"
             Responsive
             EnableVirtualization>
-            <PropertyColumn Title="Name" Property="@(c => c.PlugIn.Id)" Sortable Filterable>
+            <PropertyColumn Title="Name" Property="@(c => c.Id)" Sortable Filterable>
                 <LabelOrLink
-                    Label="@context.PlugIn.Name"
-                    Href="@context.PlugIn.ProjectUrl"/>
+                    Label="@context.Name"
+                    Href="@context.ProjectUrl"/>
             </PropertyColumn>
-            <PropertyColumn Title="Description" Property="@(c => c.PlugIn.Description)"/>
-            <PropertyColumn Title="Version" Property="@(c => c.PlugIn.NewestCompatibleVersion!.Version)" Sortable Filterable/>
-            <PropertyColumn Title="Source" Property="@(c => c.Source.Name)" Sortable Filterable/>
+            <PropertyColumn Title="Description" Property="@(c => c.Description)"/>
+            <PropertyColumn Title="Version" Property="@(c => c.Version)" Sortable Filterable/>
+            <PropertyColumn Title="Source" Property="@(c => c.SourceName)" Sortable Filterable/>
             <ActionColumn Title="Actions">
                 <Space Size=@("middle")>
                     <SpaceItem>
                         <Button
                             Type="@ButtonType.Link"
-                            OnClick="() => HandleInstallClick(context.Source, context.PlugIn)">
+                            OnClick="() => HandleInstallClick(context)">
                             Install
                         </Button>
                     </SpaceItem>
@@ -103,20 +107,8 @@
 </Flex>
 
 @code {
-    [Inject] public required PlugInRegistry Registry { get; set; }
-    [Inject] public required PlugInService PlugInService { get; set; }
-    [Inject] public required PlugInSourceService PlugInSourceService { get; set; }
-
-    private List<PlugInAndSource> _availablePlugIns = [];
-
-    private List<InstalledRow> InstalledPlugIns =>
-    [
-        .. Registry.GetAllPlugins().Select(p => new InstalledRow
-        {
-            Id = p.Id, Name = p.Manifest.PlugInName, Version = p.Version.ToString(), PlugIn = p
-        }),
-        .. Registry.NeedsReinstall.Select(p => new InstalledRow { Id = p.Id, Name = p.Id, Version = string.Empty }),
-    ];
+    private List<AvailablePlugIn> _availablePlugIns = [];
+    private List<InstalledPlugIn> InstalledPlugIns { get; set; } = [];
 
     private int _availablePlugInsPageIndex = 1;
     private int _availablePlugInsPageSize = 20;
@@ -126,30 +118,31 @@
 
     private async Task HandleUninstallClick(string plugInId)
     {
-        await PlugInService.Uninstall(plugInId);
-        await RefreshAvailablePlugIns();
+        await PlugInStore.Uninstall(plugInId);
     }
 
-    private async Task HandleInstallClick(PlugInSource source, PlugInSource.PlugIn plugin)
+    private async Task HandleInstallClick(AvailablePlugIn plugIn)
     {
-        await PlugInService.InstallFrom(source.SourceUrl, source.GetLatestDownloadUrl(plugin));
-        
+        if (!await TryReachingTheSource(() => PlugInStore.Install(plugIn.SourceUrl, plugIn.Id))) return;
+
         _ = Notification.Open(new NotificationConfig
         {
-            Message = "Plug-in updated with success",
+            Message = "Plug-in installed with success",
             NotificationType = NotificationType.Success
         });
-        
-        await RefreshAvailablePlugIns();
+        Navigation.NavigateToPlugIn(plugIn.Id);
     }
-    
-    private async Task HandleUpdateClick(InstalledPlugIn plugIn)
+
+    private Task HandleUpdateClick(string plugInId) => TryReachingTheSource(() => PlugInStore.Update(plugInId));
+
+    private async Task<bool> TryReachingTheSource(Func<Task> call)
     {
         try
         {
-            await PlugInService.Update(plugIn);
+            await call();
+            return true;
         }
-        catch (HttpRequestException)
+        catch (JSException)
         {
             _ = Notification.Open(new()
             {
@@ -157,48 +150,30 @@
                 Description = "Try again later.",
                 NotificationType = NotificationType.Error,
             });
-            return;
+            return false;
         }
-
-        await RefreshAvailablePlugIns();
     }
 
     protected override Task OnInitializedAsync()
     {
-        Registry.OnPlugInChanged += HandlePlugInChanged;
-        return RefreshAvailablePlugIns();
+        Session.Changed += HandleSessionChanged;
+        return Refresh();
     }
 
-    private void HandlePlugInChanged(string plugInId, PlugInRegistry.ChangeType type) => InvokeAsync(async () =>
+    private void HandleSessionChanged(string[] topics)
     {
-        await RefreshAvailablePlugIns();
-        StateHasChanged();
-    });
-
-    public void Dispose() => Registry.OnPlugInChanged -= HandlePlugInChanged;
-
-    private async Task RefreshAvailablePlugIns()
-    {
-        _availablePlugIns = (await PlugInSourceService.GetPlugInSources())
-            .SelectMany(
-                p => p.PlugIns,
-                (source, plugin) => new PlugInAndSource { Source = source, PlugIn = plugin })
-            .Where(p => !Registry.IsRegistered(p.PlugIn.Id) && p.PlugIn.NewestCompatibleVersion is not null)
-            .ToList();
+        if (topics.Any(t => t is Topics.All or Topics.PlugIns)) InvokeAsync(async () =>
+        {
+            await Refresh();
+            StateHasChanged();
+        });
     }
 
-    class PlugInAndSource
-    {
-        public required PlugInSource Source { get; set; }
-        public required PlugInSource.PlugIn PlugIn { get; set; }
-    }
+    public void Dispose() => Session.Changed -= HandleSessionChanged;
 
-    class InstalledRow
+    private async Task Refresh()
     {
-        public required string Id { get; init; }
-        public required string Name { get; init; }
-        public required string Version { get; init; }
-        public InstalledPlugIn? PlugIn { get; init; }
+        InstalledPlugIns = PlugInHandlers.Installed(Session).ToList();
+        _availablePlugIns = (await PlugInStore.Available()).ToList();
     }
-
 }

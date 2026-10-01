@@ -6,12 +6,6 @@ namespace PKHeX.Everywhere.Engine.Tests;
 
 public class PlugInVersionTests
 {
-    private static byte[] V2PlugIn => PlugInBytes("PKHeX.Everywhere.Engine.Tests.PlugIn");
-    private static byte[] V1PlugIn => PlugInBytes("V1PlugIn");
-
-    private static byte[] PlugInBytes(string name) =>
-        File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "plugins", $"{name}.dll"));
-
     private static PublishedVersion[] Versions(string json) =>
         JsonSerializer.Deserialize<PublishedVersion[]>(json, JsonSerializerOptions.Web)!;
 
@@ -78,36 +72,5 @@ public class PlugInVersionTests
     {
         PlugInHost.NewestCompatible(Versions("""[{ "Version": "2.0.0", "Sdk": 2 }, { "Version": "latest", "Sdk": 2 }]"""))
             .Should().Be(new PublishedVersion("2.0.0", 2));
-    }
-
-    [Fact]
-    public void AnInstalledV1PlugInUpdatesToTheNewestVersionWithANewerSdk()
-    {
-        var update = PlugInHost.SdkUpdateFor(V1PlugIn, Versions("""
-            ["1.1.3", { "Version": "2.0.0", "Sdk": 2 }, { "Version": "2.1.0", "Sdk": 2 }]
-            """));
-
-        update.Should().Be(new PublishedVersion("2.1.0", 2));
-    }
-
-    [Fact]
-    public void APlugInDoesntUpdateWhenNoCompatibleVersionHasANewerSdk()
-    {
-        PlugInHost.SdkUpdateFor(V1PlugIn, Versions("""["1.1.3", "1.1.4"]""")).Should().BeNull();
-        PlugInHost.SdkUpdateFor(V1PlugIn, Versions("""["1.1.3", { "Version": "3.0.0", "Sdk": 3 }]""")).Should().BeNull();
-        PlugInHost.SdkUpdateFor(V2PlugIn, Versions("""[{ "Version": "2.1.0", "Sdk": 2 }]""")).Should().BeNull();
-    }
-
-    [Fact]
-    public void AnInstalledV1PlugInUpdatesToANewerSdkEvenWhenAV1VersionHasAHigherNumber()
-    {
-        PlugInHost.SdkUpdateFor(V1PlugIn, Versions("""["1.1.3", { "Version": "1.0.0", "Sdk": 2 }]"""))
-            .Should().Be(new PublishedVersion("1.0.0", 2));
-    }
-
-    [Fact]
-    public void AnUnknownInstalledSdkDoesntUpdate()
-    {
-        PlugInHost.SdkUpdateFor([1, 2, 3], Versions("""[{ "Version": "2.0.0", "Sdk": 2 }]""")).Should().BeNull();
     }
 }

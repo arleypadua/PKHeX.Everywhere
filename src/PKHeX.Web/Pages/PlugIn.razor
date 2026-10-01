@@ -2,10 +2,10 @@
 @using PKHeX.Everywhere.Engine.PlugIns
 @using PKHeX.Everywhere.PlugIns
 @using PKHeX.Web.Services.Plugins
-@inject PlugInRegistry PlugInRegistry
-@inject PlugInLocalStorage PlugInStorage
-@inject PlugInFilesRepository PlugInFilesRepository
-@inject PlugInService PlugInService
+@implements IDisposable
+@inject PlugInHost PlugInHost
+@inject PKHeX.Everywhere.Engine.Session Session
+@inject PlugInStore PlugInStore
 @inject INotificationService Notification
 @inject JsService Js
 
@@ -13,10 +13,10 @@
 {
     <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
         <PageHeader BackIcon="true" Style="max-width: 100%">
-            <TitleTemplate>@_plugIn.Manifest.PlugInName</TitleTemplate>
+            <TitleTemplate>@Manifest.PlugInName</TitleTemplate>
 
             <PageHeaderExtra>
-                @if (_plugIn.HasNewerVersion)
+                @if (PlugInHost.HasNewerVersion(_plugIn.Id))
                 {
                     <Button
                         Type="@ButtonType.Primary"
@@ -30,10 +30,10 @@
         <ResponsibleDescriptions @key="_plugIn" Bordered Size="DescriptionsSize.Small" Style="width: 100%">
             <DescriptionsItem Title="Name">
                 <LabelOrLink
-                    Label="@_plugIn.Manifest.PlugInName"
-                    Href="@_plugIn.Manifest.ProjectUrl"/>
+                    Label="@Manifest.PlugInName"
+                    Href="@Manifest.ProjectUrl"/>
             </DescriptionsItem>
-            <DescriptionsItem Title="Description">@_plugIn.Manifest.Description</DescriptionsItem>
+            <DescriptionsItem Title="Description">@Manifest.Description</DescriptionsItem>
             <DescriptionsItem Title="Version">@_plugIn.Version</DescriptionsItem>
             <DescriptionsItem Title="Enabled">
                 <Switch
@@ -41,15 +41,15 @@
                     OnChange="SetEnabled"/>
             </DescriptionsItem>
 
-            @if (!string.IsNullOrWhiteSpace(_plugIn.PublicKeyToken))
+            @if (!string.IsNullOrWhiteSpace(PublicKeyToken))
             {
-                <DescriptionsItem Title="Public Key">@_plugIn.PublicKeyToken</DescriptionsItem>
+                <DescriptionsItem Title="Public Key">@PublicKeyToken</DescriptionsItem>
             }
 
-            @foreach (var (key, _) in _plugIn.SettingValues)
+            @foreach (var (key, _) in _plugIn.Settings.All)
             {
                 <DescriptionsItem Title="@key" @key="key">
-                    @RenderSettings(key, _plugIn.GetSetting(key))
+                    @RenderSettings(key, _plugIn.Settings.GetOrDefault(key))
                 </DescriptionsItem>
             }
         </ResponsibleDescriptions>
@@ -76,12 +76,12 @@
             </ActionColumn>
         </Table>
         
-        @if (!string.IsNullOrWhiteSpace(_plugIn.Manifest.Information))
+        @if (!string.IsNullOrWhiteSpace(Manifest.Information))
         {
             <Alert
                 Type="@AlertType.Info"
                 ShowIcon="true">
-                @_plugIn.Manifest.Information
+                @Manifest.Information
             </Alert>
         }
     </Flex>
@@ -93,7 +93,11 @@
 @code {
     [Parameter] public required string Id { get; set; }
 
-    private InstalledPlugIn? _plugIn;
+    private RegisteredPlugIn? _plugIn;
+
+    private PlugInManifest Manifest => _plugIn!.Settings.Manifest;
+
+    private string PublicKeyToken => Convert.ToHexStringLower(_plugIn!.Assembly.GetName().GetPublicKeyToken() ?? []);
     private List<PlugInHook> _features = [];
 
     private Dictionary<string, InputFile?> _fileSettingInputReferences = [];
@@ -114,15 +118,29 @@
 
     protected override void OnInitialized()
     {
+        Session.Changed += HandleSessionChanged;
         LoadPlugin();
     }
+
+    // Stored plug-ins register after the first render, so a page opened directly finds its plug-in late.
+    private void HandleSessionChanged(string[] topics)
+    {
+        if (topics.Contains(PKHeX.Everywhere.Engine.Topics.PlugIns)) InvokeAsync(() =>
+        {
+            LoadPlugin();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose() => Session.Changed -= HandleSessionChanged;
 
     private void LoadPlugin()
     {
         try
         {
-            _plugIn = PlugInRegistry.GetBy(Id);
-            _features = _plugIn.Registered.Hooks.ToList();
+            _plugIn = PlugInHost.Find(Id) ?? throw new KeyNotFoundException($"Plug-in {Id} is not installed.");
+            _features = _plugIn.Hooks.ToList();
+            _plugInLoadError = null;
 
             ShouldRender();
         }
@@ -190,23 +208,22 @@
     {
         ArgumentNullException.ThrowIfNull(_plugIn, nameof(_plugIn));
 
-        _plugIn.SetSetting(key, value);
-
-        await PlugInStorage.Persist(_plugIn);
+        PlugInHost.UpdateSetting(_plugIn.Id, key, value);
+        await PlugInStore.Persist(_plugIn.Id);
     }
 
     private async Task SetEnabled(bool enabled)
     {
         ArgumentNullException.ThrowIfNull(_plugIn, nameof(_plugIn));
-        _plugIn.Enabled = enabled;
-        await PlugInStorage.Persist(_plugIn);
+        PlugInHost.SetEnabled(_plugIn.Id, enabled);
+        await PlugInStore.Persist(_plugIn.Id);
     }
 
     private async Task ToggleFeature(string hookId, bool newValue)
     {
         ArgumentNullException.ThrowIfNull(_plugIn, nameof(_plugIn));
-        _plugIn.SetToggle(hookId, newValue);
-        await PlugInStorage.Persist(_plugIn);
+        PlugInHost.SetToggle(_plugIn.Id, hookId, newValue);
+        await PlugInStore.Persist(_plugIn.Id);
     }
 
     private async Task HandleUpdateClick()
@@ -216,9 +233,9 @@
         bool updated;
         try
         {
-            updated = await PlugInService.Update(_plugIn);
+            updated = await PlugInStore.Update(_plugIn.Id);
         }
-        catch (HttpRequestException)
+        catch (JSException)
         {
             _ = Notification.Open(new()
             {
@@ -255,19 +272,17 @@
         using MemoryStream ms = new MemoryStream();
         await e.File.OpenReadStream(24 * 1024 * 1000).CopyToAsync(ms);
 
-        _plugIn.SetSetting(key, new Settings.SettingValue.FileValue(ms.ToArray(), e.File.Name));
-        await PlugInStorage.Persist(_plugIn);
+        PlugInHost.UpdateSetting(_plugIn.Id, key, new Settings.SettingValue.FileValue(ms.ToArray(), e.File.Name));
+        await PlugInStore.Persist(_plugIn.Id);
     }
 
     private async Task RemoveFileSettings(string key)
     {
         if (_plugIn is null) return;
-        var file = _plugIn.GetSetting(key) as Settings.SettingValue.FileValue;
-        if (file is null) return;
+        if (_plugIn.Settings.GetOrDefault(key) is not Settings.SettingValue.FileValue) return;
 
-        _plugIn.SetSetting(key, Settings.SettingValue.FileValue.Empty);
-        await PlugInFilesRepository.Remove(_plugIn.Id, file.FileName);
-        await PlugInStorage.Persist(_plugIn);
+        PlugInHost.UpdateSetting(_plugIn.Id, key, Settings.SettingValue.FileValue.Empty);
+        await PlugInStore.Persist(_plugIn.Id);
     }
 
 }

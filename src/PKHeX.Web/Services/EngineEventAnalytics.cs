@@ -1,4 +1,5 @@
 using PKHeX.Everywhere.Engine;
+using PKHeX.Everywhere.Engine.PlugIns;
 
 namespace PKHeX.Web.Services;
 
@@ -19,6 +20,8 @@ public sealed class EngineEventAnalytics : IDisposable
         if (engineEvent is ItemChanged changed) _analytics.TrackItemModified(changed.ItemId, changed.Count);
         if (engineEvent is PokemonAdded added) OnPokemonAdded(added);
         if (engineEvent is GameExported && _session.Game is { } game) _analytics.TrackGameExported(game);
+        if (engineEvent is PlugInInstalled installed) _analytics.TrackPlugInInstalled(installed.PlugInId, installed.Version);
+        if (engineEvent is PlugInUpdated updated) _analytics.TrackPlugInUpdated(updated.PlugInId, updated.Version);
     }
 
     private void OnPokemonAdded(PokemonAdded added)

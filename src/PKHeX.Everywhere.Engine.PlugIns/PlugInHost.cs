@@ -14,6 +14,8 @@ public sealed class PlugInHost
 
     private readonly Session _session;
     private readonly Dictionary<string, RegisteredPlugIn> _plugIns = new();
+    private readonly HashSet<string> _needsReinstall = [];
+    private readonly HashSet<string> _hasNewerVersion = [];
     private readonly List<PlugInFailure> _failures = [];
     private readonly IGameProvider _game;
     private readonly AsyncLocal<bool> _runningHook = new();
@@ -46,28 +48,57 @@ public sealed class PlugInHost
         .Where(v => Version.TryParse(v.Version, out _))
         .MaxBy(v => Version.Parse(v.Version));
 
-    public static PublishedVersion? SdkUpdateFor(byte[] installed, IEnumerable<PublishedVersion> versions) =>
-        DetectSdk(installed) is var sdk && sdk == PlugInSdk.None
-            ? null
-            : NewestCompatible(versions.Where(v => v.Sdk > (int)sdk));
-
-    public async Task<CompatibleUpdate?> UpdateToCompatible(
-        byte[] installed,
-        StoredPlugIn stored,
-        IEnumerable<PublishedVersion> versions,
-        Func<PublishedVersion, Task<byte[]>> download)
+    /// <summary>
+    /// Registers a supported assembly with its stored state, or lists an unsupported one as needing reinstall.
+    /// Registering a plug-in the host already knows is an update, and one without stored state is an install.
+    /// </summary>
+    public InstalledPlugIn Install(byte[] assembly, StoredPlugIn? stored = null)
     {
-        if (SdkUpdateFor(installed, versions) is not { } version) return null;
+        var id = PlugInSdkDetector.NameOf(assembly)
+                 ?? throw new IncompatiblePlugInException(PlugInSdk.None);
+        var known = _plugIns.ContainsKey(id) || _needsReinstall.Contains(id);
 
-        try
+        if (!IsSupported(assembly))
         {
-            var assembly = await download(version);
-            return new CompatibleUpdate(Register(assembly, stored), version, assembly);
+            if (_plugIns.Remove(id, out var replaced)) replaced.Dispose();
+            _hasNewerVersion.Remove(id);
+            _needsReinstall.Add(id);
+            _session.Invalidate(Topics.All);
+            return Installed(id);
         }
-        catch (Exception)
-        {
-            return null;
-        }
+
+        var plugIn = Register(assembly, stored);
+        var version = plugIn.Version.ToString();
+        if (known) _session.Raise(new PlugInUpdated(plugIn.Id, version));
+        else if (stored is null) _session.Raise(new PlugInInstalled(plugIn.Id, version));
+        return Installed(plugIn.Id);
+    }
+
+    public IReadOnlyList<InstalledPlugIn> Installed() => _plugIns.Keys.Concat(_needsReinstall).Select(Installed).ToList();
+
+    public bool HasNewerVersion(string id) => _hasNewerVersion.Contains(id);
+
+    public PublishedVersion? NewestCompatible(string? id, IEnumerable<PublishedVersion> versions)
+    {
+        var newest = NewestCompatible(versions);
+        if (id is null || Find(id) is not { } plugIn) return newest;
+
+        var hasNewer = newest is not null && Version.Parse(newest.Version) > plugIn.Version;
+        if (!(hasNewer ? _hasNewerVersion.Add(id) : _hasNewerVersion.Remove(id))) return newest;
+
+        _session.AlsoWrote(Topics.PlugIns);
+        _session.Invalidate(Topics.PlugIns);
+        return newest;
+    }
+
+    public StoredPlugIn State(string id)
+    {
+        var plugIn = Get(id);
+        return new StoredPlugIn(
+            plugIn.Enabled,
+            plugIn.HookIds.ToDictionary(h => h, plugIn.IsHookEnabled),
+            plugIn.Settings.All.ToDictionary(),
+            HasNewerVersion(id));
     }
 
     public RegisteredPlugIn Register(byte[] assembly, StoredPlugIn? stored = null)
@@ -80,6 +111,9 @@ public sealed class PlugInHost
         if (stored is not null) Restore(plugIn, stored);
 
         if (_plugIns.Remove(plugIn.Id, out var replaced)) replaced.Dispose();
+        _needsReinstall.Remove(plugIn.Id);
+        if (stored?.HasNewerVersion == true) _hasNewerVersion.Add(plugIn.Id);
+        else _hasNewerVersion.Remove(plugIn.Id);
         _plugIns[plugIn.Id] = plugIn;
         _session.Invalidate(Topics.All);
         return plugIn;
@@ -87,9 +121,11 @@ public sealed class PlugInHost
 
     public void Unregister(string id)
     {
-        if (!_plugIns.Remove(id, out var plugIn)) return;
+        _hasNewerVersion.Remove(id);
+        var neededReinstall = _needsReinstall.Remove(id);
+        if (_plugIns.Remove(id, out var plugIn)) plugIn.Dispose();
+        else if (!neededReinstall) return;
 
-        plugIn.Dispose();
         _session.Invalidate(Topics.All);
     }
 
@@ -236,6 +272,10 @@ public sealed class PlugInHost
         _failures.Add(failure);
     }
 
+    private InstalledPlugIn Installed(string id) => Find(id) is { } plugIn
+        ? new InstalledPlugIn(id, plugIn.Settings.Manifest.PlugInName, plugIn.Version.ToString(), plugIn.Enabled, HasNewerVersion(id), false)
+        : new InstalledPlugIn(id, id, string.Empty, false, false, true);
+
     private RegisteredPlugIn Get(string id) =>
         _plugIns.GetValueOrDefault(id) ?? throw new KeyNotFoundException($"Plug-in {id} is not registered.");
 
@@ -270,9 +310,10 @@ public sealed class PlugInHost
 public sealed record StoredPlugIn(
     bool Enabled,
     IReadOnlyDictionary<string, bool> Toggles,
-    IReadOnlyDictionary<string, Settings.SettingValue> Settings);
+    IReadOnlyDictionary<string, Settings.SettingValue> Settings,
+    bool HasNewerVersion = false);
 
-public sealed record CompatibleUpdate(RegisteredPlugIn PlugIn, PublishedVersion Version, byte[] Assembly);
+public sealed record InstalledPlugIn(string Id, string Name, string Version, bool Enabled, bool HasNewerVersion, bool NeedsReinstall);
 
 public sealed record PlugInRan(string PlugInId, string HookId, Outcome? Outcome, Exception? Failure);
 

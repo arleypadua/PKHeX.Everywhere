@@ -81,6 +81,20 @@ export interface ExportedSave {
   fileName: string
 }
 
+export interface HookToggle {
+  hookId: string
+  enabled: boolean
+}
+
+export interface InstalledPlugIn {
+  id: string
+  name: string
+  version: string
+  enabled: boolean
+  hasNewerVersion: boolean
+  needsReinstall: boolean
+}
+
 export interface ItemHandle {
   pouch: string
   itemId: number
@@ -128,6 +142,23 @@ export interface PlugInOutcome {
 
 export type PlugInOutcomeKind = 'void' | 'notify' | 'openPage'
 
+export interface PlugInSetting {
+  key: string
+  readOnly: boolean
+  stringValue?: string | null
+  booleanValue?: boolean | null
+  integerValue?: number | null
+  fileName?: string | null
+  file?: Base64 | null
+}
+
+export interface PlugInState {
+  enabled: boolean
+  toggles: HookToggle[]
+  settings: PlugInSetting[]
+  hasNewerVersion: boolean
+}
+
 export interface PokemonForm {
   id: number
   name: string
@@ -161,6 +192,11 @@ export interface Pouch {
   name: string
   items: OwnedItem[]
   addable: AddableItem[]
+}
+
+export interface PublishedVersion {
+  version: string
+  sdk: number
 }
 
 export interface SaveEvents {

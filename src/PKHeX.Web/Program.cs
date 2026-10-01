@@ -14,7 +14,6 @@ using PKHeX.Web.Services.GeneralSettings;
 using PKHeX.Web.Services.Plugins;
 using Sentry.Extensions.Logging;
 using Sentry.Protocol;
-using TG.Blazor.IndexedDB;
 using App = PKHeX.Web.App;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -31,15 +30,9 @@ builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<NewsService>();
 
 builder.Services.AddSingleton(sp => new PlugInHost(sp.GetRequiredService<Session>()));
-builder.Services.AddScoped<PlugInService>();
-builder.Services.AddScoped<PlugInRegistry>();
+builder.Services.AddScoped<PlugInStore>();
 builder.Services.AddScoped<PlugInRanHandler>();
 builder.Services.AddScoped<EngineEventAnalytics>();
-builder.Services.AddScoped<PlugInLocalStorage>();
-builder.Services.AddScoped<PlugInLocalStorageLoader>();
-builder.Services.AddScoped<PlugInSourceService>();
-builder.Services.AddScoped<PlugInSourceLocalStorage>();
-builder.Services.AddScoped<PlugInFilesRepository>();
 
 builder.Services.AddScoped<UserJourneyService>();
 builder.Services.AddScoped<GeneralSettingsService>();
@@ -63,14 +56,6 @@ builder.Services.AddBlazoredLocalStorage(config =>
     config.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
     config.JsonSerializerOptions.WriteIndented = false;
-});
-
-builder.Services.AddIndexedDB(store =>
-{
-    store.DbName = "pkhex-web-db";
-    store.Version = 1;
-
-    store.Stores.Add(PlugInFilesRepository.Schema);
 });
 
 #if !DEBUG
@@ -121,8 +106,5 @@ RuntimeCryptographyProvider.Md5 = app.Services.GetRequiredService<BlazorMd5Provi
 app.Services.GetRequiredService<IAnalytics>()
     .Disable();
 #endif
-
-await app.Services.GetRequiredService<PlugInLocalStorageLoader>()
-    .InitializePlugIns();
 
 await app.RunAsync();

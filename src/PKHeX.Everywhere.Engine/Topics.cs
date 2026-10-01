@@ -10,4 +10,5 @@ public static class Topics
     public const string Events = "events";
     public const string Trainer = "trainer";
     public const string Draft = "draft";
+    public const string PlugIns = "plugins";
 }

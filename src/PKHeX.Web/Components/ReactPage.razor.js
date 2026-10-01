@@ -22,6 +22,15 @@ function load(devServerUrl) {
     return pagesModule
 }
 
+export async function start(devServerUrl) {
+    await load(devServerUrl)
+}
+
+export async function plugIns(devServerUrl, method, ...args) {
+    const module = await load(devServerUrl)
+    return module.plugIns[method](...args)
+}
+
 const elements = new Map()
 
 export async function mount(id, element, devServerUrl, name, props, navigator, theme, calculatorUrl, calculators) {

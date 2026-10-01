@@ -1,9 +1,10 @@
 ﻿@inherits LayoutComponentBase
-@using PKHeX.Web.Services.Plugins
+@using PKHeX.Everywhere.Engine
 @implements IDisposable
 @inject NavigationManager Navigation
 @inject GameService GameService
 @inject UserJourneyService UserJourneyService
+@inject Session Session
 
 <Layout Style="min-height: 100vh">
     <NewsBanner />
@@ -112,8 +113,6 @@
 </Layout>
 
 @code {
-    [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
-
     bool _collapsed;
     AnalyticsAwareErrorBoundary _errorBoundary = default!;
     MenuItem? SelectedMenuItem => MenuItems.SingleOrDefault(m => m.Route == Navigation.CurrentRoute());
@@ -130,25 +129,26 @@
         new("save", "Save", "save", true),
     ];
 
-    List<MenuItem> PluginMenuItems
-    {
-        get
-        {
-            var plugIns = PlugInRegistry.GetAllPlugins()
-                .Select(p => new MenuItem($"plugins/{p.Id}", p.Manifest.PlugInName))
-                .ToList();
-
-            if (plugIns.Any()) plugIns.Add(new MenuItem("plugins", "Manage Plug-Ins"));
-
-            return plugIns;
-        }
-    }
+    List<MenuItem> PluginMenuItems { get; set; } = [];
 
     protected override void OnInitialized()
     {
         GameService.OnGameLoaded += OnGameLoaded;
         GameService.OnGameClosed += OnGameClosed;
-        PlugInRegistry.OnPlugInChanged += OnPlugInChanged;
+        Session.Changed += OnSessionChanged;
+        PluginMenuItems = ReadPlugInMenuItems();
+    }
+
+    private List<MenuItem> ReadPlugInMenuItems()
+    {
+        var plugIns = PlugInHandlers.Installed(Session)
+            .Where(p => !p.NeedsReinstall)
+            .Select(p => new MenuItem($"plugins/{p.Id}", p.Name))
+            .ToList();
+
+        if (plugIns.Any()) plugIns.Add(new MenuItem("plugins", "Manage Plug-Ins"));
+
+        return plugIns;
     }
 
     protected override void OnAfterRender(bool firstRender) => ToLoadIfNotLoaded();
@@ -175,20 +175,15 @@
     }
 
 
-    private void OnPlugInChanged(string plugInId, PlugInRegistry.ChangeType type)
+    private void OnSessionChanged(string[] topics)
     {
-        switch (type)
-        {
-            case PlugInRegistry.ChangeType.Deregistered:
-                Navigation.NavigateToPlugIns();
-                break;
-            case PlugInRegistry.ChangeType.Registered:
-                Navigation.NavigateToPlugIn(plugInId);
-                break;
-            default:
-                InvokeAsync(StateHasChanged);
-                break;
-        }
+        if (!topics.Any(t => t is Topics.All or Topics.PlugIns)) return;
+
+        var plugIns = ReadPlugInMenuItems();
+        if (plugIns.SequenceEqual(PluginMenuItems)) return;
+
+        PluginMenuItems = plugIns;
+        InvokeAsync(StateHasChanged);
     }
 
     private RenderFragment RenderMenu(MenuItem item) =>
@@ -209,7 +204,7 @@
     {
         GameService.OnGameLoaded -= OnGameLoaded;
         GameService.OnGameClosed -= OnGameClosed;
-        PlugInRegistry.OnPlugInChanged -= OnPlugInChanged;
+        Session.Changed -= OnSessionChanged;
     }
 
     private void HandleSettingsClick()

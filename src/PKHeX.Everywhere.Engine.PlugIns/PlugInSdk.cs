@@ -15,6 +15,23 @@ internal static class PlugInSdkDetector
     private const string V1 = "PKHeX.Web.Plugins";
     private const string V2 = "PKHeX.Everywhere.PlugIns";
 
+    public static string? NameOf(byte[] assembly)
+    {
+        try
+        {
+            using var stream = new MemoryStream(assembly, writable: false);
+            using var pe = new PEReader(stream);
+            if (!pe.HasMetadata) return null;
+
+            var metadata = pe.GetMetadataReader();
+            return metadata.IsAssembly ? metadata.GetString(metadata.GetAssemblyDefinition().Name) : null;
+        }
+        catch (BadImageFormatException)
+        {
+            return null;
+        }
+    }
+
     public static PlugInSdk Detect(byte[] assembly)
     {
         try

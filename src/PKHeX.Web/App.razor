@@ -3,6 +3,7 @@
 @* Injected only so they subscribe to Engine and plug-in events for the app's lifetime. *@
 @inject EngineEventAnalytics EngineEventAnalytics
 @inject PKHeX.Web.Services.Plugins.PlugInRanHandler PlugInRanHandler
+@inject PKHeX.Web.Services.Plugins.PlugInStore PlugInStore
 
 
 <ConfigProvider
@@ -41,9 +42,13 @@
         await _configProvider.ChangeGlobalTheme(_theme);
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && OperatingSystem.IsBrowser()) PKHeX.Everywhere.Engine.EngineExports.SignalReady();
+        if (!firstRender || !OperatingSystem.IsBrowser()) return;
+
+        PKHeX.Everywhere.Engine.EngineExports.SignalReady();
+        // The React app loads stored plug-ins, so it starts with the app rather than with the first React page.
+        await PlugInStore.Start();
     }
 
     public void Dispose()
