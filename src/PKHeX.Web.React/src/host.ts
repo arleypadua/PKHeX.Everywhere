@@ -3,6 +3,10 @@ import { toBase64 } from './base64'
 
 export type Theme = 'light' | 'dark'
 
+declare global {
+  var showGoogleCmpRevocationMessage: (() => void) | undefined
+}
+
 export interface DotNetNavigator {
   invokeMethodAsync(method: 'NavigateTo', url: string, replace: boolean): Promise<void>
   invokeMethodAsync(method: 'NotifySuccess', title: string): Promise<void>
@@ -59,4 +63,8 @@ export function openCalculator(showdown: string) {
 
 function calculatorImportUrl(baseUrl: string, showdown: string) {
   return `${baseUrl}/?import=${toBase64(new TextEncoder().encode(showdown))}`
+}
+
+export function showCookiePreferences() {
+  globalThis.showGoogleCmpRevocationMessage?.()
 }

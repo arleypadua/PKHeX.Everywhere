@@ -1,9 +1,6 @@
 import { Button, Flex, Typography } from 'antd'
 import { applicationName, gitHubRepositoryIssues } from '../../constants'
-
-declare global {
-  var showGoogleCmpRevocationMessage: (() => void) | undefined
-}
+import { showCookiePreferences } from '../../host'
 
 export default function PrivacyPolicyPage() {
   return (
@@ -178,7 +175,7 @@ export default function PrivacyPolicyPage() {
         </li>
       </ul>
       <Flex justify="center">
-        <Button onClick={() => globalThis.showGoogleCmpRevocationMessage?.()}>Cookie preferences</Button>
+        <Button onClick={showCookiePreferences}>Cookie preferences</Button>
       </Flex>
 
       <h2>10. Contact Us</h2>
