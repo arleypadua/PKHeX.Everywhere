@@ -10,6 +10,11 @@ export function useLoadSave() {
   const engine = useEngine()
   const { notification } = App.useApp()
 
+  const load = useCallback(
+    async (bytes: ArrayBuffer, fileName: string) => engine.game.load(toBase64(new Uint8Array(bytes)), fileName),
+    [engine],
+  )
+
   const openFile = useCallback(
     async (file: File) => {
       if (file.size > maxFileSize) {
@@ -17,25 +22,25 @@ export function useLoadSave() {
         return
       }
       try {
-        await engine.game.load(toBase64(new Uint8Array(await file.arrayBuffer())), file.name)
+        await load(await file.arrayBuffer(), file.name)
       } catch (error) {
         if (!(error instanceof EngineError) || error.code !== 'invalid-save') throw error
         notification.error({ title: error.message, description: 'The file is not a valid save file.' })
       }
     },
-    [engine, notification],
+    [load, notification],
   )
 
   const openDemo = useCallback(async () => {
     try {
       const response = await fetch('/data/emerald.sav')
       if (!response.ok) throw new Error(`The demo save returned ${response.status}.`)
-      await engine.game.load(toBase64(new Uint8Array(await response.arrayBuffer())), 'emerald.sav')
+      await load(await response.arrayBuffer(), 'emerald.sav')
     } catch (error) {
       if (error instanceof EngineError && error.code !== 'invalid-save') throw error
       notification.error({ title: 'Could not load the demo', description: 'Try again, or open your own save file.' })
     }
-  }, [engine, notification])
+  }, [load, notification])
 
   return { openFile, openDemo }
 }

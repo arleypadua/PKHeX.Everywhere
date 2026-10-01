@@ -19,6 +19,7 @@ export interface Calculator {
   name: string
   description: string
   url: string
+}
 
 export interface HostBridge {
   navigator: DotNetHost
@@ -113,7 +114,7 @@ export function downloadFile(bytes: Uint8Array<ArrayBuffer>, fileName: string) {
   link.href = url
   link.download = fileName
   link.click()
-  URL.revokeObjectURL(url)
+  setTimeout(() => URL.revokeObjectURL(url))
 }
 
 export function showCookiePreferences() {

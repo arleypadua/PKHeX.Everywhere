@@ -1,6 +1,5 @@
 using PKHeX.Everywhere.Engine;
 using PKHeX.Facade;
-using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Web.Services;
 
@@ -26,16 +25,6 @@ public class GameService : IDisposable
     public event EventHandler? OnGameClosed;
 
     public void Load(byte[] bytes, string fileName) => _session.Load(Game.LoadFrom(bytes, fileName), fileName);
-
-    public void LoadBlank(GameVersionDefinition version) => _session.Load(Game.EmptyOf(version), version.Name);
-
-    public Stream Export()
-    {
-        ArgumentNullException.ThrowIfNull(Game, nameof(Game));
-
-        var bytes = Game.ToByteArray();
-        return new MemoryStream(bytes);
-    }
 
     private void HandleGameChanged()
     {
