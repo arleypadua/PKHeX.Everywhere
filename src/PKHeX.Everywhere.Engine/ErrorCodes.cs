@@ -11,6 +11,8 @@ public static class ErrorCodes
     public const string Unparseable = "unparseable";
     public const string ConversionFailed = "conversion-failed";
     public const string NotInGame = "not-in-game";
+    public const string InvalidPatch = "invalid-patch";
+    public const string DraftNotAllowed = "draft-not-allowed";
     public const string UnknownCall = "unknown-call";
     public const string BadArguments = "bad-arguments";
     public const string PlugInFailed = "plugin-failed";

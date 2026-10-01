@@ -22,6 +22,16 @@ public static class PokemonExtensions
 
     public static LegalityAnalysis Legality(this Pokemon pokemon) => new (pokemon.Pkm);
     
+    public static PokemonLegality LegalityReport(this Pokemon pokemon)
+    {
+        var analysis = pokemon.Legality();
+        var localization = LegalityLocalizationContext.Create(analysis);
+        var messages = new List<string>();
+        foreach (var result in analysis.Results)
+            if (result.Judgement == Severity.Invalid) messages.Add($"{result.Identifier}: {localization.Humanize(result)}");
+        return new PokemonLegality(analysis.Valid, messages);
+    }
+
     public static async Task<Pokemon> ToLegalAsync(this Pokemon pokemon)
     {
         if (pokemon.Legality().Valid) return pokemon;

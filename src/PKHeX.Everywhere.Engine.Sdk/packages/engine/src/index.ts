@@ -5,4 +5,5 @@ export { createClient, type CallName, type CommandName, type EngineClient, type 
 export { errorCodes, type ErrorCode } from './generated/errors'
 export { queryTopics, topics, type Topic } from './generated/topics'
 export { affects } from './topics'
+export { draftHandle } from './handles'
 export type * from './generated/types'

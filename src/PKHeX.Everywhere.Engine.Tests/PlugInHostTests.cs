@@ -45,6 +45,7 @@ public class PlugInHostTests
             new PlugInHook($"{TestPlugInId}.WriteOnItem", "Writes the save on every item change", false),
             new PlugInHook($"{TestPlugInId}.RenameOnChange", "Renames a changed Pokémon", true),
             new PlugInHook($"{TestPlugInId}.RenameOnSave", "Renames a saved Pokémon", true),
+            new PlugInHook($"{TestPlugInId}.LevelUp", "Raises the Pokémon's level by one", false),
         ]);
     }
 

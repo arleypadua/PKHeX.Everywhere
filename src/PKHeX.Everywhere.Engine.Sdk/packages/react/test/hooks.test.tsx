@@ -1,8 +1,20 @@
 import { act, cleanup, render, renderHook, screen } from '@testing-library/react'
 import { Suspense, type ReactNode } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
-import { createClient, EngineError, type Engine, type ErrorCode, type Invoke, type PokemonHandle, type PokemonSummary } from '@pkhex-everywhere/engine'
-import { EngineProvider, useLoadedGame, useParty, usePokemon } from '../src'
+import {
+  createClient,
+  draftHandle,
+  EngineError,
+  type EditablePokemon,
+  type Engine,
+  type ErrorCode,
+  type Invoke,
+  type PokemonHandle,
+  type PokemonPatch,
+  type PokemonSummary,
+  type Topic,
+} from '@pkhex-everywhere/engine'
+import { EngineProvider, useLoadedGame, useParty, usePokemon, usePokemonDetails } from '../src'
 
 const at: PokemonHandle = { source: 'party', slot: 0, box: null }
 const pikachu = { id: 'pikachu:1', at, species: 'Pikachu', level: 12 } as PokemonSummary
@@ -11,12 +23,18 @@ type Dispatch = (name: string, args: unknown[]) => unknown
 
 function fakeEngine(dispatch: Dispatch) {
   const calls: { name: string; args: unknown[] }[] = []
+  const listeners = new Set<(changed: Topic[]) => void>()
   const call = (async (name: string, args: unknown[]) => {
     calls.push({ name, args })
     return dispatch(name, args)
   }) as Invoke
-  const engine = { ...createClient(call), call, subscribe: () => () => {} } as unknown as Engine
-  return { engine, calls }
+  const subscribe = (_: readonly Topic[], listener: (changed: Topic[]) => void) => {
+    listeners.add(listener)
+    return () => void listeners.delete(listener)
+  }
+  const emitChange = (changed: Topic[]) => listeners.forEach((listener) => listener(changed))
+  const engine = { ...createClient(call), call, subscribe } as unknown as Engine
+  return { engine, calls, emitChange }
 }
 
 const fail = (code: ErrorCode, message: string) => {
@@ -115,5 +133,30 @@ describe('entity hooks', () => {
     await act(async () => {})
 
     expect(screen.getByText('Pikachu')).toBeDefined()
+  })
+
+  it('usePokemon binds update to the handle', async () => {
+    const { engine, calls } = fakeEngine((name) => (name === 'pokemon.get' ? pikachu : null))
+
+    const result = await renderEngineHook(engine, () => usePokemon(draftHandle))
+    await act(() => result.current.update({ nickname: 'Sparky' }))
+
+    expect(calls.at(-1)).toEqual({ name: 'pokemon.update', args: [draftHandle, { nickname: 'Sparky' }] })
+  })
+
+  it('usePokemonDetails refreshes after update changes the Pokémon', async () => {
+    let details: EditablePokemon = { nickname: 'Pikachu', level: 12, legality: { valid: true, messages: [] } }
+    const { engine, emitChange } = fakeEngine((name, args) => {
+      if (name === 'pokemon.details') return details
+      details = { ...details, ...(args[1] as PokemonPatch) } as EditablePokemon
+      emitChange(['draft'])
+      return null
+    })
+
+    const result = await renderEngineHook(engine, () => usePokemonDetails(draftHandle))
+    await act(() => result.current.update({ level: 50 }))
+
+    expect(result.current.details.level).toBe(50)
+    expect(result.current.details.nickname).toBe('Pikachu')
   })
 })

@@ -226,7 +226,7 @@ public sealed class PlugInHost
 
     private async Task RunOnPokemonAt<THook>(PokemonHandle at, Func<THook, Pokemon, Task<Outcome>> run) where THook : IPluginHook
     {
-        var slot = _session.RequireGame().Find(at);
+        var slot = _session.Find(at);
         await Run<THook>(h => run(h, slot.Pokemon), slot.Save);
     }
 

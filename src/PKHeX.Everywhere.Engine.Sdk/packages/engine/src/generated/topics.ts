@@ -2,7 +2,7 @@
 
 import type { QueryName } from './client'
 
-export const topics = ['*', 'game', 'party', 'box', 'inventory', 'events', 'trainer'] as const
+export const topics = ['*', 'game', 'party', 'box', 'inventory', 'events', 'trainer', 'draft'] as const
 
 export type Topic = (typeof topics)[number] | `${(typeof topics)[number]}/${string}`
 
@@ -23,8 +23,9 @@ export const queryTopics: Record<QueryName, readonly Topic[]> = {
   'plugins.failures': ['*'],
   'plugins.pageModule': ['*'],
   'plugins.pages': ['*'],
-  'pokemon.get': ['party', 'box'],
-  'pokemon.showdown': ['party', 'box'],
+  'pokemon.details': ['party', 'box', 'draft'],
+  'pokemon.get': ['party', 'box', 'draft'],
+  'pokemon.showdown': ['party', 'box', 'draft'],
   'species.list': ['game'],
   'trainer.get': ['trainer'],
 }

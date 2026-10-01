@@ -20,6 +20,10 @@ _Avoid_: API client
 Where something sits in the save, such as a Pokémon's party or box slot, or a pouch item as `{ pouch, itemId }`. A Pokémon crosses to JavaScript as `{ id, at }`, with its opaque id and its Handle.
 _Avoid_: pointer, reference
 
+**Draft**:
+The one unsaved Pokémon the Session holds while the editor changes it. It is addressed as a Handle with source `draft` and reaches the save only on commit. See [ADR 0005](docs/adr/0005-editing-goes-through-an-engine-held-draft-slot.md).
+_Avoid_: working copy, scratch Pokémon
+
 **Topic**:
 A hierarchical path, such as `party`, `box/3` or `inventory`, naming a part of the save that queries read and commands write. A Topic covers every path beneath it.
 _Avoid_: cache key, channel

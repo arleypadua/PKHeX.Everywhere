@@ -126,3 +126,16 @@ public class RenameOnSave : IRunOnPokemonSave
         return Outcome.Void.Completed();
     }
 }
+
+public class LevelUp : IPokemonEditAction
+{
+    public string Description => "Raises the Pokémon's level by one";
+    public string Label => "Level up";
+
+    public Task<Outcome> OnActionRequested(Pokemon pokemon)
+    {
+        var details = pokemon.Details();
+        pokemon.Update(new PokemonPatch(Level: details.Level + 1));
+        return Outcome.Notify($"{details.Nickname} is level {details.Level + 1}").Completed();
+    }
+}
