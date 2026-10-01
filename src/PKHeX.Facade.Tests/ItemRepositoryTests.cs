@@ -6,6 +6,10 @@ namespace PKHeX.Facade.Tests;
 
 public class ItemRepositoryTests
 {
+    [Fact]
+    public void GetItemNamesAnUnknownItem() =>
+        ItemRepository.GetItem(65000).Name.Should().Be("Unknown Item 65000");
+
     [Theory]
     [Games(GameVersion.HG)]
     public void ShouldLoadGameSpecificBalls(Game game)

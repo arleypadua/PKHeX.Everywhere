@@ -17,7 +17,7 @@ public class TrainerHandlerTests
     {
         var session = Loaded(saveFile);
 
-        var trainer = Value(Dispatcher.Dispatch(session, "trainer.get", "[]"))!;
+        var trainer = Value(Dispatch(session, "trainer.get", "[]"))!;
 
         var game = session.Game!;
         trainer.ToJsonString().Should().Be(JsonSerializer.Serialize(new
@@ -34,19 +34,19 @@ public class TrainerHandlerTests
 
     [Fact]
     public void GetReturnsNullMoneyWhenTheSaveDoesNotSupportIt() =>
-        Value(Dispatcher.Dispatch(LegendsZA(), "trainer.get", "[]"))!["money"].Should().BeNull();
+        Value(Dispatch(LegendsZA(), "trainer.get", "[]"))!["money"].Should().BeNull();
 
     [Fact]
     public void GetReturnsNullBattlePointsWhenTheSaveHasNone() =>
-        Value(Dispatcher.Dispatch(Loaded(SaveFilePath.Emerald), "trainer.get", "[]"))!["battlePoints"].Should().BeNull();
+        Value(Dispatch(Loaded(SaveFilePath.Emerald), "trainer.get", "[]"))!["battlePoints"].Should().BeNull();
 
     [Fact]
     public void GetReturnsNullRivalWhenTheSaveHasNone() =>
-        Value(Dispatcher.Dispatch(Loaded(SaveFilePath.Emerald), "trainer.get", "[]"))!["rival"].Should().BeNull();
+        Value(Dispatch(Loaded(SaveFilePath.Emerald), "trainer.get", "[]"))!["rival"].Should().BeNull();
 
     [Fact]
     public void GetReturnsNoSaveWithoutALoadedSave() =>
-        Error(Dispatcher.Dispatch(new Session(), "trainer.get", "[]")).Should().Be("no-save");
+        Error(Dispatch(new Session(), "trainer.get", "[]")).Should().Be("no-save");
 
     [Theory]
     [SupportedSaveFiles]
@@ -54,7 +54,7 @@ public class TrainerHandlerTests
     {
         var session = Loaded(saveFile);
 
-        Value(Dispatcher.Dispatch(session, "trainer.setName", Args("Ash"))).Should().BeNull();
+        Value(Dispatch(session, "trainer.setName", Args("Ash"))).Should().BeNull();
 
         Trainer(session)["name"]!.GetValue<string>().Should().Be("Ash");
         session.Game!.SaveAndReload(reloaded => reloaded.Trainer.Name.Should().Be("Ash"));
@@ -67,7 +67,7 @@ public class TrainerHandlerTests
         var session = Loaded(saveFile);
         var expected = Trainer(session)["gender"]!.GetValue<string>() == "male" ? "female" : "male";
 
-        Value(Dispatcher.Dispatch(session, "trainer.setGender", Args(expected))).Should().BeNull();
+        Value(Dispatch(session, "trainer.setGender", Args(expected))).Should().BeNull();
 
         Trainer(session)["gender"]!.GetValue<string>().Should().Be(expected);
     }
@@ -78,7 +78,7 @@ public class TrainerHandlerTests
     {
         var session = Loaded(saveFile);
 
-        Value(Dispatcher.Dispatch(session, "trainer.setMoney", Args(1234))).Should().BeNull();
+        Value(Dispatch(session, "trainer.setMoney", Args(1234))).Should().BeNull();
 
         Trainer(session)["money"]!.GetValue<uint>().Should().Be(1234);
         session.Game!.SaveAndReload(reloaded => reloaded.Trainer.Money.Amount.Should().Be(1234));
@@ -88,18 +88,18 @@ public class TrainerHandlerTests
     [InlineData(-1)]
     [InlineData(1_000_000)]
     public void SetMoneyFailsWithOutOfRangeOutsideTheLimits(int amount) =>
-        Error(Dispatcher.Dispatch(Loaded(SaveFilePath.HgSs), "trainer.setMoney", Args(amount))).Should().Be("out-of-range");
+        Error(Dispatch(Loaded(SaveFilePath.HgSs), "trainer.setMoney", Args(amount))).Should().Be("out-of-range");
 
     [Fact]
     public void SetMoneyFailsWithNotInGameWhenTheSaveDoesNotSupportIt() =>
-        Error(Dispatcher.Dispatch(LegendsZA(), "trainer.setMoney", Args(1234))).Should().Be("not-in-game");
+        Error(Dispatch(LegendsZA(), "trainer.setMoney", Args(1234))).Should().Be("not-in-game");
 
     [Fact]
     public void SetBattlePointsChangesTheBattlePoints()
     {
         var session = Loaded(SaveFilePath.HgSs);
 
-        Value(Dispatcher.Dispatch(session, "trainer.setBattlePoints", Args(321))).Should().BeNull();
+        Value(Dispatch(session, "trainer.setBattlePoints", Args(321))).Should().BeNull();
 
         Trainer(session)["battlePoints"]!.GetValue<int>().Should().Be(321);
         session.Game!.SaveAndReload(reloaded =>
@@ -113,11 +113,11 @@ public class TrainerHandlerTests
     [InlineData(-1)]
     [InlineData(65536)]
     public void SetBattlePointsFailsWithOutOfRangeOutsideTheLimits(int value) =>
-        Error(Dispatcher.Dispatch(Loaded(SaveFilePath.HgSs), "trainer.setBattlePoints", Args(value))).Should().Be("out-of-range");
+        Error(Dispatch(Loaded(SaveFilePath.HgSs), "trainer.setBattlePoints", Args(value))).Should().Be("out-of-range");
 
     [Fact]
     public void SetBattlePointsFailsWithNotInGameWhenTheSaveHasNone() =>
-        Error(Dispatcher.Dispatch(Loaded(SaveFilePath.Emerald), "trainer.setBattlePoints", Args(1))).Should().Be("not-in-game");
+        Error(Dispatch(Loaded(SaveFilePath.Emerald), "trainer.setBattlePoints", Args(1))).Should().Be("not-in-game");
 
     [Theory]
     [InlineData("setName", "Ash")]
@@ -130,13 +130,13 @@ public class TrainerHandlerTests
         var changes = new List<string[]>();
         session.Changed += changes.Add;
 
-        Dispatcher.Dispatch(session, $"trainer.{command}", Args(value));
+        Dispatch(session, $"trainer.{command}", Args(value));
 
         changes.Should().BeEquivalentTo([new[] { Topics.Trainer }]);
     }
 
     private static System.Text.Json.Nodes.JsonNode Trainer(Session session) =>
-        Value(Dispatcher.Dispatch(session, "trainer.get", "[]"))!;
+        Value(Dispatch(session, "trainer.get", "[]"))!;
 
     private static Session LegendsZA()
     {

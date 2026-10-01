@@ -17,6 +17,7 @@ public class CommandTopicTests
         ["box.addFromFile"] = (game, _) => [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes))],
         ["box.get"] = (_, _) => ["[]"],
         ["box.showdown"] = (_, _) => ["[]"],
+        ["catalog.names"] = (_, _) => [Args(new { speciesIds = new[] { 25 }, itemIds = new[] { 1 } })],
         ["encounters.search"] = (game, _) => [Args(game.GameVersionApproximation.Id, (int)Species.Abra)],
         ["encounters.versions"] = (_, _) => ["[]"],
         ["events.flag"] = (game, _) => Flags(game).Select(f => Args(f.Index)),

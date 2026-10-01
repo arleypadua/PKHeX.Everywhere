@@ -41,6 +41,9 @@ public class SpeciesRepository
         .ToImmutableDictionary(
             k => (Species)k.Value,
             v => new SpeciesDefinition((Species)v.Value, v.Text));
+
+    public static SpeciesDefinition? Find(ushort id) =>
+        All.GetValueOrDefault((Species)id) is { } species && SpeciesDefinition.IsSome(species) ? species : null;
     
     public static IImmutableList<SpeciesDefinition> GetEvolutionsFrom(Species species, EntityContext generation, byte form = 0) =>
         EvolutionTree

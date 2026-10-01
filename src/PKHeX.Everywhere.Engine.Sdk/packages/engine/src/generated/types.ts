@@ -15,6 +15,21 @@ export interface AddedPokemon {
 
 export type Base64 = string
 
+export interface CatalogName {
+  id: number
+  name: string
+}
+
+export interface CatalogNames {
+  species: CatalogName[]
+  items: CatalogName[]
+}
+
+export interface CatalogNamesRequest {
+  speciesIds: number[]
+  itemIds: number[]
+}
+
 export interface DeclaredPage {
   plugInId: string
   path: string
