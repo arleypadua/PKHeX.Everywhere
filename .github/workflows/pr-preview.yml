@@ -5,6 +5,7 @@ on:
     paths:
       - 'src/PKHeX.Web/**'
       - 'src/PKHeX.Facade/**'
+      - 'src/PKHeX.Everywhere.Engine*/**'
   workflow_dispatch:
 
 permissions:

@@ -38,6 +38,11 @@
         await _configProvider.ChangeGlobalTheme(_theme);
     }
 
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && OperatingSystem.IsBrowser()) PKHeX.Everywhere.Engine.EngineExports.SignalReady();
+    }
+
     public void Dispose()
     {
         AntdThemeService.ThemeChanged -= HandleChangedTheme;

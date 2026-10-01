@@ -1,0 +1,11 @@
+{
+  "name": "pkhex-everywhere-engine-sdk",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test --workspaces"
+  }
+}

@@ -1,0 +1,27 @@
+<Project>
+
+    <PropertyGroup>
+        <EngineCodeGenProject>$(MSBuildThisFileDirectory)..\PKHeX.Everywhere.Engine.CodeGen\PKHeX.Everywhere.Engine.CodeGen.csproj</EngineCodeGenProject>
+        <EngineCodeGenOutput>$(MSBuildThisFileDirectory)..\PKHeX.Everywhere.Engine.Sdk\packages\engine\src\generated</EngineCodeGenOutput>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="$(EngineCodeGenProject)"
+                          ReferenceOutputAssembly="false"
+                          Private="false"
+                          GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained;PublishTrimmed" />
+    </ItemGroup>
+
+    <Target Name="GenerateEngineTypeScript"
+            AfterTargets="Build"
+            Condition="'$(DesignTimeBuild)' != 'true' and '$(SkipEngineCodeGen)' != 'true'">
+        <MSBuild Projects="$(EngineCodeGenProject)"
+                 Targets="Build"
+                 Properties="Configuration=$(Configuration)"
+                 RemoveProperties="RuntimeIdentifier;SelfContained;PublishTrimmed;TargetFramework;_IsPublishing">
+            <Output TaskParameter="TargetOutputs" ItemName="_EngineCodeGenAssembly" />
+        </MSBuild>
+        <Exec Command="dotnet &quot;@(_EngineCodeGenAssembly)&quot; &quot;$(TargetPath)&quot; &quot;$(EngineCodeGenOutput)&quot;" />
+    </Target>
+
+</Project>
