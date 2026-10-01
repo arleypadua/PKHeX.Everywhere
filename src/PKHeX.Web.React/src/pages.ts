@@ -8,5 +8,6 @@ export const pages: Record<string, LazyExoticComponent<ComponentType<Record<stri
   items: lazy(() => import('./pages/items/ItemsPage')),
   party: lazy(() => import('./pages/party/PartyPage')),
   'privacy-policy': lazy(() => import('./pages/static/PrivacyPolicyPage')),
+  'release-notes': lazy(() => import('./pages/release-notes/ReleaseNotesPage')),
   'terms-of-use': lazy(() => import('./pages/static/TermsOfUsePage')),
 }
