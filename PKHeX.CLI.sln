@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PKHeX.Everywhere.Engine.Cod
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PKHeX.Everywhere.Engine.Tests", "src\PKHeX.Everywhere.Engine.Tests\PKHeX.Everywhere.Engine.Tests.csproj", "{DEEF6B6E-BA97-41B3-801B-3BAF286BBF55}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PKHeX.Everywhere.Engine.Tests.Handlers", "src\PKHeX.Everywhere.Engine.Tests.Handlers\PKHeX.Everywhere.Engine.Tests.Handlers.csproj", "{02E57406-6BF1-4FE4-8730-4DA63FE16E44}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +105,10 @@ Global
 		{DEEF6B6E-BA97-41B3-801B-3BAF286BBF55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEEF6B6E-BA97-41B3-801B-3BAF286BBF55}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEEF6B6E-BA97-41B3-801B-3BAF286BBF55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02E57406-6BF1-4FE4-8730-4DA63FE16E44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02E57406-6BF1-4FE4-8730-4DA63FE16E44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02E57406-6BF1-4FE4-8730-4DA63FE16E44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02E57406-6BF1-4FE4-8730-4DA63FE16E44}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,6 +135,7 @@ Global
 		{3D0E66F1-7D09-4B34-8ECA-B69487F133E4} = {581836A3-E798-46C3-BB0B-77FE8D00586E}
 		{E8D19DD0-E638-4E92-80E2-878C0A2CDD23} = {581836A3-E798-46C3-BB0B-77FE8D00586E}
 		{DEEF6B6E-BA97-41B3-801B-3BAF286BBF55} = {581836A3-E798-46C3-BB0B-77FE8D00586E}
+		{02E57406-6BF1-4FE4-8730-4DA63FE16E44} = {581836A3-E798-46C3-BB0B-77FE8D00586E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DC818BE7-9140-4DBD-A070-2FF1372FF25E}

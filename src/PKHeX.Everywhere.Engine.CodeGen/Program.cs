@@ -2,25 +2,24 @@ using System.Reflection;
 using System.Runtime.Loader;
 using PKHeX.Everywhere.Engine.CodeGen;
 
-if (args.Length != 2)
+if (args.Length < 2)
 {
-    Console.Error.WriteLine("Usage: PKHeX.Everywhere.Engine.CodeGen <engine assembly> <SDK packages directory>");
+    Console.Error.WriteLine("Usage: PKHeX.Everywhere.Engine.CodeGen <SDK packages directory> <engine assembly> [<handler assembly>...]");
     return 1;
 }
 
-var enginePath = Path.GetFullPath(args[0]);
-var outputDirectory = Path.GetFullPath(args[1]);
-var engineDirectory = Path.GetDirectoryName(enginePath)!;
+var outputDirectory = Path.GetFullPath(args[0]);
+var assemblyPaths = args[1..].Select(Path.GetFullPath).ToList();
 
 var context = new AssemblyLoadContext("engine", isCollectible: true);
-context.Resolving += (alc, name) =>
-{
-    var candidate = Path.Combine(engineDirectory, $"{name.Name}.dll");
-    return File.Exists(candidate) ? alc.LoadFromAssemblyPath(candidate) : null;
-};
+context.Resolving += (alc, name) => assemblyPaths
+    .Select(path => Path.Combine(Path.GetDirectoryName(path)!, $"{name.Name}.dll"))
+    .Where(File.Exists)
+    .Select(alc.LoadFromAssemblyPath)
+    .FirstOrDefault();
 
-var engine = context.LoadFromAssemblyPath(enginePath);
-var contract = Contract.Read(engine);
+var assemblies = assemblyPaths.Select(context.LoadFromAssemblyPath).ToList();
+var contract = Contract.Read(assemblies[0], assemblies.Skip(1));
 
 foreach (var (file, generated) in TypeScript.Write(contract))
 {

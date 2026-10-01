@@ -12,7 +12,7 @@ When the save changes, `Session` raises `Changed` with the changed Topics, and J
 
 1. Add a DTO record under `Dtos/`, with a mapping from the Facade type. Only types in the `PKHeX.Everywhere.Engine` namespaces can cross the boundary.
 2. Add a static method with `[Query("entity.name", Topics.Entity)]` to `Handlers/<Entity>Handlers.cs`, listing the Topics it reads. A `Game` parameter receives the loaded save (or fails with `no-save`). Other parameters come from the JSON arguments.
-3. Build. The source generator (`PKHeX.Everywhere.Engine.Generators`) adds the call to the dispatcher and writes its JSON code. `PKHeX.Everywhere.Engine.CodeGen` then updates the TypeScript in `PKHeX.Everywhere.Engine.Sdk/packages/engine/src/generated`.
+3. Build the solution. The source generator (`PKHeX.Everywhere.Engine.Generators`) adds the call to the dispatcher and writes its JSON code. Building `PKHeX.Everywhere.Engine.CodeGen` then updates the TypeScript in `PKHeX.Everywhere.Engine.Sdk/packages/engine/src/generated`.
 4. Commit the generated TypeScript. CI fails if it is out of date.
 
 ## Adding a command
@@ -30,6 +30,18 @@ CodeGen groups calls by entity, the part of the call name before the dot, and wr
 - A `get` taking one handle makes an item hook, such as `usePokemon(at)`, returning `{ pokemon }` plus the entity's commands with the handle bound.
 
 The hook is named `use{Entity}` unless the handler class has `[EntityHook("...")]`. Wrap a generated hook in a hand-written one when an entity needs more; don't edit generated code.
+
+## Handlers in another assembly
+
+A project other than the Engine can declare handlers, so the Engine never references it:
+
+1. Reference the Engine, and `PKHeX.Everywhere.Engine.Generators` with `OutputItemType="Analyzer" ReferenceOutputAssembly="false"`. The generator writes an internal `HandlerRegistry` in a namespace named after the assembly.
+2. Pass `HandlerRegistry.TryInvoke` to `session.AddHandlers` when the project attaches to a Session. The Engine's own calls win a name clash.
+3. Add the project as an `EngineHandlerAssembly` in `PKHeX.Everywhere.Engine.CodeGen.csproj`, so the SDK covers its calls. CodeGen fails when two assemblies declare the same call.
+
+DTOs follow the same rules as the Engine's, and must live under a `PKHeX.Everywhere.Engine` namespace. Topics and error codes come from the Engine.
+
+`PKHeX.Everywhere.Engine.Tests.Handlers` is an example.
 
 `byte[]` crosses the boundary as a base64 string, typed `Base64` in TypeScript.
 
