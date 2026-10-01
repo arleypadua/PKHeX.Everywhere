@@ -11,15 +11,15 @@
     {
         <Title Level="2">Installed</Title>
         <Table
-            TItem="InstalledPlugIn"
+            TItem="InstalledRow"
             DataSource="@InstalledPlugIns"
             @bind-PageIndex="_installedPlugInsPageIndex"
             @bind-PageSize="_installedPlugInsPageSize"
             Size="TableSize.Small"
             Responsive
             EnableVirtualization>
-            <PropertyColumn Title="Name" Property="@(c => c.PlugIn.Settings.Manifest.PlugInName)" Sortable Filterable>
-                <a href="@($"/plugins/{context.PlugIn.Id}")">@context.PlugIn.Settings.Manifest.PlugInName</a>
+            <PropertyColumn Title="Name" Property="@(c => c.PlugIn.Manifest.PlugInName)" Sortable Filterable>
+                <a href="@($"/plugins/{context.PlugIn.Id}")">@context.PlugIn.Manifest.PlugInName</a>
             </PropertyColumn>
             <PropertyColumn Title="Version" Property="@(c => c.PlugIn.Version.ToString())" Sortable Filterable/>
             <ActionColumn Title="Actions">
@@ -90,8 +90,8 @@
 
     private List<PlugInAndSource> _availablePlugIns = [];
 
-    private List<InstalledPlugIn> InstalledPlugIns => Registry.GetAllPlugins()
-        .Select(p => new InstalledPlugIn { PlugIn = p })
+    private List<InstalledRow> InstalledPlugIns => Registry.GetAllPlugins()
+        .Select(p => new InstalledRow { PlugIn = p })
         .ToList();
 
     private int _availablePlugInsPageIndex = 1;
@@ -100,7 +100,7 @@
     private int _installedPlugInsPageIndex = 1;
     private int _installedPlugInsPageSize = 20;
 
-    private async Task HandleUninstallClick(LoadedPlugIn plugin)
+    private async Task HandleUninstallClick(InstalledPlugIn plugin)
     {
         await PlugInService.Uninstall(plugin);
         await RefreshAvailablePlugIns();
@@ -119,7 +119,7 @@
         await RefreshAvailablePlugIns();
     }
     
-    private async Task HandleUpdateClick(LoadedPlugIn plugIn)
+    private async Task HandleUpdateClick(InstalledPlugIn plugIn)
     {
         try
         {
@@ -160,9 +160,9 @@
         public required PlugInSource.PlugIn PlugIn { get; set; }
     }
 
-    class InstalledPlugIn
+    class InstalledRow
     {
-        public required LoadedPlugIn PlugIn { get; set; }
+        public required InstalledPlugIn PlugIn { get; set; }
     }
 
 }

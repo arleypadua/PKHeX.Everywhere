@@ -1,5 +1,6 @@
 @page "/plugins/{Id}"
-@using PKHeX.Web.Plugins
+@using PKHeX.Everywhere.Engine.PlugIns
+@using PKHeX.Everywhere.PlugIns
 @using PKHeX.Web.Services.Plugins
 @inject PlugInRegistry PlugInRegistry
 @inject PlugInLocalStorage PlugInStorage
@@ -12,7 +13,7 @@
 {
     <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
         <PageHeader BackIcon="true" Style="max-width: 100%">
-            <TitleTemplate>@_plugIn.Settings.Manifest.PlugInName</TitleTemplate>
+            <TitleTemplate>@_plugIn.Manifest.PlugInName</TitleTemplate>
 
             <PageHeaderExtra>
                 @if (_plugIn.HasNewerVersion)
@@ -29,14 +30,15 @@
         <ResponsibleDescriptions @key="_plugIn" Bordered Size="DescriptionsSize.Small" Style="width: 100%">
             <DescriptionsItem Title="Name">
                 <LabelOrLink
-                    Label="@_plugIn.Settings.Manifest.PlugInName"
-                    Href="@_plugIn.Settings.Manifest.ProjectUrl"/>
+                    Label="@_plugIn.Manifest.PlugInName"
+                    Href="@_plugIn.Manifest.ProjectUrl"/>
             </DescriptionsItem>
-            <DescriptionsItem Title="Description">@_plugIn.Settings.Manifest.Description</DescriptionsItem>
+            <DescriptionsItem Title="Description">@_plugIn.Manifest.Description</DescriptionsItem>
             <DescriptionsItem Title="Version">@_plugIn.Version</DescriptionsItem>
             <DescriptionsItem Title="Enabled">
                 <Switch
-                    @bind-Value="@_plugIn.Enabled"/>
+                    Value="@_plugIn.Enabled"
+                    OnChange="SetEnabled"/>
             </DescriptionsItem>
 
             @if (!string.IsNullOrWhiteSpace(_plugIn.PublicKeyToken))
@@ -44,42 +46,42 @@
                 <DescriptionsItem Title="Public Key">@_plugIn.PublicKeyToken</DescriptionsItem>
             }
 
-            @foreach (var (key, _) in _plugIn.Settings.All)
+            @foreach (var (key, _) in _plugIn.SettingValues)
             {
                 <DescriptionsItem Title="@key" @key="key">
-                    @RenderSettings(key, _plugIn.Settings.GetOrDefault(key))
+                    @RenderSettings(key, _plugIn.GetSetting(key))
                 </DescriptionsItem>
             }
         </ResponsibleDescriptions>
 
         <Table
-            TItem="PlugInFeatures"
+            TItem="PlugInHook"
             DataSource="@_features"
             @bind-PageIndex="_pageIndex"
             @bind-PageSize="_pageSize"
-            RowKey="@(x => x.Hook.GetType().Name)"
+            RowKey="@(x => x.Id)"
             Size="TableSize.Small"
             Responsive
             EnableVirtualization>
-            <PropertyColumn Title="Description" Property="@(c => c.Hook.Description)" Sortable Filterable/>
+            <PropertyColumn Title="Description" Property="@(c => c.Description)" Sortable Filterable/>
             <ActionColumn Title="Enabled">
                 <Space Size=@("middle")>
                     <SpaceItem>
                         <Switch
-                            Value="@_plugIn.IsHookEnabled(context.Hook)"
+                            Value="@_plugIn.IsHookEnabled(context.Id)"
                             Disabled="@(!_plugIn.Enabled)"
-                            OnChange="newValue => ToggleFeature(context.Hook, newValue)"/>
+                            OnChange="newValue => ToggleFeature(context.Id, newValue)"/>
                     </SpaceItem>
                 </Space>
             </ActionColumn>
         </Table>
         
-        @if (!string.IsNullOrWhiteSpace(_plugIn.Settings.Manifest.Information))
+        @if (!string.IsNullOrWhiteSpace(_plugIn.Manifest.Information))
         {
             <Alert
                 Type="@AlertType.Info"
                 ShowIcon="true">
-                @_plugIn.Settings.Manifest.Information
+                @_plugIn.Manifest.Information
             </Alert>
         }
     </Flex>
@@ -91,8 +93,8 @@
 @code {
     [Parameter] public required string Id { get; set; }
 
-    private LoadedPlugIn? _plugIn;
-    private List<PlugInFeatures> _features = [];
+    private InstalledPlugIn? _plugIn;
+    private List<PlugInHook> _features = [];
 
     private Dictionary<string, InputFile?> _fileSettingInputReferences = [];
     private InputFile? FileSettingInputRef
@@ -120,10 +122,7 @@
         try
         {
             _plugIn = PlugInRegistry.GetBy(Id);
-            _features = PlugInRegistry
-                .GetAllHooksOf(_plugIn)
-                .Select(p => new PlugInFeatures { Hook = p })
-                .ToList();
+            _features = PlugInRegistry.GetAllHooksOf(_plugIn).ToList();
 
             ShouldRender();
         }
@@ -191,15 +190,22 @@
     {
         ArgumentNullException.ThrowIfNull(_plugIn, nameof(_plugIn));
 
-        _plugIn.Settings[key] = value;
+        _plugIn.SetSetting(key, value);
 
         await PlugInStorage.Persist(_plugIn);
     }
 
-    private async Task ToggleFeature(IPluginHook hook, bool newValue)
+    private async Task SetEnabled(bool enabled)
     {
         ArgumentNullException.ThrowIfNull(_plugIn, nameof(_plugIn));
-        _plugIn.SetToggle(hook, newValue);
+        _plugIn.Enabled = enabled;
+        await PlugInStorage.Persist(_plugIn);
+    }
+
+    private async Task ToggleFeature(string hookId, bool newValue)
+    {
+        ArgumentNullException.ThrowIfNull(_plugIn, nameof(_plugIn));
+        _plugIn.SetToggle(hookId, newValue);
         await PlugInStorage.Persist(_plugIn);
     }
 
@@ -249,24 +255,19 @@
         using MemoryStream ms = new MemoryStream();
         await e.File.OpenReadStream(24 * 1024 * 1000).CopyToAsync(ms);
 
-        _plugIn.Settings[key] = new Settings.SettingValue.FileValue(ms.ToArray(), e.File.Name);
+        _plugIn.SetSetting(key, new Settings.SettingValue.FileValue(ms.ToArray(), e.File.Name));
         await PlugInStorage.Persist(_plugIn);
     }
 
     private async Task RemoveFileSettings(string key)
     {
         if (_plugIn is null) return;
-        var file = _plugIn.Settings[key] as Settings.SettingValue.FileValue;
+        var file = _plugIn.GetSetting(key) as Settings.SettingValue.FileValue;
         if (file is null) return;
 
-        _plugIn.Settings[key] = Settings.SettingValue.FileValue.Empty;
+        _plugIn.SetSetting(key, Settings.SettingValue.FileValue.Empty);
         await PlugInFilesRepository.Remove(_plugIn.Id, file.FileName);
         await PlugInStorage.Persist(_plugIn);
-    }
-
-    public class PlugInFeatures
-    {
-        public IPluginHook Hook { get; init; } = default!;
     }
 
 }

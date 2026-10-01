@@ -173,27 +173,27 @@ public class AnalyticsService(
         });
     }
 
-    public void TrackPlugInHookExecuted(IPluginHook hook, Exception? failure)
+    public void TrackPlugInHookExecuted(string hookName, Exception? failure)
     {
         analytics.TrackEvent("plugin_hook_executed", new
         {
-            hook_name = hook.GetType().Name,
+            hook_name = hookName,
             exception_type = failure?.GetType().Name,
             exception_message = failure?.Message,
         });
     }
 
-    public void TrackInstalled(LoadedPlugIn plugIn)
+    public void TrackInstalled(InstalledPlugIn plugIn)
     {
         analytics.TrackEvent("plug_in_installed", GetPayloadFrom(plugIn));
     }
 
-    public void TrackUpdated(LoadedPlugIn plugIn)
+    public void TrackUpdated(InstalledPlugIn plugIn)
     {
         analytics.TrackEvent("plug_in_updated", GetPayloadFrom(plugIn));
     }
 
-    private object GetPayloadFrom(LoadedPlugIn plugIn) => new
+    private object GetPayloadFrom(InstalledPlugIn plugIn) => new
     {
         id = plugIn.Id,
         source_id = plugIn.SourceId,

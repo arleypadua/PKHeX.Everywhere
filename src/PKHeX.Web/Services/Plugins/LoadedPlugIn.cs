@@ -1,5 +1,6 @@
 using System.Reflection;
 using PKHeX.Web.Plugins;
+using V2 = PKHeX.Everywhere.PlugIns;
 
 namespace PKHeX.Web.Services.Plugins;
 
@@ -8,31 +9,30 @@ public class LoadedPlugIn(
     string fileUrl,
     Settings settings,
     Assembly assembly,
-    byte[] assemblyRawBytes)
+    byte[] assemblyRawBytes) : InstalledPlugIn(sourceId, fileUrl, assemblyRawBytes)
 {
     private readonly Dictionary<string, bool> _hookToggles = new();
 
-    /// <summary>
-    /// The plug-in source id, which is also its url
-    /// </summary>
-    public string SourceId => sourceId;
-
-    public string FileUrl { get; private set; } = string.IsNullOrWhiteSpace(fileUrl)
-        ? throw new ArgumentNullException(nameof(fileUrl))
-        : fileUrl;
-
-    public bool HasNewerVersion { get; set; }
-    public bool Enabled { get; set; } = true;
+    public override bool Enabled { get; set; } = true;
     public Settings Settings { get; } = settings;
-    public Assembly Assembly { get; } = assembly;
-    public byte[] AssemblyRawBytes { get; set; } = assemblyRawBytes;
+    public override Assembly Assembly { get; } = assembly;
     public List<Type> Hooks { get; } = assembly.GetConcreteTypesOf<IPluginHook>().ToList();
 
-    public string Id => Assembly.GetName().Name!;
-    public Version Version => Assembly.GetName().Version!;
+    public override V2.PlugInManifest Manifest => new(
+        Settings.Manifest.PlugInName,
+        Settings.Manifest.Description,
+        Settings.Manifest.ProjectUrl,
+        Settings.Manifest.Information);
 
-    public string PublicKeyToken => BitConverter.ToString(Assembly.GetName().GetPublicKeyToken() ?? [])
-        .Replace("-", string.Empty).ToLowerInvariant();
+    public override IEnumerable<KeyValuePair<string, V2.Settings.SettingValue>> SettingValues =>
+        Settings.All.Select(s => KeyValuePair.Create(s.Key, ToV2(s.Value)));
+
+    public override V2.Settings.SettingValue? GetSetting(string key) =>
+        Settings.GetOrDefault(key) is { } value ? ToV2(value) : null;
+
+    public override void SetSetting(string key, V2.Settings.SettingValue value) => Settings[key] = ToV1(value);
+
+    public override IEnumerable<string> HookIds => Hooks.Select(h => h.GetFullNameOrName());
 
     public void SetToggle(IPluginHook hook, bool toggle)
     {
@@ -40,7 +40,7 @@ public class LoadedPlugIn(
         SetToggle(type.GetFullNameOrName(), toggle);
     }
 
-    internal void SetToggle(string typeName, bool toggle)
+    public override void SetToggle(string typeName, bool toggle)
     {
         _hookToggles.TryAdd(typeName, false);
         _hookToggles[typeName] = toggle;
@@ -49,8 +49,9 @@ public class LoadedPlugIn(
     public bool IsPlugInAndHookEnabled(IPluginHook hook) =>
         Enabled && IsHookEnabled(hook.GetType());
 
-    public bool IsHookEnabled(Type hookType) =>
-        _hookToggles.ContainsKey(hookType.GetFullNameOrName()) && _hookToggles[hookType.GetFullNameOrName()];
+    public bool IsHookEnabled(Type hookType) => IsHookEnabled(hookType.GetFullNameOrName());
+
+    public override bool IsHookEnabled(string hookId) => _hookToggles.GetValueOrDefault(hookId);
 
     public bool IsHookEnabled(IPluginHook hook) => IsHookEnabled(hook.GetType());
 
@@ -67,13 +68,22 @@ public class LoadedPlugIn(
 
         return plugIn;
     }
-}
 
-public static class LoadedPlugInExtensions
-{
-    public static string SourceManifestUrl(this LoadedPlugIn plugIn) =>
-        SourceManifestUrl(plugIn.SourceId);
-    
-    public static string SourceManifestUrl(string sourceId) =>
-        $"{sourceId.TrimEnd('/')}/{PlugInSource.ManifestFileName}";
+    public static V2.Settings.SettingValue ToV2(Settings.SettingValue value) => value switch
+    {
+        Settings.SettingValue.StringValue s => new V2.Settings.SettingValue.StringValue(s.Value, s.ReadOnly),
+        Settings.SettingValue.BooleanValue b => new V2.Settings.SettingValue.BooleanValue(b.Value, b.ReadOnly),
+        Settings.SettingValue.IntegerValue i => new V2.Settings.SettingValue.IntegerValue(i.Value, i.ReadOnly),
+        Settings.SettingValue.FileValue f => new V2.Settings.SettingValue.FileValue(f.Value, f.FileName, f.ReadOnly),
+        _ => throw new InvalidOperationException($"{value} not supported")
+    };
+
+    public static Settings.SettingValue ToV1(V2.Settings.SettingValue value) => value switch
+    {
+        V2.Settings.SettingValue.StringValue s => new Settings.SettingValue.StringValue(s.Value, s.ReadOnly),
+        V2.Settings.SettingValue.BooleanValue b => new Settings.SettingValue.BooleanValue(b.Value, b.ReadOnly),
+        V2.Settings.SettingValue.IntegerValue i => new Settings.SettingValue.IntegerValue(i.Value, i.ReadOnly),
+        V2.Settings.SettingValue.FileValue f => new Settings.SettingValue.FileValue(f.Value, f.FileName, f.ReadOnly),
+        _ => throw new InvalidOperationException($"{value} not supported")
+    };
 }

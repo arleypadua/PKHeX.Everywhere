@@ -35,6 +35,8 @@ public sealed class RegisteredPlugIn
     public Settings Settings { get; }
     public bool Enabled { get; internal set; } = true;
 
+    public IEnumerable<string> HookIds => _hookTypes.Select(HookIdOf);
+
     public IReadOnlyList<PlugInHook> Hooks => _hookTypes
         .Select(t => new PlugInHook(HookIdOf(t), Create(t).Description, IsHookEnabled(HookIdOf(t))))
         .ToList();

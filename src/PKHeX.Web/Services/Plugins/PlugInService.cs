@@ -6,7 +6,7 @@ public class PlugInService(
     PlugInSourceService sourceService,
     AnalyticsService analyticsService)
 {
-    public async Task<LoadedPlugIn> InstallFrom(string sourceId, string fileUrl)
+    public async Task<InstalledPlugIn> InstallFrom(string sourceId, string fileUrl)
     {
         var result = await registry.RegisterFrom(sourceId, fileUrl);
         await localStorage.Persist(result);
@@ -15,7 +15,7 @@ public class PlugInService(
         return result;
     }
 
-    public async Task<bool> Update(LoadedPlugIn plugIn)
+    public async Task<bool> Update(InstalledPlugIn plugIn)
     {
         var source = await sourceService.FetchFrom(plugIn);
         if (source is null) return false;
@@ -30,7 +30,7 @@ public class PlugInService(
         return true;
     }
 
-    public async Task Uninstall(LoadedPlugIn plugIn)
+    public async Task Uninstall(InstalledPlugIn plugIn)
     {
         registry.Deregister(plugIn);
         await localStorage.Remove(plugIn);

@@ -38,3 +38,11 @@ _Avoid_: island, micro-frontend
 
 **Island**:
 A Blazor component mounted inside React. Only the final layout swap uses islands.
+
+**Plug-in host**:
+The Engine-side registry and runtime for plug-ins built against SDK v2. It loads a plug-in from its assembly bytes and runs its hooks, and it publishes `PlugInRan` after each run.
+_Avoid_: plug-in runtime, plug-in manager
+
+**Page module**:
+A JS module embedded in a plug-in assembly that renders one of the plug-in's pages through `mount(element, ctx)`.
+_Avoid_: plug-in component, plug-in page component

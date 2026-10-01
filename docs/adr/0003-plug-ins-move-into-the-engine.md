@@ -24,6 +24,24 @@ Only the in-repo plug-ins exist: AutoLegality, LiveRun and Nuzlocking. We move t
 
 The v2 spec comes before the first React page that renders plug-in actions (Home or the editor), and before the layout swap from [ADR 0002](0002-react-pages-inside-blazor-over-a-dotnet-engine.md).
 
+## Amendment: SDK v2
+
+Context: pkhex-web/issue-tracker#63.
+
+The v2 contracts live in `PKHeX.Everywhere.PlugIns`, with no Razor, Blazor or ASP.NET Core reference. The plug-in host, `PKHeX.Everywhere.Engine.PlugIns`, loads v2 assemblies from bytes and runs their hooks. The Engine references neither. The host reads an assembly's references before loading it, and it reports an assembly built against `PKHeX.Web.Plugins` as v1 instead of loading it. Until v1 is removed, Blazor sends v1 assemblies to its own runtime and v2 assemblies to the host.
+
+### Distribution
+
+Each `PublishedVersions` entry in a source manifest declares the SDK major it targets as `sdk`. An entry without `sdk` counts as 1. The app installs the newest version whose `sdk` it supports, so an older app never picks up a version it can't load. CI publishes `PKHeX.Everywhere.PlugIns` to NuGet.
+
+### Page modules
+
+A plug-in declares its pages as `{ path, module, title?, layout }`. `module` names a JS module embedded in the plug-in assembly. The module exports `mount(element, ctx)`, which returns an `unmount` function. `ctx` is `{ plugInId, theme, getSave(), getSetting(key), loadSave(bytes, fileName), navigate(url) }`. The app imports the module from a Blob URL, so a page works on reload and from a link.
+
+### Stored v1 plug-ins
+
+Players' browsers hold the DLL bytes of every plug-in they installed. On startup, the app updates a stored v1 plug-in to the newest v2 version from its source and keeps its enabled state, hook toggles and settings. If the update fails, the plug-ins page marks it "needs reinstall".
+
 ## Rejected alternatives
 
 - **Plug-ins as JS/React modules.** AutoLegality and every existing plug-in would need a rewrite, and AutoLegality would lose ALM.

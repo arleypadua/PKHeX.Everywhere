@@ -136,7 +136,7 @@
         get
         {
             var plugIns = PlugInRegistry.GetAllPlugins()
-                .Select(p => new MenuItem($"plugins/{p.Id}", p.Settings.Manifest.PlugInName))
+                .Select(p => new MenuItem($"plugins/{p.Id}", p.Manifest.PlugInName))
                 .ToList();
 
             if (plugIns.Any()) plugIns.Add(new MenuItem("plugins", "Manage Plug-Ins"));
@@ -177,7 +177,7 @@
     }
 
 
-    private void OnPlugInChanged(LoadedPlugIn plugin, PlugInRegistry.ChangeType type)
+    private void OnPlugInChanged(InstalledPlugIn plugin, PlugInRegistry.ChangeType type)
     {
         if (type == PlugInRegistry.ChangeType.Deregistered)
             Navigation.NavigateToPlugIns();
