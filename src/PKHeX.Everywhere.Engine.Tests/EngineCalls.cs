@@ -22,8 +22,7 @@ internal static class EngineCalls
 
     internal static (PokemonHandle At, int Index) BoxSlotOfPartyMember(Game game, int partySlot)
     {
-        var save = game.SaveFile;
-        var index = Enumerable.Range(0, save.SlotCount).First(i => save.GetBoxSlotOffset(i) == save.GetPartyOffset(partySlot));
+        var index = game.Trainer.Party.BoxIndexOf(partySlot)!.Value;
         return (BoxHandle(game, index), index);
     }
 

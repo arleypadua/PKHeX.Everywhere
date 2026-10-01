@@ -57,7 +57,7 @@ public sealed class Session
     /// <summary>
     /// Reports Topics a running command writes beyond its declared ones, when they depend on the save.
     /// </summary>
-    internal void Wrote(params string[] topics) => _written?.AddRange(topics);
+    internal void AlsoWrote(params string[] topics) => _written?.AddRange(topics);
 
     internal void Raise(IEngineEvent engineEvent)
     {
@@ -65,13 +65,13 @@ public sealed class Session
         else _raised.Add(engineEvent);
     }
 
-    // A command reports only the Topics it declares, so the contract test catches declarations that are too narrow
+    // A command reports only the Topics it declares or passes to AlsoWrote, so the contract test catches declarations that are too narrow
     // instead of a Facade event covering for them.
     public T RunCommand<T>(string[] written, Func<T> command)
     {
         T result;
         var raised = _raised = [];
-        var wrote = _written = [.. written];
+        var reported = _written = [.. written];
         try
         {
             result = command();
@@ -82,7 +82,7 @@ public sealed class Session
             _written = null;
         }
 
-        Invalidate(wrote.Distinct().ToArray());
+        Invalidate(reported.Distinct().ToArray());
         foreach (var engineEvent in raised) Published?.Invoke(engineEvent);
         return result;
     }

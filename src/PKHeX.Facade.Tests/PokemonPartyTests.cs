@@ -51,8 +51,7 @@ public class PokemonPartyTests
     {
         var game = Game.LoadFrom(saveFile);
         var member = game.Trainer.Party.Pokemons[0];
-        var index = Enumerable.Range(0, game.SaveFile.SlotCount)
-            .First(i => game.SaveFile.GetBoxSlotOffset(i) == game.SaveFile.GetPartyOffset(0));
+        var index = game.Trainer.Party.BoxIndexOf(0)!.Value;
         var level = member.Level == 50 ? 51 : 50;
 
         member.ChangeLevel(level);

@@ -20,7 +20,6 @@ public static class PokemonHandlers
 
         var slot = game.Find(at);
         slot.Pokemon.ChangeLevel(level);
-        slot.Commit();
-        session.Wrote(slot.Topics);
+        slot.Commit(session);
     }
 }
