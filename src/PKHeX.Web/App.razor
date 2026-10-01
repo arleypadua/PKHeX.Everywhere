@@ -1,5 +1,7 @@
 ﻿@implements IDisposable
 @inject AntdThemeService ThemeService
+@* Injected only so it subscribes to Engine events for the app's lifetime. *@
+@inject PKHeX.Web.Services.Plugins.EngineEventSubscriber EngineEventSubscriber
 
 
 <ConfigProvider

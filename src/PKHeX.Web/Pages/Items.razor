@@ -1,6 +1,5 @@
 @page "/items"
 @using PKHeX.Facade.Repositories
-@using PKHeX.Web.Plugins
 @using PKHeX.Web.Services.Plugins
 
 <Flex Direction="FlexDirection.Vertical" Style="width: 100%;gap: 20px;">
@@ -35,9 +34,8 @@
 }
 
 @code {
-    [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
+    [Inject] public required EngineEventSubscriber EngineEvents { get; set; }
     [Inject] public required GameService GameService { get; set; }
-    [Inject] public required AnalyticsService Analytics { get; set; }
 
     List<ButtonOrMenu.ButtonAction> ExtraActions => new()
     {
@@ -72,18 +70,12 @@
         if (ActiveInventory is null) return;
         ActiveInventory?.Set(itemToBeAdded.Id, itemToBeAdded.Count);
 
-        await PlugInRuntime.RunAll<IRunOnItemChanged>(h => h.OnItemChanged(new(itemToBeAdded.Id, itemToBeAdded.Count)));
+        // The page writes through the Facade, so the Engine raises no ItemChanged for it.
+        await EngineEvents.OnItemChanged(itemToBeAdded.Id, (int)itemToBeAdded.Count);
         _addItemModalVisible = false;
 
-        Track(itemToBeAdded);
-        
         StateHasChanged();
         ShouldRender();
-    }
-
-    private void Track(AddItemModal.ItemToBeAdded itemToBeAdded)
-    {
-        Analytics.TrackItemModified(itemToBeAdded);
     }
 
     private void HandleCancel()

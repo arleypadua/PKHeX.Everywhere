@@ -143,6 +143,49 @@ public class InventoryHandlerTests
     }
 
     [Theory]
+    [InlineData(1)]
+    [InlineData(0)]
+    public void SetItemPublishesItemChangedWithTheNewCount(int count)
+    {
+        var session = Loaded(SaveFilePath.HgSs);
+        var (at, maxCount) = AddableItem(session.Game!)!.Value;
+        Dispatcher.Dispatch(session, "inventory.setItem", Args(at, maxCount));
+        var published = new List<IEngineEvent>();
+        session.Published += published.Add;
+
+        Dispatcher.Dispatch(session, "inventory.setItem", Args(at, count));
+
+        published.Should().Equal(new ItemChanged(at.ItemId, count));
+    }
+
+    [Fact]
+    public void SetItemPublishesAfterInvalidatingItsTopics()
+    {
+        var session = Loaded(SaveFilePath.HgSs);
+        var (at, _) = AddableItem(session.Game!)!.Value;
+        var seen = new List<string>();
+        session.Changed += _ => seen.Add("changed");
+        session.Published += _ => seen.Add("published");
+
+        Dispatcher.Dispatch(session, "inventory.setItem", Args(at, 1));
+
+        seen.Should().Equal("changed", "published");
+    }
+
+    [Fact]
+    public void SetItemPublishesNothingWhenItFails()
+    {
+        var session = Loaded(SaveFilePath.HgSs);
+        var (at, maxCount) = AddableItem(session.Game!)!.Value;
+        var published = new List<IEngineEvent>();
+        session.Published += published.Add;
+
+        Error(Dispatcher.Dispatch(session, "inventory.setItem", Args(at, maxCount + 1))).Should().Be("out-of-range");
+
+        published.Should().BeEmpty();
+    }
+
+    [Theory]
     [InlineData(-1)]
     [InlineData(1)]
     public void SetItemFailsWithOutOfRangeOutsideZeroToTheMaxCount(int offset)
