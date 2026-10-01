@@ -1,37 +1,40 @@
 @page "/plugins/errors"
+@using PKHeX.Everywhere.Engine.PlugIns
 @using PKHeX.Web.Services.Plugins
 @inject PlugInRuntime PlugInRuntime
+@inject PlugInHost PlugInHost
 
 <h3>Plug-in execution errors</h3>
 
 <Space Direction="SpaceDirection.Vertical">
 @foreach (var error in PlugInRuntime.RecentFailures)
 {
-    <Alert Type="@AlertType.Default" Closable OnClose="() => HandleClose(error)">
-        <dl>
-            <dt>Plug-in</dt>
-            <dd>@error.PlugIn.Id</dd>
-            
-            <dt>Message</dt>
-            <dd>
-                <code>@error.Exception.Message</code>
-            </dd>
-            
-            <dt>Stack trace</dt>
-            <dd>
-                <code>@error.Exception.StackTrace</code>
-            </dd>
-        </dl>
-    </Alert>   
+    @RenderFailure(error.PlugIn.Id, error.Exception.Message, error.Exception.StackTrace, () => PlugInRuntime.Dismiss(error))
+}
+@foreach (var failure in PlugInHost.Failures)
+{
+    @RenderFailure(failure.PlugInId, failure.Message, failure.StackTrace, () => PlugInHost.Dismiss(failure))
 }
 </Space>
 
 @code {
 
-    private Task HandleClose(PlugInRuntime.Failure error)
-    {
-        PlugInRuntime.Dismiss(error);
-        return Task.CompletedTask;
-    }
+    private RenderFragment RenderFailure(string plugInId, string message, string? stackTrace, Action dismiss) =>
+        @<Alert Type="@AlertType.Default" Closable OnClose="dismiss">
+            <dl>
+                <dt>Plug-in</dt>
+                <dd>@plugInId</dd>
+
+                <dt>Message</dt>
+                <dd>
+                    <code>@message</code>
+                </dd>
+
+                <dt>Stack trace</dt>
+                <dd>
+                    <code>@stackTrace</code>
+                </dd>
+            </dl>
+        </Alert>;
 
 }

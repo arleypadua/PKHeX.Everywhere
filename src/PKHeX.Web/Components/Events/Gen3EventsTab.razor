@@ -7,6 +7,7 @@
 @inject IMessageService Message
 @inject ModalService Modal
 @inject PlugInRuntime PlugInRuntime
+@inject PKHeX.Everywhere.Engine.PlugIns.PlugInHost PlugInHost
 @inject Session Session
 
 <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 16px;">
@@ -76,7 +77,10 @@
         Session.Invalidate(Topics.Inventory);
 
         foreach (var ticket in added)
+        {
             await PlugInRuntime.RunAll<IRunOnItemChanged>(h => h.OnItemChanged(new(ticket.Id, 1)));
+            await PlugInHost.Handle(new ItemChanged(ticket.Id, 1));
+        }
 
         Message.Success($"Added {string.Join(", ", added.Select(t => t.Name))}.");
     }

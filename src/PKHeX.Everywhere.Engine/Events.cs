@@ -15,3 +15,7 @@ public enum PokemonAddSource
 }
 
 public sealed record PokemonAdded(PokemonHandle At, PokemonAddSource Source) : IEngineEvent;
+
+public sealed record PokemonChanged(PokemonHandle At) : IEngineEvent;
+
+public sealed record PokemonSaved(PokemonHandle At) : IEngineEvent;

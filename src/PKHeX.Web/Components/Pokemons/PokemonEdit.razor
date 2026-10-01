@@ -59,6 +59,7 @@
 
 @code {
     [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
+    [Inject] public required PKHeX.Everywhere.Engine.PlugIns.PlugInHost PlugInHost { get; set; }
 
     [Parameter] public required Pokemon Pokemon { get; set; }
     [Parameter] public EventCallback<Pokemon> PokemonChanged { get; set; }
@@ -78,6 +79,7 @@
     async Task HandlePokemonChange(Pokemon changedPokemon)
     {
         await PlugInRuntime.RunAll<IRunOnPokemonChange>(h => h.OnPokemonChange(changedPokemon));
+        await PlugInHost.PokemonChanged(changedPokemon);
         _legalityBanner.Refresh();
     }
 

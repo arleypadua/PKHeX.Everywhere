@@ -84,7 +84,6 @@ public partial class PlugInRuntime : IDisposable
 
         if (ran.Failure is not null)
         {
-            if (_registry.GetByOrNull(ran.PlugInId) is { } plugIn) _failures.Enqueue(new(plugIn, ran.Failure));
             NotifyFailure();
             return;
         }

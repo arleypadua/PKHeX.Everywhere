@@ -30,6 +30,13 @@ export interface OwnedItem {
   maxCount: number
 }
 
+export interface PlugInFailure {
+  plugInId: string
+  hookId: string
+  message: string
+  stackTrace: string | null
+}
+
 export interface PokemonForm {
   id: number
   name: string

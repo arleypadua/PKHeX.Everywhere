@@ -11,6 +11,7 @@
     <!-- The assemblies whose handlers the SDK covers, the Engine first. -->
     <ItemGroup>
         <EngineHandlerAssembly Include="..\PKHeX.Everywhere.Engine\PKHeX.Everywhere.Engine.csproj" />
+        <EngineHandlerAssembly Include="..\PKHeX.Everywhere.Engine.PlugIns\PKHeX.Everywhere.Engine.PlugIns.csproj" />
     </ItemGroup>
 
     <ItemGroup>

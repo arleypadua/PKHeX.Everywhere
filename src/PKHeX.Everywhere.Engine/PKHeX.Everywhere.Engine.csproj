@@ -11,6 +11,7 @@
     <ItemGroup>
         <SupportedPlatform Include="browser" />
         <InternalsVisibleTo Include="PKHeX.Everywhere.Engine.Tests" />
+        <InternalsVisibleTo Include="PKHeX.Everywhere.Engine.PlugIns" />
     </ItemGroup>
 
     <ItemGroup>
