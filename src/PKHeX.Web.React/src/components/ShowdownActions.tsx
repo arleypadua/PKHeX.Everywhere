@@ -1,7 +1,7 @@
-import { CopyOutlined, EllipsisOutlined } from '@ant-design/icons'
-import { Button, Dropdown, Space } from 'antd'
+import { CopyOutlined } from '@ant-design/icons'
 import { useCopyShowdown } from '../hooks/useCopyShowdown'
 import { openCalculator } from '../host'
+import { ButtonOrMenu } from './ButtonOrMenu'
 
 interface ShowdownActionsProps {
   showdown: () => Promise<string>
@@ -11,19 +11,21 @@ interface ShowdownActionsProps {
 export function ShowdownActions({ showdown, description }: ShowdownActionsProps) {
   const copyShowdown = useCopyShowdown()
   return (
-    <Space.Compact>
-      <Button type="primary" onClick={async () => openCalculator(await showdown())}>
-        Calculator
-      </Button>
-      <Dropdown
-        trigger={['click']}
-        menu={{
-          items: [{ key: 'showdown', icon: <CopyOutlined />, label: 'Showdown' }],
+    <ButtonOrMenu
+      actions={[
+        {
+          key: 'calculator',
+          label: 'Calculator',
+          type: 'primary',
+          onClick: async () => openCalculator(await showdown()),
+        },
+        {
+          key: 'showdown',
+          label: 'Showdown',
+          icon: <CopyOutlined />,
           onClick: async () => copyShowdown(await showdown(), description),
-        }}
-      >
-        <Button type="primary" icon={<EllipsisOutlined />} aria-label="More actions" />
-      </Dropdown>
-    </Space.Compact>
+        },
+      ]}
+    />
   )
 }
