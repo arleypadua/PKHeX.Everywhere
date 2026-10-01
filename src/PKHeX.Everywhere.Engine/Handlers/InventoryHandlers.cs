@@ -35,7 +35,7 @@ public static class InventoryHandlers
         if (count < 0 || count > maxCount)
             throw new EngineException(ErrorCodes.OutOfRange, $"Count must be between 0 and {maxCount}, got {count}.");
 
-        if (!inventory.Set(itemId, (uint)count))
+        if (!inventory.TrySet(itemId, (uint)count))
             throw new EngineException(ErrorCodes.PouchFull, $"The {at.Pouch} pouch has no free slot.");
 
         session.Raise(new ItemChanged(at.ItemId, count));
