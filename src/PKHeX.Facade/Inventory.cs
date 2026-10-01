@@ -67,7 +67,8 @@ public class Inventory : IEnumerable<Inventory.Item>
         Commit();
     }
 
-    public void Set(ushort itemId, uint count)
+    /// <returns>false when the item isn't owned and the pouch has no free slot</returns>
+    public bool Set(ushort itemId, uint count)
     {
         if (itemId == ItemDefinition.None)
         {
@@ -80,9 +81,10 @@ public class Inventory : IEnumerable<Inventory.Item>
         }
 
         _pouch.RemoveAll(i => i.Index == itemId);
-        _pouch.GiveItem(_bag, itemId, Convert.ToInt32(count));
+        if (_pouch.GiveItem(_bag, itemId, Convert.ToInt32(count)) < 0) return false;
 
         Commit();
+        return true;
     }
 
     private void Commit()

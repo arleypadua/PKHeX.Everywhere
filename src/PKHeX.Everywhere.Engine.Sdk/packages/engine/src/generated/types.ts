@@ -8,6 +8,11 @@ export interface AddableItem {
 
 export type Base64 = string
 
+export interface ItemHandle {
+  pouch: string
+  itemId: number
+}
+
 export interface OwnedItem {
   id: number
   name: string

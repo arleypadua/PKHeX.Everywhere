@@ -18,6 +18,7 @@ public class CommandTopicTests
         ],
         ["game.close"] = (_, _) => ["[]"],
         ["inventory.get"] = (_, _) => ["[]"],
+        ["inventory.setItem"] = (game, _) => SetItems(game),
         ["party.get"] = (_, _) => ["[]"],
         ["party.showdown"] = (_, _) => ["[]"],
         ["pokemon.get"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
@@ -74,6 +75,12 @@ public class CommandTopicTests
     {
         yield return (PokemonHandle.Party(0), game.Trainer.Party.Pokemons[0].Level);
         if (FirstBoxPokemon(game) is var (at, index)) yield return (at, game.Trainer.PokemonBox.All[index].Level);
+    }
+
+    private static IEnumerable<string> SetItems(Game game)
+    {
+        if (AddableItem(game) is var (at, maxCount)) yield return Args(at, maxCount);
+        if (OwnedItem(game) is { } owned) yield return Args(owned, 0);
     }
 
     private static bool Affects(IEnumerable<string> changed, IEnumerable<string> read) =>

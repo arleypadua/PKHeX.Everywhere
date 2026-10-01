@@ -2,6 +2,11 @@ using PKHeX.Facade;
 
 namespace PKHeX.Everywhere.Engine.Dtos;
 
+public record ItemHandle(string Pouch, int ItemId) : IHandle
+{
+    public string Topic() => Topics.Inventory;
+}
+
 public record OwnedItem(int Id, string Name, int Count, int MaxCount);
 
 public record AddableItem(int Id, string Name, int MaxCount);
