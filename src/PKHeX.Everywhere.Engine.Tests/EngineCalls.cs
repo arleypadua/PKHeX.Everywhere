@@ -14,6 +14,9 @@ internal static class EngineCalls
         return session;
     }
 
+    internal static string Dispatch(Session session, string call, string args) =>
+        Dispatcher.Dispatch(session, call, args).GetAwaiter().GetResult();
+
     internal static (PokemonHandle At, int Index)? FirstBoxPokemon(Game game)
     {
         var all = game.Trainer.PokemonBox.All;

@@ -4,7 +4,7 @@ The save-editing API that JavaScript calls. It has no Blazor dependency.
 
 Handlers stay thin and call `PKHeX.Facade` for every editing rule. See [ADR 0004](../../docs/adr/0004-domain-logic-lives-in-the-facade.md).
 
-JS calls one `[JSExport]`, `EngineExports.Call(name, argsJson)`. Arguments are a JSON array, and every response is `{ ok: true, value }` or `{ ok: false, error: { code, message } }`. Error codes are listed in `ErrorCodes.cs`.
+JS calls one `[JSExport]`, `EngineExports.Call(name, argsJson)`, which returns a promise. Arguments are a JSON array, and every response is `{ ok: true, value }` or `{ ok: false, error: { code, message } }`. Error codes are listed in `ErrorCodes.cs`.
 
 The loaded save lives in `Session.Current`, which `GameService` in PKHeX.Web uses too.
 
@@ -21,8 +21,9 @@ When the save changes, `Session` raises `Changed` with the changed Topics, and J
 
 1. Add a static method with `[Command("entity.verb")]` to `Handlers/<Entity>Handlers.cs`. A command writes the Topic of each `IHandle` argument it takes, such as the Pokémon at `at` (unless the argument is null), plus any Topics listed on the attribute. A command that changes nothing in the save, such as `game.export`, lists none. When the save decides the Topics, such as a Let's Go party member that also sits in a box, pass them to `session.AlsoWrote`. Return a value only when the command creates something.
 2. Throw `EngineException` with a code from `ErrorCodes.cs` for expected failures. JS receives it as a rejected `EngineError`.
-3. Build and commit the generated TypeScript, as for queries.
-4. Add sample arguments for the call to `CommandTopicTests`. That test runs every command against the test saves and fails when a query's result changes outside the Topics the command reported.
+3. A handler that awaits returns `Task` or `Task<T>`. Don't block on a task: the browser runs .NET on a single thread, so blocking on an unfinished task fails.
+4. Build and commit the generated TypeScript, as for queries.
+5. Add sample arguments for the call to `CommandTopicTests`. That test runs every command against the test saves and fails when a query's result changes outside the Topics the command reported.
 
 ## Entity hooks
 

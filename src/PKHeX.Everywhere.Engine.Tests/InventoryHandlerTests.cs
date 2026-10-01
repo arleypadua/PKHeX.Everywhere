@@ -19,7 +19,7 @@ public class InventoryHandlerTests
     {
         var session = Loaded(saveFile);
 
-        var pouches = Value(Dispatcher.Dispatch(session, "inventory.get", "[]"))!;
+        var pouches = Value(Dispatch(session, "inventory.get", "[]"))!;
 
         var expected = session.Game!.Trainer.Inventories.InventoryItems.Values
             .OrderBy(i => i.Type, StringComparer.Ordinal)
@@ -37,7 +37,7 @@ public class InventoryHandlerTests
     [SupportedSaveFiles]
     public void GetLeavesOutEmptySlotsAndOwnedItemsFromAddable(string saveFile)
     {
-        var pouches = Value(Dispatcher.Dispatch(Loaded(saveFile), "inventory.get", "[]"))!.AsArray();
+        var pouches = Value(Dispatch(Loaded(saveFile), "inventory.get", "[]"))!.AsArray();
 
         foreach (var pouch in pouches)
         {
@@ -54,7 +54,7 @@ public class InventoryHandlerTests
     [InlineData(SaveFilePath.LetsGoPikachu, "BattleItems", 656)]
     public void GetReturnsTheMaxCountOfEachItem(string saveFile, string pouch, int itemId)
     {
-        var pouches = Value(Dispatcher.Dispatch(Loaded(saveFile), "inventory.get", "[]"))!.AsArray();
+        var pouches = Value(Dispatch(Loaded(saveFile), "inventory.get", "[]"))!.AsArray();
 
         var item = Item(pouches, pouch, itemId);
         item["maxCount"]!.GetValue<int>().Should().Be(1);
@@ -66,12 +66,12 @@ public class InventoryHandlerTests
         var session = new Session();
         session.Load(Game.EmptyOf(GameVersionRepository.Instance.Get(GameVersion.PLA)), "legends.bin");
 
-        Value(Dispatcher.Dispatch(session, "inventory.get", "[]"))!.AsArray().Should().BeEmpty();
+        Value(Dispatch(session, "inventory.get", "[]"))!.AsArray().Should().BeEmpty();
     }
 
     [Fact]
     public void GetReturnsNoSaveWithoutALoadedSave() =>
-        Error(Dispatcher.Dispatch(new Session(), "inventory.get", "[]")).Should().Be("no-save");
+        Error(Dispatch(new Session(), "inventory.get", "[]")).Should().Be("no-save");
 
     [Theory]
     [SupportedSaveFiles]
@@ -80,7 +80,7 @@ public class InventoryHandlerTests
         var session = Loaded(saveFile);
         var (at, maxCount) = AddableItem(session.Game!)!.Value;
 
-        Value(Dispatcher.Dispatch(session, "inventory.setItem", Args(at, maxCount))).Should().BeNull();
+        Value(Dispatch(session, "inventory.setItem", Args(at, maxCount))).Should().BeNull();
 
         Count(session, at).Should().Be(maxCount);
         session.Game!.SaveAndReload(reloaded => reloaded.Trainer.Inventories[at.Pouch].Items
@@ -93,9 +93,9 @@ public class InventoryHandlerTests
     {
         var session = Loaded(saveFile);
         var (at, maxCount) = AddableItem(session.Game!)!.Value;
-        Dispatcher.Dispatch(session, "inventory.setItem", Args(at, maxCount));
+        Dispatch(session, "inventory.setItem", Args(at, maxCount));
 
-        Value(Dispatcher.Dispatch(session, "inventory.setItem", Args(at, 1))).Should().BeNull();
+        Value(Dispatch(session, "inventory.setItem", Args(at, 1))).Should().BeNull();
 
         Count(session, at).Should().Be(1);
         session.Game!.SaveAndReload(reloaded => reloaded.Trainer.Inventories[at.Pouch].Items
@@ -108,9 +108,9 @@ public class InventoryHandlerTests
     {
         var session = Loaded(saveFile);
         var (at, _) = AddableItem(session.Game!)!.Value;
-        Dispatcher.Dispatch(session, "inventory.setItem", Args(at, 1));
+        Dispatch(session, "inventory.setItem", Args(at, 1));
 
-        Value(Dispatcher.Dispatch(session, "inventory.setItem", Args(at, 0))).Should().BeNull();
+        Value(Dispatch(session, "inventory.setItem", Args(at, 0))).Should().BeNull();
 
         Count(session, at).Should().BeNull();
         session.Game!.SaveAndReload(reloaded => reloaded.Trainer.Inventories[at.Pouch].Items
@@ -124,7 +124,7 @@ public class InventoryHandlerTests
         var at = new ItemHandle("KeyItems", 255);
         Count(session, at).Should().NotBeNull();
 
-        Value(Dispatcher.Dispatch(session, "inventory.setItem", Args(at, 0))).Should().BeNull();
+        Value(Dispatch(session, "inventory.setItem", Args(at, 0))).Should().BeNull();
 
         Count(session, at).Should().BeNull();
     }
@@ -137,7 +137,7 @@ public class InventoryHandlerTests
         var changes = new List<string[]>();
         session.Changed += changes.Add;
 
-        Dispatcher.Dispatch(session, "inventory.setItem", Args(at, 1));
+        Dispatch(session, "inventory.setItem", Args(at, 1));
 
         changes.Should().BeEquivalentTo([new[] { Topics.Inventory }]);
     }
@@ -149,11 +149,11 @@ public class InventoryHandlerTests
     {
         var session = Loaded(SaveFilePath.HgSs);
         var (at, maxCount) = AddableItem(session.Game!)!.Value;
-        Dispatcher.Dispatch(session, "inventory.setItem", Args(at, maxCount));
+        Dispatch(session, "inventory.setItem", Args(at, maxCount));
         var published = new List<IEngineEvent>();
         session.Published += published.Add;
 
-        Dispatcher.Dispatch(session, "inventory.setItem", Args(at, count));
+        Dispatch(session, "inventory.setItem", Args(at, count));
 
         published.Should().Equal(new ItemChanged(at.ItemId, count));
     }
@@ -167,7 +167,7 @@ public class InventoryHandlerTests
         session.Changed += _ => seen.Add("changed");
         session.Published += _ => seen.Add("published");
 
-        Dispatcher.Dispatch(session, "inventory.setItem", Args(at, 1));
+        Dispatch(session, "inventory.setItem", Args(at, 1));
 
         seen.Should().Equal("changed", "published");
     }
@@ -180,7 +180,7 @@ public class InventoryHandlerTests
         var published = new List<IEngineEvent>();
         session.Published += published.Add;
 
-        Error(Dispatcher.Dispatch(session, "inventory.setItem", Args(at, maxCount + 1))).Should().Be("out-of-range");
+        Error(Dispatch(session, "inventory.setItem", Args(at, maxCount + 1))).Should().Be("out-of-range");
 
         published.Should().BeEmpty();
     }
@@ -194,7 +194,7 @@ public class InventoryHandlerTests
         var (at, maxCount) = AddableItem(session.Game!)!.Value;
         var count = offset < 0 ? offset : maxCount + offset;
 
-        Error(Dispatcher.Dispatch(session, "inventory.setItem", Args(at, count))).Should().Be("out-of-range");
+        Error(Dispatch(session, "inventory.setItem", Args(at, count))).Should().Be("out-of-range");
         Count(session, at).Should().BeNull();
     }
 
@@ -210,7 +210,7 @@ public class InventoryHandlerTests
         var changes = new List<string[]>();
         session.Changed += changes.Add;
 
-        Error(Dispatcher.Dispatch(session, "inventory.setItem", Args(at, 1))).Should().Be("pouch-full");
+        Error(Dispatch(session, "inventory.setItem", Args(at, 1))).Should().Be("pouch-full");
 
         Count(session, at).Should().BeNull();
         changes.Should().BeEmpty();
@@ -218,14 +218,14 @@ public class InventoryHandlerTests
 
     [Fact]
     public void SetItemFailsWithNotFoundForAPouchTheSaveDoesNotHave() =>
-        Error(Dispatcher.Dispatch(Loaded(SaveFilePath.HgSs), "inventory.setItem", Args(new ItemHandle("Treasure", 1), 1)))
+        Error(Dispatch(Loaded(SaveFilePath.HgSs), "inventory.setItem", Args(new ItemHandle("Treasure", 1), 1)))
             .Should().Be("not-found");
 
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
     public void SetItemFailsWithBadArgumentsForAnInvalidItemId(int itemId) =>
-        Error(Dispatcher.Dispatch(Loaded(SaveFilePath.HgSs), "inventory.setItem", Args(new ItemHandle("Balls", itemId), 1)))
+        Error(Dispatch(Loaded(SaveFilePath.HgSs), "inventory.setItem", Args(new ItemHandle("Balls", itemId), 1)))
             .Should().Be("bad-arguments");
 
     [Fact]
@@ -235,7 +235,7 @@ public class InventoryHandlerTests
         var inventories = session.Game!.Trainer.Inventories;
         var notABall = inventories["Items"].AllSupportedItems.First(item => !inventories["Balls"].Supports(item));
 
-        Error(Dispatcher.Dispatch(session, "inventory.setItem", Args(new ItemHandle("Balls", notABall.Id), 1)))
+        Error(Dispatch(session, "inventory.setItem", Args(new ItemHandle("Balls", notABall.Id), 1)))
             .Should().Be("bad-arguments");
     }
 
@@ -244,18 +244,18 @@ public class InventoryHandlerTests
     {
         var session = Loaded(SaveFilePath.HgSs);
         var (at, _) = AddableItem(session.Game!)!.Value;
-        var before = Dispatcher.Dispatch(session, "inventory.get", "[]");
+        var before = Dispatch(session, "inventory.get", "[]");
 
-        Value(Dispatcher.Dispatch(session, "inventory.setItem", Args(at, 0))).Should().BeNull();
+        Value(Dispatch(session, "inventory.setItem", Args(at, 0))).Should().BeNull();
 
-        Dispatcher.Dispatch(session, "inventory.get", "[]").Should().Be(before);
+        Dispatch(session, "inventory.get", "[]").Should().Be(before);
     }
 
     [Fact]
     public void SetItemFailsWithNoSaveWithoutALoadedSave() =>
-        Error(Dispatcher.Dispatch(new Session(), "inventory.setItem", Args(new ItemHandle("Items", 1), 1))).Should().Be("no-save");
+        Error(Dispatch(new Session(), "inventory.setItem", Args(new ItemHandle("Items", 1), 1))).Should().Be("no-save");
 
-    private static int? Count(Session session, ItemHandle at) => Value(Dispatcher.Dispatch(session, "inventory.get", "[]"))!
+    private static int? Count(Session session, ItemHandle at) => Value(Dispatch(session, "inventory.get", "[]"))!
         .AsArray()
         .Single(p => p!["name"]!.GetValue<string>() == at.Pouch)!["items"]!
         .AsArray()

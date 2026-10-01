@@ -17,7 +17,7 @@ export function fakeHost(dispatch: (name: string, args: unknown[]) => unknown) {
           Everywhere: {
             Engine: {
               EngineExports: {
-                Call: (name, args) => {
+                Call: async (name, args) => {
                   calls.push({ name, args })
                   return JSON.stringify(dispatch(name, JSON.parse(args)))
                 },

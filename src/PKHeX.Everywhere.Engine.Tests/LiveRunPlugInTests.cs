@@ -30,7 +30,7 @@ public class LiveRunPlugInTests
     {
         var (session, _) = Hosted();
 
-        var page = Value(Dispatcher.Dispatch(session, "plugins.pages", "[]"))!.AsArray().Should().ContainSingle().Subject!;
+        var page = Value(Dispatch(session, "plugins.pages", "[]"))!.AsArray().Should().ContainSingle().Subject!;
         page["plugInId"]!.GetValue<string>().Should().Be(LiveRunId);
         page["path"]!.GetValue<string>().Should().Be("live-run");
         page["layout"]!.GetValue<string>().Should().Be("empty");
@@ -41,13 +41,13 @@ public class LiveRunPlugInTests
     {
         var (session, _) = Hosted();
 
-        var source = Value(Dispatcher.Dispatch(session, "plugins.pageModule", Args(LiveRunId, "live-run")))!.GetValue<string>();
+        var source = Value(Dispatch(session, "plugins.pageModule", Args(LiveRunId, "live-run")))!.GetValue<string>();
 
         source.Should().Contain("export function mount(element, ctx)").And.Contain("ctx.loadSave");
     }
 
     private static JsonNode PlayAction(Session session) =>
-        Value(Dispatcher.Dispatch(session, "plugins.actions", Args("quick", null!)))!.AsArray()
+        Value(Dispatch(session, "plugins.actions", Args("quick", null!)))!.AsArray()
             .Should().ContainSingle(a => a!["id"]!.GetValue<string>() == GoToLiveRun).Subject!;
 
     [Fact]
@@ -73,7 +73,7 @@ public class LiveRunPlugInTests
         var (session, host) = Hosted(saveFile: SaveFilePath.Emerald);
         host.UpdateSetting(LiveRunId, EmeraldRom, new Settings.SettingValue.FileValue([1, 2, 3], "emerald.gba"));
 
-        var outcome = Value(Dispatcher.Dispatch(session, "plugins.run", Args(GoToLiveRun, null!)))!;
+        var outcome = Value(Dispatch(session, "plugins.run", Args(GoToLiveRun, null!)))!;
 
         outcome["kind"]!.GetValue<string>().Should().Be("openPage");
         outcome["path"]!.GetValue<string>().Should().Be("live-run");

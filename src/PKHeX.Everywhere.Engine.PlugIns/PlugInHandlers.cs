@@ -20,11 +20,10 @@ public static class PlugInHandlers
     }
 
     [Command("plugins.run", Topics.All)]
-    public static PlugInOutcome Run(Session session, string id, PokemonHandle? target)
+    public static async Task<PlugInOutcome> Run(Session session, string id, PokemonHandle? target)
     {
         var slot = target is null ? null : session.RequireGame().Find(target);
-        // Engine calls are synchronous, and single-threaded WASM can't block on an action that really awaits, so such an action fails here.
-        var ran = PlugInHost.Of(session).RunAction(id, slot?.Pokemon).GetAwaiter().GetResult();
+        var ran = await PlugInHost.Of(session).RunAction(id, slot?.Pokemon);
         if (ran.Failure is { } failure) throw new EngineException(ErrorCodes.PlugInFailed, failure.Message, failure);
 
         slot?.Save();

@@ -30,4 +30,18 @@ public static class LeadHandlers
     public static void Refresh(Game game)
     {
     }
+
+    [Query("lead.getLater", Topics.Party)]
+    public static async Task<Lead> GetLater(Game game)
+    {
+        await Task.Yield();
+        return Get(game);
+    }
+
+    [Command("lead.setLevelLater")]
+    public static async Task SetLevelLater(Game game, PokemonHandle at, int level)
+    {
+        await Task.Yield();
+        SetLevel(game, at, level);
+    }
 }

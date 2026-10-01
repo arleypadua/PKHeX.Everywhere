@@ -21,6 +21,7 @@ public class PlugInActionTests
     private const string Greet = $"{TestPlugInId}.Greet";
     private const string Fail = $"{TestPlugInId}.Fail";
     private const string Unavailable = $"{TestPlugInId}.Unavailable";
+    private const string Awaits = $"{TestPlugInId}.Awaits";
 
     private static readonly PokemonHandle FirstInParty = PokemonHandle.Party(0);
 
@@ -42,10 +43,10 @@ public class PlugInActionTests
         : arg));
 
     private static JsonArray Actions(Session session, string placement, PokemonHandle? target = null) =>
-        Value(Dispatcher.Dispatch(session, "plugins.actions", Call(placement, target)))!.AsArray();
+        Value(Dispatch(session, "plugins.actions", Call(placement, target)))!.AsArray();
 
     private static string Run(Session session, string id, PokemonHandle? target = null) =>
-        Dispatcher.Dispatch(session, "plugins.run", Call(id, target));
+        Dispatch(session, "plugins.run", Call(id, target));
 
     [Fact]
     public void ListsNuzlockingsActionsPerPlacement()
@@ -101,12 +102,45 @@ public class PlugInActionTests
     }
 
     [Fact]
+    public async Task RunsAnActionThatAwaitsWithoutBlocking()
+    {
+        var (session, host, _) = Hosted(TestPlugInId);
+        host.SetToggle(TestPlugInId, Awaits, true);
+        var release = new TaskCompletionSource();
+        host.Find(TestPlugInId)!.Assembly.GetType(Awaits)!.GetProperty("Gate")!.SetValue(null, release.Task);
+
+        var running = Dispatcher.Dispatch(session, "plugins.run", Call(Awaits, null));
+        running.IsCompleted.Should().BeFalse();
+
+        release.SetResult();
+        Value(await running)!["message"]!.GetValue<string>().Should().Be("Awaited");
+    }
+
+    [Fact]
+    public async Task ReportsOtherChangesWhileAnActionAwaits()
+    {
+        var (session, host, _) = Hosted(TestPlugInId);
+        host.SetToggle(TestPlugInId, Awaits, true);
+        var release = new TaskCompletionSource();
+        host.Find(TestPlugInId)!.Assembly.GetType(Awaits)!.GetProperty("Gate")!.SetValue(null, release.Task);
+        var changed = new List<string>();
+        session.Changed += changed.AddRange;
+
+        var running = Dispatcher.Dispatch(session, "plugins.run", Call(Awaits, null));
+        session.Invalidate(Topics.Box);
+
+        changed.Should().Equal(Topics.Box);
+        release.SetResult();
+        await running;
+    }
+
+    [Fact]
     public void PokemonPlacementsNeedATarget()
     {
         var (session, _, _) = Hosted(Nuzlocking);
 
-        Error(Dispatcher.Dispatch(session, "plugins.actions", Call("pokemon", null))).Should().Be(ErrorCodes.BadArguments);
-        Error(Dispatcher.Dispatch(session, "plugins.actions", Call("pokemon", PokemonHandle.Party(6)))).Should().Be(ErrorCodes.NotFound);
+        Error(Dispatch(session, "plugins.actions", Call("pokemon", null))).Should().Be(ErrorCodes.BadArguments);
+        Error(Dispatch(session, "plugins.actions", Call("pokemon", PokemonHandle.Party(6)))).Should().Be(ErrorCodes.NotFound);
     }
 
     [Fact]
@@ -150,7 +184,7 @@ public class PlugInActionTests
 
         var outcome = Value(Run(session, MaxRareCandies))!;
 
-        var rareCandy = Value(Dispatcher.Dispatch(session, "inventory.get", "[]"))!.AsArray()
+        var rareCandy = Value(Dispatch(session, "inventory.get", "[]"))!.AsArray()
             .SelectMany(pouch => pouch!["items"]!.AsArray())
             .Single(item => item!["name"]!.GetValue<string>() == "Rare Candy")!;
         var count = rareCandy["count"]!.GetValue<int>();

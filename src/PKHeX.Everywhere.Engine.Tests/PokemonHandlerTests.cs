@@ -15,9 +15,9 @@ public class PokemonHandlerTests
     {
         var session = Loaded(saveFile);
 
-        var pokemon = Value(Dispatcher.Dispatch(session, "pokemon.get", Args(PokemonHandle.Party(0))))!;
+        var pokemon = Value(Dispatch(session, "pokemon.get", Args(PokemonHandle.Party(0))))!;
 
-        var party = Value(Dispatcher.Dispatch(session, "party.get", "[]"))!.AsArray();
+        var party = Value(Dispatch(session, "party.get", "[]"))!.AsArray();
         pokemon.ToJsonString().Should().Be(party[0]!.ToJsonString());
     }
 
@@ -28,7 +28,7 @@ public class PokemonHandlerTests
         var session = Loaded(saveFile);
         var level = OtherLevel(session.Game!.Trainer.Party.Pokemons[0].Level);
 
-        Value(Dispatcher.Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Party(0), level))).Should().BeNull();
+        Value(Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Party(0), level))).Should().BeNull();
 
         Level(session, PokemonHandle.Party(0)).Should().Be(level);
         session.Game.SaveAndReload(reloaded => reloaded.Trainer.Party.Pokemons[0].Level.Should().Be(level));
@@ -42,7 +42,7 @@ public class PokemonHandlerTests
         var (at, index) = FirstBoxPokemon(session.Game!)!.Value;
         var level = OtherLevel(session.Game!.Trainer.PokemonBox.All[index].Level);
 
-        Value(Dispatcher.Dispatch(session, "pokemon.setLevel", Args(at, level))).Should().BeNull();
+        Value(Dispatch(session, "pokemon.setLevel", Args(at, level))).Should().BeNull();
 
         Level(session, at).Should().Be(level);
         session.Game.SaveAndReload(reloaded => reloaded.Trainer.PokemonBox.All[index].Level.Should().Be(level));
@@ -56,8 +56,8 @@ public class PokemonHandlerTests
         var changes = new List<string[]>();
         session.Changed += changes.Add;
 
-        Dispatcher.Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Party(0), 42));
-        Dispatcher.Dispatch(session, "pokemon.setLevel", Args(at, 42));
+        Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Party(0), 42));
+        Dispatch(session, "pokemon.setLevel", Args(at, 42));
 
         changes.Should().BeEquivalentTo([new[] { Topics.Party }, new[] { $"box/{at.Box}" }], o => o.WithStrictOrdering());
     }
@@ -71,7 +71,7 @@ public class PokemonHandlerTests
         var (at, _) = BoxSlotOfPartyMember(session.Game!, 0);
         var level = OtherLevel(session.Game!.Trainer.Party.Pokemons[0].Level);
 
-        Dispatcher.Dispatch(session, "pokemon.setLevel", Args(at, level));
+        Dispatch(session, "pokemon.setLevel", Args(at, level));
 
         Level(session, PokemonHandle.Party(0)).Should().Be(level);
         session.Game.SaveAndReload(reloaded => reloaded.Trainer.Party.Pokemons[0].Level.Should().Be(level));
@@ -88,8 +88,8 @@ public class PokemonHandlerTests
         var changes = new List<string[]>();
         session.Changed += changes.Add;
 
-        Dispatcher.Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Party(0), level));
-        Dispatcher.Dispatch(session, "pokemon.setLevel", Args(at, OtherLevel(level)));
+        Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Party(0), level));
+        Dispatch(session, "pokemon.setLevel", Args(at, OtherLevel(level)));
 
         changes.Should().BeEquivalentTo([new[] { Topics.Party, at.Topic() }, new[] { at.Topic(), Topics.Party }], o => o.WithStrictOrdering());
         Level(session, at).Should().Be(OtherLevel(level));
@@ -103,7 +103,7 @@ public class PokemonHandlerTests
         var changes = new List<string[]>();
         session.Changed += changes.Add;
 
-        Dispatcher.Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Party(0), 101));
+        Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Party(0), 101));
 
         changes.Should().BeEmpty();
     }
@@ -112,7 +112,7 @@ public class PokemonHandlerTests
     [InlineData(0)]
     [InlineData(101)]
     public void SetLevelRejectsLevelsOutsideOneToHundred(int level) =>
-        Error(Dispatcher.Dispatch(Loaded(SaveFilePath.HgSs), "pokemon.setLevel", Args(PokemonHandle.Party(0), level)))
+        Error(Dispatch(Loaded(SaveFilePath.HgSs), "pokemon.setLevel", Args(PokemonHandle.Party(0), level)))
             .Should().Be("out-of-range");
 
     public static TheoryData<PokemonHandle> MissingHandles() =>
@@ -131,21 +131,21 @@ public class PokemonHandlerTests
     {
         var session = Loaded(SaveFilePath.HgSs);
 
-        Error(Dispatcher.Dispatch(session, "pokemon.get", Args(at))).Should().Be("not-found");
-        Error(Dispatcher.Dispatch(session, "pokemon.setLevel", Args(at, 42))).Should().Be("not-found");
+        Error(Dispatch(session, "pokemon.get", Args(at))).Should().Be("not-found");
+        Error(Dispatch(session, "pokemon.setLevel", Args(at, 42))).Should().Be("not-found");
     }
 
     [Fact]
     public void SetLevelReturnsNoSaveWithoutALoadedSave() =>
-        Error(Dispatcher.Dispatch(new Session(), "pokemon.setLevel", Args(PokemonHandle.Party(0), 42))).Should().Be("no-save");
+        Error(Dispatch(new Session(), "pokemon.setLevel", Args(PokemonHandle.Party(0), 42))).Should().Be("no-save");
 
     [Fact]
     public void SetLevelReturnsBadArgumentsForAMalformedHandle() =>
-        Error(Dispatcher.Dispatch(Loaded(SaveFilePath.HgSs), "pokemon.setLevel", """[{"source":"daycare","slot":0}, 42]"""))
+        Error(Dispatch(Loaded(SaveFilePath.HgSs), "pokemon.setLevel", """[{"source":"daycare","slot":0}, 42]"""))
             .Should().Be("bad-arguments");
 
     private static int Level(Session session, PokemonHandle at) =>
-        Value(Dispatcher.Dispatch(session, "pokemon.get", Args(at)))!["level"]!.GetValue<int>();
+        Value(Dispatch(session, "pokemon.get", Args(at)))!["level"]!.GetValue<int>();
 
     private static int OtherLevel(int level) => level == 50 ? 51 : 50;
 }

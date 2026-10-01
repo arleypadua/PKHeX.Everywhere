@@ -76,16 +76,16 @@ public class CommandTopicTests
             var queries = Queries
                 .SelectMany(q => SampleArgs[q.Name](session.Game!, saveFile).Select(a => (Call: q.Name, Args: a, q.Topics)))
                 .ToList();
-            var before = queries.Select(q => Dispatcher.Dispatch(session, q.Call, q.Args)).ToList();
+            var before = queries.Select(q => Dispatch(session, q.Call, q.Args)).ToList();
             var reported = new List<string>();
             session.Changed += reported.AddRange;
 
-            EngineResults.Value(Dispatcher.Dispatch(session, command, args));
+            EngineResults.Value(Dispatch(session, command, args));
 
             for (var i = 0; i < queries.Count; i++)
             {
                 var (call, queryArgs, topics) = queries[i];
-                if (Dispatcher.Dispatch(session, call, queryArgs) == before[i]) continue;
+                if (Dispatch(session, call, queryArgs) == before[i]) continue;
 
                 Affects(reported, topics).Should().BeTrue(
                     $"{command}{args} changed {call}{queryArgs}, which reads [{string.Join(", ", topics)}], but reported only [{string.Join(", ", reported)}]");

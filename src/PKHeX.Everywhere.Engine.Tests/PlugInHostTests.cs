@@ -38,6 +38,7 @@ public class PlugInHostTests
             new PlugInHook(Greet, "Greets the trainer", true),
             new PlugInHook(Fail, "Always fails", true),
             new PlugInHook(OpenHello, "Opens the hello page", false),
+            new PlugInHook($"{TestPlugInId}.Awaits", "Waits for the test to release it", false),
             new PlugInHook($"{TestPlugInId}.Unavailable", "Is never available", false),
             new PlugInHook($"{TestPlugInId}.EchoItem", "Echoes the changed item", true),
             new PlugInHook($"{TestPlugInId}.FailOnItem", "Fails on every item change", true),
