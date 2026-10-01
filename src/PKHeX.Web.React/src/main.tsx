@@ -44,6 +44,7 @@ function PageShell({ name, props }: { name: string; props: Record<string, unknow
 }
 
 export async function mount(element: HTMLElement, name: string, props: Record<string, unknown>, host: HostBridge) {
+  unmounted.delete(element)
   connectHost(host)
   await engine.ready
   if (unmounted.has(element)) return

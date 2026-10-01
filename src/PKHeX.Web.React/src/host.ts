@@ -11,12 +11,12 @@ export interface HostBridge {
   theme: Theme
 }
 
-let navigator: DotNetNavigator | undefined
+let dotNetNavigator: DotNetNavigator | undefined
 let theme: Theme = 'light'
 const listeners = new Set<() => void>()
 
 export function connectHost(host: HostBridge) {
-  navigator = host.navigator
+  dotNetNavigator = host.navigator
   setTheme(host.theme)
 }
 
@@ -36,5 +36,5 @@ export function useTheme(): Theme {
 }
 
 export function useNavigate(): (url: string) => void {
-  return useCallback((url: string) => void navigator?.invokeMethodAsync('NavigateTo', url), [])
+  return useCallback((url: string) => void dotNetNavigator?.invokeMethodAsync('NavigateTo', url).catch(console.error), [])
 }

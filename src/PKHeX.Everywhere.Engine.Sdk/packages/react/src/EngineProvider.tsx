@@ -16,7 +16,7 @@ export function EngineProvider({ engine, children }: { engine: Engine; children:
 
 export function useEngineContext(): EngineContextValue {
   const context = useContext(EngineContext)
-  if (!context) throw new Error('useEngine must be used inside an EngineProvider.')
+  if (!context) throw new Error('Engine hooks must be used inside an EngineProvider.')
   return context
 }
 

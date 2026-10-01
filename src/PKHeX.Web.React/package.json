@@ -1,5 +1,5 @@
 {
-  "name": "pkhex-web-react",
+  "name": "@pkhex-everywhere/web-react",
   "private": true,
   "version": "0.0.0",
   "type": "module",

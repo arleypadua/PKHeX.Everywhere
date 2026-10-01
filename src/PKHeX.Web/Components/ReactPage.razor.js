@@ -1,4 +1,4 @@
-let pages
+let pagesModule
 
 async function fromDevServer(url) {
     const { default: refresh } = await import(`${url}/@react-refresh`)
@@ -13,13 +13,13 @@ async function fromDevServer(url) {
 const fromBuild = () => import(new URL('react/pages.js', document.baseURI).href)
 
 function load(devServerUrl) {
-    pages ??= devServerUrl
+    pagesModule ??= devServerUrl
         ? fromDevServer(devServerUrl).catch((error) => {
             console.warn(`Vite dev server at ${devServerUrl} is not reachable, using the built React pages.`, error)
             return fromBuild()
         })
         : fromBuild()
-    return pages
+    return pagesModule
 }
 
 const elements = new Map()
@@ -33,9 +33,9 @@ export async function mount(id, element, devServerUrl, name, props, navigator, t
 export async function unmount(id) {
     const element = elements.get(id)
     elements.delete(id)
-    if (element) (await pages)?.unmount(element)
+    if (element) (await pagesModule)?.unmount(element)
 }
 
 export async function setTheme(theme) {
-    (await pages)?.setTheme(theme)
+    (await pagesModule)?.setTheme(theme)
 }

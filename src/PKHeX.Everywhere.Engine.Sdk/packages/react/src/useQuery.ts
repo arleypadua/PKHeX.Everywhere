@@ -18,6 +18,7 @@ export type CallResult<Name extends CallName> = Awaited<ReturnType<CallFunction<
 export function useQuery<Name extends CallName>(call: Name, ...args: CallArgs<Name>): CallResult<Name> {
   const { engine, cache } = useEngineContext()
   const key = JSON.stringify([call, args])
+  // Starting the fetch during render is safe: a missing entry always suspends, so nothing renders from this pass.
   const entry = useSyncExternalStore(cache.subscribe, () => cache.peek(key)) ?? cache.get(key, () => engine.call(call, args))
 
   if (entry.status === 'pending') throw entry.promise
