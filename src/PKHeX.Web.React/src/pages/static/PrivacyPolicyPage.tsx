@@ -1,0 +1,191 @@
+import { Button, Flex, Typography } from 'antd'
+import { applicationName, gitHubRepositoryIssues } from '../../constants'
+
+declare global {
+  var showGoogleCmpRevocationMessage: (() => void) | undefined
+}
+
+export default function PrivacyPolicyPage() {
+  return (
+    <Typography>
+      <h1>Privacy Policy</h1>
+      <p>Effective Date: 01/05/2025</p>
+
+      <h2>1. Introduction</h2>
+      <p>
+        Welcome to {applicationName}. This Privacy Policy explains how data is collected and used when you use this
+        application.
+      </p>
+
+      <h2>2. Information We Collect</h2>
+      <p>
+        We do not collect any personal information that identifies you as an individual. However, this application uses
+        Google Analytics to collect and process the following information:
+      </p>
+      <ul>
+        <li>Standard traffic data (e.g., browser type, operating system)</li>
+        <li>Pokémon species used in your party</li>
+        <li>Game version loaded</li>
+        <li>Items being edited</li>
+        <li>Species being edited</li>
+        <li>Usage telemetry of the app features (clicks, page visits)</li>
+      </ul>
+
+      <h2>3. How We Use Your Information</h2>
+      <p>The information collected is used for the following purposes:</p>
+      <ul>
+        <li>To analyze and improve the functionality of the app</li>
+        <li>To understand how users interact with the app</li>
+        <li>To ensure the app runs efficiently and effectively</li>
+        <li>
+          To build up the <a href="/analytics">analytics</a> page of the app
+        </li>
+      </ul>
+
+      <h2>4. Google Analytics</h2>
+      <p>
+        We use Google Analytics to collect and analyze data about the use of our app. Google Analytics collects
+        information such as how often users visit the app, what pages they visit, and what other sites they used prior
+        to coming to the app. We use the information from Google Analytics only to improve our app. Google Analytics
+        collects only the IP address assigned to you on the date you visit the app, rather than your name or other
+        identifying information. We do not combine the information collected through Google Analytics with personally
+        identifiable information. You can learn more about how Google Analytics collects and processes data{' '}
+        <a href="https://policies.google.com/technologies/partner-sites" target="_blank">here</a> and more information
+        about Google Analytics privacy{' '}
+        <a
+          href="https://support.google.com/analytics/topic/2919631?hl=en&sjid=7301622311848926321-EU"
+          target="_blank"
+        >
+          here
+        </a>
+        .
+      </p>
+
+      <h2>5. Data Security</h2>
+      <p>
+        We use reasonable administrative, technical, and physical measures to protect the information we collect
+        through our app. However, no security measures are perfect or impenetrable, and we cannot guarantee the security
+        of the collected data.
+      </p>
+
+      <h2>6. Changes to This Privacy Policy</h2>
+      <p>
+        This Privacy Policy may change from time to time. You will be notified of any changes, however, you are advised
+        to review this Privacy Policy periodically for any changes you may have missed. Changes to this Privacy Policy
+        are effective when they are posted on this page.
+      </p>
+
+      <h2>7. Plugins</h2>
+      <p>
+        The app supports the installation of plugins. It is advisable to use plugins from the "Default Source" for
+        security and compatibility reasons. We are not responsible for any third-party plugin use of the data or any
+        issues arising from the use of such plugins.
+      </p>
+
+      <h2>8. Cloud</h2>
+      <p>
+        Your privacy is important to us. Our application includes a beta feature for syncing Pokémon data to the cloud,
+        enabling restoration if needed. This feature is entirely optional and will only sync your data if you explicitly
+        opt in. While we employ best practices to secure your data, please note that this feature is still in
+        development, and its functionality is not guaranteed. By using this feature, you acknowledge that there may be
+        limitations or interruptions in service during the beta phase. We recommend keeping local backups of your data
+        for added security.
+      </p>
+
+      <h2>9. Cookies, Advertising, and Third-Party Services</h2>
+      <p>
+        Our application uses cookies and similar technologies to enhance your experience, understand usage patterns, and
+        serve advertisements. If you are in the European Economic Area, the United Kingdom or Switzerland, we ask for
+        your consent before setting advertising or analytics cookies. If you decline, Google still shows ads, but they
+        are not personalized and do not use advertising cookies. You can change your choice at any time with the Cookie
+        preferences button below.
+      </p>
+      <p>
+        <strong>Google AdSense & Advertising Cookies:</strong>
+      </p>
+      <ul>
+        <li>
+          Third party vendors, including Google, use cookies to serve ads based on a user's prior visits to our website
+          or other websites.
+        </li>
+        <li>
+          Google's use of advertising cookies enables it and its partners to serve ads to you based on your visit to our
+          sites and/or other sites on the Internet.
+        </li>
+        <li>
+          These cookies help in providing personalized advertising, which means you might see ads that are more relevant
+          to your interests based on your browsing behavior.
+        </li>
+        <li>
+          You may opt out of personalized advertising from Google by visiting{' '}
+          <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">
+            Google's Ads Settings
+          </a>
+          .
+        </li>
+      </ul>
+      <p>
+        <strong>Other Third-Party Vendors & Ad Networks:</strong>
+      </p>
+      <ul>
+        <li>
+          In addition to Google, other third-party vendors or ad networks may also serve ads on our application. These
+          vendors may use cookies to provide personalized advertising.
+        </li>
+        <li>
+          You can opt out of some third-party vendors’ uses of cookies for personalized advertising by visiting{' '}
+          <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer">
+            www.aboutads.info/choices/
+          </a>
+          .
+        </li>
+        <li>
+          Alternatively, you may be able to visit the websites of these third-party vendors to opt out of the use of
+          cookies for personalized advertising, if the vendor or ad network offers this capability.
+        </li>
+      </ul>
+      <p>
+        <strong>Google Analytics:</strong>
+      </p>
+      <ul>
+        <li>
+          We also use Google Analytics to collect anonymized usage data, helping us understand how our application is
+          used and how we can improve it. Google Analytics may use cookies to gather this information.
+        </li>
+      </ul>
+      <p>
+        <strong>Managing Cookies:</strong>
+      </p>
+      <ul>
+        <li>
+          Most browsers allow you to control cookies through their settings preferences. However, limiting the ability
+          of websites to set cookies may worsen your overall user experience.
+        </li>
+        <li>
+          For more information on how Google uses data when you use our partners' sites or apps, please visit{' '}
+          <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">
+            Google's Partner Sites Policy
+          </a>
+          . You can also review{' '}
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+            Google's Privacy Policy
+          </a>{' '}
+          and{' '}
+          <a href="https://policies.google.com/technologies/cookies" target="_blank" rel="noopener noreferrer">
+            Cookie Policy
+          </a>{' '}
+          for further details.
+        </li>
+      </ul>
+      <Flex justify="center">
+        <Button onClick={() => globalThis.showGoogleCmpRevocationMessage?.()}>Cookie preferences</Button>
+      </Flex>
+
+      <h2>10. Contact Us</h2>
+      <p>
+        If you have any questions about this Privacy Policy, please open an issue on{' '}
+        <a href={gitHubRepositoryIssues} target="_blank">GitHub</a>.
+      </p>
+    </Typography>
+  )
+}
