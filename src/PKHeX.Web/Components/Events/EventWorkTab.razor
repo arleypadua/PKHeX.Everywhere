@@ -1,0 +1,60 @@
+@using PKHeX.Facade.Events
+
+<Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 16px;">
+    <EventFilterBar
+        @bind-Search="_search"
+        @bind-Category="_category"
+        Categories="@Events.Work.Select(w => w.Category).Distinct()"/>
+
+    <Table
+        TItem="EventWorkEntry"
+        DataSource="@Filtered"
+        Size="TableSize.Small"
+        @bind-PageSize="_pageSize"
+        Responsive>
+        <PropertyColumn Title="#" Property="w => w.Index" Width="80"/>
+        <PropertyColumn Title="Name" Property="w => w.Name"/>
+        <PropertyColumn Title="Category" Property="w => w.Category">
+            @EventFilterBar.Humanize(context.Category)
+        </PropertyColumn>
+        <PropertyColumn Title="Value" Property="w => w.Value" Width="220">
+            @if (context.Options.IsEmpty)
+            {
+                <AntDesign.InputNumber
+                    TValue="int"
+                    Value="@context.Value"
+                    ValueChanged="v => context.Value = v"
+                    Min="@Events.WorkMin"
+                    Max="@Events.WorkMax"/>
+            }
+            else
+            {
+                <Select
+                    TItem="EventWorkOption"
+                    TItemValue="int"
+                    DataSource="@OptionsOf(context)"
+                    Value="@context.Value"
+                    ValueChanged="v => context.Value = v"
+                    LabelName="@nameof(EventWorkOption.Name)"
+                    ValueName="@nameof(EventWorkOption.Value)"
+                    Style="width: 200px"/>
+            }
+        </PropertyColumn>
+    </Table>
+</Flex>
+
+@code {
+    [Parameter] public required GameEvents Events { get; set; }
+
+    string? _search;
+    string? _category;
+    int _pageSize = 20;
+
+    IEnumerable<EventWorkEntry> Filtered => Events.Work
+        .Where(w => EventFilterBar.Matches(w.Name, w.Category, _search, _category));
+
+    static IEnumerable<EventWorkOption> OptionsOf(EventWorkEntry work) =>
+        work.Options.Any(o => o.Value == work.Value)
+            ? work.Options
+            : work.Options.Prepend(new EventWorkOption($"Other ({work.Value})", work.Value));
+}

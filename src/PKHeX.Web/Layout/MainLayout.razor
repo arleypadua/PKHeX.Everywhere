@@ -125,6 +125,7 @@
         new("party", "Party", "team"),
         new("pokemon-box", "Pokemon Box", "inbox"),
         new("items", "Items", "shop"),
+        .. (GameService.Game?.Events is null ? Array.Empty<MenuItem>() : [new("events", "Events", "flag")]),
         new("plugins", "Plug-Ins", "api", true, PluginMenuItems),
         new("analytics", "Analytics", "line-chart", true),
         new("save", "Save", "save", true),

@@ -1,4 +1,5 @@
 ﻿using PKHeX.Core;
+using PKHeX.Facade.Events;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Facade.Repositories;
 
@@ -18,7 +19,10 @@ public class Game
 
         Trainer = new Trainer(this);
         BattlePoints = BattlePoints.GetInstance(saveFile);
+        _events = new Lazy<GameEvents?>(() => GameEvents.For(this));
     }
+
+    private readonly Lazy<GameEvents?> _events;
 
     public SpeciesRepository SpeciesRepository { get; }
     public PokemonRepository PokemonRepository { get; }
@@ -26,6 +30,7 @@ public class Game
     public ItemRepository ItemRepository { get; }
     public Trainer Trainer { get; }
     public BattlePoints BattlePoints { get; }
+    public GameEvents? Events => _events.Value;
 
     public GameVersionDefinition SaveVersion => GameVersionRepository.Instance.Get(SaveFile.Version);
 
