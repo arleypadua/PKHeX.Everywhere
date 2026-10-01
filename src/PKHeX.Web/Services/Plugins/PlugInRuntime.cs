@@ -1,6 +1,7 @@
 using AntDesign;
 using Blazor.Analytics;
 using Microsoft.AspNetCore.Components;
+using PKHeX.Everywhere.Engine;
 using PKHeX.Web.Extensions;
 using PKHeX.Web.Plugins;
 
@@ -11,17 +12,20 @@ public partial class PlugInRuntime(
     PlugInPageRegistry pageRegistry,
     NavigationManager navigation,
     INotificationService notificationService,
-    AnalyticsService analyticsService)
+    AnalyticsService analyticsService,
+    Session session)
 {
     private readonly FixedSizeList<Failure> _failures = new(20);
     public IEnumerable<Failure> RecentFailures => _failures.GetItems();
         
     public async Task RunAll<T>(Func<T, Task<Outcome>> action) where T : IPluginHook
     {
+        var ran = false;
         var failed = false;
         var hooks = registry.GetAllEnabledHooks<T>();
         foreach (var hook in hooks)
         {
+            ran = true;
             try
             {
                 var outcome = await action(hook);
@@ -35,6 +39,8 @@ public partial class PlugInRuntime(
                 Track(hook, e);
             }
         }
+
+        if (ran) session.Invalidate(Topics.All);
 
         if (failed)
         {
@@ -60,7 +66,10 @@ public partial class PlugInRuntime(
             Track(hook, e);
             throw;
         }
-        
+        finally
+        {
+            session.Invalidate(Topics.All);
+        }
     }
 
     public void Dismiss(Failure failure)
