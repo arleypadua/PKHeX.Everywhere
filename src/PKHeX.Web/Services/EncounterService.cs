@@ -51,8 +51,7 @@ public class EncounterService : IDisposable
 
     private void InitializeOnGameLoad(object? sender, EventArgs e)
     {
-        SelectedGameVersion = GameVersionRepository.Instance
-            .GetAvailableFor(_gameService.LoadedGame.Generation, _gameService.LoadedGame.SaveVersion.Version)
+        SelectedGameVersion = _gameService.LoadedGame.AvailableVersions
             .FirstOrDefault(v => v.Equals(_gameService.LoadedGame.GameVersionApproximation));
 
         SelectedSpecies = null;

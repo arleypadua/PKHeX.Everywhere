@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 ﻿using PKHeX.Core;
 using PKHeX.Facade.Events;
 using PKHeX.Facade.Pokemons;
@@ -45,6 +46,9 @@ public class Game
         : SaveVersion;
 
     public EntityContext Generation => SaveFile.Context;
+
+    public IImmutableList<GameVersionDefinition> AvailableVersions =>
+        GameVersionRepository.Instance.GetAvailableFor(Generation, SaveVersion.Version);
 
     public bool IsAwareOf(Species species, byte form = 0) =>
         SaveFile.Personal.IsPresentInGame((ushort)species, form);

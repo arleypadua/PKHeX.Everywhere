@@ -12,6 +12,7 @@ public class CommandTopicTests
     private static readonly Dictionary<string, Func<Game, string, IEnumerable<string>>> SampleArgs = new()
     {
         ["box.addFromFile"] = (game, _) => [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes))],
+        ["encounters.versions"] = (_, _) => ["[]"],
         ["game.get"] = (_, _) => ["[]"],
         ["game.load"] = (_, saveFile) =>
         [
@@ -25,6 +26,7 @@ public class CommandTopicTests
         ["pokemon.get"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
         ["pokemon.showdown"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
         ["pokemon.setLevel"] = (game, _) => Pokemons(game).Select(p => Args(p.At, p.Level == 50 ? 51 : 50)),
+        ["species.list"] = (_, _) => ["[]"],
     };
 
     private static readonly (string Name, string[] Topics)[] Queries = Handlers<QueryAttribute>()
