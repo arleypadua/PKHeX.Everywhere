@@ -4,6 +4,7 @@
 @inject GameService GameService
 @inject AntdThemeService ThemeService
 @inject NavigationManager Navigation
+@inject INotificationService Notification
 @inject IConfiguration Configuration
 @inject GeneralSettingsService GeneralSettings
 
@@ -36,7 +37,10 @@
     }
 
     [JSInvokable]
-    public void NavigateTo(string url) => Navigation.NavigateTo(url);
+    public void NavigateTo(string url, bool replace) => Navigation.NavigateTo(url, replace: replace);
+
+    [JSInvokable]
+    public void NotifySuccess(string title) => _ = Notification.Open(new() { Message = title, NotificationType = NotificationType.Success });
 
     private static string ThemeName(GlobalTheme theme) => theme == GlobalTheme.Dark ? "dark" : "light";
 

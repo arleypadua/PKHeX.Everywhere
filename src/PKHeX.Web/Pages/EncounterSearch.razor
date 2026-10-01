@@ -1,65 +1,23 @@
 @page "/pokemon/search-encounter"
-@using PKHeX.Facade.Repositories
-@inject EncounterService EncounterService
 @inject GameService GameService
 @inject NavigationManager Navigation
 
+<PageTitle>Encounters</PageTitle>
+
 @if (GameService.IsLoaded)
 {
-    <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
-        <GameVersionSelect 
-            Source="GameVersionSelect.DataSource.CurrentGame"
-            SelectedGameVersion="_version"
-            SelectedGameVersionChanged="HandleGameVersionChanged"/>
-    
-        <SpeciesSelect
-            Source="SpeciesSelect.DataSource.CurrentGame"
-            SelectedSpecies="_species"
-            SelectedSpeciesChanged="HandleSelectedSpeciesChanged"/>
-
-        <PokemonEncounterTable
-            DataSource="EncounterService.Encounters"/>
-    </Flex>
+    <ReactPage Name="encounters" Props="@(new() { ["version"] = Version, ["species"] = Species })" />
 }
 
 @code {
-    private GameVersionDefinition? _version = null;
-    private SpeciesDefinition? _species = null;
+    [SupplyParameterFromQuery(Name = "version")]
+    public int? Version { get; set; }
+
+    [SupplyParameterFromQuery(Name = "species")]
+    public int? Species { get; set; }
 
     protected override void OnInitialized()
     {
-        if (!GameService.IsLoaded)
-        {
-            Navigation.NavigateTo("/load", replace: true);
-            return;
-        }
-
-        _version = EncounterService.SelectedGameVersion;
-        _species = EncounterService.SelectedSpecies;
+        if (!GameService.IsLoaded) Navigation.NavigateTo("/load", replace: true);
     }
-    
-    private void HandleSelectedSpeciesChanged(SpeciesDefinition? definition)
-    {
-        if (definition is null) return;
-        
-        _species = definition;
-        EncounterService.SelectedSpecies = definition;
-        TryToSearch();
-    }
-    
-    private void HandleGameVersionChanged(GameVersionDefinition? definition)
-    {
-        if (definition is null) return;
-        
-        _version = definition;
-        EncounterService.SelectedGameVersion = definition;
-        TryToSearch();
-    }
-
-    private void TryToSearch()
-    {
-        if (!EncounterService.AllowedToSearch) return;
-        EncounterService.Search();
-    }
-
 }

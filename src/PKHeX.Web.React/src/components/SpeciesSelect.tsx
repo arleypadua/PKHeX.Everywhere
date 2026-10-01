@@ -16,6 +16,7 @@ export function SpeciesSelect({ value, onChange }: SpeciesSelectProps) {
   return (
     <Select<number, { value: number; label: string }>
       value={value}
+      aria-label="Species"
       placeholder="Select a species"
       style={{ width: '100%' }}
       showSearch={{ searchValue: search, onSearch: setSearch, optionFilterProp: 'label' }}

@@ -53,7 +53,6 @@ builder.Services.AddScoped<BackendApiAuthHandler>();
 
 builder.Services.AddSingleton(Session.Current);
 builder.Services.AddScoped<GameService>();
-builder.Services.AddScoped<EncounterService>();
 builder.Services.AddScoped<AnalyticsResultsService>();
 builder.Services.AddScoped<NewsService>();
 

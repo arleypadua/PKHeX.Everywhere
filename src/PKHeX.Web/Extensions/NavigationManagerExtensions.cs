@@ -30,9 +30,6 @@ public static class NavigationManagerExtensions
     public static void NavigateToSearchEncounter(this NavigationManager navigation, bool replace = false) =>
         navigation.NavigateTo($"/pokemon/search-encounter", replace);
     
-    public static void NavigateToSelectedEncounter(this NavigationManager navigation) =>
-        navigation.NavigateTo($"/pokemon/selected-encounter");
-    
     public static void NavigateToPlugInErrors(this NavigationManager navigation) =>
         navigation.NavigateTo($"/plugins/errors");
     
