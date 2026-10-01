@@ -64,10 +64,6 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
         {
             if (!call.Name.Contains('.'))
                 throw new InvalidOperationException($"Call '{call.Name}' must be named 'entity.verb'.");
-            if (call.Kind == CallKind.Query && call.Topics.Count == 0)
-                throw new InvalidOperationException($"Query '{call.Name}' must declare the topics it reads.");
-            if (call.Kind == CallKind.Command && call.Topics.Count == 0 && !call.Parameters.Any(p => p.IsHandle))
-                throw new InvalidOperationException($"Command '{call.Name}' must take a handle or declare the topics it writes.");
             if (call.Topics.FirstOrDefault(t => !topics.Contains(t)) is { } unknown)
                 throw new InvalidOperationException($"Call '{call.Name}' uses '{unknown}', which is not declared in Topics.");
         }

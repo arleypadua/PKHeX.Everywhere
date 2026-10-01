@@ -18,6 +18,14 @@ public class GameVersionRepository
 
     public IImmutableList<GameVersionDefinition> All => _versions.Values.ToImmutableList();
     
+    public IImmutableList<GameVersionDefinition> Blank => _versions.Values
+        .Where(v => !v.Aggregated)
+        .OrderBy(v => v.Name)
+        .ToImmutableList();
+
+    public GameVersionDefinition? FindBlank(int id) =>
+        _versions.GetValueOrDefault((GameVersion)id) is { Aggregated: false } version ? version : null;
+
     public GameVersionDefinition Get(int id) => _versions[(GameVersion)id];
     public GameVersionDefinition Get(GameVersion version) => Get((int)version);
 

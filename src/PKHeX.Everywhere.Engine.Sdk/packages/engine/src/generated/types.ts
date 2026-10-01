@@ -55,6 +55,11 @@ export interface EventWork {
   options: WorkOption[]
 }
 
+export interface ExportedSave {
+  bytes: Base64
+  fileName: string
+}
+
 export interface ItemHandle {
   pouch: string
   itemId: number

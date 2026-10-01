@@ -18,6 +18,7 @@ public sealed class EngineEventAnalytics : IDisposable
     {
         if (engineEvent is ItemChanged changed) _analytics.TrackItemModified(changed.ItemId, changed.Count);
         if (engineEvent is PokemonAdded added) OnPokemonAdded(added);
+        if (engineEvent is GameExported && _session.Game is { } game) _analytics.TrackGameExported(game);
     }
 
     private void OnPokemonAdded(PokemonAdded added)
