@@ -43,8 +43,12 @@ public sealed class Gen3Events
 public sealed class EventTickets
 {
     private const string KeyItems = nameof(InventoryType.KeyItems);
+    private const ushort SsTicketId = 265;
+    private const ushort EonTicketId = 275;
+    private const ushort MysticTicketId = 370;
+    private const ushort AuroraTicketId = 371;
     private const ushort OldSeaMapId = 376;
-    private static readonly ushort[] TicketIds = [265, 275, 370, 371, OldSeaMapId];
+    private static readonly ushort[] TicketIds = [SsTicketId, EonTicketId, MysticTicketId, AuroraTicketId, OldSeaMapId];
 
     private readonly Game _game;
 

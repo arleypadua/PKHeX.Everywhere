@@ -28,17 +28,14 @@ internal sealed class BrilliantDiamondShiningPearlStore : IEventStore
         Flags = flags.Concat(system).ToImmutableList();
         Work = labels.Work
             .Select(l => new EventWorkEntry(l.Index, l.Name, l.Type.ToString(),
-                l.PredefinedValues
-                    .Where(v => !v.IsCustom)
-                    .Select(v => new EventWorkOption(v.Name, v.Value))
-                    .ToImmutableList(),
+                EventWorkOption.From(l.PredefinedValues),
                 () => block.GetWork(l.Index),
                 v => block.SetWork(l.Index, v)))
             .ToImmutableList();
     }
 
-    public IReadOnlyList<EventFlagEntry> Flags { get; }
-    public IReadOnlyList<EventWorkEntry> Work { get; }
+    public ImmutableList<EventFlagEntry> Flags { get; }
+    public ImmutableList<EventWorkEntry> Work { get; }
 
     public int FlagCount => _block.CountFlag;
     public int WorkCount => _block.CountWork;

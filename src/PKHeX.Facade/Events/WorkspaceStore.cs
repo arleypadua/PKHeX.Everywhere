@@ -22,17 +22,14 @@ internal sealed class WorkspaceStore<TSave, TWork> : IEventStore
             .ToImmutableList();
         Work = labels.Work
             .Select(l => new EventWorkEntry(l.Index, l.Name, l.Type.ToString(),
-                l.PredefinedValues
-                    .Where(v => !v.IsCustom)
-                    .Select(v => new EventWorkOption(v.Name, v.Value))
-                    .ToImmutableList(),
+                EventWorkOption.From(l.PredefinedValues),
                 () => GetWork(l.Index),
                 v => SetWork(l.Index, v)))
             .ToImmutableList();
     }
 
-    public IReadOnlyList<EventFlagEntry> Flags { get; }
-    public IReadOnlyList<EventWorkEntry> Work { get; }
+    public ImmutableList<EventFlagEntry> Flags { get; }
+    public ImmutableList<EventWorkEntry> Work { get; }
 
     public int FlagCount => _save.EventFlagCount;
     public int WorkCount => _save.EventWorkCount;

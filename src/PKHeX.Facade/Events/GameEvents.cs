@@ -11,12 +11,10 @@ public sealed class GameEvents
     {
         _store = store;
         Gen3 = gen3;
-        Flags = store.Flags.ToImmutableList();
-        Work = store.Work.ToImmutableList();
     }
 
-    public ImmutableList<EventFlagEntry> Flags { get; }
-    public ImmutableList<EventWorkEntry> Work { get; }
+    public ImmutableList<EventFlagEntry> Flags => _store.Flags;
+    public ImmutableList<EventWorkEntry> Work => _store.Work;
     public Gen3Events? Gen3 { get; }
 
     public int FlagCount => _store.FlagCount;
@@ -106,4 +104,10 @@ public sealed class EventWorkEntry(
     }
 }
 
-public sealed record EventWorkOption(string Name, int Value);
+public sealed record EventWorkOption(string Name, int Value)
+{
+    internal static ImmutableList<EventWorkOption> From(IEnumerable<NamedEventConst> predefined) => predefined
+        .Where(v => !v.IsCustom)
+        .Select(v => new EventWorkOption(v.Name, v.Value))
+        .ToImmutableList();
+}

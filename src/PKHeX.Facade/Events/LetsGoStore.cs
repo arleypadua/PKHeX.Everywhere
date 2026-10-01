@@ -36,8 +36,8 @@ internal sealed class LetsGoStore : IEventStore
             .ToImmutableList();
     }
 
-    public IReadOnlyList<EventFlagEntry> Flags { get; }
-    public IReadOnlyList<EventWorkEntry> Work { get; }
+    public ImmutableList<EventFlagEntry> Flags { get; }
+    public ImmutableList<EventWorkEntry> Work { get; }
 
     public int FlagCount => _block.CountFlag;
     public int WorkCount => _block.CountWork;

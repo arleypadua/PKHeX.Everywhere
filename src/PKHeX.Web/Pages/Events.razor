@@ -1,5 +1,6 @@
 @page "/events"
 @using PKHeX.Web.Components.Events
+@using PKHeX.Facade.Events
 
 <Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 20px;">
     <PageHeader BackIcon="true" Style="max-width: 100%">
@@ -11,26 +12,26 @@
         Message="Changing event flags can break story progression. Keep a backup of your save."
         ShowIcon="true"/>
 
-    @if (GameEvents is null)
+    @if (Editor is null)
     {
         <Empty Description="@("This save has no event labels to edit.")"/>
     }
     else
     {
         <Tabs Class="tab-scrollable" Animated>
-            @if (GameEvents.Gen3 is not null)
+            @if (Editor.Gen3 is not null)
             {
                 <TabPane Tab="Tickets and islands" Key="gen3">
-                    <Gen3EventsTab Gen3="GameEvents.Gen3"/>
+                    <Gen3EventsTab Gen3="Editor.Gen3"/>
                 </TabPane>
             }
             <TabPane Tab="Flags" Key="flags">
-                <EventFlagsTab Events="GameEvents"/>
+                <EventFlagsTab Events="Editor"/>
             </TabPane>
-            @if (!GameEvents.Work.IsEmpty)
+            @if (!Editor.Work.IsEmpty)
             {
                 <TabPane Tab="Work" Key="work">
-                    <EventWorkTab Events="GameEvents"/>
+                    <EventWorkTab Events="Editor"/>
                 </TabPane>
             }
         </Tabs>
@@ -40,5 +41,5 @@
 @code {
     [Inject] public required GameService GameService { get; set; }
 
-    PKHeX.Facade.Events.GameEvents? GameEvents => GameService.Game?.Events;
+    GameEvents? Editor => GameService.Game?.Events;
 }

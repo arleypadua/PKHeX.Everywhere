@@ -1,9 +1,11 @@
+using System.Collections.Immutable;
+
 namespace PKHeX.Facade.Events;
 
 internal interface IEventStore
 {
-    IReadOnlyList<EventFlagEntry> Flags { get; }
-    IReadOnlyList<EventWorkEntry> Work { get; }
+    ImmutableList<EventFlagEntry> Flags { get; }
+    ImmutableList<EventWorkEntry> Work { get; }
 
     int FlagCount { get; }
     int WorkCount { get; }
