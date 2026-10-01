@@ -25,7 +25,11 @@ export default function HomePage() {
 function TrainerCard() {
   const { trainer, setName, setGender, setMoney, setBattlePoints } = useTrainer()
   const edit = useTrainerEdit()
-  const name = useDraft(trainer.name, (value) => edit(() => setName(value)))
+  const [name, setNameDraft] = useState<string | null>(null)
+  const commitName = () => {
+    if (name !== null && name !== trainer.name) void edit(() => setName(name))
+    setNameDraft(null)
+  }
   const money = useDraft(trainer.money, (value) => value !== null && edit(() => setMoney(value)))
   const battlePoints = useDraft(trainer.battlePoints, (value) => value !== null && edit(() => setBattlePoints(value)))
 
@@ -42,9 +46,10 @@ function TrainerCard() {
           label: 'Name',
           children: (
             <Input
-              value={name.value}
-              onChange={(event) => name.onChange(event.target.value)}
-              onBlur={name.onBlur}
+              value={name ?? trainer.name}
+              onChange={(event) => setNameDraft(event.target.value)}
+              onBlur={commitName}
+              onPressEnter={commitName}
               maxLength={trainer.maxNameLength}
               placeholder="Name"
               style={{ width: '100%', maxWidth: 170 }}
@@ -75,7 +80,7 @@ function TrainerCard() {
           children: (
             <InputNumber<number>
               aria-label="Cash"
-              value={money.value}
+              value={money.value ?? 0}
               onChange={money.onChange}
               onBlur={money.onBlur}
               formatter={(value) => `$ ${value}`}
