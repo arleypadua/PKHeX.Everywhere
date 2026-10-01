@@ -162,6 +162,18 @@ export interface TicketsAndIslands {
   islands: EventFlag[]
 }
 
+export interface TrainerCard {
+  id: string
+  name: string
+  maxNameLength: number
+  gender: TrainerGender
+  money: number | null
+  battlePoints: number | null
+  rival: string | null
+}
+
+export type TrainerGender = 'male' | 'female'
+
 export interface VersionEntry {
   id: number
   name: string

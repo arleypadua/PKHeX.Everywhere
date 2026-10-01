@@ -41,6 +41,11 @@ public class CommandTopicTests
         ["pokemon.showdown"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
         ["pokemon.setLevel"] = (game, _) => Pokemons(game).Select(p => Args(p.At, p.Level == 50 ? 51 : 50)),
         ["species.list"] = (_, _) => ["[]"],
+        ["trainer.get"] = (_, _) => ["[]"],
+        ["trainer.setName"] = (_, _) => [Args("Ash")],
+        ["trainer.setGender"] = (game, _) => [Args(game.Trainer.Gender == PKHeX.Facade.Gender.Female ? "male" : "female")],
+        ["trainer.setMoney"] = (game, _) => game.Trainer.Money.IsSupported ? [Args(game.Trainer.Money.Amount == 1234 ? 4321 : 1234)] : [],
+        ["trainer.setBattlePoints"] = (game, _) => game.BattlePoints.IsSupported(out var supported) ? [Args(supported.BattlePoints == 1 ? 2 : 1)] : [],
     };
 
     private static readonly (string Name, string[] Topics)[] Queries = Handlers<QueryAttribute>()
