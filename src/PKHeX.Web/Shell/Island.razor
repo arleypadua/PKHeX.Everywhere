@@ -1,0 +1,58 @@
+@using PKHeX.Engine
+@using Microsoft.AspNetCore.Components.Routing
+@implements IDisposable
+@inject NavigationManager Navigation
+@inject IJSRuntime Js
+
+<ConfigProvider Theme="GlobalTheme.Light">
+    <AntContainer/>
+    @if (Page == "router")
+    {
+        <Router AppAssembly="@typeof(App).Assembly">
+            <Found Context="routeData">
+                <RouteView RouteData="@routeData"/>
+            </Found>
+            <NotFound>
+                <p role="alert">Sorry, there's nothing at this address.</p>
+            </NotFound>
+        </Router>
+    }
+    else
+    {
+        <DynamicComponent @key="_version" Type="PageType"/>
+    }
+</ConfigProvider>
+
+@code {
+    [Parameter] public string Page { get; set; } = "party";
+
+    private int _version;
+
+    private Type PageType => Page switch
+    {
+        "items" => typeof(PKHeX.Web.Pages.Items),
+        _ => typeof(PKHeX.Web.Pages.Party),
+    };
+
+    protected override void OnInitialized()
+    {
+        Session.Changed += HandleChanged;
+        Navigation.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleChanged() => InvokeAsync(() =>
+    {
+        _version++;
+        StateHasChanged();
+    });
+
+    // Blazor's NavigateTo uses history.pushState, which React Router can't observe, so the shell is told explicitly.
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e) =>
+        _ = Js.InvokeVoidAsync("pkhexEngine.onNavigate", "/" + Navigation.ToBaseRelativePath(e.Location));
+
+    public void Dispose()
+    {
+        Session.Changed -= HandleChanged;
+        Navigation.LocationChanged -= HandleLocationChanged;
+    }
+}

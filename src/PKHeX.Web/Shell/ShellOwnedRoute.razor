@@ -1,0 +1,13 @@
+@page "/{*path}"
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@inject IWebAssemblyHostEnvironment Environment
+
+@* Without a match, Blazor's Router force-reloads intercepted navigations, which would wipe the shell on back/forward to React routes. *@
+@if (Environment.Environment != "Shell")
+{
+    <p role="alert">Sorry, there's nothing at this address.</p>
+}
+
+@code {
+    [Parameter] public string? Path { get; set; }
+}

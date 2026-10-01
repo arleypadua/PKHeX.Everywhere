@@ -20,6 +20,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\PKHeX.Facade\PKHeX.Facade.csproj"/>
+        <ProjectReference Include="..\PKHeX.Engine\PKHeX.Engine.csproj"/>
         <ProjectReference Include="..\PKHeX.Web.Plugins\PKHeX.Web.Plugins.csproj"/>
     </ItemGroup>
 

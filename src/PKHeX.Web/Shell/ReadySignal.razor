@@ -1,0 +1,6 @@
+@code {
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && System.OperatingSystem.IsBrowser()) PKHeX.Engine.EngineExports.NotifyReady();
+    }
+}

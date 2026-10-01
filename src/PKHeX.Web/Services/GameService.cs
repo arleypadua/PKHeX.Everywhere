@@ -1,3 +1,4 @@
+using PKHeX.Engine;
 using PKHeX.Facade;
 using PKHeX.Facade.Repositories;
 
@@ -6,9 +7,9 @@ namespace PKHeX.Web.Services;
 public class GameService(
     AnalyticsService analytics)
 {
-    public Game? Game { get; private set; }
+    public Game? Game => Session.Game;
     public Game LoadedGame => Game ?? throw new NullReferenceException("Expected game to be loaded, but it was null.");
-    public string? FileName { get; private set; }
+    public string? FileName => Session.FileName;
     
     public bool IsLoaded => Game != null;
 
@@ -16,11 +17,7 @@ public class GameService(
 
     public void Load(byte[] bytes, string fileName)
     {
-        Game = Game.LoadFrom(bytes, fileName);
-        
-        FileName = string.IsNullOrWhiteSpace(fileName)
-            ? FileName
-            : fileName;
+        Session.Load(Game.LoadFrom(bytes, fileName), fileName);
 
         OnGameLoaded?.Invoke(this, EventArgs.Empty);
 
@@ -29,8 +26,7 @@ public class GameService(
 
     public void LoadBlank(GameVersionDefinition version)
     {
-        Game = Game.EmptyOf(version);
-        FileName = version.Name;
+        Session.Load(Game.EmptyOf(version), version.Name);
         
         OnGameLoaded?.Invoke(this, EventArgs.Empty);
         

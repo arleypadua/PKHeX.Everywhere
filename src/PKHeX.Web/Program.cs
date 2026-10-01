@@ -24,8 +24,18 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.HostEnvironment.Environment}.json", optional: true, reloadOnChange: true);
 
-builder.RootComponents.Add<App>("#app");
-builder.RootComponents.Add<HeadOutlet>("head::after");
+var shellMode = builder.HostEnvironment.Environment == "Shell";
+if (shellMode)
+{
+    builder.RootComponents.RegisterForJavaScript<PKHeX.Web.Shell.Island>("pkhex-island");
+    // Blazor.start() resolves before the renderer attaches, and islands can't mount until it has.
+    builder.RootComponents.Add<PKHeX.Web.Shell.ReadySignal>("#blazor-ready");
+}
+else
+{
+    builder.RootComponents.Add<App>("#app");
+    builder.RootComponents.Add<HeadOutlet>("head::after");
+}
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddHttpClient("BackendApi", client =>
@@ -143,6 +153,11 @@ builder.Logging.AddSentry(o => o.InitializeSdk = false);
 #endif
 
 var app = builder.Build();
+
+if (shellMode && System.OperatingSystem.IsBrowser())
+{
+    PKHeX.Engine.EngineExports.WireEvents();
+}
 
 // Although Blazor WASM can target the whole .NET Framework API surface,
 // during the Runtime, Microsoft has disabled the native support to some APIs under the System.Security.Cryptography namespace
