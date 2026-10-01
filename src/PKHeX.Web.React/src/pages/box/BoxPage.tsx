@@ -1,8 +1,9 @@
 import { useRef, useState, type ChangeEvent } from 'react'
 import { CalculatorOutlined, CopyOutlined, FolderOpenOutlined } from '@ant-design/icons'
-import { App, Button, Flex, type TableColumnsType } from 'antd'
+import { App, Flex, type TableColumnsType } from 'antd'
 import type { PokemonSummary } from '@pkhex-everywhere/engine'
 import { useBox, useEngine } from '@pkhex-everywhere/react'
+import { ButtonOrMenu } from '../../components/ButtonOrMenu'
 import { PageHeader } from '../../components/PageHeader'
 import { PokemonTable } from '../../components/PokemonTable'
 import { useCopyShowdown } from '../../hooks/useCopyShowdown'
@@ -62,18 +63,24 @@ export default function BoxPage() {
         title="Box"
         extra={
           <>
-            <Button type="primary" onClick={() => navigate(routes.searchEncounter)}>
-              Add
-            </Button>
-            <Button type="link" icon={<FolderOpenOutlined />} onClick={() => fileInput.current?.click()}>
-              Load *.pk
-            </Button>
-            <Button type="link" icon={<CalculatorOutlined />} onClick={openSelectedInCalculator}>
-              Calculator
-            </Button>
-            <Button type="link" icon={<CopyOutlined />} onClick={copyBoxShowdown}>
-              Showdown
-            </Button>
+            <ButtonOrMenu
+              actions={[
+                { key: 'add', label: 'Add', type: 'primary', onClick: () => navigate(routes.searchEncounter) },
+                {
+                  key: 'load',
+                  label: 'Load *.pk',
+                  icon: <FolderOpenOutlined />,
+                  onClick: () => fileInput.current?.click(),
+                },
+                {
+                  key: 'calculator',
+                  label: 'Calculator',
+                  icon: <CalculatorOutlined />,
+                  onClick: openSelectedInCalculator,
+                },
+                { key: 'showdown', label: 'Showdown', icon: <CopyOutlined />, onClick: copyBoxShowdown },
+              ]}
+            />
             <input ref={fileInput} type="file" hidden onChange={loadFile} />
           </>
         }
