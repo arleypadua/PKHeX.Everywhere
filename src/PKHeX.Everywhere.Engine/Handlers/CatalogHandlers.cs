@@ -1,4 +1,3 @@
-using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade.Repositories;
 
@@ -9,9 +8,8 @@ public static class CatalogHandlers
     [Query("catalog.names")]
     public static CatalogNames Names(CatalogNamesRequest request) => new(
         request.SpeciesIds
-            .Select(id => SpeciesRepository.All.GetValueOrDefault((Species)id))
+            .Select(SpeciesRepository.Find)
             .OfType<SpeciesDefinition>()
-            .Where(SpeciesDefinition.IsSome)
             .Select(species => species.ToCatalogName())
             .ToArray(),
         request.ItemIds.Select(id => ItemRepository.GetItem(id).ToCatalogName()).ToArray());

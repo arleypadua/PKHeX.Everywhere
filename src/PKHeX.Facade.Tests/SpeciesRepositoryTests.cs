@@ -26,6 +26,16 @@ public class SpeciesRepositoryTests
         game.SpeciesRepository.Get((Species)32000).Name.Should().Be("Unknown (32000)");
     }
 
+    [Fact]
+    public void FindReturnsAKnownSpeciesWithoutASave() =>
+        SpeciesRepository.Find(25)!.Name.Should().Be("Pikachu");
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(32000)]
+    public void FindReturnsNothingForNoneOrAnUnknownSpecies(ushort id) =>
+        SpeciesRepository.Find(id).Should().BeNull();
+
     private static byte[] CyclizarFileBytes()
     {
         var gen9 = Game.EmptyOf(GameVersionRepository.Instance.Get(GameVersion.SL));
