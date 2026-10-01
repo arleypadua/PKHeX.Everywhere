@@ -410,3 +410,4 @@ plugins/
 
 # Agent Auto-Pilot runtime state & worktrees
 .autopilot/*
+*.tsbuildinfo
