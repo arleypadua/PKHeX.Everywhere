@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Engine } from '@pkhex-everywhere/engine'
 import { QueryCache } from './cache'
 
@@ -11,6 +11,7 @@ const EngineContext = createContext<EngineContextValue | null>(null)
 
 export function EngineProvider({ engine, children }: { engine: Engine; children: ReactNode }) {
   const [cache] = useState(() => new QueryCache())
+  useEffect(() => engine.subscribe(['*'], cache.invalidate), [engine, cache])
   return <EngineContext value={{ engine, cache }}>{children}</EngineContext>
 }
 

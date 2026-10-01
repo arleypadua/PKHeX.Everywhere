@@ -5,9 +5,11 @@ export function fakeHost(dispatch: (name: string, args: unknown[]) => unknown) {
   const ready = new Promise<void>((resolve) => (signalReady = resolve))
   const calls: { name: string; args: string }[] = []
   const requestedAssemblies: string[] = []
+  const changeListeners: ((topics: string[]) => void)[] = []
 
   const host: EngineHost = {
     ready: () => ready,
+    onChange: (listener) => void changeListeners.push(listener),
     getAssemblyExports: async (assemblyName) => {
       requestedAssemblies.push(assemblyName)
       return {
@@ -27,5 +29,7 @@ export function fakeHost(dispatch: (name: string, args: unknown[]) => unknown) {
     },
   }
 
-  return { host, signalReady, calls, requestedAssemblies }
+  const emitChange = (topics: string[]) => changeListeners.forEach((listener) => listener(topics))
+
+  return { host, signalReady, emitChange, calls, requestedAssemblies }
 }

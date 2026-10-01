@@ -1,11 +1,28 @@
 import { Component, type ReactNode } from 'react'
 import { Result } from 'antd'
+import type { Engine } from '@pkhex-everywhere/engine'
 
-export class PageErrorBoundary extends Component<{ children: ReactNode }, { error?: unknown }> {
+interface Props {
+  engine: Engine
+  children: ReactNode
+}
+
+export class PageErrorBoundary extends Component<Props, { error?: unknown }> {
   state: { error?: unknown } = {}
+  private unsubscribe?: () => void
 
   static getDerivedStateFromError(error: unknown) {
     return { error }
+  }
+
+  componentDidMount() {
+    this.unsubscribe = this.props.engine.subscribe(['*'], () => {
+      if (this.state.error !== undefined) this.setState({ error: undefined })
+    })
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe?.()
   }
 
   render() {

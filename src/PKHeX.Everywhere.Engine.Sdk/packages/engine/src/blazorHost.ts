@@ -7,6 +7,7 @@ interface DotnetRuntime {
 declare global {
   var pkhexEngineReady: boolean | undefined
   var pkhexEngineOnReady: (() => void) | undefined
+  var pkhexEngineOnChange: ((topics: string[]) => void) | undefined
   var Blazor: { runtime?: DotnetRuntime } | undefined
   var getDotnetRuntime: ((id: number) => DotnetRuntime | undefined) | undefined
 }
@@ -24,6 +25,9 @@ export function blazorHost(): EngineHost {
               resolve()
             }
           }),
+    onChange: (listener) => {
+      globalThis.pkhexEngineOnChange = listener
+    },
     getAssemblyExports: (assemblyName) => {
       const runtime = globalThis.Blazor?.runtime ?? globalThis.getDotnetRuntime?.(0)
       if (!runtime) return Promise.reject(new Error('The .NET runtime is not available.'))

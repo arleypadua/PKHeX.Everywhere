@@ -53,6 +53,8 @@ public class Trainer
         _ => null
     };
 
+    public event Action<PokemonSource>? PokemonsChanged;
+
     public void AddOrUpdate(UniqueId id, Pokemon pokemon, PokemonSource source)
     {
         IMutablePokemonCollection collection = source switch
@@ -63,6 +65,7 @@ public class Trainer
         };
         
         collection.AddOrUpdate(id, pokemon);
+        PokemonsChanged?.Invoke(source);
     }
 
     internal void Commit()

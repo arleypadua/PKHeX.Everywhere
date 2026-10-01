@@ -13,10 +13,18 @@ public static partial class EngineExports
     // The flag covers JS that starts waiting after the signal, the callback covers JS that is already waiting.
     public static void SignalReady()
     {
+        Session.Current.Changed += topics =>
+        {
+            if (JSHost.GlobalThis.GetTypeOfProperty("pkhexEngineOnChange") == "function") OnChange(topics);
+        };
+
         JSHost.GlobalThis.SetProperty("pkhexEngineReady", true);
         if (JSHost.GlobalThis.GetTypeOfProperty("pkhexEngineOnReady") == "function") OnReady();
     }
 
     [JSImport("globalThis.pkhexEngineOnReady")]
     private static partial void OnReady();
+
+    [JSImport("globalThis.pkhexEngineOnChange")]
+    private static partial void OnChange([JSMarshalAs<JSType.Array<JSType.String>>] string[] topics);
 }
