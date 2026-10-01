@@ -162,7 +162,7 @@ public sealed class HandlerGenerator : IIncrementalGenerator
         }
 
         var invocation = $"{method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{method.Name}({string.Join(", ", arguments)})";
-        var awaited = Awaited(method.ReturnType, out var returnType);
+        var awaited = IsTask(method.ReturnType, out var returnType);
         var returnsVoid = method.ReturnsVoid || (awaited && returnType is null);
 
         if (IsCommand(method))
@@ -199,7 +199,7 @@ public sealed class HandlerGenerator : IIncrementalGenerator
         return sb.ToString();
     }
 
-    private static bool Awaited(ITypeSymbol type, out ITypeSymbol? result)
+    private static bool IsTask(ITypeSymbol type, out ITypeSymbol? result)
     {
         result = null;
         if (type is not INamedTypeSymbol { ContainingNamespace: { } ns } named || ns.ToDisplayString() != "System.Threading.Tasks" || named.Name != "Task")

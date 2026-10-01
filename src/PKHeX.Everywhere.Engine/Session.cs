@@ -9,8 +9,7 @@ public sealed class Session
     public static Session Current { get; } = new();
 
     private readonly List<Invoker> _handlers = [];
-    private List<IEngineEvent>? _raised;
-    private List<string>? _written;
+    private readonly AsyncLocal<CommandScope?> _command = new();
 
     public Game? Game { get; private set; }
     public string? FileName { get; private set; }
@@ -55,64 +54,61 @@ public sealed class Session
 
     public void Invalidate(params string[] topics)
     {
-        if (_raised is null) Changed?.Invoke(topics);
+        if (_command.Value is null) Changed?.Invoke(topics);
     }
 
     /// <summary>
     /// Reports Topics a running command writes beyond its declared ones, when they depend on the save.
     /// </summary>
-    internal void AlsoWrote(params string[] topics) => _written?.AddRange(topics);
+    internal void AlsoWrote(params string[] topics) => _command.Value?.Written.AddRange(topics);
 
     internal void Raise(IEngineEvent engineEvent)
     {
-        if (_raised is null) Published?.Invoke(engineEvent);
-        else _raised.Add(engineEvent);
+        if (_command.Value is { } command) command.Raised.Add(engineEvent);
+        else Published?.Invoke(engineEvent);
     }
 
     // A command reports only the Topics it declares or passes to AlsoWrote, so the contract test catches declarations that are too narrow
     // instead of a Facade event covering for them.
     public T RunCommand<T>(string[] written, Func<T> command)
     {
+        var scope = _command.Value = new CommandScope([.. written], []);
         T result;
-        var raised = _raised = [];
-        var reported = _written = [.. written];
         try
         {
             result = command();
         }
         finally
         {
-            _raised = null;
-            _written = null;
+            _command.Value = null;
         }
 
-        Report(reported, raised);
+        Report(scope);
         return result;
     }
 
+    // The scope is async-local, so calls that run while this command awaits report their own changes.
     public async Task<T> RunCommandAsync<T>(string[] written, Func<Task<T>> command)
     {
+        var scope = _command.Value = new CommandScope([.. written], []);
         T result;
-        var raised = _raised = [];
-        var reported = _written = [.. written];
         try
         {
             result = await command();
         }
         finally
         {
-            _raised = null;
-            _written = null;
+            _command.Value = null;
         }
 
-        Report(reported, raised);
+        Report(scope);
         return result;
     }
 
-    private void Report(List<string> written, List<IEngineEvent> raised)
+    private void Report(CommandScope scope)
     {
-        Invalidate(written.Distinct().ToArray());
-        foreach (var engineEvent in raised) Published?.Invoke(engineEvent);
+        Invalidate(scope.Written.Distinct().ToArray());
+        foreach (var engineEvent in scope.Raised) Published?.Invoke(engineEvent);
     }
 
     public Game RequireGame() =>
@@ -124,4 +120,6 @@ public sealed class Session
         PokemonSource.Box => Topics.Box,
         _ => Topics.All,
     });
+
+    private sealed record CommandScope(List<string> Written, List<IEngineEvent> Raised);
 }

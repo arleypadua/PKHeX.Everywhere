@@ -117,6 +117,24 @@ public class PlugInActionTests
     }
 
     [Fact]
+    public async Task ReportsOtherChangesWhileAnActionAwaits()
+    {
+        var (session, host, _) = Hosted(TestPlugInId);
+        host.SetToggle(TestPlugInId, Awaits, true);
+        var release = new TaskCompletionSource();
+        host.Find(TestPlugInId)!.Assembly.GetType(Awaits)!.GetProperty("Gate")!.SetValue(null, release.Task);
+        var changed = new List<string>();
+        session.Changed += changed.AddRange;
+
+        var running = Dispatcher.Dispatch(session, "plugins.run", Call(Awaits, null));
+        session.Invalidate(Topics.Box);
+
+        changed.Should().Equal(Topics.Box);
+        release.SetResult();
+        await running;
+    }
+
+    [Fact]
     public void PokemonPlacementsNeedATarget()
     {
         var (session, _, _) = Hosted(Nuzlocking);

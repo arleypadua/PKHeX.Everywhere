@@ -13,8 +13,8 @@ public static class Dispatcher
     private static async ValueTask<bool> Invoke(Session session, string call, JsonElement args, Utf8JsonWriter writer)
     {
         if (await HandlerRegistry.TryInvoke(session, call, args, writer)) return true;
-        foreach (var handlers in session.Handlers)
-            if (await handlers(session, call, args, writer)) return true;
+        foreach (var handler in session.Handlers)
+            if (await handler(session, call, args, writer)) return true;
         return false;
     }
 
