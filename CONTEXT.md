@@ -4,8 +4,12 @@ Save editing for Pokémon games, in the browser and on the command line. The web
 
 ## Language
 
+**Facade**:
+The domain model over PKHeX.Core: games, trainers, Pokémon, boxes and items, with save-format quirks hidden. It holds the editing rules.
+_Avoid_: wrapper, adapter
+
 **Engine**:
-The Blazor-free .NET layer that holds the loaded save and answers queries and commands from JavaScript.
+The Blazor-free .NET layer that holds the loaded save and answers queries and commands from JavaScript by calling the Facade. It has no editing rules of its own.
 _Avoid_: backend, interop
 
 **SDK**:
