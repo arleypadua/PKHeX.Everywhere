@@ -1,9 +1,10 @@
 namespace PKHeX.Everywhere.Engine;
 
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class QueryAttribute(string name) : Attribute
+public sealed class QueryAttribute(string name, params string[] topics) : Attribute
 {
     public string Name { get; } = name;
+    public string[] Topics { get; } = topics;
 }
 
 /// <summary>

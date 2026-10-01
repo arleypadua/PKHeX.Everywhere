@@ -64,4 +64,32 @@ describe('createEngine', () => {
     expect(error).toBeInstanceOf(EngineError)
     expect(error).toMatchObject({ code: 'no-save', message: 'No save is loaded.' })
   })
+
+  it('notifies subscribers of changes to the topics they read', async () => {
+    const { host, emitChange } = fakeHost(() => ({ ok: true, value: null }))
+    const engine = createEngine({ host })
+    const party: string[][] = []
+    const box: string[][] = []
+    engine.subscribe(['party'], (topics) => party.push(topics))
+    engine.subscribe(['box/3'], (topics) => box.push(topics))
+
+    emitChange(['party'])
+    emitChange(['box'])
+    emitChange(['*'])
+
+    expect(party).toEqual([['party'], ['*']])
+    expect(box).toEqual([['box'], ['*']])
+  })
+
+  it('stops notifying after unsubscribing', () => {
+    const { host, emitChange } = fakeHost(() => ({ ok: true, value: null }))
+    const engine = createEngine({ host })
+    const changes: string[][] = []
+    const unsubscribe = engine.subscribe(['party'], (topics) => changes.push(topics))
+
+    unsubscribe()
+    emitChange(['party'])
+
+    expect(changes).toEqual([])
+  })
 })

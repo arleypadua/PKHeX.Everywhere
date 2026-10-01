@@ -19,7 +19,21 @@ public static class TypeScript
         yield return ("types.ts", types.Declarations());
         yield return ("client.ts", client);
         yield return ("errors.ts", Errors(contract));
+        yield return ("topics.ts", Topics(contract));
     }
+
+    private static string Topics(Contract contract) => $$"""
+        {{Header}}
+        import type { CallName } from './client'
+
+        export const topics = [{{string.Join(", ", contract.Topics.Select(Quote))}}] as const
+
+        export type Topic = (typeof topics)[number] | `${(typeof topics)[number]}/${string}`
+
+        export const queryTopics: Record<CallName, readonly Topic[]> = {
+        {{string.Concat(contract.Calls.Select(c => $"  {Quote(c.Name)}: [{string.Join(", ", c.Topics.Select(Quote))}],\n"))}}}
+
+        """;
 
     private static string Errors(Contract contract) => $"""
         {Header}

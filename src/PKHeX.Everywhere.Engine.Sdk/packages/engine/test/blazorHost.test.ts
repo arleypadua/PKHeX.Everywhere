@@ -7,6 +7,7 @@ describe('blazorHost', () => {
   afterEach(() => {
     globalThis.pkhexEngineReady = undefined
     globalThis.pkhexEngineOnReady = undefined
+    globalThis.pkhexEngineOnChange = undefined
   })
 
   it('is ready when .NET signalled before the host was created', async () => {
@@ -28,5 +29,14 @@ describe('blazorHost', () => {
     globalThis.pkhexEngineOnReady?.()
     await flush()
     expect(isReady).toBe(true)
+  })
+
+  it('passes changes from .NET to the listener', () => {
+    const changes: string[][] = []
+    blazorHost().onChange((topics) => changes.push(topics))
+
+    globalThis.pkhexEngineOnChange?.(['party'])
+
+    expect(changes).toEqual([['party']])
   })
 })

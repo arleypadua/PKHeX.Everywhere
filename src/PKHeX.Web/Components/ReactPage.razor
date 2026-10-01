@@ -43,11 +43,7 @@
         if (_module is not null) await _module.InvokeVoidAsync("setTheme", ThemeName(theme));
     }
 
-    private void HandleGameLoaded(object? sender, EventArgs e) => InvokeAsync(async () =>
-    {
-        if (_module is not null) await _module.InvokeVoidAsync("unmount", _id);
-        StateHasChanged();
-    });
+    private void HandleGameLoaded(object? sender, EventArgs e) => InvokeAsync(StateHasChanged);
 
     public async ValueTask DisposeAsync()
     {

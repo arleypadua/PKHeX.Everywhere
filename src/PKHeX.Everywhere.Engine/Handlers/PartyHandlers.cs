@@ -5,7 +5,7 @@ namespace PKHeX.Everywhere.Engine.Handlers;
 
 public static class PartyHandlers
 {
-    [Query("party.get")]
+    [Query("party.get", Topics.Party)]
     public static PokemonSummary[] Get(Game game) => game.Trainer.Party.Pokemons
         .Select((pokemon, slot) => pokemon.ToSummary(PokemonHandle.Party(slot)))
         .ToArray();

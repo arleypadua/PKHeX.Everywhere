@@ -1,6 +1,8 @@
 import { createClient, type CallName, type EngineClient } from './generated/client'
 import type { ErrorCode } from './generated/errors'
+import type { Topic } from './generated/topics'
 import type { EngineHost } from './host'
+import { affects } from './topics'
 
 export const engineAssembly = 'PKHeX.Everywhere.Engine.dll'
 
@@ -19,6 +21,7 @@ export class EngineError extends Error {
 export type Engine = EngineClient & {
   readonly ready: Promise<void>
   call<T>(name: CallName, args: unknown[]): Promise<T>
+  subscribe(topics: readonly Topic[], callback: (changed: Topic[]) => void): () => void
 }
 
 export function createEngine({ host }: { host: EngineHost }): Engine {
@@ -37,5 +40,17 @@ export function createEngine({ host }: { host: EngineHost }): Engine {
     throw new EngineError(envelope.error.code, envelope.error.message)
   }
 
-  return { ...createClient(call), ready, call }
+  const subscribers = new Set<{ topics: readonly Topic[]; callback: (changed: Topic[]) => void }>()
+  host.onChange((changed) => {
+    for (const subscriber of [...subscribers])
+      if (affects(changed, subscriber.topics)) subscriber.callback(changed as Topic[])
+  })
+
+  function subscribe(topics: readonly Topic[], callback: (changed: Topic[]) => void) {
+    const subscriber = { topics, callback }
+    subscribers.add(subscriber)
+    return () => void subscribers.delete(subscriber)
+  }
+
+  return { ...createClient(call), ready, call, subscribe }
 }

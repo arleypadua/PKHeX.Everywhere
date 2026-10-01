@@ -49,6 +49,7 @@ export async function mount(element: HTMLElement, name: string, props: Record<st
   await engine.ready
   if (unmounted.has(element)) return
 
+  // Each mounted page gets a new root, so a new EngineProvider with an empty cache. This backs up Blazor writes that report no topics.
   const root = roots.get(element) ?? createRoot(element)
   roots.set(element, root)
   root.render(<PageShell name={name} props={props} />)

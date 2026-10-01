@@ -4,9 +4,9 @@ namespace PKHeX.Everywhere.Engine.CodeGen;
 
 public record Parameter(string Name, Type Type, NullabilityInfo Nullability);
 
-public record Call(string Name, IReadOnlyList<Parameter> Parameters, Type ReturnType, NullabilityInfo ReturnNullability);
+public record Call(string Name, IReadOnlyList<string> Topics, IReadOnlyList<Parameter> Parameters, Type ReturnType, NullabilityInfo ReturnNullability);
 
-public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCodes)
+public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCodes, IReadOnlyList<string> Topics)
 {
     private const string Namespace = "PKHeX.Everywhere.Engine";
     private static readonly string[] InjectedTypes = ["PKHeX.Facade.Game", $"{Namespace}.Session"];
@@ -17,10 +17,11 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
 
         var calls = engine.GetTypes()
             .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
-            .Select(m => (Method: m, Name: QueryName(m)))
-            .Where(m => m.Name is not null)
+            .Select(m => (Method: m, Query: m.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == $"{Namespace}.QueryAttribute")))
+            .Where(m => m.Query is not null)
             .Select(m => new Call(
-                m.Name!,
+                (string)m.Query!.ConstructorArguments[0].Value!,
+                QueryTopics(m.Query),
                 m.Method.GetParameters()
                     .Where(p => !InjectedTypes.Contains(p.ParameterType.FullName))
                     .Select(p => new Parameter(p.Name!, p.ParameterType, nullability.Create(p)))
@@ -30,18 +31,28 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
             .OrderBy(c => c.Name, StringComparer.Ordinal)
             .ToList();
 
-        var errorCodes = engine.GetType($"{Namespace}.ErrorCodes", throwOnError: true)!
-            .GetFields(BindingFlags.Public | BindingFlags.Static)
-            .Where(f => f.IsLiteral)
-            .Select(f => (string)f.GetRawConstantValue()!)
-            .ToList();
+        var topics = Constants(engine, "Topics");
+        foreach (var call in calls)
+        {
+            if (call.Topics.Count == 0)
+                throw new InvalidOperationException($"Query '{call.Name}' must declare the topics it reads.");
+            if (call.Topics.FirstOrDefault(t => !topics.Contains(t)) is { } unknown)
+                throw new InvalidOperationException($"Query '{call.Name}' reads '{unknown}', which is not declared in Topics.");
+        }
 
-        return new Contract(calls, errorCodes);
+        return new Contract(calls, Constants(engine, "ErrorCodes"), topics);
     }
 
-    private static string? QueryName(MethodInfo method) => method.CustomAttributes
-        .FirstOrDefault(a => a.AttributeType.FullName == $"{Namespace}.QueryAttribute")
-        ?.ConstructorArguments[0].Value as string;
+    private static List<string> Constants(Assembly engine, string type) => engine.GetType($"{Namespace}.{type}", throwOnError: true)!
+        .GetFields(BindingFlags.Public | BindingFlags.Static)
+        .Where(f => f.IsLiteral)
+        .Select(f => (string)f.GetRawConstantValue()!)
+        .ToList();
+
+    private static List<string> QueryTopics(CustomAttributeData query) =>
+        ((IEnumerable<CustomAttributeTypedArgument>)query.ConstructorArguments[1].Value!)
+            .Select(a => (string)a.Value!)
+            .ToList();
 
     public static bool IsBranded(Type type) =>
         type.CustomAttributes.Any(a => a.AttributeType.FullName == $"{Namespace}.BrandedAttribute");
