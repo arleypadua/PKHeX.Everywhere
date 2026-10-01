@@ -13,6 +13,7 @@
 @code {
     [Parameter, EditorRequired] public string Name { get; set; } = default!;
     [Parameter] public Dictionary<string, object?>? Props { get; set; }
+    [Parameter] public bool RequiresSave { get; set; } = true;
 
     private readonly string _id = Guid.NewGuid().ToString("N");
     private ElementReference _element;
@@ -28,7 +29,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!GameService.IsLoaded) return;
+        if (RequiresSave && !GameService.IsLoaded) return;
 
         _module ??= await Js.InvokeAsync<IJSObjectReference>("import", "./Components/ReactPage.razor.js");
         if (_disposed) return;

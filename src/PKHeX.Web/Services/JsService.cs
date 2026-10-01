@@ -72,9 +72,4 @@ public class JsService(IJSRuntime js)
     {
         await js.InvokeVoidAsync("navigator.clipboard.writeText", text);
     }
-
-    public async Task ShowCookiePreferences()
-    {
-        await js.InvokeVoidAsync("showGoogleCmpRevocationMessage");
-    }
 }
