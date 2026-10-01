@@ -1,3 +1,5 @@
+using PKHeX.Everywhere.Engine.PlugIns;
+
 namespace PKHeX.Web.Services.Plugins;
 
 public class PlugInSource
@@ -19,12 +21,16 @@ public class PlugInSource
     
     public string SourceManifestUrl => $"{SourceUrl.TrimEnd('/')}/{ManifestFileName}";
 
-    public string GetLatestDownloadUrl(PlugIn plugIn)
+    public string GetLatestDownloadUrl(PlugIn plugIn) => GetDownloadUrl(plugIn,
+        plugIn.NewestCompatibleVersion
+        ?? throw new InvalidOperationException($"Plug-in {plugIn.Id} has no version this app can run"));
+
+    public string GetDownloadUrl(PlugIn plugIn, PublishedVersion version)
     {
         if (!PlugIns.Contains(plugIn)) 
             throw new KeyNotFoundException($"Plug-in {plugIn.Id} not found on source {SourceUrl}");
 
-        return $"{SourceUrl.TrimEnd('/')}/{plugIn.Id}/{plugIn.PublishedVersions.Last()}/{plugIn.FileName}";
+        return $"{SourceUrl.TrimEnd('/')}/{plugIn.Id}/{version.Version}/{plugIn.FileName}";
     }
     
     public override bool Equals(object? obj)
@@ -55,19 +61,15 @@ public class PlugInSource
 
     public class PlugIn
     {
-        private string[] _publishedVersions = [];
-        
         public required string Id { get; init; }
         public required string FileName { get; init; }
         public required string Name { get; init; }
         public string? Description { get; init; }
         public required string ProjectUrl { get; init; }
         public string? Summary { get; init; }
-        public string[] PublishedVersions
-        {
-            get => _publishedVersions;
-            init => _publishedVersions = value.Order().ToArray();
-        }
+        public PublishedVersion[] PublishedVersions { get; init; } = [];
+
+        public PublishedVersion? NewestCompatibleVersion => PlugInHost.NewestCompatible(PublishedVersions);
 
         public override bool Equals(object? obj)
         {
