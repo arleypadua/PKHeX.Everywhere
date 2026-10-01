@@ -16,7 +16,7 @@ public class Trainer
         Money = new Money(_game);
         Inventories = new Inventories(_game);
         Party = new PokemonParty(_game);
-        PokemonBox = new PokemonBox(_game);
+        PokemonBox = new PokemonBox(_game, Party);
     }
 
     public EntityId Id { get; }

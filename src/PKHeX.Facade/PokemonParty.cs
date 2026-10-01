@@ -18,7 +18,6 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
         {
             for (var i = 0; i < _partyData.Count; i++)
                 game.SaveFile.SetPartySlotAtIndex(_partyData[i], i);
-            game.Trainer.PokemonBox.RefreshPartyMembers();
             return;
         }
 
@@ -35,6 +34,14 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
         .Select(slot => (int?)slot)
         .FirstOrDefault();
 
+    internal IEnumerable<(int BoxIndex, PKM Pkm)> BoxedMembers()
+    {
+        for (var slot = 0; slot < _partyData.Count; slot++)
+            if (BoxIndexOf(slot) is { } index) yield return (index, _partyData[slot]);
+    }
+
+    internal void Replace(int slot, PKM pkm) => _partyData[slot] = pkm;
+
     public void AddOrUpdate(UniqueId id, Pokemon pokemon)
     {
         var existing = _partyData.FirstOrDefault(p => UniqueId.From(p).Equals(id));
@@ -46,5 +53,6 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
         _partyData[index] = pokemon.Pkm;
         
         Commit();
+        game.Trainer.PokemonBox.SharePartyMembers();
     }
 }

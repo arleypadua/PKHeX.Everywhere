@@ -40,19 +40,23 @@ internal static class PokemonSlots
         }, topics);
     }
 
-    // The box commit skips Let's Go party members, so they are written through the party.
     private static PokemonSlot InBox(Game game, PokemonHandle at)
     {
         var save = game.SaveFile;
         if (at.Box is not { } box || box < 0 || box >= save.BoxCount || at.Slot < 0 || at.Slot >= save.BoxSlotCount) throw NotFound(at);
 
         var index = box * save.BoxSlotCount + at.Slot;
-        if (game.Trainer.Party.SlotOf(index) is { } partySlot) return InParty(game, partySlot) ?? throw NotFound(at);
-
         var pokemons = game.Trainer.PokemonBox;
         if (index >= pokemons.All.Count || pokemons.All[index].Pkm.Species == 0) throw NotFound(at);
 
-        return new PokemonSlot(pokemons.All[index], pokemons.Commit, [at.Topic()]);
+        var pokemon = pokemons.All[index];
+        if (game.Trainer.Party.SlotOf(index) is null) return new PokemonSlot(pokemon, pokemons.Commit, [at.Topic()]);
+
+        return new PokemonSlot(pokemon, () =>
+        {
+            pokemon.Pkm.ResetPartyStats();
+            pokemons.Commit();
+        }, [at.Topic(), Topics.Party]);
     }
 
     public static PokemonHandle BoxHandle(SaveFile save, int index) =>
