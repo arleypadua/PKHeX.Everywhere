@@ -32,5 +32,14 @@ interface ItemsTableProps {
 }
 
 export function ItemsTable({ items }: ItemsTableProps) {
-  return <Table rowKey="id" dataSource={items} columns={columns} size="small" scroll={{ x: 'max-content' }} pagination={{ hideOnSinglePage: true }} />
+  return (
+    <Table
+      rowKey="id"
+      dataSource={items}
+      columns={columns}
+      size="small"
+      scroll={{ x: 'max-content' }}
+      pagination={{ hideOnSinglePage: true }}
+    />
+  )
 }

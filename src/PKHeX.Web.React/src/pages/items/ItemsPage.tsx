@@ -9,7 +9,13 @@ export default function ItemsPage() {
   return (
     <Flex vertical gap={20}>
       <PageHeader title="Items" />
-      <Tabs items={inventory.map((pouch) => ({ key: pouch.name, label: pouch.name, children: <ItemsTable items={pouch.items} /> }))} />
+      <Tabs
+        items={inventory.map((pouch) => ({
+          key: pouch.name,
+          label: pouch.name,
+          children: <ItemsTable items={pouch.items} />,
+        }))}
+      />
     </Flex>
   )
 }
