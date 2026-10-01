@@ -36,6 +36,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PKHeX.Everywhere.Engine\PKHeX.Everywhere.Engine.csproj" />
+    <ProjectReference Include="..\PKHeX.Everywhere.Engine.Tests.Handlers\PKHeX.Everywhere.Engine.Tests.Handlers.csproj" />
+    <ProjectReference Include="..\PKHeX.Everywhere.Engine.CodeGen\PKHeX.Everywhere.Engine.CodeGen.csproj" />
   </ItemGroup>
 
 </Project>

@@ -43,7 +43,7 @@ jobs:
           if [ -n "$changes" ]; then
             echo "$changes"
             git diff -- src/PKHeX.Everywhere.Engine.Sdk
-            echo "::error::Generated engine TypeScript is out of date. Build PKHeX.Everywhere.Engine and commit the changes."
+            echo "::error::Generated engine TypeScript is out of date. Build PKHeX.Everywhere.Engine.CodeGen and commit the changes."
             exit 1
           fi
       - name: Test

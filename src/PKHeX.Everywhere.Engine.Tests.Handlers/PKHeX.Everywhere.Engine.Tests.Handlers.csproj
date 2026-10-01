@@ -4,17 +4,11 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <IsTrimmable>true</IsTrimmable>
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
-        <SupportedPlatform Include="browser" />
-        <InternalsVisibleTo Include="PKHeX.Everywhere.Engine.Tests" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\PKHeX.Facade\PKHeX.Facade.csproj" />
+        <ProjectReference Include="..\PKHeX.Everywhere.Engine\PKHeX.Everywhere.Engine.csproj" />
         <ProjectReference Include="..\PKHeX.Everywhere.Engine.Generators\PKHeX.Everywhere.Engine.Generators.csproj"
                           OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>

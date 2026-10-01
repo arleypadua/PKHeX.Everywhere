@@ -7,6 +7,7 @@ public sealed class Session
 {
     public static Session Current { get; } = new();
 
+    private readonly List<Invoker> _handlers = [];
     private List<IEngineEvent>? _raised;
 
     public Game? Game { get; private set; }
@@ -40,6 +41,13 @@ public sealed class Session
         GameChanged?.Invoke();
     }
 
+    internal IReadOnlyList<Invoker> Handlers => _handlers;
+
+    /// <summary>
+    /// Dispatches calls declared in another assembly. Pass that assembly's generated <c>HandlerRegistry.TryInvoke</c>.
+    /// </summary>
+    public void AddHandlers(Invoker handlers) => _handlers.Add(handlers);
+
     public void Invalidate(params string[] topics)
     {
         if (_raised is null) Changed?.Invoke(topics);
@@ -53,7 +61,7 @@ public sealed class Session
 
     // A command reports only the Topics it declares, so the contract test catches declarations that are too narrow
     // instead of a Facade event covering for them.
-    internal T RunCommand<T>(string[] written, Func<T> command)
+    public T RunCommand<T>(string[] written, Func<T> command)
     {
         T result;
         var raised = _raised = [];
@@ -71,7 +79,7 @@ public sealed class Session
         return result;
     }
 
-    internal Game RequireGame() =>
+    public Game RequireGame() =>
         Game ?? throw new EngineException(ErrorCodes.NoSave, "No save is loaded.");
 
     private void HandlePokemonsChanged(PokemonSource source) => Invalidate(source switch

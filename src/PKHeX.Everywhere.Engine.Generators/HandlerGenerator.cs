@@ -24,8 +24,10 @@ public sealed class HandlerGenerator : IIncrementalGenerator
     {
         var queries = Handlers(context, QueryAttribute);
         var commands = Handlers(context, CommandAttribute);
+        var ns = context.CompilationProvider.Select(static (compilation, _) => Namespace(compilation.AssemblyName));
 
-        context.RegisterSourceOutput(queries.Combine(commands), static (spc, methods) => Emit(spc, methods.Left.AddRange(methods.Right)));
+        context.RegisterSourceOutput(queries.Combine(commands).Combine(ns),
+            static (spc, input) => Emit(spc, input.Right, input.Left.Left.AddRange(input.Left.Right)));
     }
 
     private static IncrementalValueProvider<ImmutableArray<IMethodSymbol>> Handlers(IncrementalGeneratorInitializationContext context, string attribute) =>
@@ -34,7 +36,13 @@ public sealed class HandlerGenerator : IIncrementalGenerator
             static (node, _) => node is MethodDeclarationSyntax,
             static (ctx, _) => (IMethodSymbol)ctx.TargetSymbol).Collect();
 
-    private static void Emit(SourceProductionContext context, ImmutableArray<IMethodSymbol> methods)
+    // Each assembly gets its own registry in its own namespace, so the Engine's internal one never clashes with it.
+    private static string Namespace(string? assemblyName) => string.Join(".", (assemblyName ?? "Handlers")
+        .Split('.')
+        .Select(segment => new string(segment.Select(c => char.IsLetterOrDigit(c) ? c : '_').ToArray()))
+        .Select(segment => segment.Length == 0 || char.IsDigit(segment[0]) ? "_" + segment : segment));
+
+    private static void Emit(SourceProductionContext context, string ns, ImmutableArray<IMethodSymbol> methods)
     {
         var json = new JsonEmitter(context);
         var cases = new StringBuilder();
@@ -66,11 +74,11 @@ public sealed class HandlerGenerator : IIncrementalGenerator
             #nullable disable
             using System.Text.Json;
 
-            namespace PKHeX.Everywhere.Engine;
+            namespace {{ns}};
 
             internal static class HandlerRegistry
             {
-                public static bool TryInvoke(Session session, string call, JsonElement args, Utf8JsonWriter writer)
+                public static bool TryInvoke(global::PKHeX.Everywhere.Engine.Session session, string call, JsonElement args, Utf8JsonWriter writer)
                 {
                     switch (call)
                     {
@@ -82,7 +90,7 @@ public sealed class HandlerGenerator : IIncrementalGenerator
                 private static void ExpectArgs(string call, JsonElement args, int count)
                 {
                     if (args.GetArrayLength() != count)
-                        throw new EngineException(ErrorCodes.BadArguments, $"'{call}' takes {count} argument(s), got {args.GetArrayLength()}.");
+                        throw new global::PKHeX.Everywhere.Engine.EngineException(global::PKHeX.Everywhere.Engine.ErrorCodes.BadArguments, $"'{call}' takes {count} argument(s), got {args.GetArrayLength()}.");
                 }
 
                 private static T Arg<T>(string name, System.Func<T> read)
@@ -91,16 +99,16 @@ public sealed class HandlerGenerator : IIncrementalGenerator
                     {
                         return read();
                     }
-                    catch (System.Exception e) when (e is not EngineException)
+                    catch (System.Exception e) when (e is not global::PKHeX.Everywhere.Engine.EngineException)
                     {
-                        throw new EngineException(ErrorCodes.BadArguments, $"Invalid argument '{name}': {e.Message}", e);
+                        throw new global::PKHeX.Everywhere.Engine.EngineException(global::PKHeX.Everywhere.Engine.ErrorCodes.BadArguments, $"Invalid argument '{name}': {e.Message}", e);
                     }
                 }
             }
             """;
 
         context.AddSource("HandlerRegistry.g.cs", registry);
-        context.AddSource("GeneratedJson.g.cs", json.Build());
+        context.AddSource("GeneratedJson.g.cs", json.Build(ns));
     }
 
     private static AttributeData HandlerAttribute(IMethodSymbol method) =>

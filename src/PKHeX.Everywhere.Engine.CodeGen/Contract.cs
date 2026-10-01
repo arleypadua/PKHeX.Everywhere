@@ -33,11 +33,12 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
 
     public IEnumerable<Call> Queries => Calls.Where(c => c.Kind == CallKind.Query);
 
-    public static Contract Read(Assembly engine)
+    public static Contract Read(Assembly engine, IEnumerable<Assembly> handlerAssemblies)
     {
         var nullability = new NullabilityInfoContext();
 
-        var calls = engine.GetTypes()
+        var calls = handlerAssemblies.Prepend(engine)
+            .SelectMany(a => a.GetTypes())
             .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
             .Select(m => (Method: m, Attribute: m.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName is $"{Namespace}.QueryAttribute" or $"{Namespace}.CommandAttribute")))
             .Where(m => m.Attribute is not null)
@@ -54,6 +55,9 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
                 nullability.Create(m.Method.ReturnParameter)))
             .OrderBy(c => c.Name, StringComparer.Ordinal)
             .ToList();
+
+        if (calls.GroupBy(c => c.Name).FirstOrDefault(g => g.Count() > 1) is { } duplicate)
+            throw new InvalidOperationException($"Call '{duplicate.Key}' is declared more than once.");
 
         var topics = Constants(engine, "Topics");
         foreach (var call in calls)

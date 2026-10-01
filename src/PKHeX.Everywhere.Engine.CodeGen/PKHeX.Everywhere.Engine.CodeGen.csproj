@@ -5,6 +5,27 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <EngineCodeGenOutput>$(MSBuildThisFileDirectory)..\PKHeX.Everywhere.Engine.Sdk\packages</EngineCodeGenOutput>
     </PropertyGroup>
+
+    <!-- The assemblies whose handlers the SDK covers, the Engine first. -->
+    <ItemGroup>
+        <EngineHandlerAssembly Include="..\PKHeX.Everywhere.Engine\PKHeX.Everywhere.Engine.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="@(EngineHandlerAssembly)" ReferenceOutputAssembly="false" Private="false" />
+    </ItemGroup>
+
+    <Target Name="GenerateEngineTypeScript"
+            AfterTargets="Build"
+            Condition="'$(DesignTimeBuild)' != 'true' and '$(SkipEngineCodeGen)' != 'true'">
+        <MSBuild Projects="@(EngineHandlerAssembly)"
+                 Targets="GetTargetPath"
+                 RemoveProperties="RuntimeIdentifier;SelfContained;PublishTrimmed;TargetFramework">
+            <Output TaskParameter="TargetOutputs" ItemName="_EngineHandlerAssemblyPath" />
+        </MSBuild>
+        <Exec Command="dotnet &quot;$(TargetPath)&quot; &quot;$(EngineCodeGenOutput)&quot; @(_EngineHandlerAssemblyPath->'&quot;%(Identity)&quot;', ' ')" />
+    </Target>
 
 </Project>

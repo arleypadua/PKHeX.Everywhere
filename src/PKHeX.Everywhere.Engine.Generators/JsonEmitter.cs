@@ -28,7 +28,7 @@ internal sealed class JsonEmitter(SourceProductionContext context)
 
     public string Read(ITypeSymbol type, string element, Location? location) => ReadExpression(type, element, location);
 
-    public string Build()
+    public string Build(string ns)
     {
         while (_pending.Count > 0)
         {
@@ -43,7 +43,7 @@ internal sealed class JsonEmitter(SourceProductionContext context)
         sb.AppendLine("using System.Linq;");
         sb.AppendLine("using System.Text.Json;");
         sb.AppendLine();
-        sb.AppendLine("namespace PKHeX.Everywhere.Engine;");
+        sb.AppendLine($"namespace {ns};");
         sb.AppendLine();
         sb.AppendLine("internal static class GeneratedJson");
         sb.AppendLine("{");

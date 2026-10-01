@@ -3,12 +3,15 @@ using System.Text.Json;
 
 namespace PKHeX.Everywhere.Engine;
 
-internal delegate bool Invoker(Session session, string call, JsonElement args, Utf8JsonWriter value);
+public delegate bool Invoker(Session session, string call, JsonElement args, Utf8JsonWriter writer);
 
 public static class Dispatcher
 {
     public static string Dispatch(Session session, string call, string args) =>
-        Dispatch(session, call, args, HandlerRegistry.TryInvoke);
+        Dispatch(session, call, args, Invoke);
+
+    private static bool Invoke(Session session, string call, JsonElement args, Utf8JsonWriter writer) =>
+        HandlerRegistry.TryInvoke(session, call, args, writer) || session.Handlers.Any(h => h(session, call, args, writer));
 
     internal static string Dispatch(Session session, string call, string args, Invoker invoke)
     {
