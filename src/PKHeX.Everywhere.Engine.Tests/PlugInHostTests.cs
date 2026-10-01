@@ -15,7 +15,7 @@ public class PlugInHostTests
     private const string OpenHello = "PKHeX.Everywhere.Engine.Tests.PlugIn.OpenHello";
 
     private static byte[] TestPlugIn => PlugInBytes("PKHeX.Everywhere.Engine.Tests.PlugIn");
-    private static byte[] V1PlugIn => PlugInBytes("PKHeX.Web.Plugins.Nuzlocking");
+    private static byte[] V1PlugIn => PlugInBytes("PKHeX.Web.Plugins.LiveRun");
 
     private static byte[] PlugInBytes(string name) =>
         File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "plugins", $"{name}.dll"));
@@ -38,6 +38,7 @@ public class PlugInHostTests
             new PlugInHook(Greet, "Greets the trainer", true),
             new PlugInHook(Fail, "Always fails", true),
             new PlugInHook(OpenHello, "Opens the hello page", false),
+            new PlugInHook($"{TestPlugInId}.Unavailable", "Is never available", false),
             new PlugInHook($"{TestPlugInId}.EchoItem", "Echoes the changed item", true),
             new PlugInHook($"{TestPlugInId}.FailOnItem", "Fails on every item change", true),
             new PlugInHook($"{TestPlugInId}.WriteOnItem", "Writes the save on every item change", false),
@@ -157,9 +158,9 @@ public class PlugInHostTests
         var ran = new List<PlugInRan>();
         var invalidated = new List<string[]>();
         host.Ran += ran.Add;
-        session.Changed += invalidated.Add;
         host.Register(TestPlugIn);
         host.SetToggle(TestPlugInId, OpenHello, true);
+        session.Changed += invalidated.Add;
 
         await host.RunAll<IQuickAction>(h => h.OnActionRequested());
 
@@ -205,6 +206,6 @@ public class PlugInHostTests
         register.Should().Throw<IncompatiblePlugInException>().Which.Sdk.Should().Be(PlugInSdk.V1);
         host.List().Should().BeEmpty();
         AppDomain.CurrentDomain.GetAssemblies()
-            .Should().NotContain(a => a.GetName().Name == "PKHeX.Web.Plugins.Nuzlocking");
+            .Should().NotContain(a => a.GetName().Name == "PKHeX.Web.Plugins.LiveRun");
     }
 }

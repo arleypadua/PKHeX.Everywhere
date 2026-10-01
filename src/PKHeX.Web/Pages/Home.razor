@@ -6,6 +6,7 @@
 @inject AntdThemeService ThemeService
 @inject PlugInRegistry PlugInRegistry
 @inject PlugInRuntime PlugInRuntime
+@inject PKHeX.Everywhere.Engine.PlugIns.PlugInHost PlugInHost
 @inject IConfiguration Configuration
 
 <PageTitle>Home</PageTitle>
@@ -68,7 +69,7 @@
     Style="width: 100%; gap: 20px; align-items: center; margin-top: 20px"
     Direction="FlexDirection.Vertical">
     @{ FetchPlugInQuickActions(); }
-    @if (_actions.Any())
+    @if (_actions.Any() || _hostActions.Any())
     {
         <h1>Quick Actions</h1>
         <Space
@@ -78,6 +79,10 @@
             @foreach (var action in _actions)
             {
                 @RenderActionButton(action)
+            }
+            @foreach (var action in _hostActions)
+            {
+                <PlugInActionButton Action="action"/>
             }
         </Space>
     }
@@ -89,6 +94,7 @@
 @code {
     private Game? _game;
     private List<IQuickAction> _actions = [];
+    private IReadOnlyList<PKHeX.Everywhere.Engine.PlugIns.PlugInAction> _hostActions = [];
     private Exception? _quickActionsFailure;
 
     protected override void OnInitialized()
@@ -128,6 +134,7 @@
         try
         {
             _actions = PlugInRegistry.GetAllEnabledHooks<IQuickAction>().ToList();
+            _hostActions = PlugInHost.Actions(PKHeX.Everywhere.Engine.PlugIns.ActionPlacement.Quick);
         }
         catch (Exception e)
         {
