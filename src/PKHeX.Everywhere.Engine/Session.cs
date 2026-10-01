@@ -7,10 +7,13 @@ public sealed class Session
 {
     public static Session Current { get; } = new();
 
+    private bool _inCommand;
+
     public Game? Game { get; private set; }
     public string? FileName { get; private set; }
 
     public event Action<string[]>? Changed;
+    public event Action? GameChanged;
 
     public void Load(Game game, string? fileName)
     {
@@ -21,9 +24,41 @@ public sealed class Session
         game.Trainer.PokemonsChanged += HandlePokemonsChanged;
 
         Invalidate(Topics.All);
+        GameChanged?.Invoke();
     }
 
-    public void Invalidate(params string[] topics) => Changed?.Invoke(topics);
+    public void Close()
+    {
+        if (Game is null) return;
+
+        Game.Trainer.PokemonsChanged -= HandlePokemonsChanged;
+        Game = null;
+        FileName = null;
+
+        Invalidate(Topics.All);
+        GameChanged?.Invoke();
+    }
+
+    public void Invalidate(params string[] topics)
+    {
+        if (!_inCommand) Changed?.Invoke(topics);
+    }
+
+    // A command reports only the Topics it declares, so the contract test catches declarations that are too narrow
+    // instead of a Facade event covering for them.
+    internal T RunCommand<T>(string[] written, Func<T> command)
+    {
+        _inCommand = true;
+        try
+        {
+            return command();
+        }
+        finally
+        {
+            _inCommand = false;
+            Invalidate(written);
+        }
+    }
 
     internal Game RequireGame() =>
         Game ?? throw new EngineException(ErrorCodes.NoSave, "No save is loaded.");

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <EngineCodeGenProject>$(MSBuildThisFileDirectory)..\PKHeX.Everywhere.Engine.CodeGen\PKHeX.Everywhere.Engine.CodeGen.csproj</EngineCodeGenProject>
-        <EngineCodeGenOutput>$(MSBuildThisFileDirectory)..\PKHeX.Everywhere.Engine.Sdk\packages\engine\src\generated</EngineCodeGenOutput>
+        <EngineCodeGenOutput>$(MSBuildThisFileDirectory)..\PKHeX.Everywhere.Engine.Sdk\packages</EngineCodeGenOutput>
     </PropertyGroup>
 
     <ItemGroup>

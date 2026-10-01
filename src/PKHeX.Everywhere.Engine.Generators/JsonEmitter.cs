@@ -106,6 +106,12 @@ internal sealed class JsonEmitter(SourceProductionContext context)
             return;
         }
 
+        if (IsBytes(type))
+        {
+            sb.AppendLine($"{indent}writer.WriteBase64StringValue({value});");
+            return;
+        }
+
         if (ElementType(type) is { } element)
         {
             var item = Variable();
@@ -165,6 +171,8 @@ internal sealed class JsonEmitter(SourceProductionContext context)
         if (primitive is not null) return $"{element}.{primitive}()";
 
         if (IsBranded(type)) return $"new {Name(type)}({element}.GetString())";
+
+        if (IsBytes(type)) return $"{element}.GetBytesFromBase64()";
 
         if (ElementType(type) is { } item)
         {
@@ -284,6 +292,9 @@ internal sealed class JsonEmitter(SourceProductionContext context)
 
     private static bool IsBranded(ITypeSymbol type) =>
         type.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == "PKHeX.Everywhere.Engine.BrandedAttribute");
+
+    private static bool IsBytes(ITypeSymbol type) =>
+        type is IArrayTypeSymbol { ElementType.SpecialType: SpecialType.System_Byte };
 
     private static bool IsObject(ITypeSymbol type) =>
         type is INamedTypeSymbol { TypeKind: TypeKind.Class or TypeKind.Struct, IsGenericType: false } &&

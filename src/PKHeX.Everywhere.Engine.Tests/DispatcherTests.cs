@@ -4,6 +4,7 @@ using AwesomeAssertions;
 using PKHeX.Core;
 using PKHeX.Facade;
 using PKHeX.Facade.Tests.Base;
+using static PKHeX.Everywhere.Engine.Tests.EngineResults;
 
 namespace PKHeX.Everywhere.Engine.Tests;
 
@@ -17,7 +18,7 @@ public class DispatcherTests
         var session = new Session();
         session.Load(game, saveFile);
 
-        var party = Value(Dispatcher.Dispatch(session, "party.get", "[]")).AsArray();
+        var party = Value(Dispatcher.Dispatch(session, "party.get", "[]"))!.AsArray();
 
         var expected = game.Trainer.Party.Pokemons;
         party.Should().HaveCount(expected.Count);
@@ -42,7 +43,7 @@ public class DispatcherTests
         var session = new Session();
         session.Load(Game.LoadFrom(SaveFilePath.HgSs), SaveFilePath.HgSs);
 
-        Value(Dispatcher.Dispatch(session, "party.get", "")).AsArray().Should().NotBeEmpty();
+        Value(Dispatcher.Dispatch(session, "party.get", ""))!.AsArray().Should().NotBeEmpty();
     }
 
     [Fact]
@@ -72,20 +73,5 @@ public class DispatcherTests
             (_, _, _, _) => throw new InvalidOperationException("boom"));
 
         result.Should().Be("""{"ok":false,"error":{"code":"unexpected","message":"boom"}}""");
-    }
-
-    private static JsonNode Value(string result)
-    {
-        var envelope = JsonNode.Parse(result)!;
-        envelope["ok"]!.GetValue<bool>().Should().BeTrue(result);
-        return envelope["value"]!;
-    }
-
-    private static string Error(string result)
-    {
-        var envelope = JsonNode.Parse(result)!;
-        envelope["ok"]!.GetValue<bool>().Should().BeFalse(result);
-        envelope["error"]!["message"]!.GetValue<string>().Should().NotBeNullOrEmpty();
-        return envelope["error"]!["code"]!.GetValue<string>();
     }
 }
