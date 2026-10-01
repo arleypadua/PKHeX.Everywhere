@@ -9,14 +9,17 @@ export interface DotNetNavigator {
 export interface HostBridge {
   navigator: DotNetNavigator
   theme: Theme
+  calculatorUrl: string
 }
 
 let dotNetNavigator: DotNetNavigator | undefined
 let theme: Theme = 'light'
+let calculatorUrl = ''
 const listeners = new Set<() => void>()
 
 export function connectHost(host: HostBridge) {
   dotNetNavigator = host.navigator
+  calculatorUrl = host.calculatorUrl
   setTheme(host.theme)
 }
 
@@ -37,4 +40,14 @@ export function useTheme(): Theme {
 
 export function useNavigate(): (url: string) => void {
   return useCallback((url: string) => void dotNetNavigator?.invokeMethodAsync('NavigateTo', url).catch(console.error), [])
+}
+
+export function openCalculator(showdown: string) {
+  window.open(calculatorImportUrl(calculatorUrl, showdown), '_blank')
+}
+
+function calculatorImportUrl(baseUrl: string, showdown: string) {
+  let binary = ''
+  for (const byte of new TextEncoder().encode(showdown)) binary += String.fromCharCode(byte)
+  return `${baseUrl}/?import=${btoa(binary)}`
 }

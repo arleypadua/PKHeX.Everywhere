@@ -24,10 +24,10 @@ function load(devServerUrl) {
 
 const elements = new Map()
 
-export async function mount(id, element, devServerUrl, name, props, navigator, theme) {
+export async function mount(id, element, devServerUrl, name, props, navigator, theme, calculatorUrl) {
     elements.set(id, element)
     const module = await load(devServerUrl)
-    await module.mount(element, name, props, { navigator, theme })
+    await module.mount(element, name, props, { navigator, theme, calculatorUrl })
 }
 
 export async function unmount(id) {

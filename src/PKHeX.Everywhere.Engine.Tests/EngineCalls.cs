@@ -7,6 +7,13 @@ namespace PKHeX.Everywhere.Engine.Tests;
 
 internal static class EngineCalls
 {
+    internal static Session Loaded(string saveFile)
+    {
+        var session = new Session();
+        session.Load(Game.LoadFrom(saveFile), saveFile);
+        return session;
+    }
+
     // Let's Go keeps party members in box storage, so their box slots alias party slots. The Eevee save has no other box Pokémon.
     internal static (PokemonHandle At, int Index)? FirstBoxPokemon(Game game)
     {

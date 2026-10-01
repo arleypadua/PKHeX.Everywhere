@@ -111,13 +111,6 @@ public class PokemonHandlerTests
         Error(Dispatcher.Dispatch(Loaded(SaveFilePath.HgSs), "pokemon.setLevel", """[{"source":"daycare","slot":0}, 42]"""))
             .Should().Be("bad-arguments");
 
-    private static Session Loaded(string saveFile)
-    {
-        var session = new Session();
-        session.Load(Game.LoadFrom(saveFile), saveFile);
-        return session;
-    }
-
     private static int Level(Session session, PokemonHandle at) =>
         Value(Dispatcher.Dispatch(session, "pokemon.get", Args(at)))!["level"]!.GetValue<int>();
 
