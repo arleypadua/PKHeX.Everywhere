@@ -1,26 +1,23 @@
 using PKHeX.Everywhere.Engine;
-using PKHeX.Web.Plugins;
 
-namespace PKHeX.Web.Services.Plugins;
+namespace PKHeX.Web.Services;
 
-public sealed class EngineEventSubscriber : IDisposable
+public sealed class EngineEventAnalytics : IDisposable
 {
     private readonly Session _session;
-    private readonly PlugInRuntime _runtime;
     private readonly AnalyticsService _analytics;
 
-    public EngineEventSubscriber(Session session, PlugInRuntime runtime, AnalyticsService analytics)
+    public EngineEventAnalytics(Session session, AnalyticsService analytics)
     {
         _session = session;
-        _runtime = runtime;
         _analytics = analytics;
         _session.Published += HandlePublished;
     }
 
-    private async Task OnItemChanged(int itemId, int count)
+    private void HandlePublished(IEngineEvent engineEvent)
     {
-        await _runtime.RunAll<IRunOnItemChanged>(h => h.OnItemChanged(new((ushort)itemId, (uint)count)));
-        _analytics.TrackItemModified(itemId, count);
+        if (engineEvent is ItemChanged changed) _analytics.TrackItemModified(changed.ItemId, changed.Count);
+        if (engineEvent is PokemonAdded added) OnPokemonAdded(added);
     }
 
     private void OnPokemonAdded(PokemonAdded added)
@@ -35,12 +32,6 @@ public sealed class EngineEventSubscriber : IDisposable
             _ => null,
         };
         if (eventName is not null) _analytics.TrackPokemon(eventName, pokemon);
-    }
-
-    private void HandlePublished(IEngineEvent engineEvent)
-    {
-        if (engineEvent is ItemChanged changed) _ = OnItemChanged(changed.ItemId, changed.Count);
-        if (engineEvent is PokemonAdded added) OnPokemonAdded(added);
     }
 
     public void Dispose() => _session.Published -= HandlePublished;

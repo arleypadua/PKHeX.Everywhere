@@ -1,4 +1,3 @@
-using System.Reflection;
 using Blazored.LocalStorage;
 using PKHeX.Everywhere.Engine.PlugIns;
 using PKHeX.Everywhere.PlugIns;
@@ -12,10 +11,10 @@ public class PlugInLocalStorage(
     PlugInHost host,
     ILogger<PlugInLocalStorage> logger)
 {
-    public async Task Remove(InstalledPlugIn plugIn)
+    public async Task Remove(string plugInId)
     {
-        await localStorageAsync.RemoveItemAsync(LocalStorageKey(plugIn));
-        await plugInFilesRepository.RemoveAllFrom(plugIn);
+        await localStorageAsync.RemoveItemAsync(LocalStorageKey(plugInId));
+        await plugInFilesRepository.RemoveAllFrom(plugInId);
     }
 
     public async Task Persist(InstalledPlugIn plugIn)
@@ -47,7 +46,7 @@ public class PlugInLocalStorage(
             PlugInSettings = plugInSettings
         };
 
-        await localStorageAsync.SetItemAsync(LocalStorageKey(plugIn), representation);
+        await localStorageAsync.SetItemAsync(LocalStorageKey(plugIn.Id), representation);
         await PersistAllFilesFrom(plugIn);
 
         logger.LogInformation("Saved plug-in {p} locally", plugIn.Id);
@@ -67,7 +66,7 @@ public class PlugInLocalStorage(
         await Task.WhenAll(saveTasks);
     }
 
-    public async Task<IEnumerable<InstalledPlugIn>> RestoreAll()
+    public async Task<Restored> RestoreAll()
     {
         var representations = localStorage.Keys()
             .Where(k => k.StartsWith(PlugInPrefix))
@@ -92,11 +91,18 @@ public class PlugInLocalStorage(
                 try
                 {
                     logger.LogInformation("Loading plugin {k}", r!.Id);
-                    var settings = await ReadSettings(r);
-                    InstalledPlugIn plugIn = PlugInHost.DetectSdk(r.AssemblyBytes) == PlugInSdk.V2
-                        ? RestoreV2(r, settings)
-                        : RestoreV1(r, settings);
-                    plugIn.HasNewerVersion = r.HasNewerVersion;
+                    var stored = new StoredPlugIn(r.Enabled, r.FeatureToggles, await ReadSettings(r));
+                    if (PlugInHost.DetectSdk(r.AssemblyBytes) != PlugInSdk.V2)
+                    {
+                        logger.LogWarning("Plug-in {k} was built for an SDK this app can't run", r.Id);
+                        return (object)new IncompatiblePlugIn(r.Id, r.PlugInSourceId, r.AssemblyBytes, stored);
+                    }
+
+                    var registered = host.Register(r.AssemblyBytes, stored);
+                    var plugIn = new InstalledPlugIn(r.PlugInSourceId, r.FileUrl, r.AssemblyBytes, host, registered)
+                    {
+                        HasNewerVersion = r.HasNewerVersion
+                    };
 
                     logger.LogInformation("Loaded plugin {k}", r.Id);
 
@@ -109,9 +115,11 @@ public class PlugInLocalStorage(
                 }
             });
 
-        var settings = await Task.WhenAll(settingTasks);
-        return settings.Where(p => p is not null)!;
+        var restored = await Task.WhenAll(settingTasks);
+        return new Restored(restored.OfType<InstalledPlugIn>().ToList(), restored.OfType<IncompatiblePlugIn>().ToList());
     }
+
+    public record Restored(IReadOnlyList<InstalledPlugIn> Installed, IReadOnlyList<IncompatiblePlugIn> Incompatible);
 
     private async Task<Dictionary<string, Settings.SettingValue>> ReadSettings(PlugInStorageRepresentation r)
     {
@@ -140,28 +148,7 @@ public class PlugInLocalStorage(
         return settings;
     }
 
-    private HostPlugIn RestoreV2(PlugInStorageRepresentation r, Dictionary<string, Settings.SettingValue> settings)
-    {
-        var registered = host.Register(r.AssemblyBytes, new StoredPlugIn(r.Enabled, r.FeatureToggles, settings));
-        return new HostPlugIn(r.PlugInSourceId, r.FileUrl, r.AssemblyBytes, host, registered);
-    }
-
-    private static LoadedPlugIn RestoreV1(PlugInStorageRepresentation r, Dictionary<string, Settings.SettingValue> settings)
-    {
-        var assembly = Assembly.Load(r.AssemblyBytes);
-        var plugInSettings = assembly.GetSettings();
-        foreach (var (key, value) in settings) plugInSettings[key] = LoadedPlugIn.ToV1(value);
-
-        var plugIn = new LoadedPlugIn(r.PlugInSourceId, r.FileUrl, plugInSettings, assembly, r.AssemblyBytes)
-        {
-            Enabled = r.Enabled
-        };
-        foreach (var (typeName, active) in r.FeatureToggles) plugIn.SetToggle(typeName, active);
-
-        return plugIn;
-    }
-
-    private string LocalStorageKey(InstalledPlugIn plugIn) => $"{PlugInPrefix}{plugIn.Id}";
+    private static string LocalStorageKey(string plugInId) => $"{PlugInPrefix}{plugInId}";
 
     private const string PlugInPrefix = "__plug_in__#";
 

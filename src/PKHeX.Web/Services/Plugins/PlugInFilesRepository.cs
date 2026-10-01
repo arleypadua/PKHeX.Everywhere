@@ -41,13 +41,13 @@ public class PlugInFilesRepository(
         await db.DeleteRecord(Schema.Name, FileRepresentation.KeyFor(plugInId, fileName));
     }
 
-    public async Task RemoveAllFrom(InstalledPlugIn plugIn)
+    public async Task RemoveAllFrom(string plugInId)
     {
         var query = new StoreIndexQuery<string>
         {
             Storename = Schema.Name,
             IndexName = PlugInIdIndex.Name,
-            QueryValue = plugIn.Id,
+            QueryValue = plugInId,
         };
         var files = await db.GetAllRecordsByIndex<string, FileRepresentation>(query);
         var deleteTasks = files

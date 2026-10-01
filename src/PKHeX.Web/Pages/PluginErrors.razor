@@ -1,16 +1,10 @@
 @page "/plugins/errors"
 @using PKHeX.Everywhere.Engine.PlugIns
-@using PKHeX.Web.Services.Plugins
-@inject PlugInRuntime PlugInRuntime
 @inject PlugInHost PlugInHost
 
 <h3>Plug-in execution errors</h3>
 
 <Space Direction="SpaceDirection.Vertical">
-@foreach (var error in PlugInRuntime.RecentFailures)
-{
-    @RenderFailure(error.PlugIn.Id, error.Exception.Message, error.Exception.StackTrace, () => PlugInRuntime.Dismiss(error))
-}
 @foreach (var failure in PlugInHost.Failures)
 {
     @RenderFailure(failure.PlugInId, failure.Message, failure.StackTrace, () => PlugInHost.Dismiss(failure))

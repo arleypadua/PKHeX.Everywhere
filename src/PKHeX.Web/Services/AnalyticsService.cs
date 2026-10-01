@@ -5,7 +5,6 @@ using PKHeX.Facade.Repositories;
 using PKHeX.Web.BackendApi.Representation;
 using PKHeX.Web.Components;
 using PKHeX.Web.Extensions;
-using PKHeX.Web.Plugins;
 using PKHeX.Web.Services.Auth;
 using PKHeX.Web.Services.Plugins;
 

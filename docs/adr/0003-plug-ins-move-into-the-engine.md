@@ -28,7 +28,7 @@ The v2 spec comes before the first React page that renders plug-in actions (Home
 
 Context: pkhex-web/issue-tracker#63.
 
-The v2 contracts live in `PKHeX.Everywhere.PlugIns`, with no Razor, Blazor or ASP.NET Core reference. The plug-in host, `PKHeX.Everywhere.Engine.PlugIns`, loads v2 assemblies from bytes and runs their hooks. The Engine references neither. The host reads an assembly's references before loading it, and it reports an assembly built against `PKHeX.Web.Plugins` as v1 instead of loading it. Until v1 is removed, Blazor sends v1 assemblies to its own runtime and v2 assemblies to the host.
+The v2 contracts live in `PKHeX.Everywhere.PlugIns`, with no Razor, Blazor or ASP.NET Core reference. The plug-in host, `PKHeX.Everywhere.Engine.PlugIns`, loads v2 assemblies from bytes and runs their hooks. The Engine references neither. The host reads an assembly's references before loading it, and it reports an assembly built against `PKHeX.Web.Plugins` as v1 instead of loading it. The host runs SDK 2 only.
 
 ### Distribution
 

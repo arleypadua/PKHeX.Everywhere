@@ -59,13 +59,12 @@ builder.Services.AddScoped<NewsService>();
 builder.Services.AddSingleton(sp => new PlugInHost(sp.GetRequiredService<Session>()));
 builder.Services.AddScoped<PlugInService>();
 builder.Services.AddScoped<PlugInRegistry>();
-builder.Services.AddScoped<PlugInRuntime>();
-builder.Services.AddScoped<EngineEventSubscriber>();
+builder.Services.AddScoped<PlugInRanHandler>();
+builder.Services.AddScoped<EngineEventAnalytics>();
 builder.Services.AddScoped<PlugInLocalStorage>();
 builder.Services.AddScoped<PlugInLocalStorageLoader>();
 builder.Services.AddScoped<PlugInSourceService>();
 builder.Services.AddScoped<PlugInSourceLocalStorage>();
-builder.Services.AddScoped<PlugInPageRegistry>();
 builder.Services.AddScoped<PlugInFilesRepository>();
 
 builder.Services.AddScoped<UserJourneyService>();

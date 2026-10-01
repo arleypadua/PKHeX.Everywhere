@@ -15,7 +15,7 @@ public class PlugInHostTests
     private const string OpenHello = "PKHeX.Everywhere.Engine.Tests.PlugIn.OpenHello";
 
     private static byte[] TestPlugIn => PlugInBytes("PKHeX.Everywhere.Engine.Tests.PlugIn");
-    private static byte[] V1PlugIn => PlugInBytes("PKHeX.Everywhere.Engine.Tests.PlugInV1");
+    private static byte[] V1PlugIn => PlugInBytes("V1PlugIn");
 
     private static byte[] PlugInBytes(string name) =>
         File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "plugins", $"{name}.dll"));
@@ -206,6 +206,6 @@ public class PlugInHostTests
         register.Should().Throw<IncompatiblePlugInException>().Which.Sdk.Should().Be(PlugInSdk.V1);
         host.List().Should().BeEmpty();
         AppDomain.CurrentDomain.GetAssemblies()
-            .Should().NotContain(a => a.GetName().Name == "PKHeX.Everywhere.Engine.Tests.PlugInV1");
+            .Should().NotContain(a => a.GetName().Name == "PKHeX.Web.Plugins.Demo");
     }
 }

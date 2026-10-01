@@ -31,7 +31,6 @@
     }
 
 #if DEBUG
-    [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
     protected override async Task OnInitializedAsync()
     {
         var testData = await HttpClient.GetByteArrayAsync("/data/emerald.sav");
@@ -47,13 +46,6 @@
         // Navigation.NavigateToItems();
         // Navigation.NavigateToSharedPokemon(Guid.Parse("5d5d76e5-f65b-4c6e-846a-1615ca899f34"));
         // Navigation.NavigateToReleaseNotes(DateOnly.FromDateTime(DateTime.Today.AddDays(-2)));
-
-        // await LoadPlugins();
-    }
-
-    private async Task LoadPlugins()
-    {
-        await PlugInRegistry.RegisterFrom(PlugInSource.DefaultSourceUrl, "/plugins/PKHeX.Web.Plugins.Demo.dll");
     }
 #endif
 

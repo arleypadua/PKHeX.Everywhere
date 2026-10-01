@@ -22,7 +22,6 @@
         <ProjectReference Include="..\PKHeX.Facade\PKHeX.Facade.csproj"/>
         <ProjectReference Include="..\PKHeX.Everywhere.Engine\PKHeX.Everywhere.Engine.csproj"/>
         <ProjectReference Include="..\PKHeX.Everywhere.Engine.PlugIns\PKHeX.Everywhere.Engine.PlugIns.csproj"/>
-        <ProjectReference Include="..\PKHeX.Web.Plugins\PKHeX.Web.Plugins.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

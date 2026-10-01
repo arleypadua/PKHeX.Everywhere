@@ -1,9 +1,6 @@
 @using System.Reflection
 @using PKHeX.Core
-@using PKHeX.Web.Plugins
 @using PKHeX.Web.Services.Plugins
-@inject PlugInRegistry PlugInRegistry
-@inject PlugInRuntime PlugInRuntime
 @inject PlugInHost PlugInHost
 
 <Flex Style="gap: 20px;" Wrap="FlexWrap.Wrap">
@@ -57,16 +54,11 @@
     }
 </Flex>
 
-@{ var actions = PlugInRegistry.GetAllEnabledHooks<IPokemonStatsEditAction>().ToList(); }
-@{ var hostActions = PlugInHost.Actions(ActionPlacement.PokemonStats); }
-@if (actions.Any() || hostActions.Any())
+@{ var actions = PlugInHost.Actions(ActionPlacement.PokemonStats); }
+@if (actions.Any())
 {
     <div class="stat_actions">
         @foreach (var action in actions)
-        {
-            @RenderActionButton(action)
-        }
-        @foreach (var action in hostActions)
         {
             <PlugInActionButton Action="action" Target="Pokemon" OnRan="StateHasChanged"/>
         }
@@ -153,20 +145,5 @@
     private PropertyInfo _speed = typeof(Stats).GetProperty(nameof(Stats.Speed))!;
     private PropertyInfo _total = typeof(Stats).GetProperty(nameof(Stats.Total))!;
     private PropertyInfo _cp = typeof(Stats).GetProperty(nameof(Stats.CombatPower))!;
-
-    private RenderFragment RenderActionButton(IPokemonStatsEditAction action)
-    {
-        return
-            @<Button
-                 Type="@ButtonType.Link"
-                 OnClick="() => HandleActionButtonClick(action)">
-                @action.Label
-            </Button>;
-    }
-
-    private async Task HandleActionButtonClick(IPokemonStatsEditAction action)
-    {
-        await PlugInRuntime.RunOn(action, _ => action.OnActionRequested(Pokemon));
-    }
 
 }
