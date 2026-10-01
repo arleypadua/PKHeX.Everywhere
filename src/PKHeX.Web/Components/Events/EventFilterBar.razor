@@ -1,0 +1,42 @@
+@using System.Text.RegularExpressions
+
+<Space Wrap>
+    <SpaceItem>
+        <Input
+            TValue="string"
+            Value="@Search"
+            ValueChanged="SearchChanged"
+            Placeholder="Search"
+            AllowClear
+            BindOnInput
+            Style="width: 260px"/>
+    </SpaceItem>
+    <SpaceItem>
+        <Select
+            TItem="string"
+            TItemValue="string"
+            DataSource="@Categories"
+            Value="@Category"
+            ValueChanged="CategoryChanged"
+            Placeholder="All categories"
+            AllowClear
+            Style="width: 200px">
+            <LabelTemplate>@Humanize(context)</LabelTemplate>
+            <ItemTemplate>@Humanize(context)</ItemTemplate>
+        </Select>
+    </SpaceItem>
+</Space>
+
+@code {
+    [Parameter] public string? Search { get; set; }
+    [Parameter] public EventCallback<string?> SearchChanged { get; set; }
+    [Parameter] public string? Category { get; set; }
+    [Parameter] public EventCallback<string?> CategoryChanged { get; set; }
+    [Parameter] public required IEnumerable<string> Categories { get; set; }
+
+    public static string Humanize(string category) => Regex.Replace(category, "(?<=[a-z])(?=[A-Z])", " ");
+
+    public static bool Matches(string name, string category, string? search, string? selectedCategory) =>
+        (string.IsNullOrWhiteSpace(search) || name.Contains(search, StringComparison.OrdinalIgnoreCase))
+        && (string.IsNullOrEmpty(selectedCategory) || category == selectedCategory);
+}

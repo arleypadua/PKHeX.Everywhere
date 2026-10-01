@@ -1,0 +1,79 @@
+@using System.Collections.Immutable
+@using PKHeX.Facade.Events
+@using PKHeX.Facade.Repositories
+@using PKHeX.Web.Plugins
+@using PKHeX.Web.Services.Plugins
+@inject IMessageService Message
+@inject ModalService Modal
+@inject PlugInRuntime PlugInRuntime
+
+<Flex Direction="FlexDirection.Vertical" Style="width: 100%; gap: 16px;">
+    <Card Size="CardSize.Small" Title="Tickets">
+        <Flex Direction="FlexDirection.Vertical" Style="gap: 12px;">
+            <Paragraph>
+                Adds @string.Join(", ", Gen3.Tickets.All.Select(t => t.Name)) to Key Items.
+            </Paragraph>
+            <div>
+                <Button
+                    Type="@ButtonType.Primary"
+                    Disabled="@Gen3.Tickets.Missing.IsEmpty"
+                    OnClick="GiveTickets">
+                    Give tickets
+                </Button>
+            </div>
+        </Flex>
+    </Card>
+
+    @if (!Gen3.Islands.IsEmpty)
+    {
+        <Card Size="CardSize.Small" Title="Islands">
+            <Flex Direction="FlexDirection.Vertical" Style="gap: 8px;">
+                @foreach (var island in Gen3.Islands)
+                {
+                    <div>
+                        <Checkbox Checked="@island.Value" CheckedChanged="v => island.Value = v">
+                            @island.Name
+                        </Checkbox>
+                    </div>
+                }
+            </Flex>
+        </Card>
+    }
+</Flex>
+
+@code {
+    [Parameter] public required Gen3Events Gen3 { get; set; }
+
+    async Task GiveTickets()
+    {
+        var includeOldSeaMap = !Gen3.Tickets.OldSeaMapNeedsConfirmation || await Modal.ConfirmAsync(new ConfirmOptions
+        {
+            Title = "Add the Old Sea Map?",
+            Content = "The Old Sea Map was only distributed in Japan. Add it to this save anyway?",
+            OkText = "Add",
+            CancelText = "Skip",
+        });
+
+        ImmutableList<ItemDefinition> added;
+        try
+        {
+            added = Gen3.Tickets.Give(includeOldSeaMap);
+        }
+        catch (InvalidOperationException e)
+        {
+            Message.Error(e.Message);
+            return;
+        }
+
+        if (added.IsEmpty)
+        {
+            Message.Info("No tickets were added.");
+            return;
+        }
+
+        foreach (var ticket in added)
+            await PlugInRuntime.RunAll<IRunOnItemChanged>(h => h.OnItemChanged(new(ticket.Id, 1)));
+
+        Message.Success($"Added {string.Join(", ", added.Select(t => t.Name))}.");
+    }
+}
