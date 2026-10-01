@@ -6,6 +6,7 @@ import { PokemonSprite } from '../../components/PokemonSprite'
 import { DescriptionTab } from './DescriptionTab'
 import { LegalityBanner } from './LegalityBanner'
 import { TrainerTab } from './TrainerTab'
+import { MetConditionsTab } from './MetConditionsTab'
 
 interface DraftEditorProps {
   onSave: () => void
@@ -23,6 +24,7 @@ export function DraftEditor({ onSave }: DraftEditorProps) {
         items={[
           { key: 'description', label: 'Description', children: <DescriptionTab /> },
           { key: 'trainer', label: 'Trainer', children: <TrainerTab /> },
+          { key: 'metConditions', label: 'Met Conditions', children: <MetConditionsTab /> },
         ]}
       />
       <Flex justify="end">

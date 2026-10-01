@@ -46,6 +46,9 @@ public static class GameHandlers
     [Query("game.heldItems", Topics.Game)]
     public static Choice[] HeldItems(Game game) => game.Options.HeldItems.ToChoices();
 
+    [Query("game.originGames", Topics.Game)]
+    public static Choice[] OriginGames(Game game) => game.Options.OriginGames.ToChoices();
+
     [Query("game.blankVersions")]
     public static VersionEntry[] BlankVersions() =>
         GameVersionRepository.Instance.Blank.Select(version => version.ToEntry()).ToArray();

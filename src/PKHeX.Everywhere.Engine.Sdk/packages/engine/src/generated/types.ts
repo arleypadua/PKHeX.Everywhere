@@ -68,6 +68,11 @@ export interface EditablePokemon {
   handlingTrainerName: string
   handlingTrainerGender: TrainerGender
   currentHandler: PokemonHandler
+  version: number
+  metLocation: number
+  metLevel: number
+  metDate: string | null
+  fatefulEncounter: boolean
   legality: Legality
 }
 
@@ -208,6 +213,7 @@ export interface PokemonOptions {
   species: Choice[]
   abilities: Choice[]
   forms: Choice[]
+  metLocations: Choice[]
 }
 
 export interface PokemonPatch {
@@ -232,6 +238,11 @@ export interface PokemonPatch {
   handlingTrainerName?: string | null
   handlingTrainerGender?: TrainerGender | null
   currentHandler?: PokemonHandler | null
+  version?: number | null
+  metLocation?: number | null
+  metLevel?: number | null
+  metDate?: string | null
+  fatefulEncounter?: boolean | null
 }
 
 export interface PokemonSummary {

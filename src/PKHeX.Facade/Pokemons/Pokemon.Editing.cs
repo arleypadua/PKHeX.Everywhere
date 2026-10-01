@@ -32,12 +32,17 @@ public partial class Pokemon
         Owner.HandlingTrainerName,
         Owner.HandlingTrainerGender,
         Owner.CurrentHandler,
+        (int)Pkm.Version,
+        Pkm.MetLocation,
+        Pkm.MetLevel,
+        Pkm.MetDate,
+        Pkm.FatefulEncounter,
         this.LegalityReport());
 
-    public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices());
+    public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices());
 
     /// <summary>
-    /// Applies the patch in a fixed order, species before form before ability, so each field is checked against the ones before it.
+    /// Applies the patch in a fixed order, species before form before ability and origin game before met location, so each field is checked against the ones before it.
     /// </summary>
     /// <exception cref="InvalidPatchException">A field holds a value the save can't store. Nothing is applied.</exception>
     public void Update(PokemonPatch patch)
@@ -70,6 +75,11 @@ public partial class Pokemon
         if (patch.HandlingTrainerGender is { } handlingTrainerGender)
             ApplyTrainerGender(handlingTrainerGender, nameof(PokemonPatch.HandlingTrainerGender), "handling trainer", value => Pkm.HandlingTrainerGender = value, () => Pkm.HandlingTrainerGender);
         if (patch.CurrentHandler is { } currentHandler) ApplyCurrentHandler(currentHandler);
+        if (patch.Version is { } version) ApplyVersion(version);
+        if (patch.MetLocation is { } metLocation) ApplyMetLocation(metLocation);
+        if (patch.MetLevel is { } metLevel) ApplyMetLevel(metLevel);
+        if (patch.MetDate is { } metDate) ApplyMetDate(metDate);
+        if (patch.FatefulEncounter is { } fatefulEncounter) ApplyFatefulEncounter(fatefulEncounter);
     }
 
     private void ApplySpecies(int id)
@@ -211,6 +221,43 @@ public partial class Pokemon
         Require(Pkm.CurrentHandler == (byte)handler, nameof(PokemonPatch.CurrentHandler), "This game can't store a handling trainer.");
     }
 
+    private void ApplyVersion(int id)
+    {
+        Require(Game.Options.OriginGames.Any(g => g.Id == id), nameof(PokemonPatch.Version), $"Origin game {id} isn't in this game.");
+        var group = GameUtil.GetMetLocationVersionGroup(Pkm.Version);
+        Pkm.Version = (GameVersion)id;
+        Require(Pkm.Version == (GameVersion)id, nameof(PokemonPatch.Version), $"Origin game {id} can't be stored in this game.");
+        if (GameUtil.GetMetLocationVersionGroup(Pkm.Version) != group)
+            Pkm.MetLocation = EncounterSuggestion.TryGetSuggestedTransferLocation(Pkm);
+    }
+
+    private void ApplyMetLocation(int id)
+    {
+        Require(MetLocationChoices().Any(l => l.Id == id), nameof(PokemonPatch.MetLocation), $"Met location {id} isn't in {Version.Name}.");
+        Pkm.MetLocation = (ushort)id;
+        Require(Pkm.MetLocation == id, nameof(PokemonPatch.MetLocation), $"Met location {id} can't be stored in this game.");
+    }
+
+    private void ApplyMetLevel(int level)
+    {
+        Require(level is >= 0 and <= 100, nameof(PokemonPatch.MetLevel), $"Met level must be between 0 and 100, got {level}.");
+        Pkm.MetLevel = (byte)level;
+        Require(Pkm.MetLevel == level, nameof(PokemonPatch.MetLevel), "Met level isn't stored in this game.");
+    }
+
+    private void ApplyMetDate(DateOnly date)
+    {
+        Require(date.Year is >= 2000 and <= 2099, nameof(PokemonPatch.MetDate), $"Met date must be between 2000 and 2099, got {date:yyyy-MM-dd}.");
+        Pkm.MetDate = date;
+        Require(Pkm.MetDate == date, nameof(PokemonPatch.MetDate), "Met date isn't stored in this game.");
+    }
+
+    private void ApplyFatefulEncounter(bool fatefulEncounter)
+    {
+        Pkm.FatefulEncounter = fatefulEncounter;
+        Require(Pkm.FatefulEncounter == fatefulEncounter, nameof(PokemonPatch.FatefulEncounter), "Fateful encounters aren't stored in this game.");
+    }
+
     private static void Require(bool condition, string field, string message)
     {
         if (!condition) throw new InvalidPatchException(field, message);
@@ -243,4 +290,23 @@ public partial class Pokemon
     private Choice[] FormChoices() => Form.HasForm
         ? FormRepository.GetFor(Pkm).Select(form => new Choice(form.Id, form.Name)).ToArray()
         : [];
+
+    private Choice[] MetLocationChoices()
+    {
+        if (Pkm.Format <= 1) return [];
+
+        var version = Pkm.Version;
+        // Mirrors PKHeX's editor: an origin game without its own location list borrows the save's, then the format's.
+        if (GameUtil.GetMetLocationVersionGroup(version) is GameVersion.Invalid)
+        {
+            version = Game.SaveFile.Version;
+            if (GameUtil.GetMetLocationVersionGroup(version) is GameVersion.Invalid || version is GameVersion.Any)
+                version = Pkm.Context.GetSingleGameVersion();
+        }
+
+        return GameInfo.GetLocationList(version, Pkm.Context)
+            .DistinctBy(location => location.Value)
+            .Select(location => new Choice(location.Value, location.Text))
+            .ToArray();
+    }
 }
