@@ -42,8 +42,6 @@ jobs:
         run: |
           cd src/PKHeX.Web/_js
 
-          echo "VITE_FIREBASE_ENABLED=false" >> .env
-
           npm ci
           npm run build
 

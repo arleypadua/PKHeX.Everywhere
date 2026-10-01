@@ -4,5 +4,4 @@ public enum PokemonSource
 {
     Party,
     Box,
-    Cloud,
 }

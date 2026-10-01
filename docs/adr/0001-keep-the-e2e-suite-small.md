@@ -11,7 +11,7 @@ All other coverage goes in `PKHeX.Facade.Tests`. If the cap is reached, drop or 
 
 ## Why block outbound network traffic
 
-The Sentry DSN and Google Analytics ID are hardcoded in `src/PKHeX.Web/Program.cs`, with no config switch. The tests abort every request to a host other than the local one. This keeps them hermetic and out of production telemetry without app changes. Adding a config switch was rejected: it changes app code only for tests, and a missed service would still leak. Blocking at the browser catches any third-party call. Firebase is turned off at build time with `VITE_FIREBASE_ENABLED=false`.
+The Sentry DSN and Google Analytics ID are hardcoded in `src/PKHeX.Web/Program.cs`, with no config switch. The tests abort every request to a host other than the local one. This keeps them hermetic and out of production telemetry without app changes. Adding a config switch was rejected: it changes app code only for tests, and a missed service would still leak. Blocking at the browser catches any third-party call.
 
 ## Why a Release build
 

@@ -53,7 +53,7 @@ for port in 5062 5173; do
 done
 
 if [ ! -f "$web/wwwroot/js/pkhex-web.js.iife.js" ]; then
-  (cd "$web/_js" && npm ci --include=dev && VITE_FIREBASE_ENABLED=false npm run build)
+  (cd "$web/_js" && npm ci --include=dev && npm run build)
 fi
 [ -d "$here/node_modules" ] || (cd "$here" && npm ci --include=dev)
 
