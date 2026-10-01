@@ -14,12 +14,16 @@ using Pokemon = PKHeX.Facade.Pokemons.Pokemon;
 
 namespace PKHeX.Everywhere.Engine.Tests;
 
-public class PlugInAutoLegalityTests
+public class PlugInAutoLegalityTests : IDisposable
 {
     private const string AutoLegality = "PKHeX.Web.Plugins.AutoLegality";
     private const string Legalize = $"{AutoLegality}.MakeLegalOnClick";
     private const string LegalizeOnChange = $"{AutoLegality}.MakeLegalOnChange";
     private const string LegalizeOnSave = $"{AutoLegality}.MakeLegalOnSave";
+    private const string Timeout = "Timeout (seconds)";
+    private const string ForceLevel100 = "Force lvl 100 from 50";
+
+    public void Dispose() => Facade.AutoLegality.ApplyDefaultConfiguration();
 
     private static (Session Session, PlugInHost Host, List<PlugInRan> Ran) Hosted()
     {
@@ -28,6 +32,7 @@ public class PlugInAutoLegalityTests
         var ran = new List<PlugInRan>();
         host.Ran += ran.Add;
         host.Register(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "plugins", $"{AutoLegality}.dll")));
+        host.UpdateSetting(AutoLegality, Timeout, new Settings.SettingValue.IntegerValue(15));
         return (session, host, ran);
     }
 
@@ -44,7 +49,7 @@ public class PlugInAutoLegalityTests
 
     private static string Call(string id, PokemonHandle at) => JsonSerializer.Serialize(new object[]
     {
-        id, new { source = "party", slot = at.Slot, box = at.Box },
+        id, new { source = at.Source == SlotSource.Party ? "party" : "box", slot = at.Slot, box = at.Box },
     });
 
     [Fact]
@@ -83,8 +88,8 @@ public class PlugInAutoLegalityTests
     public void ItsSettingsConfigureAutoLegalityModeBeforeEachRun()
     {
         var (session, host, _) = Hosted();
-        host.UpdateSetting(AutoLegality, "Timeout (seconds)", new Settings.SettingValue.IntegerValue(7));
-        host.UpdateSetting(AutoLegality, "Force lvl 100 from 50", new Settings.SettingValue.BooleanValue(true));
+        host.UpdateSetting(AutoLegality, Timeout, new Settings.SettingValue.IntegerValue(7));
+        host.UpdateSetting(AutoLegality, ForceLevel100, new Settings.SettingValue.BooleanValue(true));
         APILegality.Timeout = 1;
         APILegality.ForceLevel100for50 = false;
 
@@ -118,6 +123,8 @@ public class PlugInAutoLegalityTests
     public async Task DoesNothingOnChangeOrOnSaveWhenToggledOff()
     {
         var (session, host, ran) = Hosted();
+        host.SetToggle(AutoLegality, LegalizeOnChange, false);
+        host.SetToggle(AutoLegality, LegalizeOnSave, false);
         var (_, pikachu) = IllegalPikachu(session);
 
         await host.PokemonChanged(pikachu);
