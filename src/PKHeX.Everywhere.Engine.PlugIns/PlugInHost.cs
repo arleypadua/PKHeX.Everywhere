@@ -85,7 +85,7 @@ public sealed class PlugInHost
 
     public Task RunAll<THook>(Func<THook, Task<Outcome>> run) where THook : IPluginHook => Run(run);
 
-    private async Task<bool> Run<THook>(Func<THook, Task<Outcome>> run) where THook : IPluginHook
+    private async Task Run<THook>(Func<THook, Task<Outcome>> run, Action? afterHooks = null) where THook : IPluginHook
     {
         var hooks = _plugIns.Values
             .Where(p => p.Enabled)
@@ -95,20 +95,24 @@ public sealed class PlugInHost
         _runningHook.Value = true;
         foreach (var (plugInId, hookId, hook) in hooks)
         {
+            PlugInRan ran;
             try
             {
-                var outcome = await run(hook);
-                Ran?.Invoke(new PlugInRan(plugInId, hookId, outcome, null));
+                ran = new PlugInRan(plugInId, hookId, await run(hook), null);
             }
             catch (Exception e)
             {
                 Record(new PlugInFailure(plugInId, hookId, e.Message, e.StackTrace));
-                Ran?.Invoke(new PlugInRan(plugInId, hookId, null, e));
+                ran = new PlugInRan(plugInId, hookId, null, e);
             }
+
+            Ran?.Invoke(ran);
         }
 
-        if (hooks.Count > 0) _session.Invalidate(Topics.All);
-        return hooks.Count > 0;
+        if (hooks.Count == 0) return;
+
+        afterHooks?.Invoke();
+        _session.Invalidate(Topics.All);
     }
 
     // Events raised while a hook runs come from the hook's own writes, so running hooks for them could loop.
@@ -120,7 +124,7 @@ public sealed class PlugInHost
     private async Task RunOnPokemonAt<THook>(PokemonHandle at, Func<THook, Pokemon, Task<Outcome>> run) where THook : IPluginHook
     {
         var slot = _session.RequireGame().Find(at);
-        if (await Run<THook>(h => run(h, slot.Pokemon))) slot.Save();
+        await Run<THook>(h => run(h, slot.Pokemon), slot.Save);
     }
 
     private void Record(PlugInFailure failure)
