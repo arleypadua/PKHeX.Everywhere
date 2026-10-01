@@ -5,7 +5,6 @@ on:
   # push:
   #   branches: [ "main" ]
   #   paths:
-  #     - 'src/PKHeX.Web.Plugins/**'
   #     - 'src/PKHeX.Web.Plugins*/**'
       
   workflow_dispatch:

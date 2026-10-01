@@ -35,9 +35,11 @@ public sealed class PlugInHost
         ? host
         : throw new EngineException(ErrorCodes.Unexpected, "No plug-in host is attached to the session.");
 
-    public static IReadOnlySet<int> SupportedSdks { get; } = new HashSet<int> { (int)PlugInSdk.V1, (int)PlugInSdk.V2 };
+    public static IReadOnlySet<int> SupportedSdks { get; } = new HashSet<int> { (int)PlugInSdk.V2 };
 
     public static PlugInSdk DetectSdk(byte[] assembly) => PlugInSdkDetector.Detect(assembly);
+
+    public static bool IsSupported(byte[] assembly) => SupportedSdks.Contains((int)DetectSdk(assembly));
 
     public static PublishedVersion? NewestCompatible(IEnumerable<PublishedVersion> versions) => versions
         .Where(v => SupportedSdks.Contains(v.Sdk))
@@ -49,8 +51,24 @@ public sealed class PlugInHost
             ? null
             : NewestCompatible(versions.Where(v => v.Sdk > (int)sdk));
 
-    public static PublishedVersion? NewestUpdateFor(byte[] installed, IEnumerable<PublishedVersion> versions) =>
-        NewestCompatible(versions.Where(v => v.Sdk >= (int)DetectSdk(installed)));
+    public async Task<CompatibleUpdate?> UpdateToCompatible(
+        byte[] installed,
+        StoredPlugIn stored,
+        IEnumerable<PublishedVersion> versions,
+        Func<PublishedVersion, Task<byte[]>> download)
+    {
+        if (SdkUpdateFor(installed, versions) is not { } version) return null;
+
+        try
+        {
+            var assembly = await download(version);
+            return new CompatibleUpdate(Register(assembly, stored), version, assembly);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
 
     public RegisteredPlugIn Register(byte[] assembly, StoredPlugIn? stored = null)
     {
@@ -253,6 +271,8 @@ public sealed record StoredPlugIn(
     bool Enabled,
     IReadOnlyDictionary<string, bool> Toggles,
     IReadOnlyDictionary<string, Settings.SettingValue> Settings);
+
+public sealed record CompatibleUpdate(RegisteredPlugIn PlugIn, PublishedVersion Version, byte[] Assembly);
 
 public sealed record PlugInRan(string PlugInId, string HookId, Outcome? Outcome, Exception? Failure);
 

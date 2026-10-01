@@ -1,7 +1,6 @@
 @page "/cloud/pokemon/{Id}"
 @using PKHeX.Web.BackendApi
 @using PKHeX.Web.BackendApi.Repositories
-@using PKHeX.Web.Plugins
 @using PKHeX.Web.Services.Auth
 @using PKHeX.Web.Services.Plugins
 @inject AuthService Auth
@@ -19,8 +18,6 @@
             ShowCloudTab />
 
         <Space Align="SpaceAlign.End" Style="width: 100%; align-items: center; justify-content: end; gap:  10px;" Direction="SpaceDirection.Horizontal">
-            @{ var actions = PlugInRegistry.GetAllEnabledHooks<IPokemonEditAction>().ToList(); }
-
             <DropdownButton
                 Type="@ButtonType.Primary"
                 OnClick="HandleSaveClick"
@@ -35,12 +32,6 @@
                             </Button>
                         </MenuItem>
 
-                        @foreach (var action in actions)
-                        {
-                            <MenuItem>
-                                @RenderActionButton(action)
-                            </MenuItem>
-                        }
                         @foreach (var action in PlugInHost.Actions(ActionPlacement.Pokemon))
                         {
                             <MenuItem>
@@ -58,9 +49,7 @@
 }
 
 @code {
-    [Inject] public required PlugInRuntime PlugInRuntime { get; set; }
     [Inject] public required PKHeX.Everywhere.Engine.PlugIns.PlugInHost PlugInHost { get; set; }
-    [Inject] public required PlugInRegistry PlugInRegistry { get; set; }
     [Inject] public required JsService Js { get; set; }
     [Inject] public required AnalyticsService Analytics { get; set; }
     [Inject] public required SyncPokemonQueue SyncPokemonQueue { get; set; }
@@ -111,7 +100,6 @@
     private async Task HandleSaveClick()
     {
         if (_originalPokemon is null || _editingPokemon is null) return;
-        await PlugInRuntime.RunAll<IRunOnPokemonSave>(h => h.OnPokemonSaved(_editingPokemon));
         await PlugInHost.PokemonSaved(_editingPokemon);
 
         TrackSaved(_editingPokemon);
@@ -127,23 +115,6 @@
     private void TrackSaved(Pokemon pokemon)
     {
         Analytics.TrackPokemon("pokemon_saved", pokemon, PokemonSource.Cloud);
-    }
-
-    private RenderFragment? RenderActionButton(IPokemonEditAction action)
-    {
-        if (_editingPokemon is null) return null;
-
-        return
-            @<Button
-                 Type="@ButtonType.Link"
-                 OnClick="() => HandleActionButtonClick(action)">
-                @action.Label
-            </Button>;
-    }
-
-    private async Task HandleActionButtonClick(IPokemonEditAction action)
-    {
-        await PlugInRuntime.RunOn(action, (_) => action.OnActionRequested(_editingPokemon!));
     }
 
     private async Task ExportPokemonToFile()

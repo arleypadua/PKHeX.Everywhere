@@ -9,17 +9,17 @@ public class PlugInLocalStorageLoader(
     PlugInSourceService sourceService,
     PlugInSourceLocalStorage plugInSourceLocalStorage,
     PlugInLocalStorage plugInLocalStorage,
-    PlugInService plugInService,
+    PlugInHost host,
+    HttpClient httpClient,
+    AnalyticsService analytics,
     INotificationService notification,
     ILogger<PlugInLocalStorageLoader> logger)
 {
     public async Task InitializePlugIns()
     {
-        var installed = await plugInStorage.RestoreAll();
-        foreach (var plugIn in installed)
-        {
-            registry.Register(plugIn);
-        }
+        var restored = await plugInStorage.RestoreAll();
+        foreach (var plugIn in restored.Installed) registry.Register(plugIn);
+        foreach (var plugIn in restored.Incompatible) registry.MarkNeedsReinstall(plugIn);
 
         _ = CheckNewVersions();
     }
@@ -27,7 +27,7 @@ public class PlugInLocalStorageLoader(
     private async Task CheckNewVersions()
     {
         await UpdatePlugInSources();
-        await UpdateToNewerSdks();
+        await UpdateIncompatiblePlugIns();
         await CheckPlugInVersions();
     }
 
@@ -56,27 +56,27 @@ public class PlugInLocalStorageLoader(
         }
     }
 
-    private async Task UpdateToNewerSdks()
+    private async Task UpdateIncompatiblePlugIns()
     {
-        foreach (var installed in registry.GetAllPlugins().ToList())
+        foreach (var incompatible in registry.NeedsReinstall.ToList())
         {
-            try
-            {
-                var source = plugInSourceLocalStorage.GetSources().FirstOrDefault(s => s.SourceUrl == installed.SourceId);
-                if (source is null) continue;
-                var sourcePlugIn = source.PlugIns.FirstOrDefault(p => p.Id == installed.Id);
-                if (sourcePlugIn is null) continue;
+            var source = plugInSourceLocalStorage.GetSources().FirstOrDefault(s => s.SourceUrl == incompatible.SourceId);
+            var sourcePlugIn = source?.PlugIns.FirstOrDefault(p => p.Id == incompatible.Id);
+            if (source is null || sourcePlugIn is null) continue;
 
-                var update = PlugInHost.SdkUpdateFor(installed.AssemblyRawBytes, sourcePlugIn.PublishedVersions);
-                if (update is null) continue;
-
-                logger.LogInformation("Updating plug-in {id} to {version} for SDK {sdk}", installed.Id, update.Version, update.Sdk);
-                await plugInService.UpdateKeepingSettings(installed, source.GetDownloadUrl(sourcePlugIn, update));
-            }
-            catch (Exception e)
+            var update = await host.UpdateToCompatible(incompatible.AssemblyRawBytes, incompatible.Stored,
+                sourcePlugIn.PublishedVersions,
+                version => httpClient.GetByteArrayAsync(source.GetDownloadUrl(sourcePlugIn, version)));
+            if (update is null)
             {
-                logger.LogError(e, "Failed to update plug-in {id} to a newer SDK", installed.Id);
+                logger.LogWarning("Plug-in {id} couldn't update to a version this app can run and needs reinstall", incompatible.Id);
+                continue;
             }
+
+            logger.LogInformation("Updated plug-in {id} to {version} for SDK {sdk}", incompatible.Id, update.Version.Version, update.Version.Sdk);
+            var installed = registry.Register(source.SourceUrl, source.GetDownloadUrl(sourcePlugIn, update.Version), update);
+            await plugInLocalStorage.Persist(installed);
+            analytics.TrackUpdated(installed);
         }
     }
 
@@ -126,7 +126,7 @@ public class PlugInLocalStorageLoader(
                         continue;
                     }
 
-                    var latestVersionString = PlugInHost.NewestUpdateFor(installedPlugIn.AssemblyRawBytes, plugInManifest.PublishedVersions)?.Version;
+                    var latestVersionString = plugInManifest.NewestCompatibleVersion?.Version;
                     if (latestVersionString is null)
                     {
                         logger.LogWarning(

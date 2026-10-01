@@ -25,7 +25,7 @@ public class PlugInService(
         var sourcePlugIn = source.PlugIns.FirstOrDefault(p => p.Id == plugIn.Id);
         if (sourcePlugIn is null) return false;
 
-        var version = PlugInHost.NewestUpdateFor(plugIn.AssemblyRawBytes, sourcePlugIn.PublishedVersions);
+        var version = sourcePlugIn.NewestCompatibleVersion;
         if (version is null) return false;
 
         var downloadUrl = source.GetDownloadUrl(sourcePlugIn, version);
@@ -35,20 +35,9 @@ public class PlugInService(
         return true;
     }
 
-    public async Task UpdateKeepingSettings(InstalledPlugIn plugIn, string fileUrl)
+    public async Task Uninstall(string plugInId)
     {
-        var stored = new StoredPlugIn(
-            plugIn.Enabled,
-            plugIn.HookIds.ToDictionary(id => id, plugIn.IsHookEnabled),
-            plugIn.SettingValues.ToDictionary());
-        var updatedPlugIn = await InstallFrom(plugIn.SourceId, fileUrl, stored);
-
-        analyticsService.TrackUpdated(updatedPlugIn);
-    }
-
-    public async Task Uninstall(InstalledPlugIn plugIn)
-    {
-        registry.Deregister(plugIn);
-        await localStorage.Remove(plugIn);
+        registry.Deregister(plugInId);
+        await localStorage.Remove(plugInId);
     }
 }

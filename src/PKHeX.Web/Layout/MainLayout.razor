@@ -176,12 +176,20 @@
     }
 
 
-    private void OnPlugInChanged(InstalledPlugIn plugin, PlugInRegistry.ChangeType type)
+    private void OnPlugInChanged(string plugInId, PlugInRegistry.ChangeType type)
     {
-        if (type == PlugInRegistry.ChangeType.Deregistered)
-            Navigation.NavigateToPlugIns();
-        else
-            Navigation.NavigateToPlugIn(plugin);
+        switch (type)
+        {
+            case PlugInRegistry.ChangeType.Deregistered:
+                Navigation.NavigateToPlugIns();
+                break;
+            case PlugInRegistry.ChangeType.Registered:
+                Navigation.NavigateToPlugIn(plugInId);
+                break;
+            default:
+                InvokeAsync(StateHasChanged);
+                break;
+        }
     }
 
     private RenderFragment RenderMenu(MenuItem item) =>

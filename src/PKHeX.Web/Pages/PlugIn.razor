@@ -122,7 +122,7 @@
         try
         {
             _plugIn = PlugInRegistry.GetBy(Id);
-            _features = PlugInRegistry.GetAllHooksOf(_plugIn).ToList();
+            _features = _plugIn.Registered.Hooks.ToList();
 
             ShouldRender();
         }

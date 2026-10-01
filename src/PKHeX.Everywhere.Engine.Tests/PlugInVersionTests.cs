@@ -7,7 +7,7 @@ namespace PKHeX.Everywhere.Engine.Tests;
 public class PlugInVersionTests
 {
     private static byte[] V2PlugIn => PlugInBytes("PKHeX.Everywhere.Engine.Tests.PlugIn");
-    private static byte[] V1PlugIn => PlugInBytes("PKHeX.Everywhere.Engine.Tests.PlugInV1");
+    private static byte[] V1PlugIn => PlugInBytes("V1PlugIn");
 
     private static byte[] PlugInBytes(string name) =>
         File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "plugins", $"{name}.dll"));
@@ -41,11 +41,19 @@ public class PlugInVersionTests
     }
 
     [Fact]
-    public void PicksTheNewestVersionFromAManifestWithoutSdk()
+    public void PicksNothingFromAManifestWithoutSdk()
     {
-        var newest = PlugInHost.NewestCompatible(Versions("""["1.0.9", "1.0.10", "1.0.0"]"""));
+        PlugInHost.NewestCompatible(Versions("""["1.0.9", "1.0.10", "1.0.0"]""")).Should().BeNull();
+    }
 
-        newest.Should().Be(new PublishedVersion("1.0.10", 1));
+    [Fact]
+    public void PicksTheNewestVersionComparingVersionNumbers()
+    {
+        var newest = PlugInHost.NewestCompatible(Versions("""
+            [{ "Version": "2.0.9", "Sdk": 2 }, { "Version": "2.0.10", "Sdk": 2 }, { "Version": "2.0.0", "Sdk": 2 }]
+            """));
+
+        newest.Should().Be(new PublishedVersion("2.0.10", 2));
     }
 
     [Fact]
@@ -68,8 +76,8 @@ public class PlugInVersionTests
     [Fact]
     public void SkipsVersionsThatArentVersionNumbers()
     {
-        PlugInHost.NewestCompatible(Versions("""["1.0.0", "latest"]"""))
-            .Should().Be(new PublishedVersion("1.0.0", 1));
+        PlugInHost.NewestCompatible(Versions("""[{ "Version": "2.0.0", "Sdk": 2 }, { "Version": "latest", "Sdk": 2 }]"""))
+            .Should().Be(new PublishedVersion("2.0.0", 2));
     }
 
     [Fact]
@@ -101,14 +109,5 @@ public class PlugInVersionTests
     public void AnUnknownInstalledSdkDoesntUpdate()
     {
         PlugInHost.SdkUpdateFor([1, 2, 3], Versions("""[{ "Version": "2.0.0", "Sdk": 2 }]""")).Should().BeNull();
-    }
-
-    [Fact]
-    public void TheNewestUpdateNeverGoesBackToAnOlderSdk()
-    {
-        var versions = Versions("""[{ "Version": "2.0.0", "Sdk": 2 }, "2.0.1"]""");
-
-        PlugInHost.NewestUpdateFor(V2PlugIn, versions).Should().Be(new PublishedVersion("2.0.0", 2));
-        PlugInHost.NewestUpdateFor(V1PlugIn, versions).Should().Be(new PublishedVersion("2.0.1", 1));
     }
 }

@@ -44,10 +44,13 @@
     <ProjectReference Include="..\PKHeX.Everywhere.Engine.CodeGen\PKHeX.Everywhere.Engine.CodeGen.csproj" />
     <ProjectReference Include="..\PKHeX.Everywhere.Engine.PlugIns\PKHeX.Everywhere.Engine.PlugIns.csproj" />
     <ProjectReference Include="..\PKHeX.Everywhere.Engine.Tests.PlugIn\PKHeX.Everywhere.Engine.Tests.PlugIn.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
-    <ProjectReference Include="..\PKHeX.Everywhere.Engine.Tests.PlugInV1\PKHeX.Everywhere.Engine.Tests.PlugInV1.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
     <ProjectReference Include="..\PKHeX.Web.Plugins.Nuzlocking\PKHeX.Web.Plugins.Nuzlocking.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
     <ProjectReference Include="..\PKHeX.Web.Plugins.LiveRun\PKHeX.Web.Plugins.LiveRun.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
     <ProjectReference Include="..\PKHeX.Web.Plugins.AutoLegality\PKHeX.Web.Plugins.AutoLegality.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Fixtures\V1PlugIn.dll" Link="plugins\V1PlugIn.dll" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Plug-ins are copied aside instead of referenced, so tests load them from bytes as the app does. -->
