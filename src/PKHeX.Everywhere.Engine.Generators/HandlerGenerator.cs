@@ -129,6 +129,7 @@ public sealed class HandlerGenerator : IIncrementalGenerator
         var sb = new StringBuilder();
         var arguments = new List<string>();
         var written = new List<string>();
+        var mayWriteNothing = false;
         var jsonIndex = 0;
 
         sb.AppendLine($"            case \"{name}\":");
@@ -150,7 +151,12 @@ public sealed class HandlerGenerator : IIncrementalGenerator
             var read = json.Read(parameter.Type, $"args[{jsonIndex}]", location);
             sb.AppendLine($"                var a{jsonIndex} = Arg<{type}>(\"{parameter.Name}\", () => {read});");
             arguments.Add($"a{jsonIndex}");
-            if (IsHandle(parameter.Type)) written.Add($"a{jsonIndex}.Topic()");
+            if (IsHandle(parameter.Type))
+            {
+                var nullable = parameter.Type.NullableAnnotation == NullableAnnotation.Annotated;
+                mayWriteNothing |= nullable;
+                written.Add(nullable ? $"a{jsonIndex}?.Topic()" : $"a{jsonIndex}.Topic()");
+            }
             jsonIndex++;
         }
 
@@ -158,10 +164,12 @@ public sealed class HandlerGenerator : IIncrementalGenerator
 
         if (IsCommand(method))
         {
-            var topics = string.Join(", ", written.Concat(DeclaredTopics(method)));
+            var topics = $"new string[] {{ {string.Join(", ", written.Concat(DeclaredTopics(method)))} }}";
+            if (mayWriteNothing)
+                topics = $"global::System.Linq.Enumerable.ToArray(global::System.Linq.Enumerable.OfType<string>({topics}))";
             invocation = method.ReturnsVoid
-                ? $"session.RunCommand(new string[] {{ {topics} }}, () => {{ {invocation}; return true; }})"
-                : $"session.RunCommand(new string[] {{ {topics} }}, () => {invocation})";
+                ? $"session.RunCommand({topics}, () => {{ {invocation}; return true; }})"
+                : $"session.RunCommand({topics}, () => {invocation})";
         }
 
         if (method.ReturnsVoid)

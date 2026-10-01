@@ -15,6 +15,7 @@ export const queryTopics: Record<QueryName, readonly Topic[]> = {
   'inventory.get': ['inventory'],
   'party.get': ['party'],
   'party.showdown': ['party'],
+  'plugins.actions': ['*'],
   'plugins.failures': ['*'],
   'pokemon.get': ['party', 'box'],
   'pokemon.showdown': ['party', 'box'],

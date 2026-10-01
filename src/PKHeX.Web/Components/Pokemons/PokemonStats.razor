@@ -4,6 +4,7 @@
 @using PKHeX.Web.Services.Plugins
 @inject PlugInRegistry PlugInRegistry
 @inject PlugInRuntime PlugInRuntime
+@inject PlugInHost PlugInHost
 
 <Flex Style="gap: 20px;" Wrap="FlexWrap.Wrap">
     @foreach (var description in Descriptions)
@@ -57,12 +58,17 @@
 </Flex>
 
 @{ var actions = PlugInRegistry.GetAllEnabledHooks<IPokemonStatsEditAction>().ToList(); }
-@if (actions.Any())
+@{ var hostActions = PlugInHost.Actions(ActionPlacement.PokemonStats); }
+@if (actions.Any() || hostActions.Any())
 {
     <div class="stat_actions">
         @foreach (var action in actions)
         {
             @RenderActionButton(action)
+        }
+        @foreach (var action in hostActions)
+        {
+            <PlugInActionButton Action="action" Target="Pokemon" OnRan="StateHasChanged"/>
         }
     </div>
 }

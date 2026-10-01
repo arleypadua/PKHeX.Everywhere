@@ -13,5 +13,6 @@ public static class ErrorCodes
     public const string NotInGame = "not-in-game";
     public const string UnknownCall = "unknown-call";
     public const string BadArguments = "bad-arguments";
+    public const string PlugInFailed = "plugin-failed";
     public const string Unexpected = "unexpected";
 }

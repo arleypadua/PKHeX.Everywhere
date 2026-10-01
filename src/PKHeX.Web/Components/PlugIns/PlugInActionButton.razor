@@ -1,0 +1,32 @@
+@inject PlugInHost PlugInHost
+
+@if (Action.Disabled && !string.IsNullOrWhiteSpace(Action.Reason))
+{
+    <Tooltip Title="@Action.Reason">
+        @RenderButton()
+    </Tooltip>
+}
+else
+{
+    @RenderButton()
+}
+
+@code {
+    [Parameter, EditorRequired] public required PlugInAction Action { get; set; }
+    [Parameter] public Pokemon? Target { get; set; }
+    [Parameter] public EventCallback OnRan { get; set; }
+
+    private RenderFragment RenderButton() =>
+        @<Button
+             Type="@ButtonType.Link"
+             OnClick="Run"
+             Disabled="@Action.Disabled">
+            @Action.Label
+        </Button>;
+
+    private async Task Run()
+    {
+        await PlugInHost.RunAction(Action.Id, Target);
+        await OnRan.InvokeAsync();
+    }
+}

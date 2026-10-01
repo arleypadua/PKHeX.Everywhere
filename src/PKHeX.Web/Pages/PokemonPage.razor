@@ -36,6 +36,12 @@
                                 @RenderActionButton(action)
                             </MenuItem>
                         }
+                        @foreach (var action in PlugInHost.Actions(ActionPlacement.Pokemon))
+                        {
+                            <MenuItem>
+                                <PlugInActionButton Action="action" Target="_editingPokemon" OnRan="StateHasChanged"/>
+                            </MenuItem>
+                        }
                     </Menu>
                 </Overlay>
                 <ChildContent>

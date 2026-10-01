@@ -61,25 +61,59 @@ public sealed class PlugInHost
         var plugIn = new RegisteredPlugIn(loaded, CreateSettings(loaded), _game);
         if (stored is not null) Restore(plugIn, stored);
 
-        Unregister(plugIn.Id);
+        if (_plugIns.Remove(plugIn.Id, out var replaced)) replaced.Dispose();
         _plugIns[plugIn.Id] = plugIn;
+        _session.Invalidate(Topics.All);
         return plugIn;
     }
 
     public void Unregister(string id)
     {
-        if (_plugIns.Remove(id, out var plugIn)) plugIn.Dispose();
+        if (!_plugIns.Remove(id, out var plugIn)) return;
+
+        plugIn.Dispose();
+        _session.Invalidate(Topics.All);
     }
 
     public IReadOnlyList<RegisteredPlugIn> List() => _plugIns.Values.ToList();
 
     public RegisteredPlugIn? Find(string id) => _plugIns.GetValueOrDefault(id);
 
-    public void SetEnabled(string id, bool enabled) => Get(id).Enabled = enabled;
+    public void SetEnabled(string id, bool enabled)
+    {
+        Get(id).Enabled = enabled;
+        _session.Invalidate(Topics.All);
+    }
 
-    public void SetToggle(string id, string hookId, bool enabled) => Get(id).SetToggle(hookId, enabled);
+    public void SetToggle(string id, string hookId, bool enabled)
+    {
+        Get(id).SetToggle(hookId, enabled);
+        _session.Invalidate(Topics.All);
+    }
 
-    public void UpdateSetting(string id, string key, Settings.SettingValue value) => Get(id).Settings[key] = value;
+    public void UpdateSetting(string id, string key, Settings.SettingValue value)
+    {
+        Get(id).Settings[key] = value;
+        _session.Invalidate(Topics.All);
+    }
+
+    public IReadOnlyList<PlugInAction> Actions(ActionPlacement placement) => EnabledActions(placement)
+        .Select(a => new PlugInAction(a.HookId, a.PlugInId, a.Label, a.Hook.Description, a.DisabledInfo.Disabled, a.DisabledInfo.Reason))
+        .ToList();
+
+    public async Task<PlugInRan> RunAction(string id, Pokemon? target = null)
+    {
+        ActionPlacement[] placements = target is null ? [ActionPlacement.Quick] : [ActionPlacement.Pokemon, ActionPlacement.PokemonStats];
+        var action = placements.SelectMany(EnabledActions).FirstOrDefault(a => a.HookId == id)
+                     ?? throw new EngineException(ErrorCodes.NotFound, $"No enabled plug-in action {id}.");
+
+        if (action.DisabledInfo.Disabled)
+            throw new EngineException(ErrorCodes.BadArguments, $"{action.Label} is disabled{(action.DisabledInfo.Reason is { } reason ? $": {reason}" : ".")}");
+
+        var ran = await RunHook(action.PlugInId, action.HookId, () => action.Run(target));
+        _session.Invalidate(Topics.All);
+        return ran;
+    }
 
     public void Dismiss(PlugInFailure failure)
     {
@@ -102,32 +136,51 @@ public sealed class PlugInHost
 
     private async Task Run<THook>(Func<THook, Task<Outcome>> run, Action? afterHooks = null) where THook : IPluginHook
     {
-        var hooks = _plugIns.Values
-            .Where(p => p.Enabled)
-            .SelectMany(p => p.EnabledHooksOf<THook>(), (p, h) => (PlugInId: p.Id, HookId: h.Id, h.Hook))
-            .ToList();
-
-        _runningHook.Value = true;
-        foreach (var (plugInId, hookId, hook) in hooks)
-        {
-            PlugInRan ran;
-            try
-            {
-                ran = new PlugInRan(plugInId, hookId, await run(hook), null);
-            }
-            catch (Exception e)
-            {
-                Record(new PlugInFailure(plugInId, hookId, e.Message, e.StackTrace));
-                ran = new PlugInRan(plugInId, hookId, null, e);
-            }
-
-            Ran?.Invoke(ran);
-        }
+        var hooks = EnabledHooksOf<THook>().ToList();
+        foreach (var (plugInId, hookId, hook) in hooks) await RunHook(plugInId, hookId, () => run(hook));
 
         if (hooks.Count == 0) return;
 
         afterHooks?.Invoke();
         _session.Invalidate(Topics.All);
+    }
+
+    private async Task<PlugInRan> RunHook(string plugInId, string hookId, Func<Task<Outcome>> run)
+    {
+        _runningHook.Value = true;
+        PlugInRan ran;
+        try
+        {
+            ran = new PlugInRan(plugInId, hookId, await run(), null);
+        }
+        catch (Exception e)
+        {
+            Record(new PlugInFailure(plugInId, hookId, e.Message, e.StackTrace));
+            ran = new PlugInRan(plugInId, hookId, null, e);
+        }
+
+        Ran?.Invoke(ran);
+        return ran;
+    }
+
+    private IEnumerable<(string PlugInId, string HookId, THook Hook)> EnabledHooksOf<THook>() where THook : IPluginHook => _plugIns.Values
+        .Where(p => p.Enabled)
+        .SelectMany(p => p.EnabledHooksOf<THook>(), (p, h) => (p.Id, h.Id, h.Hook));
+
+    private IEnumerable<EnabledAction> EnabledActions(ActionPlacement placement) => placement switch
+    {
+        ActionPlacement.Quick => EnabledHooksOf<IQuickAction>()
+            .Select(h => new EnabledAction(h.PlugInId, h.HookId, h.Hook, h.Hook.Label, _ => h.Hook.OnActionRequested())),
+        ActionPlacement.Pokemon => EnabledHooksOf<IPokemonEditAction>()
+            .Select(h => new EnabledAction(h.PlugInId, h.HookId, h.Hook, h.Hook.Label, p => h.Hook.OnActionRequested(p!))),
+        ActionPlacement.PokemonStats => EnabledHooksOf<IPokemonStatsEditAction>()
+            .Select(h => new EnabledAction(h.PlugInId, h.HookId, h.Hook, h.Hook.Label, p => h.Hook.OnActionRequested(p!))),
+        _ => throw new ArgumentOutOfRangeException(nameof(placement), placement, null),
+    };
+
+    private sealed record EnabledAction(string PlugInId, string HookId, IPluginHook Hook, string Label, Func<Pokemon?, Task<Outcome>> Run)
+    {
+        public IDisable.DisableInfo DisabledInfo => Hook is IDisable disable ? disable.DisabledInfo : IDisable.Enabled;
     }
 
     // Events raised while a hook runs come from the hook's own writes, so running hooks for them could loop.

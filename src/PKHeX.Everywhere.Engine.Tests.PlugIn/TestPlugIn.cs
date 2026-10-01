@@ -52,6 +52,15 @@ public class OpenHello : IQuickAction
     public Task<Outcome> OnActionRequested() => Outcome.OpenPage("hello").Completed();
 }
 
+public class Unavailable : IQuickAction
+{
+    public string Description => "Is never available";
+    public string Label => "Unavailable";
+    public IDisable.DisableInfo DisabledInfo => IDisable.Disabled();
+
+    public Task<Outcome> OnActionRequested() => Outcome.Notify("Ran anyway").Completed();
+}
+
 public class EchoItem : IRunOnItemChanged
 {
     public string Description => "Echoes the changed item";
