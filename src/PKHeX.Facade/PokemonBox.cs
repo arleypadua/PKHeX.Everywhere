@@ -40,12 +40,27 @@ public class PokemonBox : IMutablePokemonCollection
         return true;
     }
 
+    internal void RefreshPartyMembers()
+    {
+        if (_game.SaveFile is not SAV7b { Blocks.Storage: var storage } save) return;
+
+        for (var i = 0; i < _pokemonList.Count; i++)
+            if (storage.IsParty(i)) _pokemonList[i] = new Pokemon(save.GetBoxSlotAtIndex(i), _game);
+
+        IndexBySpecies();
+    }
+
     private void PopulateFromSave()
     {
         _pokemonList = _game.SaveFile.BoxData
             .Select(p => new Pokemon(p, _game))
             .ToList();
 
+        IndexBySpecies();
+    }
+
+    private void IndexBySpecies()
+    {
         BySpecies = _pokemonList
             .Where(p => p.Species != Species.None)
             .GroupBy(p => p.Species)

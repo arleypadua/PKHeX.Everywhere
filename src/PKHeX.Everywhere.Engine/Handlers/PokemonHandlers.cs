@@ -13,7 +13,7 @@ public static class PokemonHandlers
     public static string Showdown(Game game, PokemonHandle at) => game.Find(at).Pokemon.Showdown();
 
     [Command("pokemon.setLevel")]
-    public static void SetLevel(Game game, PokemonHandle at, int level)
+    public static void SetLevel(Session session, Game game, PokemonHandle at, int level)
     {
         if (level is < 1 or > 100)
             throw new EngineException(ErrorCodes.OutOfRange, $"Level must be between 1 and 100, got {level}.");
@@ -21,5 +21,6 @@ public static class PokemonHandlers
         var slot = game.Find(at);
         slot.Pokemon.ChangeLevel(level);
         slot.Commit();
+        session.Wrote(slot.Topics);
     }
 }

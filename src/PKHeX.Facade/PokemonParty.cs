@@ -18,6 +18,7 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
         {
             for (var i = 0; i < _partyData.Count; i++)
                 game.SaveFile.SetPartySlotAtIndex(_partyData[i], i);
+            game.Trainer.PokemonBox.RefreshPartyMembers();
             return;
         }
 

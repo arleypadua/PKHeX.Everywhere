@@ -9,6 +9,7 @@ public sealed class Session
 
     private readonly List<Invoker> _handlers = [];
     private List<IEngineEvent>? _raised;
+    private List<string>? _written;
 
     public Game? Game { get; private set; }
     public string? FileName { get; private set; }
@@ -53,6 +54,11 @@ public sealed class Session
         if (_raised is null) Changed?.Invoke(topics);
     }
 
+    /// <summary>
+    /// Reports Topics a running command writes beyond its declared ones, when they depend on the save.
+    /// </summary>
+    internal void Wrote(params string[] topics) => _written?.AddRange(topics);
+
     internal void Raise(IEngineEvent engineEvent)
     {
         if (_raised is null) Published?.Invoke(engineEvent);
@@ -65,6 +71,7 @@ public sealed class Session
     {
         T result;
         var raised = _raised = [];
+        var wrote = _written = [.. written];
         try
         {
             result = command();
@@ -72,9 +79,10 @@ public sealed class Session
         finally
         {
             _raised = null;
+            _written = null;
         }
 
-        Invalidate(written);
+        Invalidate(wrote.Distinct().ToArray());
         foreach (var engineEvent in raised) Published?.Invoke(engineEvent);
         return result;
     }
