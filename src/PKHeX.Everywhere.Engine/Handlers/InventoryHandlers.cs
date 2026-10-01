@@ -12,7 +12,7 @@ public static class InventoryHandlers
         .ToArray();
 
     [Command("inventory.setItem")]
-    public static void SetItem(Game game, ItemHandle at, int count)
+    public static void SetItem(Session session, Game game, ItemHandle at, int count)
     {
         if (!game.Trainer.Inventories.InventoryItems.TryGetValue(at.Pouch, out var inventory))
             throw new EngineException(ErrorCodes.NotFound, $"The save has no {at.Pouch} pouch.");
@@ -27,6 +27,7 @@ public static class InventoryHandlers
         if (count == 0)
         {
             if (owned) inventory.Remove(itemId);
+            session.Raise(new ItemChanged(at.ItemId, 0));
             return;
         }
 
@@ -36,5 +37,7 @@ public static class InventoryHandlers
 
         if (!inventory.Set(itemId, (uint)count))
             throw new EngineException(ErrorCodes.PouchFull, $"The {at.Pouch} pouch has no free slot.");
+
+        session.Raise(new ItemChanged(at.ItemId, count));
     }
 }

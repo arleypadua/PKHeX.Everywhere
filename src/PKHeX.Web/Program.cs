@@ -59,6 +59,7 @@ builder.Services.AddScoped<NewsService>();
 builder.Services.AddScoped<PlugInService>();
 builder.Services.AddScoped<PlugInRegistry>();
 builder.Services.AddScoped<PlugInRuntime>();
+builder.Services.AddScoped<EngineEventSubscriber>();
 builder.Services.AddScoped<PlugInRegistry>();
 builder.Services.AddScoped<PlugInLocalStorage>();
 builder.Services.AddScoped<PlugInLocalStorageLoader>();

@@ -164,12 +164,12 @@ public class AnalyticsService(
         });
     }
 
-    public void TrackItemModified(AddItemModal.ItemToBeAdded itemToBeAdded)
+    public void TrackItemModified(int itemId, int count)
     {
         analytics.TrackEvent("item_modified", new
         {
-            item_id = itemToBeAdded.Id,
-            quantity = itemToBeAdded.Count,
+            item_id = itemId,
+            quantity = count,
         });
     }
 
