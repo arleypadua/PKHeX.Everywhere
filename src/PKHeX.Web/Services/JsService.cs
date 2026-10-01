@@ -1,15 +1,10 @@
 using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using PKHeX.Facade.Extensions;
-using PKHeX.Facade.Pokemons;
-using PKHeX.Web.Services.GeneralSettings;
 
 namespace PKHeX.Web.Services;
 
-public class JsService(IJSRuntime js,
-    GeneralSettingsService generalSettings)
+public class JsService(IJSRuntime js)
 {
     private IJSInProcessRuntime SyncJs => js as IJSInProcessRuntime ??
                                           throw new NotSupportedException(
@@ -63,14 +58,6 @@ public class JsService(IJSRuntime js,
         return ConvertHexStringToByteArray(hashedHexString);
     }
     
-    public Task OpenSmogonDamageCalc(IEnumerable<Pokemon> pokemonList)
-    {
-        var showdown = pokemonList.Showdown();
-        var bytes = Encoding.UTF8.GetBytes(showdown);
-        var base64 = Convert.ToBase64String(bytes);
-        return OpenNewTab($"{generalSettings.CalculatorUrlOrDefault}/?import={base64}");
-    }
-    
     public async Task NavigateBack()
     {
         await js.InvokeVoidAsync("history.back");
@@ -90,10 +77,4 @@ public class JsService(IJSRuntime js,
     {
         await js.InvokeVoidAsync("showGoogleCmpRevocationMessage");
     }
-}
-
-public static class JsServiceExtensions
-{
-    public static Task OpenSmogonDamageCalc(this JsService js, Pokemon pokemon) =>
-        js.OpenSmogonDamageCalc(new List<Pokemon> { pokemon });
 }

@@ -6,7 +6,7 @@ import { NumberFilter } from './filters/NumberFilter'
 import { containsText } from './filters/containsText'
 import { TextFilter } from './filters/TextFilter'
 
-const columns: TableColumnsType<PokemonSummary> = [
+const leadingColumns: TableColumnsType<PokemonSummary> = [
   {
     key: 'sprite',
     width: 80,
@@ -26,23 +26,35 @@ const columns: TableColumnsType<PokemonSummary> = [
     filterDropdown: (props) => <NumberFilter {...props} placeholder="Level" min={1} max={100} />,
     onFilter: (value, pokemon) => pokemon.level === value,
   },
-  {
-    title: 'Action',
-    key: 'action',
-    render: (_, pokemon) => <PokemonActions pokemon={pokemon} />,
-  },
 ]
+
+const actionColumn: TableColumnsType<PokemonSummary>[number] = {
+  title: 'Action',
+  key: 'action',
+  render: (_, pokemon) => <PokemonActions pokemon={pokemon} />,
+}
+
+const rowKey = (pokemon: PokemonSummary) => JSON.stringify(pokemon.at)
 
 interface PokemonTableProps {
   pokemon: PokemonSummary[]
+  extraColumns?: TableColumnsType<PokemonSummary>
+  selected?: PokemonSummary[]
+  onSelectedChange?: (selected: PokemonSummary[]) => void
 }
 
-export function PokemonTable({ pokemon }: PokemonTableProps) {
+export function PokemonTable({ pokemon, extraColumns = [], selected = [], onSelectedChange }: PokemonTableProps) {
   return (
-    <Table
-      rowKey={(pokemon) => JSON.stringify(pokemon.at)}
+    <Table<PokemonSummary>
+      rowKey={rowKey}
       dataSource={pokemon}
-      columns={columns}
+      columns={[...leadingColumns, ...extraColumns, actionColumn]}
+      rowSelection={
+        onSelectedChange && {
+          selectedRowKeys: selected.map(rowKey),
+          onChange: (_, rows) => onSelectedChange(rows),
+        }
+      }
       size="small"
       scroll={{ x: 'max-content' }}
       pagination={{ hideOnSinglePage: true }}
