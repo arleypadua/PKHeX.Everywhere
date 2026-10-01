@@ -37,6 +37,12 @@ export interface DeclaredPage {
   layout: PageLayout
 }
 
+export interface EditablePokemon {
+  nickname: string
+  level: number
+  legality: Legality
+}
+
 export interface EncounterRow {
   index: number
   speciesId: number
@@ -80,6 +86,11 @@ export interface ItemHandle {
   itemId: number
 }
 
+export interface Legality {
+  valid: boolean
+  messages: string[]
+}
+
 export interface OwnedItem {
   id: number
   name: string
@@ -109,10 +120,10 @@ export type PlugInNotificationType = 'none' | 'info' | 'success' | 'warning' | '
 
 export interface PlugInOutcome {
   kind: PlugInOutcomeKind
-  message: string | null
-  description: string | null
-  type: PlugInNotificationType | null
-  path: string | null
+  message?: string | null
+  description?: string | null
+  type?: PlugInNotificationType | null
+  path?: string | null
 }
 
 export type PlugInOutcomeKind = 'void' | 'notify' | 'openPage'
@@ -125,10 +136,15 @@ export interface PokemonForm {
 export interface PokemonHandle {
   source: SlotSource
   slot: number
-  box: number | null
+  box?: number | null
 }
 
 export type PokemonId = string & { readonly __brand: 'PokemonId' }
+
+export interface PokemonPatch {
+  nickname?: string | null
+  level?: number | null
+}
 
 export interface PokemonSummary {
   id: PokemonId
@@ -163,7 +179,7 @@ export interface SaveSummary {
   generation: number
 }
 
-export type SlotSource = 'party' | 'box'
+export type SlotSource = 'party' | 'box' | 'draft'
 
 export interface SpeciesEntry {
   id: number

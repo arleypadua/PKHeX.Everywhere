@@ -50,6 +50,7 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
             throw new InvalidOperationException("Adding pokemons to the party is not supported.");
         
         var index = _partyData.IndexOf(existing);
+        pokemon.Pkm.ResetPartyStats();
         _partyData[index] = pokemon.Pkm;
         
         Commit();

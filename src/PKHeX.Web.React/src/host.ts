@@ -83,10 +83,10 @@ export async function changeCalculatorUrl(url: string) {
   calculatorUrlStore.set(await dotNetHost.invokeMethodAsync('SetCalculatorUrl', url))
 }
 
-export function useNavigate(): (url: string, options?: { replace?: boolean }) => void {
+export function useNavigate(): (url: string, options?: { replace?: boolean }) => Promise<void> {
   return useCallback(
-    (url: string, { replace = false } = {}) =>
-      void dotNetHost?.invokeMethodAsync('NavigateTo', url, replace).catch(console.error),
+    async (url: string, { replace = false } = {}) =>
+      await dotNetHost?.invokeMethodAsync('NavigateTo', url, replace).catch(console.error),
     [],
   )
 }

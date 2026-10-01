@@ -38,9 +38,13 @@ public class CommandTopicTests
         ["inventory.setItem"] = (game, _) => SetItems(game),
         ["party.get"] = (_, _) => ["[]"],
         ["party.showdown"] = (_, _) => ["[]"],
-        ["pokemon.get"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
-        ["pokemon.showdown"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
-        ["pokemon.setLevel"] = (game, _) => Pokemons(game).Select(p => Args(p.At, p.Level == 50 ? 51 : 50)),
+        ["pokemon.get"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At)),
+        ["pokemon.showdown"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At)),
+        ["pokemon.details"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At)),
+        ["pokemon.setLevel"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At, p.Level == 50 ? 51 : 50)),
+        ["pokemon.update"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At, new { nickname = "Sparky", level = p.Level == 50 ? 51 : 50 })),
+        ["pokemon.edit"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
+        ["pokemon.commit"] = (_, _) => ["[]"],
         ["species.list"] = (_, _) => ["[]"],
         ["trainer.get"] = (_, _) => ["[]"],
         ["trainer.setName"] = (_, _) => [Args("Ash")],
@@ -74,6 +78,7 @@ public class CommandTopicTests
         {
             var session = new Session();
             session.Load(Game.LoadFrom(saveFile), saveFile);
+            OpenDraft(session);
             var queries = Queries
                 .SelectMany(q => SampleArgs[q.Name](session.Game!, saveFile).Select(a => (Call: q.Name, Args: a, q.Topics)))
                 .ToList();
@@ -93,6 +98,16 @@ public class CommandTopicTests
             }
         }
     }
+
+    // A draft is open before each command, so the draft calls have one to work on and the other commands show they leave it alone.
+    private static void OpenDraft(Session session)
+    {
+        EngineResults.Value(Dispatch(session, "pokemon.edit", Args(PokemonHandle.Party(0))));
+        EngineResults.Value(Dispatch(session, "pokemon.update", Args(PokemonHandle.Draft(), new { nickname = "Drafty" })));
+    }
+
+    private static IEnumerable<(PokemonHandle At, int Level)> PokemonsAndDraft(Game game) =>
+        Pokemons(game).Append((PokemonHandle.Draft(), game.Trainer.Party.Pokemons[0].Level));
 
     private static IEnumerable<(PokemonHandle At, int Level)> Pokemons(Game game)
     {

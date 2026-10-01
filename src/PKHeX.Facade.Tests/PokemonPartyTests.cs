@@ -98,4 +98,20 @@ public class PokemonPartyTests
         game.Trainer.Party.Pokemons.Should().AllSatisfy(p =>
             p.Owner.TID.Should().Be(p.Pkm.TID16));
     }
+
+    [Theory]
+    [SupportedSaveFiles]
+    public void UpdatingAPartyPokemonRecalculatesItsStats(string saveFile)
+    {
+        var game = Game.LoadFrom(saveFile);
+        var saved = game.Trainer.Party.Pokemons[0];
+        var edited = saved.Clone();
+        edited.ChangeLevel(saved.Level == 100 ? 99 : saved.Level + 1);
+
+        game.Trainer.AddOrUpdate(saved.UniqueId, edited, Pokemons.PokemonSource.Party);
+
+        var expected = edited.Pkm.Clone();
+        expected.ResetPartyStats();
+        game.Trainer.Party.Pokemons[0].Pkm.Stat_HPMax.Should().Be(expected.Stat_HPMax).And.NotBe(saved.Pkm.Stat_HPMax);
+    }
 }

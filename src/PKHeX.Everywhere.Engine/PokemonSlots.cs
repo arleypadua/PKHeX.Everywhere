@@ -16,10 +16,22 @@ internal sealed record PokemonSlot(Pokemon Pokemon, Action Save, string[] Topics
 
 internal static class PokemonSlots
 {
-    public static PokemonSlot Find(this Game game, PokemonHandle at) => at.Source switch
+    public static PokemonSlot Find(this Session session, PokemonHandle at)
+    {
+        var game = session.RequireGame();
+        if (at.Source != SlotSource.Draft) return game.FindSaved(at);
+
+        return new PokemonSlot(session.RequireDraft().Pokemon, () => { }, [Topics.Draft]);
+    }
+
+    public static Draft RequireDraft(this Session session) =>
+        session.Draft ?? throw new EngineException(ErrorCodes.NotFound, "No Pokémon is open for editing.");
+
+    public static PokemonSlot FindSaved(this Game game, PokemonHandle at) => at.Source switch
     {
         SlotSource.Party => InParty(game, at.Slot) ?? throw NotFound(at),
         SlotSource.Box => InBox(game, at),
+        SlotSource.Draft => throw new EngineException(ErrorCodes.DraftNotAllowed, "This only works on a Pokémon in the party or the box."),
         _ => throw NotFound(at),
     };
 

@@ -49,7 +49,7 @@ public class PlugInAutoLegalityTests : IDisposable
 
     private static string Call(string id, PokemonHandle at) => JsonSerializer.Serialize(new object[]
     {
-        id, new { source = at.Source == SlotSource.Party ? "party" : "box", slot = at.Slot, box = at.Box },
+        id, new { source = at.Source.ToString().ToLowerInvariant(), slot = at.Slot, box = at.Box },
     });
 
     [Fact]

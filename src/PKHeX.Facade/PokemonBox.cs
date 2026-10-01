@@ -96,7 +96,11 @@ public class PokemonBox : IMutablePokemonCollection
     {
         var index = _pokemonList.IndexOf(existing);
         _pokemonList[index] = pokemon;
-        if (_party.SlotOf(index) is { } slot) _party.Replace(slot, pokemon.Pkm);
+        if (_party.SlotOf(index) is { } slot)
+        {
+            pokemon.Pkm.ResetPartyStats();
+            _party.Replace(slot, pokemon.Pkm);
+        }
 
         Commit();
         PopulateFromSave();

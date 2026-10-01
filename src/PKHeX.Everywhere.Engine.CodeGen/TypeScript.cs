@@ -275,16 +275,28 @@ public static class TypeScript
             if (Contract.IsBranded(type))
                 return $"export type {type.Name} = string & {{ readonly __brand: {Quote(type.Name)} }}\n";
 
+            var optional = OptionalParameters(type);
             var sb = new StringBuilder($"export interface {type.Name} {{\n");
             foreach (var property in Properties(type))
             {
                 var name = JsonNamingPolicy.CamelCase.ConvertName(property.Name);
-                sb.AppendLine($"  {name}: {Render(property.PropertyType, _nullability.Create(property))}");
+                var rendered = Render(property.PropertyType, _nullability.Create(property));
+                var mark = optional.Contains(property.Name) && rendered.EndsWith(" | null") ? "?" : "";
+                sb.AppendLine($"  {name}{mark}: {rendered}");
             }
 
             sb.AppendLine("}");
             return sb.ToString();
         }
+
+        // The JSON reader passes null for a missing property, so a nullable constructor parameter with a default can be left out.
+        private static HashSet<string> OptionalParameters(Type type) => type
+            .GetConstructors()
+            .MaxBy(c => c.GetParameters().Length)
+            ?.GetParameters()
+            .Where(p => p.HasDefaultValue)
+            .Select(p => p.Name!)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase) ?? [];
 
         private static IEnumerable<PropertyInfo> Properties(Type type) => type
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)

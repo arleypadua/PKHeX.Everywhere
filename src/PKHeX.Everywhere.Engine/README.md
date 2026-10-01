@@ -48,4 +48,10 @@ DTOs follow the same rules as the Engine's, and must live under a `PKHeX.Everywh
 
 `byte[]` crosses the boundary as a base64 string, typed `Base64` in TypeScript.
 
+A nullable record parameter with a default, such as the fields of `PokemonPatch`, is optional in TypeScript. A missing property reads as null.
+
+## The draft
+
+`pokemon.edit(at)` opens a draft Pokémon in the Session, addressed as `{ source: 'draft', slot: 0 }` (`draftHandle` in the SDK) with the Topic `draft`. Pokémon calls resolve Handles through `session.Find`, which covers the draft. A call that only applies to a saved slot uses `game.FindSaved`, which rejects the draft with `draft-not-allowed`. See [ADR 0005](../../docs/adr/0005-editing-goes-through-an-engine-held-draft-slot.md).
+
 Contract tests live in `PKHeX.Everywhere.Engine.Tests`.

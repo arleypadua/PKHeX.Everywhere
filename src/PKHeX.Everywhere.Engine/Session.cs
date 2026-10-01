@@ -14,6 +14,7 @@ public sealed class Session
     public Game? Game { get; private set; }
     public string? FileName { get; private set; }
     internal IReadOnlyList<Encounter>? Encounters { get; set; }
+    internal Draft? Draft { get; set; }
 
     public event Action<string[]>? Changed;
     public event Action? GameChanged;
@@ -25,6 +26,7 @@ public sealed class Session
 
         Game = game;
         Encounters = null;
+        Draft = null;
         FileName = string.IsNullOrWhiteSpace(fileName) ? FileName : fileName;
         game.Trainer.PokemonsChanged += HandlePokemonsChanged;
 
@@ -39,6 +41,7 @@ public sealed class Session
         Game.Trainer.PokemonsChanged -= HandlePokemonsChanged;
         Game = null;
         Encounters = null;
+        Draft = null;
         FileName = null;
 
         Invalidate(Topics.All);
