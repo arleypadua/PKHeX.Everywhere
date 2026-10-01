@@ -107,8 +107,6 @@ jobs:
           node-version: '22'
       - name: Build PKHeX.Web/_js
         working-directory: src/PKHeX.Web/_js
-        env:
-          VITE_FIREBASE_ENABLED: 'false'
         run: |
           npm ci
           npm run build

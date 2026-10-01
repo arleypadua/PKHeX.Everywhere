@@ -11,5 +11,5 @@ All other coverage goes in `PKHeX.Facade.Tests`.
 
 ## Considered Options
 
-- **Block outbound traffic in the browser context instead of a config switch.** Sentry's DSN and the Google Analytics ID are hardcoded in `Program.cs`, and there is no switch to turn them off. Each browser context aborts every request to a host other than the local one. The tests stay hermetic and don't send telemetry to production, and the app code doesn't change. Firebase is disabled at build time with `VITE_FIREBASE_ENABLED=false`.
+- **Block outbound traffic in the browser context instead of a config switch.** Sentry's DSN and the Google Analytics ID are hardcoded in `Program.cs`, and there is no switch to turn them off. Each browser context aborts every request to a host other than the local one. The tests stay hermetic and don't send telemetry to production, and the app code doesn't change.
 - **Test the Release publish output, not a Debug build.** In Debug, `Load.razor` auto-loads `emerald.sav` and redirects home, which hides the real load flow. Release also runs trimming and Release-only code paths that a Debug build skips.

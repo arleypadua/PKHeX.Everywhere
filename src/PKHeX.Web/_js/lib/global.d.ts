@@ -1,9 +1,6 @@
 import {decryptAes, encryptAes} from "./crypto/aes.ts";
 import {md5Hash} from "./crypto/md5.ts";
 import {downloadFileFromStream} from "./files/files.ts";
-import {User} from "./types.ts";
-
-type IdToken = string;
 
 declare global {
     interface Window {
@@ -19,13 +16,5 @@ declare global {
         getWidth: () => number;
         hasPreferenceForDarkTheme: () => boolean;
         clickElement: (element: HTMLElement | null | undefined) => void;
-        
-        // firebase
-        isFirebaseAuthEnabled: () => boolean;
-        isSignedIn: () => boolean;
-        getAuthToken: () => Promise<IdToken>;
-        signInAnonymously: () => Promise<IdToken>;
-        getSignedInUser: () => User | null;
-        signOut: () => Promise<void>;
     }
 }

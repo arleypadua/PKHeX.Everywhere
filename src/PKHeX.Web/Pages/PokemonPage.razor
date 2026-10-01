@@ -1,16 +1,12 @@
 @page "/pokemon/{PartyOrBox}/{UniqueIdString}"
-@using PKHeX.Web.BackendApi
-@using PKHeX.Web.BackendApi.Repositories
 @using PKHeX.Web.Services.Plugins
 @inject NavigationManager Navigation
-@inject LocalSyncedPokemonRepository LocalSyncedPokemonRepository
 
 @if (_editingPokemon is not null)
 {
     <Flex Style="width: 100%; gap: 20px;" Direction="FlexDirection.Vertical">
         <PokemonEdit
-            Pokemon="_editingPokemon"
-            ShowCloudTab />
+            Pokemon="_editingPokemon"/>
 
         <Space Align="SpaceAlign.End" Style="width: 100%; align-items: center; justify-content: end; gap:  10px;" Direction="SpaceDirection.Horizontal">
             <DropdownButton
@@ -48,7 +44,6 @@
     [Inject] public required GameService GameService { get; set; }
     [Inject] public required JsService Js { get; set; }
     [Inject] public required AnalyticsService Analytics { get; set; }
-    [Inject] public required SyncPokemonQueue SyncPokemonQueue { get; set; }
 
     [Parameter] public required string PartyOrBox { get; set; }
     [Parameter] public required string UniqueIdString { get; set; }
@@ -95,11 +90,6 @@
         }
 
         TrackSaved(_editingPokemon);
-        
-        if (LocalSyncedPokemonRepository.IsSynced(OriginalPokemon))
-        {
-            SyncPokemonQueue.Enqueue(_editingPokemon);
-        }
 
         await Js.NavigateBack();
     }
