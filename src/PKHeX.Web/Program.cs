@@ -5,6 +5,8 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PKHeX.Core;
+using PKHeX.Everywhere.Engine;
+using PKHeX.Everywhere.Engine.PlugIns;
 using PKHeX.Web;
 using PKHeX.Web.BackendApi;
 using PKHeX.Web.BackendApi.Repositories;
@@ -49,17 +51,17 @@ builder.Services.AddHttpClient("BackendApi.Anonymous", client =>
 
 builder.Services.AddScoped<BackendApiAuthHandler>();
 
-builder.Services.AddSingleton(PKHeX.Everywhere.Engine.Session.Current);
+builder.Services.AddSingleton(Session.Current);
 builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<EncounterService>();
 builder.Services.AddScoped<AnalyticsResultsService>();
 builder.Services.AddScoped<NewsService>();
 
+builder.Services.AddSingleton(sp => new PlugInHost(sp.GetRequiredService<Session>()));
 builder.Services.AddScoped<PlugInService>();
 builder.Services.AddScoped<PlugInRegistry>();
 builder.Services.AddScoped<PlugInRuntime>();
 builder.Services.AddScoped<EngineEventSubscriber>();
-builder.Services.AddScoped<PlugInRegistry>();
 builder.Services.AddScoped<PlugInLocalStorage>();
 builder.Services.AddScoped<PlugInLocalStorageLoader>();
 builder.Services.AddScoped<PlugInSourceService>();

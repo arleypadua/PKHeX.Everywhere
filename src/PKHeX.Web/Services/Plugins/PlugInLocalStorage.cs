@@ -1,7 +1,7 @@
 using System.Reflection;
 using Blazored.LocalStorage;
-using PKHeX.Web.Plugins;
-using TG.Blazor.IndexedDB;
+using PKHeX.Everywhere.Engine.PlugIns;
+using PKHeX.Everywhere.PlugIns;
 
 namespace PKHeX.Web.Services.Plugins;
 
@@ -9,17 +9,18 @@ public class PlugInLocalStorage(
     ILocalStorageService localStorageAsync,
     ISyncLocalStorageService localStorage,
     PlugInFilesRepository plugInFilesRepository,
+    PlugInHost host,
     ILogger<PlugInLocalStorage> logger)
 {
-    public async Task Remove(LoadedPlugIn plugIn)
+    public async Task Remove(InstalledPlugIn plugIn)
     {
         await localStorageAsync.RemoveItemAsync(LocalStorageKey(plugIn));
         await plugInFilesRepository.RemoveAllFrom(plugIn);
     }
 
-    public async Task Persist(LoadedPlugIn plugIn)
+    public async Task Persist(InstalledPlugIn plugIn)
     {
-        var plugInSettings = plugIn.Settings.All.Select(s => s.Value switch
+        var plugInSettings = plugIn.SettingValues.Select(s => s.Value switch
         {
             Settings.SettingValue.StringValue setting => new PlugInStorageRepresentation.PlugInSetting
                 { Key = s.Key, ReadOnly = setting.ReadOnly, StringValue = setting.Value },
@@ -42,11 +43,7 @@ public class PlugInLocalStorage(
             FileUrl = plugIn.FileUrl,
             AssemblyBytes = plugIn.AssemblyRawBytes,
             Enabled = plugIn.Enabled,
-            FeatureToggles = plugIn.Hooks
-                .Select(h => new { hook = h, enabled = plugIn.IsHookEnabled(h) })
-                .ToDictionary(
-                    key => key.hook.GetFullNameOrName(),
-                    value => value.enabled),
+            FeatureToggles = plugIn.HookIds.ToDictionary(id => id, plugIn.IsHookEnabled),
             PlugInSettings = plugInSettings
         };
 
@@ -56,9 +53,9 @@ public class PlugInLocalStorage(
         logger.LogInformation("Saved plug-in {p} locally", plugIn.Id);
     }
 
-    private async Task PersistAllFilesFrom(LoadedPlugIn plugIn)
+    private async Task PersistAllFilesFrom(InstalledPlugIn plugIn)
     {
-        var saveTasks = plugIn.Settings.All
+        var saveTasks = plugIn.SettingValues
             .Select(p => p.Value)
             .OfType<Settings.SettingValue.FileValue>()
             .Select(async f =>
@@ -70,7 +67,7 @@ public class PlugInLocalStorage(
         await Task.WhenAll(saveTasks);
     }
 
-    public async Task<IEnumerable<LoadedPlugIn>> RestoreAll()
+    public async Task<IEnumerable<InstalledPlugIn>> RestoreAll()
     {
         var representations = localStorage.Keys()
             .Where(k => k.StartsWith(PlugInPrefix))
@@ -95,41 +92,11 @@ public class PlugInLocalStorage(
                 try
                 {
                     logger.LogInformation("Loading plugin {k}", r!.Id);
-                    var assembly = Assembly.Load(r.AssemblyBytes);
-                    var settings = assembly.GetSettings();
-                    foreach (var setting in r.PlugInSettings)
-                    {
-                        if (setting.StringValue is not null)
-                            settings[setting.Key] =
-                                new Settings.SettingValue.StringValue(setting.StringValue, setting.ReadOnly);
-
-                        if (setting.BooleanValue is not null)
-                            settings[setting.Key] =
-                                new Settings.SettingValue.BooleanValue(setting.BooleanValue.Value, setting.ReadOnly);
-
-                        if (setting.IntegerValue is not null)
-                            settings[setting.Key] =
-                                new Settings.SettingValue.IntegerValue(setting.IntegerValue.Value, setting.ReadOnly);
-
-                        if (setting.FileName is not null && setting.FilePlugInId is not null)
-                        {
-                            var file = await plugInFilesRepository.GetFile(setting.FilePlugInId, setting.FileName);
-
-                            settings[setting.Key] =
-                                new Settings.SettingValue.FileValue(file?.Data ?? [],
-                                    setting.FileName ?? string.Empty, setting.ReadOnly);
-                        }
-                    }
-
-                    var plugIn = new LoadedPlugIn(r.PlugInSourceId, r.FileUrl, settings, assembly, r.AssemblyBytes)
-                    {
-                        HasNewerVersion = r.HasNewerVersion
-                    };
-
-                    foreach (var (typeName, active) in r.FeatureToggles)
-                    {
-                        plugIn.SetToggle(typeName, active);
-                    }
+                    var settings = await ReadSettings(r);
+                    InstalledPlugIn plugIn = PlugInHost.DetectSdk(r.AssemblyBytes) == PlugInSdk.V2
+                        ? RestoreV2(r, settings)
+                        : RestoreV1(r, settings);
+                    plugIn.HasNewerVersion = r.HasNewerVersion;
 
                     logger.LogInformation("Loaded plugin {k}", r.Id);
 
@@ -146,7 +113,55 @@ public class PlugInLocalStorage(
         return settings.Where(p => p is not null)!;
     }
 
-    private string LocalStorageKey(LoadedPlugIn plugIn) => $"{PlugInPrefix}{plugIn.Id}";
+    private async Task<Dictionary<string, Settings.SettingValue>> ReadSettings(PlugInStorageRepresentation r)
+    {
+        var settings = new Dictionary<string, Settings.SettingValue>();
+        foreach (var setting in r.PlugInSettings)
+        {
+            if (setting.StringValue is not null)
+                settings[setting.Key] = new Settings.SettingValue.StringValue(setting.StringValue, setting.ReadOnly);
+
+            if (setting.BooleanValue is not null)
+                settings[setting.Key] =
+                    new Settings.SettingValue.BooleanValue(setting.BooleanValue.Value, setting.ReadOnly);
+
+            if (setting.IntegerValue is not null)
+                settings[setting.Key] =
+                    new Settings.SettingValue.IntegerValue(setting.IntegerValue.Value, setting.ReadOnly);
+
+            if (setting.FileName is not null && setting.FilePlugInId is not null)
+            {
+                var file = await plugInFilesRepository.GetFile(setting.FilePlugInId, setting.FileName);
+                settings[setting.Key] =
+                    new Settings.SettingValue.FileValue(file?.Data ?? [], setting.FileName, setting.ReadOnly);
+            }
+        }
+
+        return settings;
+    }
+
+    private HostPlugIn RestoreV2(PlugInStorageRepresentation r, Dictionary<string, Settings.SettingValue> settings)
+    {
+        var registered = host.Register(r.AssemblyBytes, new StoredPlugIn(r.Enabled, r.FeatureToggles, settings));
+        return new HostPlugIn(r.PlugInSourceId, r.FileUrl, r.AssemblyBytes, host, registered);
+    }
+
+    private static LoadedPlugIn RestoreV1(PlugInStorageRepresentation r, Dictionary<string, Settings.SettingValue> settings)
+    {
+        var assembly = Assembly.Load(r.AssemblyBytes);
+        var plugInSettings = assembly.GetSettings();
+        foreach (var (key, value) in settings) plugInSettings[key] = LoadedPlugIn.ToV1(value);
+
+        var plugIn = new LoadedPlugIn(r.PlugInSourceId, r.FileUrl, plugInSettings, assembly, r.AssemblyBytes)
+        {
+            Enabled = r.Enabled
+        };
+        foreach (var (typeName, active) in r.FeatureToggles) plugIn.SetToggle(typeName, active);
+
+        return plugIn;
+    }
+
+    private string LocalStorageKey(InstalledPlugIn plugIn) => $"{PlugInPrefix}{plugIn.Id}";
 
     private const string PlugInPrefix = "__plug_in__#";
 

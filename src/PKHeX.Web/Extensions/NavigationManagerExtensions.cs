@@ -39,12 +39,12 @@ public static class NavigationManagerExtensions
     public static void NavigateToPlugIns(this NavigationManager navigation) =>
         navigation.NavigateTo($"/plugins");
     
-    public static void NavigateToPlugIn(this NavigationManager navigation, LoadedPlugIn plugIn) =>
+    public static void NavigateToPlugIn(this NavigationManager navigation, InstalledPlugIn plugIn) =>
         navigation.NavigateTo($"/plugins/{plugIn.Id}");
     
     public static void NavigateToPlugInPage(this NavigationManager navigation, string plugInId, string path,
-        Outcome.PlugInPage.PageLayout layout) =>
-        navigation.NavigateTo($"/plugins/{plugInId}/{path}/{layout.ToString().ToLowerInvariant()}");
+        string layout) =>
+        navigation.NavigateTo($"/plugins/{plugInId}/{path}/{layout.ToLowerInvariant()}");
     
     public static void NavigateToAnalyticsResults(this NavigationManager navigation) =>
         navigation.NavigateTo($"/analytics");

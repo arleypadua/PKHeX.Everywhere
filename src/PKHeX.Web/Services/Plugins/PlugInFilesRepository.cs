@@ -5,7 +5,7 @@ namespace PKHeX.Web.Services.Plugins;
 public class PlugInFilesRepository(
     IndexedDBManager db)
 {
-    public async Task CreateOrUpdate(LoadedPlugIn plugIn, File file)
+    public async Task CreateOrUpdate(InstalledPlugIn plugIn, File file)
     {
         if (string.IsNullOrWhiteSpace(file.FileName) || file.Data.Length == 0) return;
         
@@ -41,7 +41,7 @@ public class PlugInFilesRepository(
         await db.DeleteRecord(Schema.Name, FileRepresentation.KeyFor(plugInId, fileName));
     }
 
-    public async Task RemoveAllFrom(LoadedPlugIn plugIn)
+    public async Task RemoveAllFrom(InstalledPlugIn plugIn)
     {
         var query = new StoreIndexQuery<string>
         {
@@ -66,7 +66,7 @@ public class PlugInFilesRepository(
         public string FileName { get; set; } = default!;
         public string PlugInId { get; set; } = default!;
 
-        public static FileRepresentation Create(LoadedPlugIn plugIn, File file) => new()
+        public static FileRepresentation Create(InstalledPlugIn plugIn, File file) => new()
         {
             Key = KeyFor(plugIn.Id, file.FileName),
             Data = file.Data,

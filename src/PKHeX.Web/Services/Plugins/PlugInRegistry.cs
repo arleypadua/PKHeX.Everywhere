@@ -1,4 +1,5 @@
 using System.Reflection;
+using PKHeX.Everywhere.Engine.PlugIns;
 using PKHeX.Web.Plugins;
 
 namespace PKHeX.Web.Services.Plugins;
@@ -7,11 +8,12 @@ public class PlugInRegistry
 {
     private readonly IServiceProvider _appServiceProvider;
     private readonly HttpClient _httpClientFactory;
-    private readonly Dictionary<string, LoadedPlugIn> _loadedPlugins = new();
+    private readonly PlugInHost _host;
+    private readonly Dictionary<string, InstalledPlugIn> _loadedPlugins = new();
 
     private ServiceProvider _pluginServiceProvider = null!;
 
-    public event Action<LoadedPlugIn, ChangeType>? OnPlugInChanged;
+    public event Action<InstalledPlugIn, ChangeType>? OnPlugInChanged;
 
     public enum ChangeType
     {
@@ -22,62 +24,72 @@ public class PlugInRegistry
 
     public PlugInRegistry(
         HttpClient httpClientFactory,
+        PlugInHost host,
         IServiceProvider appServiceProvider)
     {
         _appServiceProvider = appServiceProvider;
         _httpClientFactory = httpClientFactory;
+        _host = host;
 
         RefreshServiceProvider();
     }
 
-    public async Task<LoadedPlugIn> RegisterFrom(string sourceId, string fileUrl)
+    public async Task<InstalledPlugIn> RegisterFrom(string sourceId, string fileUrl)
     {
         var assembly = await _httpClientFactory.GetByteArrayAsync(fileUrl);
         return LoadPlugInFrom(sourceId, fileUrl, assembly);
     }
 
-    public void Register(LoadedPlugIn plugIn)
+    public void Register(InstalledPlugIn plugIn)
     {
+        if (plugIn is not HostPlugIn && _loadedPlugins.GetValueOrDefault(plugIn.Id) is HostPlugIn)
+            _host.Unregister(plugIn.Id);
+
         _loadedPlugins[plugIn.Id] = plugIn;
         RefreshServiceProvider(_pluginServiceProvider);
         OnPlugInChanged?.Invoke(plugIn, ChangeType.Registered);
     }
 
-    public void Deregister(LoadedPlugIn plugIn)
+    public void Deregister(InstalledPlugIn plugIn)
     {
         _loadedPlugins.Remove(plugIn.Id);
+        if (plugIn is HostPlugIn) _host.Unregister(plugIn.Id);
         RefreshServiceProvider(_pluginServiceProvider);
         OnPlugInChanged?.Invoke(plugIn, ChangeType.Deregistered);
     }
 
-    public LoadedPlugIn GetBy(string id) => _loadedPlugins[id];
-    public LoadedPlugIn? GetByOrNull(string id) => _loadedPlugins.GetValueOrDefault(id);
+    public InstalledPlugIn GetBy(string id) => _loadedPlugins[id];
+    public InstalledPlugIn? GetByOrNull(string id) => _loadedPlugins.GetValueOrDefault(id);
     public bool IsRegistered(string id) => _loadedPlugins.ContainsKey(id);
 
-    public IEnumerable<LoadedPlugIn> GetAllPlugins() => _loadedPlugins.Values;
+    public IEnumerable<InstalledPlugIn> GetAllPlugins() => _loadedPlugins.Values;
 
     public LoadedPlugIn GetPlugInOwningHook<T>(T hook) where T : IPluginHook =>
-        _loadedPlugins.Values.Single(p => p.Hooks.Any(t => t == hook.GetType()));
+        V1PlugIns.Single(p => p.Hooks.Any(t => t == hook.GetType()));
 
-    public IEnumerable<IPluginHook> GetAllHooksOf(LoadedPlugIn plugin)
+    public IEnumerable<PlugInHook> GetAllHooksOf(InstalledPlugIn plugIn) => plugIn switch
     {
-        return plugin.Hooks
+        HostPlugIn hosted => hosted.Registered.Hooks,
+        LoadedPlugIn loaded => loaded.Hooks
             .Select(t => _pluginServiceProvider.GetFromImplementation(t) as IPluginHook)
-            .Where(t => t != null)
-            .ToList()!;
-    }
+            .OfType<IPluginHook>()
+            .Select(h => new PlugInHook(h.GetType().GetFullNameOrName(), h.Description, loaded.IsHookEnabled(h)))
+            .ToList(),
+        _ => [],
+    };
 
     public IEnumerable<T> GetAllHooks<T>() where T : IPluginHook => _pluginServiceProvider.GetServices<T>();
 
     public IEnumerable<T> GetAllEnabledHooks<T>() where T : IPluginHook => _pluginServiceProvider.GetServices<T>()
         .Where(h => GetPlugInOwningHook(h).IsPlugInAndHookEnabled(h));
 
-    private LoadedPlugIn LoadPlugInFrom(string sourceId, string fileUrl, byte[] assemblyBytes)
+    private InstalledPlugIn LoadPlugInFrom(string sourceId, string fileUrl, byte[] assemblyBytes)
     {
         if (assemblyBytes.Length == 0) throw new InvalidOperationException("No plugin found in this assembly");
 
-        var assembly = Assembly.Load(assemblyBytes);
-        var loadedPlugIn = LoadedPlugIn.From(sourceId, fileUrl, assembly, assemblyBytes);
+        InstalledPlugIn loadedPlugIn = PlugInHost.DetectSdk(assemblyBytes) == PlugInSdk.V2
+            ? new HostPlugIn(sourceId, fileUrl, assemblyBytes, _host, _host.Register(assemblyBytes))
+            : LoadedPlugIn.From(sourceId, fileUrl, Assembly.Load(assemblyBytes), assemblyBytes);
 
         Register(loadedPlugIn);
 
@@ -97,6 +109,8 @@ public class PlugInRegistry
             new GameServiceProxy(_appServiceProvider.GetRequiredService<GameService>()));
 
         return services
-            .RegisterPluginAt(_loadedPlugins.Values);
+            .RegisterPluginAt(V1PlugIns);
     }
+
+    private IEnumerable<LoadedPlugIn> V1PlugIns => _loadedPlugins.Values.OfType<LoadedPlugIn>();
 }
