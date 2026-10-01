@@ -15,6 +15,28 @@ public class InventoryTests
     }
 
     [Theory]
+    [InlineData(SaveFilePath.Crystal, 243)]
+    [InlineData(SaveFilePath.Emerald, 339)]
+    public void MaxCountOf_HM_ShouldBeOne(string saveFile, ushort hm01)
+    {
+        var tmhms = Game.LoadFrom(saveFile).Trainer.Inventories["TMHMs"];
+
+        tmhms.MaxCountOf(hm01).Should().Be(1);
+        tmhms.MaxCountOf((ushort)(hm01 - 1)).Should().Be(tmhms.MaxItemCountAllowed);
+    }
+
+    [Theory]
+    [InlineData("Items", 113, 76)]
+    [InlineData("BattleItems", 656, 55)]
+    public void MaxCountOf_LetsGoKeyItemOrMegaStone_ShouldBeOne(string pouch, ushort limited, ushort regular)
+    {
+        var inventory = Game.LoadFrom(SaveFilePath.LetsGoPikachu).Trainer.Inventories[pouch];
+
+        inventory.MaxCountOf(limited).Should().Be(1);
+        inventory.MaxCountOf(regular).Should().Be(inventory.MaxItemCountAllowed);
+    }
+
+    [Theory]
     [SupportedSaveFiles]
     public void InventoryRepository_ShouldReturnExpectedItem(string saveFile)
     {

@@ -6,4 +6,5 @@ public static class Topics
     public const string Game = "game";
     public const string Party = "party";
     public const string Box = "box";
+    public const string Inventory = "inventory";
 }
