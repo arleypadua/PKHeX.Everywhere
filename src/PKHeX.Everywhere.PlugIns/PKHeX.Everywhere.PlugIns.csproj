@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+        <PackageId>PKHeX.Everywhere.PlugIns</PackageId>
+        <Description>The SDK to build plug-ins for https://pkhex-web.github.io.</Description>
+        <Authors>Arley Pádua</Authors>
+        <Company>Arley Pádua</Company>
+        <PackageProjectUrl>https://github.com/arleypadua/PKHeX.Everywhere</PackageProjectUrl>
+        <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageTags>pokemon;pkhex</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\PKHeX.Facade\PKHeX.Facade.csproj" />
+    </ItemGroup>
+
+</Project>

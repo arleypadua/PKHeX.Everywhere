@@ -42,6 +42,17 @@
     <ProjectReference Include="..\PKHeX.Everywhere.Engine\PKHeX.Everywhere.Engine.csproj" />
     <ProjectReference Include="..\PKHeX.Everywhere.Engine.Tests.Handlers\PKHeX.Everywhere.Engine.Tests.Handlers.csproj" />
     <ProjectReference Include="..\PKHeX.Everywhere.Engine.CodeGen\PKHeX.Everywhere.Engine.CodeGen.csproj" />
+    <ProjectReference Include="..\PKHeX.Everywhere.Engine.PlugIns\PKHeX.Everywhere.Engine.PlugIns.csproj" />
+    <ProjectReference Include="..\PKHeX.Everywhere.Engine.Tests.PlugIn\PKHeX.Everywhere.Engine.Tests.PlugIn.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
+    <ProjectReference Include="..\PKHeX.Web.Plugins.Nuzlocking\PKHeX.Web.Plugins.Nuzlocking.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
   </ItemGroup>
+
+  <!-- Plug-ins are copied aside instead of referenced, so tests load them from bytes as the app does. -->
+  <Target Name="CopyPlugIns" AfterTargets="Build">
+    <MSBuild Projects="@(ProjectReference)" Condition="'%(ProjectReference.PlugIn)' == 'true'" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" ItemName="PlugInAssembly" />
+    </MSBuild>
+    <Copy SourceFiles="@(PlugInAssembly)" DestinationFolder="$(OutDir)plugins" SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

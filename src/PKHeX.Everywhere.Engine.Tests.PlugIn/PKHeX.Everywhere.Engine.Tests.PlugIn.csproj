@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <IsPackable>false</IsPackable>
+        <Version>1.2.3</Version>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\PKHeX.Everywhere.PlugIns\PKHeX.Everywhere.PlugIns.csproj" />
+    </ItemGroup>
+
+</Project>
