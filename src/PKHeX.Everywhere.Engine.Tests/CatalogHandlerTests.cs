@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using AwesomeAssertions;
+using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 using static PKHeX.Everywhere.Engine.Tests.EngineResults;
 
 namespace PKHeX.Everywhere.Engine.Tests;
@@ -32,5 +33,5 @@ public class CatalogHandlerTests
     }
 
     private static JsonNode Names(string request) =>
-        Value(Dispatcher.Dispatch(new Session(), "catalog.names", $"[{request}]"))!;
+        Value(Dispatch(new Session(), "catalog.names", $"[{request}]"))!;
 }
