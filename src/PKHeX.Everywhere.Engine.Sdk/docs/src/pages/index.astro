@@ -121,15 +121,15 @@ const features = [
 <script>
   const sparkleTarget = document.querySelector<HTMLElement>('[data-sparkle]')
   if (sparkleTarget && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const tints = ['#9d85ff', '#ff7fc0', '#ffc94d']
+    const tints = ['#ffc94d', '#ffd97a', '#f5b942']
     const launch = () => {
       if (!document.hidden) {
         const { width, height } = sparkleTarget.getBoundingClientRect()
         const spark = document.createElement('span')
         spark.className = 'spark'
         const angle = Math.random() * Math.PI * 2
-        const reach = 0.4 + Math.random() * 1.1
-        spark.style.setProperty('--size', `${9 + Math.random() * 10}px`)
+        const reach = 0.25 + Math.random() * 0.55
+        spark.style.setProperty('--size', `${12 + Math.random() * 10}px`)
         spark.style.setProperty('--tint', tints[Math.floor(Math.random() * tints.length)])
         const [cos, sin] = [Math.cos(angle), Math.sin(angle)]
         spark.style.setProperty('--sx', `${cos * width * 0.25}px`)
@@ -173,6 +173,7 @@ const features = [
 
   .hero {
     position: relative;
+    isolation: isolate;
     text-align: center;
     padding: 4rem 0 1rem;
   }
@@ -217,8 +218,12 @@ const features = [
     width: var(--size);
     height: var(--size);
     pointer-events: none;
-    background: radial-gradient(circle, #fff 0 18%, var(--tint) 45%);
-    clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+    z-index: -1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, #fffaf0 0 13%, #5a3d0c 14% 21%, transparent 22%),
+      linear-gradient(transparent 45%, #5a3d0c 45% 55%, transparent 55%),
+      linear-gradient(var(--tint) 50%, #fffaf0 50%);
     filter: drop-shadow(0 0 6px var(--tint));
     opacity: 0;
     animation: drift var(--life) cubic-bezier(0.2, 0.6, 0.35, 1) forwards;
