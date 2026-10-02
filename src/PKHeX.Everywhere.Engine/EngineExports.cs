@@ -9,7 +9,7 @@ public static partial class EngineExports
     [JSExport]
     public static Task<string> Call(string name, string args) => Dispatcher.Dispatch(Session.Current, name, args);
 
-    // Blazor.start() resolves before the renderer attaches, so the host signals readiness from its first render.
+    // PKHeX.Web signals from its first render, because Blazor.start() resolves before the renderer attaches. The Engine host signals from Main.
     // The flag covers JS that starts waiting after the signal, the callback covers JS that is already waiting.
     public static void SignalReady()
     {

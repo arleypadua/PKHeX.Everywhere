@@ -29,6 +29,6 @@ public sealed record PokemonSaved(PokemonHandle At, PokemonOverview Pokemon) : I
 
 public sealed record GameExported(GameOverview Game) : IEngineEvent;
 
-public sealed record GameLoaded : IEngineEvent;
+public sealed record GameLoaded(GameOverview Game) : IEngineEvent;
 
 public sealed record GameClosed : IEngineEvent;

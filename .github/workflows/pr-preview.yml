@@ -52,16 +52,16 @@ jobs:
           cd src/PKHeX.Web.React
 
           npm ci
-          npm run build
+          npm run build:blazor
 
-      - name: Install NPM dependencies and build PKHeX.Web/_blog
+      - name: Install NPM dependencies and build the blog
         run: |
-          cd src/PKHeX.Web/_blog
+          cd src/PKHeX.Web.React/blog
 
           npm ci
           npm run build
 
-          cd ../../../
+          cp -R ../public/blog ../../PKHeX.Web/wwwroot/blog
 
       - name: Restore dependencies
         run: dotnet restore

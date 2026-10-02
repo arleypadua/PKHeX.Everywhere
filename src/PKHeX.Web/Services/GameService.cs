@@ -5,12 +5,10 @@ namespace PKHeX.Web.Services;
 
 public class GameService : IDisposable
 {
-    private readonly AnalyticsService _analytics;
     private readonly Session _session;
 
-    public GameService(AnalyticsService analytics, Session session)
+    public GameService(Session session)
     {
-        _analytics = analytics;
         _session = session;
         _session.GameChanged += HandleGameChanged;
     }
@@ -35,7 +33,6 @@ public class GameService : IDisposable
         }
 
         OnGameLoaded?.Invoke(this, EventArgs.Empty);
-        _analytics.TrackGameLoaded(LoadedGame);
     }
 
     public void Dispose() => _session.GameChanged -= HandleGameChanged;

@@ -1,11 +1,13 @@
 # PKHeX.Web.React
 
-The PKHeX.Web UI. PKHeX.Web boots .NET and calls `start` in `src/main.tsx`, which mounts the app into `#root`. `src/layout` holds the shell: the router, the layouts, the menu and the app-level notification host.
+The PKHeX.Web UI. Vite owns `index.html`, and `src/index.ts` mounts the app into `#root`. The Engine runs in `PKHeX.Everywhere.Engine.Host`, which `wasmHost` from the Engine SDK boots from `/_framework`. `src/layout` holds the shell: the router, the layouts, the menu and the app-level notification host.
 
-- `npm start` runs `dotnet watch` for PKHeX.Web and the Vite dev server. Open http://localhost:5062. The React app loads from Vite with HMR. `./dev.sh stop` stops both, from any terminal.
-- `npm run build` writes ES modules to `../PKHeX.Web/wwwroot/react`, which Release builds load. Run it before `dotnet publish`.
-- Google Analytics runs only when the build sets `VITE_GOOGLE_ANALYTICS=true`. Only the GitHub Pages deploy sets it, so local and PR preview builds send nothing. Blazor sends `game_loaded` through `track` in `src/googleAnalytics.ts`.
-- Sentry runs only when the build sets `VITE_SENTRY=true`, which only the GitHub Pages deploy does. `index.html` loads `react/sentry.js` while Blazor boots, so it reports a failed boot. `src/sentry.ts` adds the route and loaded game to every event. Blazor reports .NET exceptions through `captureBlazorError`.
+- `npm run dev` builds the Engine host and serves the app and its `_framework` from Vite at http://localhost:5173, with HMR. Dev builds load the demo save on start. `./dev.sh stop` stops it, from any terminal.
+- `npm run build` publishes the Engine host in Release and writes the app to `dist`, with the host's `_framework` copied in. `npm run preview` serves `dist`.
+- `public/` holds the static files: `404.html`, `ads.txt`, `robots.txt`, the Google verification file, the icon, the font, the demo save and the blog. `npm run build:blog` builds the blog into `public/blog`, and `npm run build` runs it.
+- Production still deploys PKHeX.Web, which boots .NET through Blazor and loads `npm run build:blazor` output from `../PKHeX.Web/wwwroot/react`. That build uses `src/blazorHost.ts` instead of `wasmHost`.
+- Google Analytics runs only when the build sets `VITE_GOOGLE_ANALYTICS=true`. Only the GitHub Pages deploy sets it, so local and PR preview builds send nothing.
+- Sentry runs only when the build sets `VITE_SENTRY=true`, which only the GitHub Pages deploy does. `src/index.ts` starts it before the app, so it reports an Engine host that fails to boot. `src/sentry.ts` adds the route and loaded game to every event. PKHeX.Web reports .NET exceptions through `captureBlazorError`.
 
 To add a page, create a folder for it under `src/pages` (such as `src/pages/party/PartyPage.tsx`) and add a `<Route>` for it in `src/layout/AppShell.tsx`. Build its URLs in `src/routes.ts`, and link with React Router's `Link`. A plain `<a href>` reloads the app and drops the loaded save.
 

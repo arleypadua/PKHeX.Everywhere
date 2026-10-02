@@ -107,6 +107,21 @@ describe('Google Analytics', () => {
     })
   })
 
+  it('sends loads as game_loaded', () => {
+    const { gtag, engine } = started()
+
+    engine.emit({
+      type: 'gameLoaded',
+      game: { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3, trainerGender: 'Female', boxCount: 420, party },
+    })
+
+    expect(gtag).toHaveBeenCalledWith(
+      'event',
+      'game_loaded',
+      expect.objectContaining({ version_name: 'Emerald', box_size: 420, party_species_id_01: 25, party_level_02: 5 }),
+    )
+  })
+
   it.each([
     ['file', 'pokemon_loaded_from_file'],
     ['encounter', 'pokemon_loaded_from_encounter'],

@@ -31,7 +31,6 @@ export default function(eleventyConfig) {
         return [...tagSet];
     });
     
-    // Order matters, put this at the top of your configuration file.
-    eleventyConfig.setOutputDirectory("../wwwroot/blog");
+    eleventyConfig.setOutputDirectory("../public/blog");
 };
 
