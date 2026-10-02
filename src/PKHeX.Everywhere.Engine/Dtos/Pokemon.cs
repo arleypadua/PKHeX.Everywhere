@@ -42,6 +42,8 @@ public record PokemonSummary(
 
 public record AddedPokemon(PokemonId Id, PokemonHandle At);
 
+public record ExportedPokemon(byte[] Bytes, string FileName);
+
 public record Legality(bool Valid, string[] Messages);
 
 public enum PokemonGender

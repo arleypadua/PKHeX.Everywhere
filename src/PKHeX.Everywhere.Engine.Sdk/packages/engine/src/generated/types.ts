@@ -116,6 +116,11 @@ export interface EventWork {
   options: WorkOption[]
 }
 
+export interface ExportedPokemon {
+  bytes: Base64
+  fileName: string
+}
+
 export interface ExportedSave {
   bytes: Base64
   fileName: string

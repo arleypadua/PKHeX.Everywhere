@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Button, Result, Spin } from 'antd'
+import { Result, Spin } from 'antd'
 import { useBox, useEngine, useParty } from '@pkhex-everywhere/react'
 import { useNavigate } from '../../host'
 import { routes } from '../../routes'
 import { DraftEditor } from './DraftEditor'
+import { SaveDropdown } from './SaveDropdown'
 
 interface PokemonEditorPageProps {
   source?: string
@@ -46,13 +47,5 @@ export default function PokemonEditorPage({ source, id }: PokemonEditorPageProps
   if (phase === 'saving') return <Spin />
   if (!saved) return <Result status="404" title="Pokémon not found" />
   if (phase === 'opening') return <Spin />
-  return (
-    <DraftEditor
-      actions={
-        <Button type="primary" onClick={save}>
-          Save
-        </Button>
-      }
-    />
-  )
+  return <DraftEditor actions={<SaveDropdown onSave={save} />} />
 }

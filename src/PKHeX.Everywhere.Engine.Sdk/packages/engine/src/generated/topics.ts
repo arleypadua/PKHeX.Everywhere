@@ -35,6 +35,7 @@ export const queryTopics: Record<QueryName, readonly Topic[]> = {
   'plugins.setting': ['plugins'],
   'plugins.state': ['plugins'],
   'pokemon.details': ['party', 'box', 'draft'],
+  'pokemon.export': ['party', 'box', 'draft'],
   'pokemon.get': ['party', 'box', 'draft'],
   'pokemon.options': ['party', 'box', 'draft'],
   'pokemon.showdown': ['party', 'box', 'draft'],

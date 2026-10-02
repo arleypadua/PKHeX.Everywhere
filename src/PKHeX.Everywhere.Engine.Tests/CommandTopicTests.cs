@@ -49,6 +49,7 @@ public class CommandTopicTests
         ["pokemon.showdown"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At)),
         ["pokemon.details"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At)),
         ["pokemon.options"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At)),
+        ["pokemon.export"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At)),
         ["pokemon.setLevel"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At, p.Level == 50 ? 51 : 50)),
         ["pokemon.update"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At, new { nickname = "Sparky", level = p.Level == 50 ? 51 : 50, friendship = 1 })),
         ["pokemon.edit"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),

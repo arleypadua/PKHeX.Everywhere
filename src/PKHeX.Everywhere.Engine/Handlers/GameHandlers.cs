@@ -33,7 +33,7 @@ public static class GameHandlers
         session.Load(game, fileName);
     }
 
-    [Command("game.export")]
+    [Command("game.export", Topics.Party, Topics.Box)]
     public static ExportedSave Export(Session session, Game game)
     {
         var bytes = game.ToByteArray();
