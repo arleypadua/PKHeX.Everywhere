@@ -4,5 +4,6 @@ import { useEngine } from './EngineProvider'
 
 export function useEngineStatus(): EngineStatus {
   const engine = useEngine()
-  return useSyncExternalStore(engine.onStatusChange, () => engine.status)
+  const read = () => engine.status
+  return useSyncExternalStore(engine.onStatusChange, read, read)
 }

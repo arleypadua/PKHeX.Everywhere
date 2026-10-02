@@ -74,7 +74,7 @@ export function App() {
 
 The Suspense fallback shows the runtime download with `useEngineStatus()`. `<RequireGame>` renders its fallback until a save is loaded, then its children. If the runtime fails to load, the hooks throw the error to the nearest error boundary.
 
-CI builds this app from the packed packages and runs it, so the code above works as written.
+CI builds this app from the packed packages and runs it.
 
 ## Hooks that need a save
 

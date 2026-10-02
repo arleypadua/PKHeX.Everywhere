@@ -14,6 +14,7 @@ npm install @pkhex-everywhere/engine
 import { createEngine } from '@pkhex-everywhere/engine'
 
 const engine = createEngine()
+const input = document.querySelector<HTMLInputElement>('input[type=file]')!
 
 input.onchange = async () => {
   await engine.game.load(input.files![0])
