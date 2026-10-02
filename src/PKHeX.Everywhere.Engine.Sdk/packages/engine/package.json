@@ -23,8 +23,12 @@
   },
   "files": [
     "dist",
-    "_framework"
+    "_framework",
+    "CHANGELOG.md"
   ],
+  "publishConfig": {
+    "provenance": true
+  },
   "scripts": {
     "build": "node scripts/publish-framework.mjs && vite build && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",

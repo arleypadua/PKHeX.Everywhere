@@ -16,8 +16,12 @@
     }
   },
   "files": [
-    "index.d.ts"
+    "index.d.ts",
+    "CHANGELOG.md"
   ],
+  "publishConfig": {
+    "provenance": true
+  },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },

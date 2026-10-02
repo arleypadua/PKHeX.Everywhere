@@ -26,6 +26,10 @@ New coverage goes in `PKHeX.Facade.Tests`, or in `PKHeX.Everywhere.Engine.Tests`
 
 New projects use `PKHeX.Everywhere.*` and new npm packages use `@pkhex-everywhere/*`. Existing projects keep their names.
 
+### Changesets
+
+A PR that changes a published package (`@pkhex-everywhere/engine`, `react` or `plugin-sdk`) adds a changeset: run `npx changeset` in `src/PKHeX.Everywhere.Engine.Sdk` and commit the file. Engine changes that alter the runtime or the generated client count as changes to `engine`. Pre-1.0, breaking changes are `minor` bumps.
+
 ### Submodules
 
 `external/PKHeX` and `external/PKHeX-Plugins` are submodules pointing at our forks. Stay as close to upstream as possible: prefer solving problems in this repo. When a change to a fork is unavoidable, don't make it silently; open an issue labelled `ready-for-human` describing the change so a human can handle it (and upstreaming).
