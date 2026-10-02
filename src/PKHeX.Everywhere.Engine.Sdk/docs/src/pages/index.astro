@@ -239,12 +239,21 @@ const features = [
     z-index: -1;
     border-radius: 50%;
     background:
-      radial-gradient(circle, #fffaf0 0 13%, #5a3d0c 14% 21%, transparent 22%),
-      linear-gradient(transparent 45%, #5a3d0c 45% 55%, transparent 55%),
-      linear-gradient(var(--tint) 50%, #fffaf0 50%);
+      radial-gradient(circle, var(--ball-bottom) 0 13%, var(--ball-band) 14% 21%, transparent 22%),
+      linear-gradient(transparent 45%, var(--ball-band) 45% 55%, transparent 55%),
+      linear-gradient(var(--ball-top) 50%, var(--ball-bottom) 50%);
+    --ball-top: var(--tint);
+    --ball-bottom: #fffaf0;
+    --ball-band: #5a3d0c;
     filter: drop-shadow(0 0 6px var(--tint));
     opacity: 0;
     animation: drift var(--life) cubic-bezier(0.2, 0.6, 0.35, 1) forwards;
+  }
+  :global(:root[data-theme='light']) .everywhere :global(.spark) {
+    --ball-top: #e3350d;
+    --ball-bottom: #fff;
+    --ball-band: #222;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
   }
   @keyframes shimmer {
     from { background-position: 0 0; }
