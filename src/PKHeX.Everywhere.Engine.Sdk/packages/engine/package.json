@@ -1,6 +1,6 @@
 {
   "name": "@pkhex-everywhere/engine",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "PKHeX in the browser: load, read and edit Pokémon save files.",
   "license": "GPL-3.0-or-later",
   "homepage": "https://arley-space--docs.wawesome.app/docs/",
