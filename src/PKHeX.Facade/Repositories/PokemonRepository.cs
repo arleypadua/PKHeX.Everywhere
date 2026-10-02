@@ -17,6 +17,7 @@ public class PokemonRepository
 
     public IEnumerable<Encounter> FindEncounter(GameVersion version, Species species, bool? shiny = null, bool? egg = null)
     {
+        _game.Require(Capability.Encounters);
         var settings = new SearchSettings
         {
             Context = _saveFile.Context,

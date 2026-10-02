@@ -89,16 +89,16 @@ public class PokemonPatchTests
         pokemon.Update(new PokemonPatch(Level: 1));
 
         pokemon.Level.Should().Be(1);
-        pokemon.Details().Legality.Valid.Should().BeFalse();
-        pokemon.Details().Legality.Messages.Should().NotBeEmpty();
+        pokemon.Details().Legality!.Valid.Should().BeFalse();
+        pokemon.Details().Legality!.Messages.Should().NotBeEmpty();
     }
 
     [Fact]
     public void ReportsNoMessagesForALegalPokemon()
     {
-        var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Details().Legality.Valid);
+        var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Details().Legality!.Valid);
 
-        pokemon.Details().Legality.Messages.Should().BeEmpty();
+        pokemon.Details().Legality!.Messages.Should().BeEmpty();
     }
 }
 
@@ -207,11 +207,11 @@ public class PokemonTrainerPatchTests
     [Fact]
     public void AppliesAnIllegalOriginalTrainerAndReportsIt()
     {
-        var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Details().Legality.Valid);
+        var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Details().Legality!.Valid);
 
         pokemon.Update(new PokemonPatch(OriginalTrainerName: ""));
 
         pokemon.Details().OriginalTrainerName.Should().BeEmpty();
-        pokemon.Details().Legality.Valid.Should().BeFalse();
+        pokemon.Details().Legality!.Valid.Should().BeFalse();
     }
 }

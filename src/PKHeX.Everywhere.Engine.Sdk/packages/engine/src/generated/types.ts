@@ -133,8 +133,8 @@ export interface EditablePokemon {
   calculatedCombatPower: number | null
   /** Always four slots. An empty slot has id 0. */
   moves: MoveSlot[]
-  /** PKHeX's legality check of the Pokémon as it is now. */
-  legality: Legality
+  /** PKHeX's legality check of the Pokémon as it is now, or null when the save doesn't support `legality`. */
+  legality: Legality | null
 }
 
 /** One encounter from `encounters.search`: a way to obtain the species legally in the chosen game. */
@@ -241,6 +241,8 @@ export interface GameOverview {
   /** The number of box slots in the save, empty ones included. */
   boxCount: number
   party: PartyMember[]
+  /** The id of the save format the save loaded through, or null for a save PKHeX reads on its own. */
+  formatId: string | null
 }
 
 /** The type and power of a Pokémon's Hidden Power. */
@@ -653,6 +655,9 @@ export interface PublishedVersion {
   sdk: number
 }
 
+/** A feature that relies on PKHeX knowing the save's game: the legality check in `pokemon.details()`, AutoLegality, the `encounters` calls, Showdown export, the `events` calls and plug-ins. Without `plugIns`, hooks don't run, `plugins.actions()` and `plugins.pages()` are empty, and `plugins.run()` and `plugins.pageModule()` fail with `not-supported`. */
+export type SaveCapability = 'legality' | 'autoLegality' | 'encounters' | 'showdown' | 'events' | 'plugIns'
+
 /** The save's event flags and work, returned by `events.get`, which returns null for saves without them. */
 export interface SaveEvents {
   /** The flags PKHeX has labels for. The save can have more. */
@@ -671,7 +676,19 @@ export interface SaveEvents {
   gen3: TicketsAndIslands | null
 }
 
-/** The loaded save's file name, game and generation, returned by `game.get`. */
+/** A save format PKHeX doesn't know, such as a ROM hack's, that the engine loads on its own. */
+export interface SaveFormat {
+  /** The format's id, such as `unbound`. */
+  id: string
+  /** The format's display name, such as `Pokémon Unbound`. Show it as the loaded game. */
+  name: string
+  /** The display name of the game the format builds on, such as `FireRed`. */
+  baseGame: string
+  /** The PKHeX `GameVersion` value of the game the format builds on. */
+  baseGameId: number
+}
+
+/** The loaded save's file name, game, generation, save format and capabilities, returned by `game.get`. */
 export interface SaveSummary {
   /** The file name the save was loaded with. `game.load` uses `save.sav` when none is given, and blank saves use the game's name. */
   fileName: string | null
@@ -681,6 +698,10 @@ export interface SaveSummary {
   generation: number
   /** Whether the save has event flags and work to edit. When false, `events.get` returns null. */
   hasEvents: boolean
+  /** The save format the save loaded through, or null for a save PKHeX reads on its own. */
+  format: SaveFormat | null
+  /** What the save supports. A save from PKHeX supports all of them. Calls behind a capability that's missing fail with `not-supported`. */
+  capabilities: SaveCapability[]
 }
 
 /** The loaded save's game and generation, returned by `game.version`. */
@@ -693,6 +714,8 @@ export interface SaveVersion {
   generation: string
   /** The PKHeX `EntityContext` value. It equals the generation number (1 to 9) for main-series contexts. Let's Go, Legends: Arceus, Brilliant Diamond and Shining Pearl, and Legends: Z-A use 11 to 14. */
   generationId: number
+  /** The id of the save format the save loaded through, or null for a save PKHeX reads on its own. */
+  formatId: string | null
 }
 
 /** Where a Pokémon is: the party, a box, or the draft opened with `pokemon.edit()` or `pokemon.clone()`. */

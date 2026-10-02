@@ -39,7 +39,7 @@ public record PokemonDetails(
     int? CombatPower,
     int? CalculatedCombatPower,
     IReadOnlyList<MoveSlot> Moves,
-    PokemonLegality Legality);
+    PokemonLegality? Legality);
 
 public record StatValues(int Health, int Attack, int Defense, int SpecialAttack, int SpecialDefense, int Speed);
 

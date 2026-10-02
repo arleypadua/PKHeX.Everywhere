@@ -9,7 +9,11 @@ namespace PKHeX.Everywhere.Engine.Handlers;
 public static class EventsHandlers
 {
     [Query("events.get", Topics.Events, Topics.Inventory)]
-    public static SaveEvents? Get(Game game) => game.Events?.ToSaveEvents();
+    public static SaveEvents? Get(Game game)
+    {
+        game.Require(Capability.Events);
+        return game.Events?.ToSaveEvents();
+    }
 
     [Query("events.flag", Topics.Events)]
     public static bool Flag(Game game, int index) => InRange(() => Require(game).GetFlag(index));
@@ -23,6 +27,7 @@ public static class EventsHandlers
     [Command("events.giveTickets", Topics.Inventory)]
     public static string[] GiveTickets(Session session, Game game, bool includeOldSeaMap)
     {
+        game.Require(Capability.Events);
         var tickets = game.Events?.Gen3?.Tickets
             ?? throw new EngineException(ErrorCodes.NotFound, "Only Generation 3 saves have event tickets.");
 
@@ -40,8 +45,11 @@ public static class EventsHandlers
         return added.Select(t => t.Name).ToArray();
     }
 
-    private static GameEvents Require(Game game) =>
-        game.Events ?? throw new EngineException(ErrorCodes.NotFound, "This save has no events.");
+    private static GameEvents Require(Game game)
+    {
+        game.Require(Capability.Events);
+        return game.Events ?? throw new EngineException(ErrorCodes.NotFound, "This save has no events.");
+    }
 
     private static void InRange(Action action) => InRange(() =>
     {

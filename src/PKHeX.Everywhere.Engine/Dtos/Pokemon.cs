@@ -133,7 +133,7 @@ public enum PokemonHandler
 /// <param name="CombatPower">Stored Combat Power. Null outside the Let's Go games.</param>
 /// <param name="CalculatedCombatPower">The Combat Power the game would calculate from the current stats. Null outside the Let's Go games.</param>
 /// <param name="Moves">Always four slots. An empty slot has id 0.</param>
-/// <param name="Legality">PKHeX's legality check of the Pokémon as it is now.</param>
+/// <param name="Legality">PKHeX's legality check of the Pokémon as it is now, or null when the save doesn't support <c>legality</c>.</param>
 public record EditablePokemon(
     int Species,
     int Form,
@@ -173,7 +173,7 @@ public record EditablePokemon(
     int? CombatPower,
     int? CalculatedCombatPower,
     MoveSlot[] Moves,
-    Legality Legality);
+    Legality? Legality);
 
 /// <summary>
 /// A value for each of a Pokémon's six stats.
@@ -344,7 +344,7 @@ public static class PokemonMapping
         details.CombatPower,
         details.CalculatedCombatPower,
         details.Moves.Select(move => new MoveSlot(move.Id, move.Name, move.Pp, move.MaxPp)).ToArray(),
-        new Legality(details.Legality.Valid, details.Legality.Messages.ToArray()));
+        details.Legality is { } legality ? new Legality(legality.Valid, legality.Messages.ToArray()) : null);
 
     public static Facade.Pokemons.PokemonPatch ToFacade(this PokemonPatch patch) => new(
         patch.Species,

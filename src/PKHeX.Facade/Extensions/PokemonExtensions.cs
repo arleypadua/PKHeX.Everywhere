@@ -16,7 +16,11 @@ public static class PokemonExtensions
     /// </summary>
     public static string PidDisplay(this Pokemon pokemon) => pokemon.PID.ToString("x8");
     
-    public static string Showdown(this Pokemon pokemon) => ShowdownParsing.GetShowdownText(pokemon.Pkm);
+    public static string Showdown(this Pokemon pokemon)
+    {
+        pokemon.Game.Require(Capability.Showdown);
+        return ShowdownParsing.GetShowdownText(pokemon.Pkm);
+    }
     
     public static string Showdown(this IEnumerable<Pokemon> pokemonList) => string.Join("\n\n", pokemonList.Select(Showdown));
 
@@ -24,6 +28,7 @@ public static class PokemonExtensions
     
     public static PokemonLegality LegalityReport(this Pokemon pokemon)
     {
+        pokemon.Game.Require(Capability.Legality);
         var analysis = pokemon.Legality();
         var localization = LegalityLocalizationContext.Create(analysis);
         var messages = new List<string>();
@@ -34,6 +39,7 @@ public static class PokemonExtensions
 
     public static async Task<Pokemon> ToLegalAsync(this Pokemon pokemon)
     {
+        pokemon.Game.Require(Capability.AutoLegality);
         if (pokemon.Legality().Valid) return pokemon;
         
         var template = pokemon.Pkm.Clone();

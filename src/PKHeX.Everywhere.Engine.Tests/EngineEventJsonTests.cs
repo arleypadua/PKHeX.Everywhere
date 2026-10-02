@@ -81,6 +81,7 @@ public class EngineEventJsonTests
                 trainerGender = game.Trainer.Gender.Name,
                 boxCount = game.Trainer.PokemonBox.All.Count,
                 party = game.Trainer.Party.Pokemons.Select(p => new { speciesId = p.Species.Id, species = p.Species.Name, level = p.Level }),
+                formatId = (string?)null,
             },
         };
         sent.Should().ContainSingle().Which.ToJsonString().Should().Be(JsonSerializer.Serialize(expected));

@@ -155,7 +155,7 @@ public class PokemonDescriptionPatchTests
         pokemon.Update(new PokemonPatch(Ability: foreign));
 
         pokemon.Details().Ability.Should().Be(foreign);
-        pokemon.Details().Legality.Valid.Should().BeFalse();
+        pokemon.Details().Legality!.Valid.Should().BeFalse();
     }
 
     [Fact]
