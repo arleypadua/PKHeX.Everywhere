@@ -1,6 +1,6 @@
 {
   "name": "@pkhex-everywhere/plugin-sdk",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Types for plug-in page modules of https://pkhex-web.github.io.",
   "license": "GPL-3.0-or-later",
   "repository": {
