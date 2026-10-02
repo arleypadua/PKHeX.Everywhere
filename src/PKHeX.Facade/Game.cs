@@ -71,10 +71,10 @@ public class Game
     }
 
     public static Game LoadFrom(string path) =>
-        LoadFrom(() => SaveUtil.GetSaveFile(path), path);
+        LoadFrom(() => SaveFormats.LoadCertain(File.ReadAllBytes(path)) ?? SaveUtil.GetSaveFile(path), path);
 
     public static Game LoadFrom(byte[] bytes, string? path = null) =>
-        LoadFrom(() => SaveUtil.GetSaveFile(bytes, path), path);
+        LoadFrom(() => SaveFormats.LoadCertain(bytes) ?? SaveUtil.GetSaveFile(bytes, path), path);
 
     /**
      * A save format is picked by file size before anything is parsed, so a file that merely matches a
