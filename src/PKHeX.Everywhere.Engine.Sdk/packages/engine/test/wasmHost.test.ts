@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { wasmHost, type DotnetRuntime } from '../src'
+import { version } from '../package.json'
 
 function fakeDotnet({ failMain = false } = {}) {
   const loaded: string[] = []
@@ -38,14 +39,23 @@ describe('wasmHost', () => {
     globalThis.pkhexEngineOnEvent = undefined
   })
 
-  it('loads dotnet.js from the given URL and is ready once Main ran', async () => {
+  it('loads dotnet.js from jsDelivr for the exact engine version by default', async () => {
+    const dotnet = fakeDotnet()
+    const host = wasmHost({ load: dotnet.load })
+
+    await host.ready()
+
+    expect(dotnet.loaded).toEqual([`https://cdn.jsdelivr.net/npm/@pkhex-everywhere/engine@${version}/_framework/dotnet.js`])
+    expect(dotnet.mainRuns()).toBe(1)
+  })
+
+  it('loads dotnet.js from the given URL', async () => {
     const dotnet = fakeDotnet()
     const host = wasmHost({ dotnetUrl: '/_framework/dotnet.js', load: dotnet.load })
 
     await host.ready()
 
     expect(dotnet.loaded).toEqual(['/_framework/dotnet.js'])
-    expect(dotnet.mainRuns()).toBe(1)
   })
 
   it('boots the runtime once', async () => {

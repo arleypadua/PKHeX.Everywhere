@@ -63,6 +63,31 @@ jobs:
       - run: npm run typecheck
       - run: npm test
 
+  engine_sdk_packages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+      - name: Update submodules to the latest commit
+        run: |
+          git submodule update --remote --recursive
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Engine SDK dependencies
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk
+        run: npm ci
+      - name: Load the sample save from the packed tarballs
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk/example
+        run: ./smoke.sh
+
   changes:
     runs-on: ubuntu-latest
     permissions:
