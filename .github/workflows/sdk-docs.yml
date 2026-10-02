@@ -49,4 +49,4 @@ jobs:
         working-directory: src/PKHeX.Everywhere.Engine.Sdk/docs
         env:
           WAWESOME_DEPLOY_CREDENTIAL: ${{ secrets.WAWESOME_DEPLOY_CREDENTIAL }}
-        run: npx wawesome deploy --skip-build -m "${{ github.sha }}"
+        run: npx wawesome deploy --skip-build -m "$(git log -1 --format='%h %s')"
