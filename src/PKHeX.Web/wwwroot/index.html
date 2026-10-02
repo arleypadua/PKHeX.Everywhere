@@ -95,7 +95,13 @@
 
     <script src="js/pkhex-web.js.iife.js"></script>
 
-    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+    <script>
+        import('./react/sentry.js').catch(function () {});
+        window.pkhexBlazorStarted = typeof Blazor === 'undefined'
+            ? Promise.reject(new Error('blazor.webassembly.js did not load.'))
+            : Blazor.start();
+    </script>
 </body>
 
 </html>

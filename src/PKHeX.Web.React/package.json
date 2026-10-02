@@ -15,6 +15,7 @@
     "@ant-design/plots": "^2.6.8",
     "@pkhex-everywhere/engine": "file:../PKHeX.Everywhere.Engine.Sdk/packages/engine",
     "@pkhex-everywhere/react": "file:../PKHeX.Everywhere.Engine.Sdk/packages/react",
+    "@sentry/browser": "^11.2.0",
     "antd": "^6.6.5",
     "dayjs": "^1.11.23",
     "react": "^19.3.0",

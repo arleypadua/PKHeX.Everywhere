@@ -11,9 +11,11 @@ import { pages } from './pages'
 import { createPlugIns } from './plugins/plugIns'
 import { PlugInsProvider } from './plugins/PlugInsContext'
 import { createPlugInStore } from './plugins/store'
+import { watchEngine } from './sentry'
 
 export { getTheme, onThemeChanged } from './host'
 export { track } from './googleAnalytics'
+export { captureBlazorError } from './sentry'
 
 export const checkUnseenNews = () => checkUnseenNewsIn(settings, new Date())
 export const markNewsSeen = () => markNewsSeenIn(settings)
@@ -21,6 +23,7 @@ export const markNewsSeen = () => markNewsSeenIn(settings)
 const engine = createEngine({ host: blazorHost() })
 
 startGoogleAnalytics(engine)
+watchEngine(engine)
 
 const plugIns = createPlugIns(engine, createPlugInStore())
 

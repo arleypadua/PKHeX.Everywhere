@@ -24,6 +24,7 @@ export type Engine = EngineClient & {
   call<T>(name: CallName, args: unknown[]): Promise<T>
   subscribe(topics: readonly Topic[], callback: (changed: Topic[]) => void): () => void
   onEvent(listener: (event: EngineEvent) => void): () => void
+  onCallFailed(listener: (call: CallName, error: unknown) => void): () => void
 }
 
 export function createEngine({ host }: { host: EngineHost }): Engine {
@@ -35,11 +36,27 @@ export function createEngine({ host }: { host: EngineHost }): Engine {
   const ready = exports.then(() => undefined)
   ready.catch(() => {})
 
-  async function call<T>(name: CallName, args: unknown[]): Promise<T> {
+  async function dispatch<T>(name: CallName, args: unknown[]): Promise<T> {
     const engine = await exports
     const envelope = JSON.parse(await engine.Call(name, JSON.stringify(args))) as Envelope<T>
     if (envelope.ok) return envelope.value
     throw new EngineError(envelope.error.code, envelope.error.message)
+  }
+
+  const failureListeners = new Set<(call: CallName, error: unknown) => void>()
+
+  async function call<T>(name: CallName, args: unknown[]): Promise<T> {
+    try {
+      return await dispatch<T>(name, args)
+    } catch (error) {
+      for (const listener of [...failureListeners]) listener(name, error)
+      throw error
+    }
+  }
+
+  function onCallFailed(listener: (call: CallName, error: unknown) => void) {
+    failureListeners.add(listener)
+    return () => void failureListeners.delete(listener)
   }
 
   const subscribers = new Set<{ topics: readonly Topic[]; callback: (changed: Topic[]) => void }>()
@@ -65,5 +82,5 @@ export function createEngine({ host }: { host: EngineHost }): Engine {
     return () => void eventListeners.delete(listener)
   }
 
-  return { ...createClient(call), ready, call, subscribe, onEvent }
+  return { ...createClient(call), ready, call, subscribe, onEvent, onCallFailed }
 }
