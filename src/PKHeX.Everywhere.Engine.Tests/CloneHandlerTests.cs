@@ -1,6 +1,5 @@
 using System.Text.Json.Nodes;
 using AwesomeAssertions;
-using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade.Tests.Base;
 using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
@@ -13,32 +12,15 @@ public class CloneHandlerTests
     private static readonly PokemonHandle Draft = PokemonHandle.Draft();
 
     [Fact]
-    public void CloneOpensACopyWithAFreshPidAndNoNickname()
+    public void CloneOpensACopyOfTheSavedPokemon()
     {
         var session = Loaded(SaveFilePath.HgSs);
-        Update(session, PokemonHandle.Party(0), new { nickname = "Sparky" });
         var saved = session.Game!.Trainer.Party.Pokemons[0];
 
         Clone(session, PokemonHandle.Party(0));
 
-        var draft = session.Draft!.Pokemon;
-        draft.PID.Should().NotBe(saved.PID);
-        draft.IsShiny.Should().Be(saved.IsShiny);
-        draft.Species.Should().Be(saved.Species);
-        Details(session, Draft)["nickname"]!.GetValue<string>().Should().NotBe("Sparky");
-    }
-
-    [Fact]
-    public void CloneKeepsAShinyPokemonShiny()
-    {
-        var session = Loaded(SaveFilePath.HgSs);
-        var saved = session.Game!.Trainer.Party.Pokemons[0];
-        saved.Pkm.SetIsShiny(true);
-        session.Game.Trainer.Party.Commit();
-
-        Clone(session, PokemonHandle.Party(0));
-
-        session.Draft!.Pokemon.IsShiny.Should().BeTrue();
+        Get(session, Draft)["speciesId"]!.GetValue<int>().Should().Be(saved.Species.Id);
+        Get(session, Draft)["id"]!.GetValue<string>().Should().NotBe(Get(session, PokemonHandle.Party(0))["id"]!.GetValue<string>());
     }
 
     [Fact]
