@@ -37,6 +37,20 @@ public class CodeGenTests
     }
 
     [Fact]
+    public void ClientMethodsCarryTheHandlerDocs()
+    {
+        Client.Should().Contain("""
+                /** Lists the save formats PKHeX doesn't know, such as ROM hacks, that `game.load()` can load a save with. */
+                formats(): Promise<FormatEntry[]>
+            """.ReplaceLineEndings("\n"));
+        Client.Should().MatchRegex(@"\* @param formatId The id of a save format from `game.formats\(\)` to load the save with, skipping detection\. [^\n]+\n\s+\*/\n\s+load\(");
+    }
+
+    [Fact]
+    public void HookCommandsCarryTheHandlerDocs() =>
+        Hooks.Should().MatchRegex(@"\* @param formatId [^\n]+\n\s+\*/\n\s+load: \(");
+
+    [Fact]
     public void HooksListTheirRequirements()
     {
         Hooks.Should().Contain("""
@@ -52,11 +66,11 @@ public class CodeGenTests
     [Fact]
     public void BinaryParametersTakeAnyBinaryInput()
     {
-        Client.Should().Contain("load(data: Binary, fileName?: string | null): Promise<void>")
+        Client.Should().Contain("load(data: Binary, fileName?: string | null, formatId?: string | null): Promise<void>")
             .And.Contain("addFromFile(bytes: Binary): Promise<AddedPokemon>")
             .And.Contain("isSupported(assembly: Binary): Promise<boolean>")
             .And.Contain("register(assembly: Binary, stored: PlugInState | null): Promise<InstalledPlugIn>")
-            .And.Contain("load: async (data, fileName) => invoke('game.load', [await toBase64(data), fileName ?? fileNameOf(data)]),");
+            .And.Contain("load: async (data, fileName, formatId) => invoke('game.load', [await toBase64(data), fileName ?? fileNameOf(data), formatId]),");
     }
 
     [Fact]

@@ -211,6 +211,14 @@ export interface ExportedSave {
   fileName: string
 }
 
+/** A save format `game.load()` can load a save with, returned by `game.formats()`. */
+export interface FormatEntry {
+  /** The format's id, to pass to `game.load()` as `formatId`. */
+  id: string
+  /** The format's display name. */
+  name: string
+}
+
 /** Fires when `game.close` closes the loaded save. Closing with no save loaded fires nothing. */
 export interface GameClosed {
   type: 'gameClosed'

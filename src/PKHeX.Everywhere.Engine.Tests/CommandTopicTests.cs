@@ -26,6 +26,7 @@ public class CommandTopicTests
         ["events.setFlag"] = (game, _) => Flags(game).Select(f => Args(f.Index, !f.Value)),
         ["events.setWork"] = (game, _) => game.Events?.Work.LastOrDefault() is { } work ? [Args(work.Index, work.Value == 7 ? 8 : 7)] : [],
         ["game.blankVersions"] = (_, _) => ["[]"],
+        ["game.formats"] = (_, _) => ["[]"],
         ["game.natures"] = (_, _) => ["[]"],
         ["game.balls"] = (_, _) => ["[]"],
         ["game.languages"] = (_, _) => ["[]"],
@@ -38,7 +39,7 @@ public class CommandTopicTests
         ["game.version"] = (_, _) => ["[]"],
         ["game.load"] = (_, saveFile) =>
         [
-            Args(Convert.ToBase64String(File.ReadAllBytes(saveFile == SaveFilePath.HgSs ? SaveFilePath.Emerald : SaveFilePath.HgSs)), "other.sav"),
+            Args(Convert.ToBase64String(File.ReadAllBytes(saveFile == SaveFilePath.HgSs ? SaveFilePath.Emerald : SaveFilePath.HgSs)), "other.sav", null!),
         ],
         ["game.loadBlank"] = (game, _) => [Args((int)(game.SaveVersion.Version == GameVersion.SW ? GameVersion.SH : GameVersion.SW))],
         ["game.close"] = (_, _) => ["[]"],

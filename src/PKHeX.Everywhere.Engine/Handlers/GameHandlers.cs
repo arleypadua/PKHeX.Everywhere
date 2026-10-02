@@ -19,14 +19,26 @@ public static class GameHandlers
     [Command("game.file", Topics.Party, Topics.Box)]
     public static LoadedSave? File(Session session) => session.Game?.ToFile(session.FileName);
 
+    /// <summary>
+    /// Loads a save file, replacing the one loaded before.
+    /// </summary>
+    /// <param name="data">The save file's bytes.</param>
+    /// <param name="fileName">The file name to export the save with. Defaults to the name of a <c>File</c>, or <c>save.sav</c>.</param>
+    /// <param name="formatId">
+    /// The id of a save format from <c>game.formats()</c> to load the save with, skipping detection.
+    /// An unknown id fails with <c>not-found</c>, and a save the format can't read fails with <c>invalid-save</c>.
+    /// </param>
     [Command("game.load", Topics.All)]
-    public static void Load(Session session, byte[] data, string? fileName = null)
+    public static void Load(Session session, byte[] data, string? fileName = null, string? formatId = null)
     {
         fileName ??= DefaultFileName;
+        var format = formatId is null
+            ? null
+            : SaveFormats.Find(formatId) ?? throw new EngineException(ErrorCodes.NotFound, $"There is no save format '{formatId}'.");
         Game game;
         try
         {
-            game = Game.LoadFrom(data, fileName);
+            game = format is null ? Game.LoadFrom(data, fileName) : Game.LoadFrom(data, fileName, format);
         }
         catch (GameNotLoadedException e)
         {
@@ -65,6 +77,12 @@ public static class GameHandlers
     [Query("game.blankVersions")]
     public static VersionEntry[] BlankVersions() =>
         GameVersionRepository.Instance.Blank.Select(version => version.ToEntry()).ToArray();
+
+    /// <summary>
+    /// Lists the save formats PKHeX doesn't know, such as ROM hacks, that <c>game.load()</c> can load a save with.
+    /// </summary>
+    [Query("game.formats")]
+    public static FormatEntry[] Formats() => SaveFormats.All.Select(format => format.ToEntry()).ToArray();
 
     [Command("game.loadBlank", Topics.All)]
     public static void LoadBlank(Session session, int version)

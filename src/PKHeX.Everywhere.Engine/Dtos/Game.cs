@@ -25,6 +25,13 @@ public record SaveSummary(string? FileName, string Version, int Generation, bool
 public record SaveFormat(string Id, string Name, string BaseGame, int BaseGameId);
 
 /// <summary>
+/// A save format <c>game.load()</c> can load a save with, returned by <c>game.formats()</c>.
+/// </summary>
+/// <param name="Id">The format's id, to pass to <c>game.load()</c> as <c>formatId</c>.</param>
+/// <param name="Name">The format's display name.</param>
+public record FormatEntry(string Id, string Name);
+
+/// <summary>
 /// A feature that relies on PKHeX knowing the save's game: the legality check in <c>pokemon.details()</c>, AutoLegality, the <c>encounters</c> calls,
 /// Showdown export, the <c>events</c> calls and plug-ins. Without <c>plugIns</c>, hooks don't run, <c>plugins.actions()</c> and <c>plugins.pages()</c> are empty,
 /// and <c>plugins.run()</c> and <c>plugins.pageModule()</c> fail with <c>not-supported</c>.
@@ -107,6 +114,8 @@ public static class GameMapping
         game.Generation.ToString(),
         (int)game.Generation,
         game.Format?.Id);
+
+    public static FormatEntry ToEntry(this ISaveFormat format) => new(format.Id, format.Name);
 
     private static SaveFormat ToDto(this SaveFormatDescription format) => new(
         format.Id,

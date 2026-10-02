@@ -93,6 +93,9 @@ public class Game
     public static Game LoadFrom(byte[] bytes, string? path = null) =>
         LoadFrom(() => SaveFormats.LoadCertain(bytes) ?? FromPKHeX(SaveUtil.GetSaveFile(bytes, path)), path);
 
+    public static Game LoadFrom(byte[] bytes, string? path, ISaveFormat format) =>
+        LoadFrom(() => new Game(format.Load(bytes), format), path);
+
     private static Game? FromPKHeX(SaveFile? saveFile) => saveFile is null ? null : new Game(saveFile);
 
     /**

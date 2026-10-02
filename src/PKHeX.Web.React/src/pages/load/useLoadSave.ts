@@ -10,16 +10,18 @@ export function useLoadSave() {
   const { notification } = App.useApp()
 
   const openFile = useCallback(
-    async (file: File) => {
+    async (file: File, formatId?: string) => {
       if (file.size > maxFileSize) {
         notification.error({ title: 'File is too large', description: 'The file should not exceed 6 MB.' })
-        return
+        return false
       }
       try {
-        await engine.game.load(file)
+        await engine.game.load(file, undefined, formatId)
+        return true
       } catch (error) {
         if (!(error instanceof EngineError) || error.code !== 'invalid-save') throw error
         notification.error({ title: error.message, description: 'The file is not a valid save file.' })
+        return false
       }
     },
     [engine, notification],

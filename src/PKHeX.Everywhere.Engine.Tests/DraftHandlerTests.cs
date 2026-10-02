@@ -114,7 +114,7 @@ public class DraftHandlerTests
         var session = Loaded(SaveFilePath.HgSs);
         Edit(session, PokemonHandle.Party(0));
 
-        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), "emerald.sav")));
+        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), "emerald.sav", null!)));
 
         Error(Dispatch(session, "pokemon.details", Args(Draft))).Should().Be(ErrorCodes.NoDraft);
     }

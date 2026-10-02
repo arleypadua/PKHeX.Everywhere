@@ -56,7 +56,7 @@ public class GameHandlerTests
         session.Changed += changes.Add;
         session.GameChanged += () => gameChanges++;
 
-        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), "emerald.sav")))
+        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), "emerald.sav", null!)))
             .Should().BeNull();
 
         Value(Dispatch(session, "game.get", "[]"))!["generation"]!.GetValue<int>().Should().Be(3);
@@ -70,14 +70,14 @@ public class GameHandlerTests
     {
         var session = new Session();
 
-        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), null!)));
+        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), null!, null!)));
 
         session.FileName.Should().Be("save.sav");
     }
 
     [Fact]
     public void LoadReturnsInvalidSaveForBytesThatAreNotASave() =>
-        Error(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(new byte[1234]), "nope.sav")))
+        Error(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(new byte[1234]), "nope.sav", null!)))
             .Should().Be("invalid-save");
 
     [Fact]
@@ -92,7 +92,7 @@ public class GameHandlerTests
         exported["fileName"]!.GetValue<string>().Should().Be(SaveFilePath.HgSs);
         published.Should().ContainSingle().Which.Should().BeOfType<GameExported>();
         var reloaded = new Session();
-        Value(Dispatch(reloaded, "game.load", Args(exported["bytes"]!.GetValue<string>(), "exported.dsv")));
+        Value(Dispatch(reloaded, "game.load", Args(exported["bytes"]!.GetValue<string>(), "exported.dsv", null!)));
         reloaded.Game!.Trainer.Name.Should().Be(session.Game!.Trainer.Name);
         reloaded.Game.Trainer.Id.Should().Be(session.Game.Trainer.Id);
     }
