@@ -129,9 +129,12 @@ const features = [
       const size = 10 + Math.random() * 12
       spark.style.setProperty('--size', `${size}px`)
       spark.style.setProperty('--tint', tints[Math.floor(Math.random() * tints.length)])
-      spark.style.setProperty('--dx', `${(Math.random() - 0.5) * 60}px`)
-      spark.style.setProperty('--dy', `${-20 - Math.random() * 50}px`)
-      spark.style.setProperty('--life', `${1200 + Math.random() * 1200}ms`)
+      const angle = Math.random() * Math.PI * 2
+      const distance = 30 + Math.random() * 50
+      spark.style.setProperty('--dx', `${Math.cos(angle) * distance}px`)
+      spark.style.setProperty('--dy', `${Math.sin(angle) * distance}px`)
+      spark.style.setProperty('--spin', `${(Math.random() - 0.5) * 180}deg`)
+      spark.style.setProperty('--life', `${1600 + Math.random() * 1400}ms`)
       spark.style.left = `${Math.random() * 100}%`
       spark.style.top = `${20 + Math.random() * 60}%`
       spark.addEventListener('animationend', () => spark.remove())
@@ -197,13 +200,13 @@ const features = [
     display: inline-block;
   }
   .everywhere .word {
-    background: linear-gradient(90deg, var(--sl-color-accent), #ff6fb5 40%, #ffd36f 50%, #ff6fb5 60%, var(--sl-color-accent));
-    background-size: 250% 100%;
+    background: linear-gradient(90deg, var(--sl-color-accent), #c86fe0 25%, #ff7fb8 50%, #ffb38a 65%, #ff7fb8 80%, var(--sl-color-accent));
+    background-size: 300% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    filter: drop-shadow(0 0 0.35em color-mix(in srgb, var(--sl-color-accent) 70%, transparent));
-    animation: shimmer 6s ease-in-out infinite, pulse 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 0.35em rgba(124, 92, 255, 0.5));
+    animation: shimmer 16s ease-in-out infinite alternate, pulse 7s ease-in-out infinite;
   }
   .everywhere :global(.spark) {
     position: absolute;
@@ -214,20 +217,21 @@ const features = [
     clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
     filter: drop-shadow(0 0 6px var(--tint));
     opacity: 0;
-    animation: drift var(--life) ease-out forwards;
+    animation: drift var(--life) cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
   }
   @keyframes shimmer {
-    0%, 100% { background-position: 100% 0; }
-    50% { background-position: 0 0; }
+    from { background-position: 0 0; }
+    to { background-position: 100% 0; }
   }
   @keyframes pulse {
-    0%, 100% { filter: drop-shadow(0 0 0.25em color-mix(in srgb, var(--sl-color-accent) 55%, transparent)); }
-    50% { filter: drop-shadow(0 0 0.6em color-mix(in srgb, #ff6fb5 60%, transparent)); }
+    0%, 100% { filter: drop-shadow(0 0 0.35em rgba(124, 92, 255, 0.5)); }
+    50% { filter: drop-shadow(0 0 0.5em rgba(255, 127, 184, 0.45)); }
   }
   @keyframes drift {
-    0% { opacity: 0; transform: translate(0, 0) scale(0.4) rotate(0deg); }
-    20% { opacity: 1; }
-    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1) rotate(90deg); }
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(0deg); }
+    8% { opacity: 1; }
+    60% { opacity: 0.8; }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.9) rotate(var(--spin)); }
   }
   @media (prefers-reduced-motion: reduce) {
     .everywhere .word {
