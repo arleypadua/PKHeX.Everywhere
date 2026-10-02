@@ -380,6 +380,7 @@ export interface PokemonPatch {
 export interface PokemonSaved {
   type: 'pokemonSaved'
   at: PokemonHandle
+  pokemon: PokemonOverview
 }
 
 export interface PokemonSummary {

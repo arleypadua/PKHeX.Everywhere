@@ -32,7 +32,7 @@ public class BrowseTests(WebAppFixture fixture) : E2ETest(fixture)
 
         await boxedRow.GetByRole(AriaRole.Button, new() { Name = "View", Exact = true }).ClickAsync();
         await Assertions.Expect(page).ToHaveURLAsync(new Uri(BaseAddress, $"/pokemon/box/{boxed.UniqueId}").ToString());
-        await Assertions.Expect(page.GetByTestId("pokemon-species")).ToHaveTextAsync(boxed.Species.Name);
+        await Assertions.Expect(page.SelectValue("Species")).ToHaveTextAsync(boxed.Species.Name);
     });
 
     private static ILocator PokemonRows(IPage page) =>

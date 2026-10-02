@@ -1,71 +1,10 @@
-@page "/pokemon/{UniqueIdString}/clone"
-@inject NavigationManager Navigation
-@inject INotificationService Notification
-@inject JsService Js
+@page "/pokemon/{PartyOrBox}/{UniqueIdString}/clone"
 
-@if (_pokemon is not null)
-{
-    <Flex Style="width: 100%; gap: 20px;" Direction="FlexDirection.Vertical">
-        <PokemonEdit
-            Pokemon="_pokemon"/>
-        
-        <Space Align="SpaceAlign.End" Style="width: 100%" Direction="SpaceDirection.Vertical">
-            <Button
-                Type="@ButtonType.Primary"
-                OnClick="HandleAddToBoxClick">Add to box</Button>
-        </Space>
-    </Flex>
-}
+<PageTitle>Clone Pokemon</PageTitle>
+
+<ReactPage Name="pokemon-clone" Props="@(new() { ["source"] = PartyOrBox, ["id"] = UniqueIdString })" />
 
 @code {
-    [Inject] public required GameService GameService { get; set; }
-    
+    [Parameter] public required string PartyOrBox { get; set; }
     [Parameter] public required string UniqueIdString { get; set; }
-
-    private UniqueId UniqueId => UniqueId.From(UniqueIdString);
-
-    private Pokemon? _pokemon;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var pokemon = GameService.Game?.FindPokemon(UniqueId);
-        if (pokemon is null)
-        {
-            await Js.NavigateBack();
-            return;
-        }
-
-        _pokemon = pokemon.MakeCopy();
-    }
-
-    private void HandleAddToBoxClick()
-    {
-        if (_pokemon is null) return;
-        
-        var game = GameService.Game!;
-        var added = game.Trainer.PokemonBox.AddOnEmptySlot(_pokemon);
-        
-        if (added)
-        {
-            _ = Notification.Open(new NotificationConfig
-            {
-                Message = $"{_pokemon.Species.Name} Cloned",
-                Description = $"{_pokemon.Species.Name} added to your box",
-                NotificationType = NotificationType.Success
-            });
-            
-            Navigation.NavigateToPokemonBox(replace: true);
-            Navigation.NavigateToPokemon(PokemonSource.Box, _pokemon.UniqueId);
-        }
-        else
-        {
-            _ = Notification.Open(new NotificationConfig
-            {
-                Message = "Fail to add",
-                Description = "Your pokemon box is full.",
-                NotificationType = NotificationType.Error
-            });
-        }
-    }
-
 }

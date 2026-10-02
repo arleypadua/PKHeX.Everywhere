@@ -39,7 +39,7 @@ export default function PokemonClonePage({ source, id }: PokemonClonePageProps) 
       const added = await engine.pokemon.addToBox()
       await notifySuccessInHost(`${saved.species} cloned`)
       await navigate(routes.box, { replace: true })
-      await navigate(routes.pokemonEditorPreview(added))
+      await navigate(routes.pokemon(added))
     } catch (error) {
       setPhase('editing')
       if (!(error instanceof EngineError)) throw error

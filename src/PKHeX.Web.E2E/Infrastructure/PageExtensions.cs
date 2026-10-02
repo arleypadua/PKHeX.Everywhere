@@ -23,6 +23,10 @@ public static class PageExtensions
         await Assertions.Expect(page).ToHaveURLAsync(expected.ToString());
     }
 
+    // antd renders a select's chosen label next to its combobox input, not inside it.
+    public static ILocator SelectValue(this IPage page, string label) =>
+        page.GetByRole(AriaRole.Combobox, new() { Name = label, Exact = true }).Locator("..");
+
     public static async Task<Game> ExportSaveAsync(this IPage page, Uri baseAddress)
     {
         await page.NavigateWithMenuAsync("Save", new Uri(baseAddress, "/save"));

@@ -130,6 +130,25 @@ describe('Google Analytics', () => {
     })
   })
 
+  it('sends saved Pokémon as pokemon_saved with the slot source', () => {
+    const { gtag, engine } = started()
+
+    engine.emit({
+      type: 'pokemonSaved',
+      at: { source: 'party', slot: 0, box: null },
+      pokemon: { speciesId: 25, species: 'Pikachu', gender: 'Female', ball: 'Great Ball', level: 42 },
+    })
+
+    expect(gtag).toHaveBeenCalledWith('event', 'pokemon_saved', {
+      species_id: 25,
+      species_name: 'Pikachu',
+      gender: 'Female',
+      ball_name: 'Great Ball',
+      level: 42,
+      source: 'Party',
+    })
+  })
+
   it('sends hook runs as plugin_hook_executed with the hook name and any failure', () => {
     const { gtag, engine } = started()
 

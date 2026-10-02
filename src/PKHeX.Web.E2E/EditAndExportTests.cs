@@ -26,22 +26,22 @@ public class EditAndExportTests(WebAppFixture fixture) : E2ETest(fixture)
         var pokemonPage = new Uri(BaseAddress, $"/pokemon/party/{original.UniqueId}");
         await Assertions.Expect(page).ToHaveURLAsync(pokemonPage.ToString());
 
-        var levelInput = page.GetByTestId("pokemon-level").GetByRole(AriaRole.Spinbutton);
+        var levelInput = page.GetByRole(AriaRole.Spinbutton, new() { Name = "Level", Exact = true });
         await levelInput.FillAsync(level.ToString());
         await levelInput.BlurAsync();
+        await Assertions.Expect(levelInput).ToHaveValueAsync(level.ToString());
 
-        var nicknameField = page.GetByTestId("pokemon-nickname");
-        await nicknameField.GetByRole(AriaRole.Button).ClickAsync();
-        var nicknameInput = nicknameField.GetByRole(AriaRole.Textbox);
+        await page.GetByRole(AriaRole.Button, new() { Name = "Edit", Exact = true }).ClickAsync();
+        var nicknameInput = page.GetByRole(AriaRole.Textbox);
         await nicknameInput.FillAsync(nickname);
-        await nicknameInput.BlurAsync();
-        await Assertions.Expect(nicknameField).ToHaveTextAsync(nickname);
+        await nicknameInput.PressAsync("Enter");
+        await Assertions.Expect(page.GetByText(nickname, new() { Exact = true })).ToBeVisibleAsync();
 
-        var heldItemField = page.GetByTestId("pokemon-held-item");
-        await heldItemField.ClickAsync();
-        await heldItemField.Locator("input").PressSequentiallyAsync(heldItem);
-        await page.GetByRole(AriaRole.Option, new() { Name = heldItem, Exact = true }).ClickAsync();
-        await Assertions.Expect(heldItemField).ToContainTextAsync(heldItem);
+        var heldItemSelect = page.GetByRole(AriaRole.Combobox, new() { Name = "Held Item", Exact = true });
+        await heldItemSelect.ClickAsync();
+        await heldItemSelect.FillAsync(heldItem);
+        await heldItemSelect.PressAsync("Enter");
+        await Assertions.Expect(page.SelectValue("Held Item")).ToContainTextAsync(heldItem);
 
         await page.GetByRole(AriaRole.Button, new() { Name = "Save", Exact = true }).ClickAsync();
         await Assertions.Expect(page).Not.ToHaveURLAsync(pokemonPage.ToString());

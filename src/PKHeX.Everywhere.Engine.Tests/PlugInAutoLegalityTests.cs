@@ -105,15 +105,14 @@ public class PlugInAutoLegalityTests : IDisposable
         host.SetToggle(AutoLegality, LegalizeOnChange, true);
         host.SetToggle(AutoLegality, LegalizeOnSave, true);
 
-        var (_, pikachu) = IllegalPikachu(session);
-        var changed = pikachu.Clone();
-        var saved = pikachu.Clone();
+        var (at, pikachu) = IllegalPikachu(session);
+        Value(Dispatch(session, "pokemon.edit", Args(at)));
 
-        await host.PokemonChanged(changed);
-        changed.Legality().Valid.Should().BeTrue();
+        await host.Handle(new PokemonChanged(PokemonHandle.Draft()));
+        session.Draft!.Pokemon.Legality().Valid.Should().BeTrue();
 
-        await host.PokemonSaved(saved);
-        saved.Legality().Valid.Should().BeTrue();
+        await host.Handle(new PokemonSaved(at, pikachu.ToOverview()));
+        new LegalityAnalysis(session.Game!.SaveFile.GetPartySlotAtIndex(at.Slot)).Valid.Should().BeTrue();
 
         ran.Select(r => r.HookId).Should().Equal(LegalizeOnChange, LegalizeOnSave);
     }
@@ -124,12 +123,12 @@ public class PlugInAutoLegalityTests : IDisposable
         var (session, host, ran) = Hosted();
         host.SetToggle(AutoLegality, LegalizeOnChange, false);
         host.SetToggle(AutoLegality, LegalizeOnSave, false);
-        var (_, pikachu) = IllegalPikachu(session);
+        var (at, pikachu) = IllegalPikachu(session);
 
-        await host.PokemonChanged(pikachu);
-        await host.PokemonSaved(pikachu);
+        await host.Handle(new PokemonChanged(at));
+        await host.Handle(new PokemonSaved(at, pikachu.ToOverview()));
 
-        pikachu.Legality().Valid.Should().BeFalse();
+        new LegalityAnalysis(session.Game!.SaveFile.GetPartySlotAtIndex(at.Slot)).Valid.Should().BeFalse();
         ran.Should().BeEmpty();
     }
 }

@@ -76,7 +76,7 @@ public static class PokemonHandlers
         var saved = game.FindSaved(from);
         session.AlsoWrote(saved.Topics);
         session.Draft = null;
-        session.Raise(new PokemonSaved(from));
+        session.Raise(new PokemonSaved(from, saved.Pokemon.ToOverview()));
         return new PokemonId(saved.Pokemon.UniqueId.Value);
     }
 
@@ -89,8 +89,9 @@ public static class PokemonHandlers
             throw new EngineException(ErrorCodes.BoxFull, "Your box is full.");
 
         var at = PokemonSlots.BoxHandle(game.SaveFile, index);
+        var added = box.All[index];
         session.Draft = null;
-        session.Raise(new PokemonSaved(at));
-        return new AddedPokemon(new PokemonId(box.All[index].UniqueId.Value), at);
+        session.Raise(new PokemonSaved(at, added.ToOverview()));
+        return new AddedPokemon(new PokemonId(added.UniqueId.Value), at);
     }
 }

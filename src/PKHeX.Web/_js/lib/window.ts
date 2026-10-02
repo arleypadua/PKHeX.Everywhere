@@ -1,6 +1,5 @@
 import {decryptAes, encryptAes} from "./crypto/aes.ts";
 import {md5Hash} from "./crypto/md5.ts";
-import {downloadFileFromStream} from "./files/files.ts";
 
 export function setupWindow() {
     // crypt
@@ -8,9 +7,6 @@ export function setupWindow() {
     window.decryptAes = decryptAes;
     window.md5Hash = md5Hash;
     
-    // files
-    window.downloadFileFromStream = downloadFileFromStream;
-
     // ui functions
     window.getWidth = () => window.innerWidth;
     window.clickElement = (element) => {

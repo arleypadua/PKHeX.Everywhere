@@ -124,7 +124,7 @@ export function DescriptionTab() {
             key: 'heldItem',
             label: 'Held Item',
             children: (
-              <ItemSelect items={heldItems} value={details.heldItem} onChange={(item) => submit({ heldItem: item.id })} />
+              <ItemSelect items={heldItems} label="Held Item" value={details.heldItem} onChange={(item) => submit({ heldItem: item.id })} />
             ),
           },
         ]),
@@ -150,7 +150,7 @@ export function DescriptionTab() {
           {
             key: 'ball',
             label: 'Ball',
-            children: <ItemSelect items={balls} value={details.ball} onChange={(ball) => submit({ ball: ball.id })} />,
+            children: <ItemSelect items={balls} label="Ball" value={details.ball} onChange={(ball) => submit({ ball: ball.id })} />,
           },
         ]),
     {

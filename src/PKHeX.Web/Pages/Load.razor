@@ -37,11 +37,8 @@
         var testData = await HttpClient.GetByteArrayAsync("/data/emerald.sav");
         GameService.Load(testData, "emerald.sav");
 
-        // var firstPokemon = GameService.Game!.Trainer.Party.Pokemons.First();
-        // Navigation.NavigateToPokemon(PokemonSource.Party, firstPokemon.UniqueId);
         Navigation.NavigateToHomePage();
         // Navigation.NavigateToSearchEncounter();
-        // Navigation.NavigateToPokemonBox();
         // Navigation.NavigateToPlugIns();
         // Navigation.NavigateToAnalyticsResults();
         // Navigation.NavigateToItems();

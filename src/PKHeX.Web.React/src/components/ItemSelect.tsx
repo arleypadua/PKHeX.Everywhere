@@ -9,16 +9,18 @@ interface Item {
 
 interface ItemSelectProps<T extends Item> {
   items: T[]
+  label?: string
   value?: number
   onChange: (item: T) => void
 }
 
-export function ItemSelect<T extends Item>({ items, value, onChange }: ItemSelectProps<T>) {
+export function ItemSelect<T extends Item>({ items, label, value, onChange }: ItemSelectProps<T>) {
   const [search, setSearch] = useState('')
 
   return (
     <Select<number, { value: number; label: string }>
       value={value}
+      aria-label={label}
       placeholder="Select an item"
       style={{ width: '100%' }}
       showSearch={{ searchValue: search, onSearch: setSearch, optionFilterProp: 'label' }}

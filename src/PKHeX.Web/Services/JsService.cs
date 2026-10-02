@@ -10,12 +10,6 @@ public class JsService(IJSRuntime js)
                                           throw new NotSupportedException(
                                               "Requested an in process javascript interop, but none was found");
 
-    public async ValueTask DownloadFile(Stream stream, string fileName)
-    {
-        using var streamRef = new DotNetStreamReference(stream);
-        await js.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
-    }
-
     public ValueTask ClickOnAsync(ElementReference? element) => js.InvokeVoidAsync("clickElement", element);
 
     public void EncryptAes(ReadOnlySpan<byte> origin, Span<byte> destination, ReadOnlySpan<byte> key, CipherMode mode)

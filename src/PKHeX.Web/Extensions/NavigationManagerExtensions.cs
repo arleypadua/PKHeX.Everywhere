@@ -15,16 +15,6 @@ public static class NavigationManagerExtensions
     public static void NavigateToItems(this NavigationManager navigation) =>
         navigation.NavigateTo("/items");
 
-    public static void NavigateToPokemon(this NavigationManager navigation, PokemonSource source, UniqueId uniqueId,
-        bool replace = false) =>
-        navigation.NavigateTo($"/pokemon/{source.RouteString()}/{uniqueId}", replace: replace);
-    
-    public static void NavigateToNewCloneOf(this NavigationManager navigation, UniqueId uniqueId) => 
-        navigation.NavigateTo($"/pokemon/{uniqueId}/clone");
-    
-    public static void NavigateToPokemonBox(this NavigationManager navigation, bool replace = false) => 
-        navigation.NavigateTo($"/pokemon-box", replace: replace);
-    
     public static void NavigateToSearchEncounter(this NavigationManager navigation, bool replace = false) =>
         navigation.NavigateTo($"/pokemon/search-encounter", replace);
     
