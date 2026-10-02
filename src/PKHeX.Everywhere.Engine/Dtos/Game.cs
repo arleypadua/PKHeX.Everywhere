@@ -2,7 +2,7 @@ using PKHeX.Facade;
 
 namespace PKHeX.Everywhere.Engine.Dtos;
 
-public record SaveSummary(string? FileName, string Version, int Generation);
+public record SaveSummary(string? FileName, string Version, int Generation, bool HasEvents);
 
 public record SaveVersion(string Version, int VersionId, string Generation, int GenerationId);
 
@@ -24,7 +24,7 @@ public record LoadedSave(byte[] Bytes, string FileName, string Version);
 public static class GameMapping
 {
     public static SaveSummary ToSummary(this Game game, string? fileName) =>
-        new(fileName, game.GameVersionApproximation.Name, game.SaveFile.Generation);
+        new(fileName, game.GameVersionApproximation.Name, game.SaveFile.Generation, game.Events is not null);
 
     public static SaveVersion ToVersion(this Game game) => new(
         game.GameVersionApproximation.Name,

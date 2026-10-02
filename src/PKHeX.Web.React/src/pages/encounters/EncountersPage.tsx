@@ -6,7 +6,7 @@ import { EncountersTable } from '../../components/EncountersTable'
 import { PageHeader } from '../../components/PageHeader'
 import { SpeciesSelect } from '../../components/SpeciesSelect'
 import { VersionSelect } from '../../components/VersionSelect'
-import { notifySuccessInHost, useNavigate } from '../../host'
+import { useNavigate } from '../../host'
 import { routes } from '../../routes'
 
 interface EncountersPageProps {
@@ -60,7 +60,7 @@ function Encounters({ version, species }: { version: number; species: number }) 
       // The query cache can serve an earlier search, so search again to make the Session hold these rows.
       await engine.encounters.search(version, species)
       const added = await engine.box.addEncounter(encounter.index)
-      await notifySuccessInHost(`${encounter.species} added to your box`)
+      notification.success({ title: `${encounter.species} added to your box` })
       navigate(routes.pokemon(added))
     } catch (error) {
       if (!(error instanceof EngineError)) throw error

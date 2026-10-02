@@ -37,6 +37,28 @@ public class EngineEventJsonTests
     }
 
     [Fact]
+    public void LoadingASaveSendsGameLoaded()
+    {
+        var session = new Session();
+        var sent = Sent(session);
+
+        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), "emerald.sav")));
+
+        sent.Should().ContainSingle().Which.ToJsonString().Should().Be("""{"type":"gameLoaded"}""");
+    }
+
+    [Fact]
+    public void ClosingASaveSendsGameClosed()
+    {
+        var session = Loaded(SaveFilePath.Emerald);
+        var sent = Sent(session);
+
+        Value(Dispatch(session, "game.close", "[]"));
+
+        sent.Should().ContainSingle().Which.ToJsonString().Should().Be("""{"type":"gameClosed"}""");
+    }
+
+    [Fact]
     public void AnExportIsSentWithTheExportedGame()
     {
         var session = Loaded(SaveFilePath.HgSs);

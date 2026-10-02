@@ -127,9 +127,17 @@ export interface ExportedSave {
   fileName: string
 }
 
+export interface GameClosed {
+  type: 'gameClosed'
+}
+
 export interface GameExported {
   type: 'gameExported'
   game: GameOverview
+}
+
+export interface GameLoaded {
+  type: 'gameLoaded'
 }
 
 export interface GameOverview {
@@ -419,6 +427,7 @@ export interface SaveSummary {
   fileName: string | null
   version: string
   generation: number
+  hasEvents: boolean
 }
 
 export interface SaveVersion {
@@ -482,4 +491,4 @@ export interface WorkOption {
   value: number
 }
 
-export type EngineEvent = GameExported | ItemChanged | PlugInInstalled | PlugInRan | PlugInUpdated | PokemonAdded | PokemonChanged | PokemonSaved
+export type EngineEvent = GameClosed | GameExported | GameLoaded | ItemChanged | PlugInInstalled | PlugInRan | PlugInUpdated | PokemonAdded | PokemonChanged | PokemonSaved

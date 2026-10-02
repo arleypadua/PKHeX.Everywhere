@@ -19,7 +19,8 @@
     "antd": "^6.6.5",
     "dayjs": "^1.11.23",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "react-router": "^7.18.4"
   },
   "devDependencies": {
     "@pkhex-everywhere/plugin-sdk": "file:../PKHeX.Everywhere.Engine.Sdk/packages/plugin-sdk",

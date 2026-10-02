@@ -5,7 +5,9 @@ import type { SaveSummary } from '@pkhex-everywhere/engine'
 import { useEngine, useLoadedGame, useQuery } from '@pkhex-everywhere/react'
 import { fromBase64 } from '../../base64'
 import { AdSlot } from '../../components/AdSlot'
-import { downloadFile, goHome } from '../../host'
+import { downloadFile, useNavigate } from '../../host'
+import { journey } from '../../layout/journey'
+import { routes } from '../../routes'
 import { useLoadSave } from './useLoadSave'
 
 const topAdSlot = '5784199745'
@@ -69,6 +71,11 @@ function LoadedGame({ game, onOpen }: { game: SaveSummary; onOpen: () => void })
 
 function NoGame({ onOpen, onDemo }: { onOpen: () => void; onDemo: () => void }) {
   const engine = useEngine()
+  const navigate = useNavigate()
+  const goHome = () => {
+    journey.reachedHome()
+    void navigate(routes.home)
+  }
   const versions = useQuery('game.blankVersions')
 
   return (

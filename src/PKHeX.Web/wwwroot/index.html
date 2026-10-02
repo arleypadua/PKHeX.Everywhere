@@ -61,7 +61,6 @@
     <link rel="stylesheet" href="css/app.css"/>
     <link rel="stylesheet" href="css/antd-extensions.css"/>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-    <link href="PKHeX.Web.styles.css" rel="stylesheet"/>
 
     <script>
         (function () {
@@ -75,7 +74,9 @@
 </head>
 
 <body>
-    <div id="app" style="height: 100%">
+    <div id="app" hidden></div>
+
+    <div id="root">
         <svg class="loading-progress">
             <circle r="40%" cx="50%" cy="50%"/>
             <circle r="40%" cx="50%" cy="50%"/>
@@ -86,7 +87,7 @@
             <h1 class="loading-text">PKHeX for Web - A Cross-Platform Pokémon Save File Editor</h1>
         </div>
     </div>
-    
+
     <div id="blazor-error-ui">
         An unhandled error has occurred. Try reloading the page, if the error persists, try cleaning your browser cache.
         <a href="" class="reload">Reload</a>
