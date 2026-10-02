@@ -141,6 +141,9 @@ jobs:
       - name: Install Engine SDK dependencies
         working-directory: src/PKHeX.Everywhere.Engine.Sdk
         run: npm ci
+      - name: Build the Engine Vite plugin
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk/packages/engine
+        run: npx vite build
       - name: Build PKHeX.Web.React
         working-directory: src/PKHeX.Web.React
         run: |
