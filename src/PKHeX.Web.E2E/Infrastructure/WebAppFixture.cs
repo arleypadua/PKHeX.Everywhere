@@ -12,8 +12,7 @@ public sealed class WebAppFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var wwwroot = await WebAppHost.PublishAsync(Path.Combine(AppContext.BaseDirectory, "pkhex-web-publish"));
-        _host = await WebAppHost.StartAsync(wwwroot);
+        _host = await WebAppHost.StartAsync(WebAppHost.Dist());
 
         _playwright = await Playwright.CreateAsync();
         Browser = await _playwright.Chromium.LaunchAsync(new() { Headless = true });

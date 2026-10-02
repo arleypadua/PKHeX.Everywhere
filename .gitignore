@@ -407,7 +407,6 @@ FodyWeavers.xsd
 
 # PKHeX.Web
 plugins/
-!src/PKHeX.Web/Services/Plugins/
 !src/PKHeX.Web.React/src/plugins/
 !src/PKHeX.Web.React/src/pages/plugins/
 

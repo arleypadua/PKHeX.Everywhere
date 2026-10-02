@@ -40,32 +40,8 @@ function engineHost(): Plugin {
   }
 }
 
-const blazorBuild = defineConfig({
-  plugins: [react()],
-  base: './',
-  publicDir: false,
+export default defineConfig({
+  plugins: [react(), engineHost()],
   resolve: { preserveSymlinks: true },
-  build: {
-    outDir: '../PKHeX.Web/wwwroot/react',
-    emptyOutDir: true,
-    rolldownOptions: {
-      input: { pages: 'src/main.tsx', sentry: 'src/startSentry.ts' },
-      preserveEntrySignatures: 'exports-only',
-      output: {
-        entryFileNames: '[name].js',
-        chunkFileNames: 'chunks/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash][extname]',
-      },
-    },
-  },
+  server: { port: 5173, strictPort: true },
 })
-
-export default defineConfig(({ mode }) =>
-  mode === 'blazor'
-    ? blazorBuild
-    : {
-        plugins: [react(), engineHost()],
-        resolve: { preserveSymlinks: true },
-        server: { port: 5173, strictPort: true },
-      },
-)

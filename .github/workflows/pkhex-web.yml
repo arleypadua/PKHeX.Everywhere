@@ -4,7 +4,6 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'src/PKHeX.Web/**'
       - 'src/PKHeX.Web.React/**'
       - 'src/PKHeX.Facade/**'
       - 'src/PKHeX.Everywhere.Engine*/**'
@@ -37,48 +36,32 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install NPM dependencies and build PKHeX.Web/_js
-        run: |
-          cd src/PKHeX.Web/_js
-          
-          npm ci
-          npm run build
-          
-          cd ../../../
-
-      - name: Install NPM dependencies and build PKHeX.Web.React
-        env:
-          VITE_GOOGLE_ANALYTICS: 'true'
-          VITE_SENTRY: 'true'
-        run: |
-          cd src/PKHeX.Web.React
-
-          npm ci
-          npm run build:blazor
-
-      - name: Install NPM dependencies and build the blog
-        run: |
-          cd src/PKHeX.Web.React/blog
-
-          npm ci
-          npm run build
-
-          cp -R ../public/blog ../../PKHeX.Web/wwwroot/blog
-          
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
       - name: Test
         run: dotnet test --no-build --verbosity normal
-      - name: Publish
-        run: dotnet publish ./src/PKHeX.Web/PKHeX.Web.csproj -c Release -o ./src/PKHeX.Web/bin/pkhex-web-publish
+
+      - name: Install Engine SDK dependencies
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk
+        run: npm ci
+
+      - name: Build PKHeX.Web.React
+        working-directory: src/PKHeX.Web.React
+        env:
+          VITE_GOOGLE_ANALYTICS: 'true'
+          VITE_SENTRY: 'true'
+        run: |
+          npm ci
+          npm run build
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: artifact-pkhex-web
-          path: ./src/PKHeX.Web/bin/pkhex-web-publish/wwwroot
-          
+          path: ./src/PKHeX.Web.React/dist
+
   deploy:
     runs-on: ubuntu-latest
     needs: build_and_publish

@@ -4,9 +4,6 @@ import { startGoogleAnalytics } from './googleAnalytics'
 import { AppShell } from './layout/AppShell'
 import { watchEngine } from './sentry'
 
-export { track } from './googleAnalytics'
-export { captureBlazorError } from './sentry'
-
 startGoogleAnalytics(engine)
 watchEngine(engine)
 

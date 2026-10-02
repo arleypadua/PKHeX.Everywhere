@@ -14,7 +14,7 @@ export function PlugInActionButton({ action, target }: PlugInActionButtonProps) 
     try {
       await engine.plugins.run(action.id, target ?? null)
     } catch (error) {
-      // Blazor's PlugInRanHandler already reports failures until the layout moves to React.
+      // PlugInOutcomes already reports failures from the PlugInRan event.
       if (!(error instanceof EngineError) || error.code !== 'plugin-failed') throw error
     }
   }

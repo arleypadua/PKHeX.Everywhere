@@ -77,7 +77,6 @@ jobs:
         with:
           filters: |
             web:
-              - 'src/PKHeX.Web/**'
               - 'src/PKHeX.Web.React/**'
               - 'src/PKHeX.Facade/**'
               - 'src/PKHeX.Everywhere.Engine*/**'
@@ -105,17 +104,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Build PKHeX.Web/_js
-        working-directory: src/PKHeX.Web/_js
-        run: |
-          npm ci
-          npm run build
+      - name: Install Engine SDK dependencies
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk
+        run: npm ci
       - name: Build PKHeX.Web.React
         working-directory: src/PKHeX.Web.React
         run: |
           npm ci
           npm test
-          npm run build:blazor
+          npm run build
       - name: Build
         run: dotnet build src/PKHeX.Web.E2E/PKHeX.Web.E2E.csproj
       - name: Install Chromium

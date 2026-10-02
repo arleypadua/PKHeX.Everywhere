@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
@@ -18,14 +17,14 @@ public sealed class WebAppHost : IAsyncDisposable
 
     public Uri BaseAddress { get; }
 
-    public static async Task<WebAppHost> StartAsync(string wwwroot)
+    public static async Task<WebAppHost> StartAsync(string root)
     {
-        var builder = WebApplication.CreateSlimBuilder(new WebApplicationOptions { WebRootPath = wwwroot });
+        var builder = WebApplication.CreateSlimBuilder(new WebApplicationOptions { WebRootPath = root });
         builder.Logging.ClearProviders();
         builder.WebHost.UseKestrel().UseUrls("http://127.0.0.1:0");
 
         var app = builder.Build();
-        var files = new PhysicalFileProvider(wwwroot);
+        var files = new PhysicalFileProvider(root);
         app.UseStaticFiles(new StaticFileOptions
         {
             FileProvider = files,
@@ -38,25 +37,13 @@ public sealed class WebAppHost : IAsyncDisposable
         return new WebAppHost(app, new Uri(app.Urls.Single()));
     }
 
-    public static async Task<string> PublishAsync(string outputDirectory)
+    public static string Dist()
     {
-        var project = Path.Combine(RepositoryRoot(), "src", "PKHeX.Web", "PKHeX.Web.csproj");
-        var startInfo = new ProcessStartInfo("dotnet")
-        {
-            ArgumentList = { "publish", project, "-c", "Release", "-o", outputDirectory, "-nodeReuse:false" },
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-        };
+        var dist = Path.Combine(RepositoryRoot(), "src", "PKHeX.Web.React", "dist");
+        if (!File.Exists(Path.Combine(dist, "index.html")))
+            throw new InvalidOperationException($"{dist} is missing. Run 'npm run build' in src/PKHeX.Web.React first.");
 
-        using var process = Process.Start(startInfo)!;
-        var stdout = process.StandardOutput.ReadToEndAsync();
-        var stderr = process.StandardError.ReadToEndAsync();
-        await process.WaitForExitAsync();
-
-        if (process.ExitCode != 0)
-            throw new InvalidOperationException($"dotnet publish failed:\n{await stdout}\n{await stderr}");
-
-        return Path.Combine(outputDirectory, "wwwroot");
+        return dist;
     }
 
     private static string RepositoryRoot()

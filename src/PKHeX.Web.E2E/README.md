@@ -1,20 +1,17 @@
 # PKHeX.Web.E2E
 
-Smoke tests that drive the Release build of PKHeX.Web in headless Chromium.
+Smoke tests that drive the production build of the web app in headless Chromium.
 
-The test fixture publishes PKHeX.Web, serves it on a random local port and blocks every request to other hosts. Tests are tagged `Category=E2E`. `default.runsettings` filters them out when no `--filter` is given, so a plain `dotnet test` skips them. IDEs that honour `RunSettingsFilePath` skip them too; run them from the CLI.
+The test fixture serves `src/PKHeX.Web.React/dist` on a random local port and blocks every request to other hosts. Tests are tagged `Category=E2E`. `default.runsettings` filters them out when no `--filter` is given, so a plain `dotnet test` skips them. IDEs that honour `RunSettingsFilePath` skip them too; run them from the CLI.
 
 ## Run locally
 
-Build the JS assets once:
+Build the app. Rebuild after every change, because the tests serve `dist` as it is:
 
 ```sh
-cd src/PKHeX.Web/_js
+cd src/PKHeX.Web.React
 npm ci
 npm run build
-cd ../../PKHeX.Web.React
-npm ci
-npm run build:blazor
 ```
 
 Build the project and install Chromium (needs PowerShell):

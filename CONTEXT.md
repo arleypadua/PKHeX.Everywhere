@@ -9,7 +9,7 @@ The domain model over PKHeX.Core: games, trainers, Pokémon, boxes and items, wi
 _Avoid_: wrapper, adapter
 
 **Engine**:
-The Blazor-free .NET layer that holds the loaded save and answers queries and commands from JavaScript by calling the Facade. It has no editing rules of its own.
+The UI-free .NET layer that holds the loaded save and answers queries and commands from JavaScript by calling the Facade. It has no editing rules of its own.
 _Avoid_: backend, interop
 
 **SDK**:

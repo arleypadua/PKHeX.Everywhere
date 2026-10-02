@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import * as Sentry from '@sentry/browser'
 import { EngineError, type CallName, type SaveVersion, type Topic } from '@pkhex-everywhere/engine'
-import { captureBlazorError, captureError, startSentry, watchEngine } from './sentry'
+import { captureError, startSentry, watchEngine } from './sentry'
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0))
 
@@ -48,7 +48,6 @@ describe('Sentry', () => {
 
   afterEach(async () => {
     await Sentry.close()
-    globalThis.pkhexBlazorStarted = undefined
   })
 
   it('does nothing when disabled', async () => {
@@ -74,17 +73,6 @@ describe('Sentry', () => {
     await flush()
 
     expect(events.map((event) => event.exception?.values?.[0]?.value)).toEqual(['Boom', 'Rejected'])
-  })
-
-  it('captures a failed .NET runtime boot', async () => {
-    globalThis.pkhexBlazorStarted = Promise.reject(new Error('Failed to start the .NET runtime.'))
-
-    start()
-    await flush()
-
-    expect(events).toHaveLength(1)
-    expect(events[0].exception?.values?.[0]?.value).toBe('Failed to start the .NET runtime.')
-    expect(events[0].tags).toMatchObject({ boot: 'failed' })
   })
 
   it('captures an Engine host that fails to boot', async () => {
@@ -178,34 +166,5 @@ describe('Sentry', () => {
     await flush()
 
     expect(events[0].tags).toMatchObject({ exception_id: 'b7a9f2c4' })
-  })
-
-  it('captures .NET exceptions with their tracking id', async () => {
-    start()
-
-    captureBlazorError({
-      type: 'InvalidOperationException',
-      message: 'Sequence contains no elements',
-      details: 'System.InvalidOperationException: Sequence contains no elements\n   at PKHeX.Web.Pages.Party.OnInitialized()',
-      id: 'b7a9f2c4',
-    })
-    await flush()
-
-    expect(events[0].exception?.values?.[0]).toMatchObject({ type: 'InvalidOperationException', value: 'Sequence contains no elements' })
-    expect(events[0].tags).toMatchObject({ exception_id: 'b7a9f2c4' })
-    expect(events[0].contexts?.game_context).toMatchObject({ current_route: 'party?box=2', exception_id: 'b7a9f2c4' })
-    expect(events[0].extra).toMatchObject({ details: expect.stringContaining('at PKHeX.Web.Pages.Party.OnInitialized()') })
-  })
-
-  it('captures a .NET exception once when .NET reports it again', async () => {
-    start()
-    const exception = { type: 'NullReferenceException', message: 'Boom', details: 'System.NullReferenceException: Boom', id: 'a1b2c3' }
-
-    captureBlazorError(exception)
-    captureError(new Error('Something else'))
-    captureBlazorError(exception)
-    await flush()
-
-    expect(events.map((event) => event.exception?.values?.[0]?.value)).toEqual(['Boom', 'Something else'])
   })
 })

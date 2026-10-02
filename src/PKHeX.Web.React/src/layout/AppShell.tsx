@@ -165,8 +165,6 @@ export function AppShell({ autoLoad }: { autoLoad: boolean }) {
 
   return (
     <ConfigProvider
-      prefixCls="rx"
-      iconPrefixCls="rxicon"
       theme={{
         algorithm: theme === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         token: { fontFamily },
