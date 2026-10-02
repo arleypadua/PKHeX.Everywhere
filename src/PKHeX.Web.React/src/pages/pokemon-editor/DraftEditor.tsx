@@ -1,4 +1,5 @@
-import { Button, Flex, Tabs } from 'antd'
+import type { ReactNode } from 'react'
+import { Flex, Tabs } from 'antd'
 import { draftHandle } from '@pkhex-everywhere/engine'
 import { usePokemon, usePokemonDetails } from '@pkhex-everywhere/react'
 import { PageHeader } from '../../components/PageHeader'
@@ -10,10 +11,10 @@ import { MetConditionsTab } from './MetConditionsTab'
 import { StatsTab } from './StatsTab'
 
 interface DraftEditorProps {
-  onSave: () => void
+  actions: ReactNode
 }
 
-export function DraftEditor({ onSave }: DraftEditorProps) {
+export function DraftEditor({ actions }: DraftEditorProps) {
   const { pokemon } = usePokemon(draftHandle)
   const { details } = usePokemonDetails(draftHandle)
 
@@ -29,11 +30,7 @@ export function DraftEditor({ onSave }: DraftEditorProps) {
           { key: 'stats', label: 'Stats', children: <StatsTab /> },
         ]}
       />
-      <Flex justify="end">
-        <Button type="primary" onClick={onSave}>
-          Save
-        </Button>
-      </Flex>
+      <Flex justify="end">{actions}</Flex>
     </Flex>
   )
 }

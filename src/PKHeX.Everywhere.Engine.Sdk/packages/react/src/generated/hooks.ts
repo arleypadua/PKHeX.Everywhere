@@ -70,6 +70,8 @@ export function usePokemon(at: PokemonHandle) {
   const key = JSON.stringify(at)
   const commands = useMemo(
     () => ({
+      addToBox: () => engine.pokemon.addToBox(),
+      clone: () => engine.pokemon.clone(at),
       commit: () => engine.pokemon.commit(),
       edit: () => engine.pokemon.edit(at),
       setLevel: (level: number) => engine.pokemon.setLevel(at, level),

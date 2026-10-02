@@ -52,6 +52,8 @@ A nullable record parameter with a default, such as the fields of `PokemonPatch`
 
 ## The draft
 
-`pokemon.edit(at)` opens a draft Pokémon in the Session, addressed as `{ source: 'draft', slot: 0 }` (`draftHandle` in the SDK) with the Topic `draft`. Pokémon calls resolve Handles through `session.Find`, which covers the draft. A call that only applies to a saved slot uses `game.FindSaved`, which rejects the draft with `draft-not-allowed`. See [ADR 0005](../../docs/adr/0005-editing-goes-through-an-engine-held-draft-slot.md).
+`pokemon.edit(at)` opens a draft Pokémon in the Session, addressed as `{ source: 'draft', slot: 0 }` (`draftHandle` in the SDK) with the Topic `draft`. Pokémon calls resolve Handles through `session.Find`, which covers the draft. A call that only applies to a saved slot uses `game.FindSaved`, which rejects the draft with `draft-not-allowed`.
+
+`pokemon.clone(at)` opens a draft from a copy with a new PID and no nickname. A clone has no slot, so `pokemon.commit()` rejects it with `no-slot`; `pokemon.addToBox()` writes it to the first empty box slot instead, or fails with `box-full`. See [ADR 0005](../../docs/adr/0005-editing-goes-through-an-engine-held-draft-slot.md).
 
 Contract tests live in `PKHeX.Everywhere.Engine.Tests`.

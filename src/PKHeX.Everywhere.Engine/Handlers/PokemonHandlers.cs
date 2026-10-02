@@ -53,18 +53,37 @@ public static class PokemonHandlers
     public static void Edit(Session session, Game game, PokemonHandle at) =>
         session.Draft = new Draft(game.FindSaved(at).Pokemon.Clone(), at);
 
+    [Command("pokemon.clone", Topics.Draft)]
+    public static void Clone(Session session, Game game, PokemonHandle at) =>
+        session.Draft = new Draft(game.FindSaved(at).Pokemon.MakeCopy(), null);
+
     [Command("pokemon.commit", Topics.Draft)]
     public static PokemonId Commit(Session session, Game game)
     {
         var draft = session.RequireDraft();
-        var replaced = game.FindSaved(draft.From).Pokemon;
-        var source = draft.From.Source == SlotSource.Party ? PokemonSource.Party : PokemonSource.Box;
+        var from = draft.From ?? throw new EngineException(ErrorCodes.NoSlot, "This Pokémon is a clone. Add it to the box instead.");
+        var replaced = game.FindSaved(from).Pokemon;
+        var source = from.Source == SlotSource.Party ? PokemonSource.Party : PokemonSource.Box;
         game.Trainer.AddOrUpdate(replaced.UniqueId, draft.Pokemon, source);
 
-        var saved = game.FindSaved(draft.From);
+        var saved = game.FindSaved(from);
         session.AlsoWrote(saved.Topics);
         session.Draft = null;
-        session.Raise(new PokemonSaved(draft.From));
+        session.Raise(new PokemonSaved(from));
         return new PokemonId(saved.Pokemon.UniqueId.Value);
+    }
+
+    [Command("pokemon.addToBox", Topics.Draft, Topics.Box)]
+    public static AddedPokemon AddToBox(Session session, Game game)
+    {
+        var draft = session.RequireDraft();
+        var box = game.Trainer.PokemonBox;
+        if (!box.AddOnEmptySlot(draft.Pokemon, out var index))
+            throw new EngineException(ErrorCodes.BoxFull, "Your box is full.");
+
+        var at = PokemonSlots.BoxHandle(game.SaveFile, index);
+        session.Draft = null;
+        session.Raise(new PokemonSaved(at));
+        return new AddedPokemon(new PokemonId(box.All[index].UniqueId.Value), at);
     }
 }

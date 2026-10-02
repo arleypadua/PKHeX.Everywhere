@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Result, Spin } from 'antd'
+import { Button, Result, Spin } from 'antd'
 import { useBox, useEngine, useParty } from '@pkhex-everywhere/react'
 import { useNavigate } from '../../host'
 import { routes } from '../../routes'
@@ -46,5 +46,13 @@ export default function PokemonEditorPage({ source, id }: PokemonEditorPageProps
   if (phase === 'saving') return <Spin />
   if (!saved) return <Result status="404" title="Pokémon not found" />
   if (phase === 'opening') return <Spin />
-  return <DraftEditor onSave={save} />
+  return (
+    <DraftEditor
+      actions={
+        <Button type="primary" onClick={save}>
+          Save
+        </Button>
+      }
+    />
+  )
 }

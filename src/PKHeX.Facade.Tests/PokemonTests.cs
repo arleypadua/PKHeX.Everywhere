@@ -130,4 +130,27 @@ public class PokemonTests
 
     private Game AGame(GameVersion version, string trainerName) =>
         Game.EmptyOf(GameVersionRepository.Instance.Get(version), trainerName);
+
+    [Fact]
+    public void MakeCopy_ShouldRerollPidAndClearNickname()
+    {
+        var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons[0];
+        pokemon.Pkm.SetNickname("Sparky");
+
+        var copy = pokemon.MakeCopy();
+
+        copy.PID.Should().NotBe(pokemon.PID);
+        copy.Species.Should().Be(pokemon.Species);
+        copy.Pkm.IsNicknamed.Should().BeFalse();
+        copy.IsShiny.Should().Be(pokemon.IsShiny);
+    }
+
+    [Fact]
+    public void MakeCopy_ShouldKeepAShinyPokemonShiny()
+    {
+        var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons[0];
+        pokemon.Pkm.SetIsShiny(true);
+
+        pokemon.MakeCopy().IsShiny.Should().BeTrue();
+    }
 }

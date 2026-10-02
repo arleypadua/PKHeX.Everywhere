@@ -51,6 +51,8 @@ public class CommandTopicTests
         ["pokemon.update"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At, new { nickname = "Sparky", level = p.Level == 50 ? 51 : 50, friendship = 1 })),
         ["pokemon.edit"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
         ["pokemon.commit"] = (_, _) => ["[]"],
+        ["pokemon.clone"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
+        ["pokemon.addToBox"] = (_, _) => ["[]"],
         ["species.list"] = (_, _) => ["[]"],
         ["trainer.get"] = (_, _) => ["[]"],
         ["trainer.setName"] = (_, _) => [Args("Ash")],

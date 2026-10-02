@@ -4,11 +4,12 @@ The Pokémon editor changes a copy and writes it to the save only on Save. In Bl
 
 ## Decision
 
-The Session holds at most one draft: a Pokémon and the slot it came from. JavaScript addresses it as a `PokemonHandle` with source `draft`, and its Topic is `draft`.
+The Session holds at most one draft: a Pokémon and the slot it came from, or no slot for a clone. JavaScript addresses it as a `PokemonHandle` with source `draft`, and its Topic is `draft`.
 
 - `pokemon.edit(at)` opens a draft from a clone of the saved Pokémon and replaces any draft already open.
 - Every Pokémon query, command, Entity hook and plug-in action takes the draft handle like any party or box slot. Calls that only make sense for a saved slot, such as `pokemon.edit`, reject it with `draft-not-allowed`.
 - `pokemon.commit()` writes the draft to its slot, clears the draft and returns the Pokémon's new id.
+- `pokemon.clone(at)` opens a draft from a copy with no slot. `commit` rejects it with `no-slot`; `pokemon.addToBox()` writes it to the first empty box slot, clears the draft and raises `PokemonSaved` with that slot.
 - Loading or closing a save clears the draft. Leaving the page without saving leaves the draft in place; nothing reads it, and the next `edit` replaces it.
 - Commands on the draft raise `PokemonChanged(draft)`, so plug-in hooks run on the unsaved Pokémon as they did in Blazor. `commit` raises `PokemonSaved` with the real slot.
 
