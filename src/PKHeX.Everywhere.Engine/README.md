@@ -22,7 +22,7 @@ A command announces domain changes as Engine events, records implementing `IEngi
 ## Adding a command
 
 1. Add a static method with `[Command("entity.verb")]` to `Handlers/<Entity>Handlers.cs`. A command writes the Topic of each `IHandle` argument it takes, such as the Pokémon at `at` (unless the argument is null), plus any Topics listed on the attribute. A command that changes nothing in the save lists none. When the save decides the Topics, such as a Let's Go party member that also sits in a box, pass them to `session.AlsoWrote`. Return a value only when the command creates something.
-2. Throw `EngineException` with a code from `ErrorCodes.cs` for expected failures. JS receives it as a rejected `EngineError`. `engine.onCallFailed(listener)` in the SDK sees every failed call, with its name.
+2. Throw `EngineException` with a code from `ErrorCodes.cs` for expected failures. A Facade `CapabilityNotSupportedException` reaches JS as `not-supported`, so a call behind a capability needs no check of its own. JS receives it as a rejected `EngineError`. `engine.onCallFailed(listener)` in the SDK sees every failed call, with its name.
 3. A handler that awaits returns `Task` or `Task<T>`. Don't block on a task: the browser runs .NET on a single thread, so blocking on an unfinished task fails.
 4. Build and commit the generated TypeScript, as for queries.
 5. Add sample arguments for the call to `CommandTopicTests`. That test runs every command against the test saves and fails when a query's result changes outside the Topics the command reported.

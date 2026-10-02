@@ -45,13 +45,23 @@ public class CapabilitiesTests
     }
 
     [Fact]
-    public void ShowdownIsOff() =>
-        WithoutCapabilities().Trainer.Party.Pokemons[0].Invoking(p => p.Showdown()).Should().Throw<CapabilityNotSupportedException>();
+    public void ShowdownIsOff()
+    {
+        var trainer = WithoutCapabilities().Trainer;
+
+        trainer.Party.Pokemons[0].Invoking(p => p.Showdown()).Should().Throw<CapabilityNotSupportedException>();
+        trainer.Party.Invoking(p => p.Showdown()).Should().Throw<CapabilityNotSupportedException>();
+        trainer.PokemonBox.Invoking(b => b.Showdown()).Should().Throw<CapabilityNotSupportedException>();
+    }
 
     [Fact]
-    public void EncountersAreOff() =>
-        WithoutCapabilities().Invoking(g => g.PokemonRepository.FindEncounter(GameVersion.E, Species.Zigzagoon))
-            .Should().Throw<CapabilityNotSupportedException>();
+    public void EncountersAreOff()
+    {
+        var repository = WithoutCapabilities().PokemonRepository;
+
+        repository.Invoking(r => r.EncounterVersions()).Should().Throw<CapabilityNotSupportedException>();
+        repository.Invoking(r => r.FindEncounter(GameVersion.E, Species.Zigzagoon)).Should().Throw<CapabilityNotSupportedException>();
+    }
 
     [Fact]
     public async Task AutoLegalityIsOffAndLeavesThePokemonAsItWas()

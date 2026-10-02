@@ -48,6 +48,7 @@ describe('page errors', () => {
         '* **Id**: b7a9f2c4',
         '* **Game version**: Emerald',
         '* **Generation**: Gen3',
+        '* **Save format**: ',
         '## Type',
         '```',
         'TypeError',
@@ -69,7 +70,7 @@ describe('page errors', () => {
   it('leaves the game blank in the link when none is loaded', () => {
     const body = new URL(issueLink(toPageError(boom(), 'id'), null)!).searchParams.get('body')
 
-    expect(body).toContain('* **Game version**: \n* **Generation**: \n')
+    expect(body).toContain('* **Game version**: \n* **Generation**: \n* **Save format**: \n')
   })
 
   it('has no link for a Pokémon format the save does not support', () => {

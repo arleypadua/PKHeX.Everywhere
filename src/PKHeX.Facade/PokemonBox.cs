@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using PKHeX.Core;
 using PKHeX.Facade.Abstractions;
+using PKHeX.Facade.Extensions;
 using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Facade;
@@ -25,6 +26,12 @@ public class PokemonBox : IMutablePokemonCollection
     public IEnumerable<(int Index, Pokemon Pokemon)> Boxed() => _pokemonList
         .Select((pokemon, index) => (index, pokemon))
         .Where(p => p.pokemon.Pkm.Species != 0 && !IsPartyMember(p.index));
+
+    public string Showdown()
+    {
+        _game.Require(Capability.Showdown);
+        return Boxed().Select(boxed => boxed.Pokemon).Showdown();
+    }
 
     private bool IsPartyMember(int index) => _game.SaveFile is SAV7b { Blocks.Storage: var storage } && storage.IsParty(index);
 

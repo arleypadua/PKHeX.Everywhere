@@ -133,8 +133,8 @@ function AppRoutes({ autoLoad }: { autoLoad: boolean }) {
         <Route path="plugins" element={<PlugInsPage />} />
         <Route path="plugins/errors" element={<PlugInErrorsPage />} />
         <Route path="plugins/:id" element={<PlugInRoute />} />
-        <Route path="plugins/:plugInId/:path" element={<PlugInModuleRoute layout="standard" />} />
-        <Route path="plugins/:plugInId/:path/standard" element={<PlugInModuleRoute layout="standard" />} />
+        <Route path="plugins/:plugInId/:path" element={<Page capability="plugIns"><PlugInModuleRoute layout="standard" /></Page>} />
+        <Route path="plugins/:plugInId/:path/standard" element={<Page capability="plugIns"><PlugInModuleRoute layout="standard" /></Page>} />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="save" element={<Page title="Save"><LoadPage /></Page>} />
         <Route path="settings" element={<Page title="Settings"><SettingsPage /></Page>} />
@@ -148,7 +148,7 @@ function AppRoutes({ autoLoad }: { autoLoad: boolean }) {
         <Route path="load" element={<LoadRoute autoLoad={autoLoad} />} />
       </Route>
       <Route element={<EmptyPlugInLayout />}>
-        <Route path="plugins/:plugInId/:path/empty" element={<PlugInModuleRoute layout="empty" />} />
+        <Route path="plugins/:plugInId/:path/empty" element={<Page capability="plugIns"><PlugInModuleRoute layout="empty" /></Page>} />
       </Route>
     </Routes>
   )

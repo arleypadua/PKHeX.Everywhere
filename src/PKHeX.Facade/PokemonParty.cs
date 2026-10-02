@@ -1,5 +1,6 @@
 ﻿using PKHeX.Core;
 using PKHeX.Facade.Abstractions;
+using PKHeX.Facade.Extensions;
 using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Facade;
@@ -11,6 +12,12 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
     public IList<Pokemon> Pokemons => _partyData
         .Select(pkm => new Pokemon(pkm, game))
         .ToList();
+
+    public string Showdown()
+    {
+        game.Require(Capability.Showdown);
+        return Pokemons.Showdown();
+    }
 
     public void Commit()
     {

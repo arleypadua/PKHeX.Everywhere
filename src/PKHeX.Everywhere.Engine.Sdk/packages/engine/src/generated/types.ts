@@ -696,7 +696,7 @@ export interface SaveSummary {
   version: string
   /** The generation number, from 1 to 9. */
   generation: number
-  /** Whether the save has event flags and work to edit. When false, `events.get` returns null. */
+  /** Whether the save has event flags and work to edit. When false, `events.get` returns null, or fails with `not-supported` when the save doesn't support `events`. */
   hasEvents: boolean
   /** The save format the save loaded through, or null for a save PKHeX reads on its own. */
   format: SaveFormat | null

@@ -12,8 +12,8 @@ export interface MenuEntry {
 }
 
 export function menuEntries(game: SaveSummary | null, installed: InstalledPlugIn[]): MenuEntry[] {
-  const plugIns: MenuEntry[] = installed
-    .filter((plugIn) => !plugIn.needsReinstall && supports(game, 'plugIns'))
+  const plugIns: MenuEntry[] = (supports(game, 'plugIns') ? installed : [])
+    .filter((plugIn) => !plugIn.needsReinstall)
     .map((plugIn) => ({ route: routes.plugIn(plugIn.id), label: plugIn.name }))
   if (plugIns.length) plugIns.push({ route: routes.plugIns, label: 'Manage Plug-Ins' })
 

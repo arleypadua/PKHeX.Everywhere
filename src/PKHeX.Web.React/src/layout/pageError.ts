@@ -30,6 +30,7 @@ export function issueLink(error: PageError, game: SaveVersion | null): string | 
     `* **Id**: ${error.id}`,
     `* **Game version**: ${game?.version ?? ''}`,
     `* **Generation**: ${game?.generation ?? ''}`,
+    `* **Save format**: ${game?.formatId ?? ''}`,
     '## Type',
     '```',
     error.type,

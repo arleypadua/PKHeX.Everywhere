@@ -16,13 +16,13 @@ public static class EventsHandlers
     }
 
     [Query("events.flag", Topics.Events)]
-    public static bool Flag(Game game, int index) => InRange(() => Require(game).GetFlag(index));
+    public static bool Flag(Game game, int index) => InRange(() => EventsOf(game).GetFlag(index));
 
     [Command("events.setFlag", Topics.Events)]
-    public static void SetFlag(Game game, int index, bool value) => InRange(() => Require(game).SetFlag(index, value));
+    public static void SetFlag(Game game, int index, bool value) => InRange(() => EventsOf(game).SetFlag(index, value));
 
     [Command("events.setWork", Topics.Events)]
-    public static void SetWork(Game game, int index, int value) => InRange(() => Require(game).SetWork(index, value));
+    public static void SetWork(Game game, int index, int value) => InRange(() => EventsOf(game).SetWork(index, value));
 
     [Command("events.giveTickets", Topics.Inventory)]
     public static string[] GiveTickets(Session session, Game game, bool includeOldSeaMap)
@@ -45,7 +45,7 @@ public static class EventsHandlers
         return added.Select(t => t.Name).ToArray();
     }
 
-    private static GameEvents Require(Game game)
+    private static GameEvents EventsOf(Game game)
     {
         game.Require(Capability.Events);
         return game.Events ?? throw new EngineException(ErrorCodes.NotFound, "This save has no events.");

@@ -12,9 +12,5 @@ public static class PartyHandlers
         .ToArray();
 
     [Query("party.showdown", Topics.Party)]
-    public static string Showdown(Game game)
-    {
-        game.Require(Capability.Showdown);
-        return game.Trainer.Party.Pokemons.Showdown();
-    }
+    public static string Showdown(Game game) => game.Trainer.Party.Showdown();
 }

@@ -10,7 +10,7 @@ namespace PKHeX.Everywhere.Engine.Dtos;
 /// <param name="FileName">The file name the save was loaded with. <c>game.load</c> uses <c>save.sav</c> when none is given, and blank saves use the game's name.</param>
 /// <param name="Version">The game's display name, such as <c>Emerald</c>. Saves that can't tell paired games apart (such as HeartGold and SoulSilver) report one of the pair.</param>
 /// <param name="Generation">The generation number, from 1 to 9.</param>
-/// <param name="HasEvents">Whether the save has event flags and work to edit. When false, <c>events.get</c> returns null.</param>
+/// <param name="HasEvents">Whether the save has event flags and work to edit. When false, <c>events.get</c> returns null, or fails with <c>not-supported</c> when the save doesn't support <c>events</c>.</param>
 /// <param name="Format">The save format the save loaded through, or null for a save PKHeX reads on its own.</param>
 /// <param name="Capabilities">What the save supports. A save from PKHeX supports all of them. Calls behind a capability that's missing fail with <c>not-supported</c>.</param>
 public record SaveSummary(string? FileName, string Version, int Generation, bool HasEvents, SaveFormat? Format, SaveCapability[] Capabilities);

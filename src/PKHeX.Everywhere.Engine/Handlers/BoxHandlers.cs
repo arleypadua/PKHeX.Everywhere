@@ -13,11 +13,7 @@ public static class BoxHandlers
         .ToArray();
 
     [Query("box.showdown", Topics.Box)]
-    public static string Showdown(Game game)
-    {
-        game.Require(Capability.Showdown);
-        return game.Trainer.PokemonBox.Boxed().Select(boxed => boxed.Pokemon).Showdown();
-    }
+    public static string Showdown(Game game) => game.Trainer.PokemonBox.Showdown();
 
     [Command("box.addFromFile", Topics.Box)]
     public static AddedPokemon AddFromFile(Session session, Game game, byte[] bytes)
