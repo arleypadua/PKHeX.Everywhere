@@ -176,6 +176,12 @@ export interface Legality {
   messages: string[]
 }
 
+export interface LoadedSave {
+  bytes: Base64
+  fileName: string
+  version: string
+}
+
 export interface OwnedItem {
   id: number
   name: string

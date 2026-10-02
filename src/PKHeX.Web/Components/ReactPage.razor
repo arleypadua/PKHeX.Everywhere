@@ -9,12 +9,13 @@
 @inject GeneralSettingsService GeneralSettings
 @inject UserJourneyService UserJourney
 
-<div @ref="_element" style="width: 100%"></div>
+<div @ref="_element" style="@Style"></div>
 
 @code {
     [Parameter, EditorRequired] public string Name { get; set; } = default!;
     [Parameter] public Dictionary<string, object?>? Props { get; set; }
     [Parameter] public bool RequiresSave { get; set; } = true;
+    [Parameter] public string Style { get; set; } = "width: 100%";
 
     private readonly string _id = Guid.NewGuid().ToString("N");
     private ElementReference _element;

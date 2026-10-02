@@ -40,6 +40,13 @@ public static class PlugInHandlers
     public static string PageModule(Session session, string plugInId, string path) =>
         PlugInHost.Of(session).PageModule(plugInId, path);
 
+    [Query("plugins.setting", Topics.PlugIns)]
+    public static PlugInSetting? Setting(Session session, string plugInId, string key)
+    {
+        var plugIn = PlugInHost.Of(session).Find(plugInId) ?? throw new EngineException(ErrorCodes.NotFound, $"No plug-in {plugInId}.");
+        return plugIn.Settings.GetOrDefault(key) is { } value ? PlugInSetting.From(key, value) : null;
+    }
+
     [Query("plugins.installed", Topics.PlugIns)]
     public static InstalledPlugIn[] Installed(Session session) => PlugInHost.Of(session).Installed().ToArray();
 

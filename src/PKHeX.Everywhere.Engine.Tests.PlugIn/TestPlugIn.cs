@@ -7,12 +7,18 @@ public class TestSettings : Settings
 {
     public const string Greeting = "Greeting";
     public const string Locked = "Locked";
+    public const string Count = "Count";
+    public const string On = "On";
+    public const string Rom = "Rom";
     public const string Data = "Data";
 
     public TestSettings() : base(new PlugInManifest("Test Plug-In", "A plug-in for host tests", Information: "Read me first"))
     {
         this[Greeting] = new SettingValue.StringValue("Hello");
         this[Locked] = new SettingValue.StringValue("fixed", ReadOnly: true);
+        this[Count] = new SettingValue.IntegerValue(0);
+        this[On] = new SettingValue.BooleanValue(false);
+        this[Rom] = SettingValue.FileValue.Empty;
         this[Data] = SettingValue.FileValue.Empty;
 
         EnabledByDefault<Greet>();

@@ -69,6 +69,25 @@ public class GameHandlerTests
         Error(Dispatch(new Session(), "game.export", "[]")).Should().Be("no-save");
 
     [Fact]
+    public void FileReturnsNullWithoutALoadedSave() =>
+        Value(Dispatch(new Session(), "game.file", "[]")).Should().BeNull();
+
+    [Fact]
+    public void FileReturnsTheSaveBytesWithItsVersionCodeWithoutExporting()
+    {
+        var session = EngineCalls.Loaded(SaveFilePath.Emerald);
+        var published = new List<IEngineEvent>();
+        session.Published += published.Add;
+
+        var file = Value(Dispatch(session, "game.file", "[]"))!;
+
+        file["fileName"]!.GetValue<string>().Should().Be(SaveFilePath.Emerald);
+        file["version"]!.GetValue<string>().Should().Be("E");
+        Convert.FromBase64String(file["bytes"]!.GetValue<string>()).Should().Equal(session.Game!.ToByteArray());
+        published.Should().BeEmpty();
+    }
+
+    [Fact]
     public void BlankVersionsHaveNoAggregatedVersion()
     {
         var versions = Value(Dispatch(new Session(), "game.blankVersions", "[]"))!.AsArray();

@@ -17,6 +17,8 @@ public record GameOverview(
     int BoxCount,
     PartyMember[] Party);
 
+public record LoadedSave(byte[] Bytes, string FileName, string Version);
+
 public static class GameMapping
 {
     public static SaveSummary ToSummary(this Game game, string? fileName) =>
@@ -30,4 +32,7 @@ public static class GameMapping
         game.Trainer.Gender.Name,
         game.Trainer.PokemonBox.All.Count,
         game.Trainer.Party.Pokemons.Select(p => new PartyMember(p.Species.Id, p.Species.Name, p.Level)).ToArray());
+
+    public static LoadedSave ToFile(this Game game, string? fileName) =>
+        new(game.ToByteArray(), fileName ?? string.Empty, game.GameVersionApproximation.Version.ToString());
 }
