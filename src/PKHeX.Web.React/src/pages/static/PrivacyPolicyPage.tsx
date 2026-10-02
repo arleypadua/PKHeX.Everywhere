@@ -1,6 +1,8 @@
 import { Button, Flex, Typography } from 'antd'
+import { Link } from 'react-router'
 import { applicationName, gitHubRepositoryIssues } from '../../constants'
 import { showCookiePreferences } from '../../host'
+import { routes } from '../../routes'
 
 export default function PrivacyPolicyPage() {
   return (
@@ -35,7 +37,7 @@ export default function PrivacyPolicyPage() {
         <li>To understand how users interact with the app</li>
         <li>To ensure the app runs efficiently and effectively</li>
         <li>
-          To build up the <a href="/analytics">analytics</a> page of the app
+          To build up the <Link to={routes.analytics}>analytics</Link> page of the app
         </li>
       </ul>
 

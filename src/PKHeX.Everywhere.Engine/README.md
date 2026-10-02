@@ -10,7 +10,7 @@ The loaded save lives in `Session.Current`, which `GameService` in PKHeX.Web use
 
 When the save changes, `Session` raises `Changed` with the changed Topics, and JS receives them through `globalThis.pkhexEngineOnChange`. Loading a save changes `*`, which covers every Topic. Topics are listed in `Topics.cs`.
 
-A command announces domain changes as Engine events, records implementing `IEngineEvent` (see `Events.cs`). `Session` publishes them once the command succeeds, and JS receives each one as JSON with a camelCase `type`, such as `{ type: 'itemChanged', itemId, count }`, through `globalThis.pkhexEngineOnEvent`. The SDK passes them to `engine.onEvent(listener)`, typed as the `EngineEvent` union. Events hold only primitives and DTOs, and the generator writes their JSON. `PlugInRan` is published as soon as the hook runs, even when the command then fails.
+A command announces domain changes as Engine events, records implementing `IEngineEvent` (see `Events.cs`). `Session` publishes them once the command succeeds, and JS receives each one as JSON with a camelCase `type`, such as `{ type: 'itemChanged', itemId, count }`, through `globalThis.pkhexEngineOnEvent`. The SDK passes them to `engine.onEvent(listener)`, typed as the `EngineEvent` union. Events hold only primitives and DTOs, and the generator writes their JSON. `PlugInRan` is published as soon as the hook runs, even when the command then fails. `Session.Load` and `Session.Close` raise `GameLoaded` and `GameClosed`, so the app follows a loaded or closed save however it happened.
 
 ## Adding a query
 

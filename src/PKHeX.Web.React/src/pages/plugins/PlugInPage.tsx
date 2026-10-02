@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Alert, App, Button, Descriptions, Flex, Result, Space, Switch, Table, Tag, type TableColumnsType } from 'antd'
+import { Link } from 'react-router'
 import type { PlugInDetails, PlugInHook, PlugInSetting } from '@pkhex-everywhere/engine'
 import { useQuery } from '@pkhex-everywhere/react'
 import { PageHeader } from '../../components/PageHeader'
@@ -22,9 +23,9 @@ export default function PlugInPage({ id }: PlugInPageProps) {
         status="404"
         title="Plug-in not installed"
         extra={
-          <Button type="primary" href={routes.plugIns}>
-            Manage plug-ins
-          </Button>
+          <Link to={routes.plugIns}>
+            <Button type="primary">Manage plug-ins</Button>
+          </Link>
         }
       />
     )

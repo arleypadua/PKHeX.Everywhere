@@ -36,6 +36,7 @@ public sealed class Session
 
         Invalidate(Topics.All);
         GameChanged?.Invoke();
+        Raise(new GameLoaded());
     }
 
     public void Close()
@@ -50,6 +51,7 @@ public sealed class Session
 
         Invalidate(Topics.All);
         GameChanged?.Invoke();
+        Raise(new GameClosed());
     }
 
     internal IReadOnlyList<Invoker> Handlers => _handlers;

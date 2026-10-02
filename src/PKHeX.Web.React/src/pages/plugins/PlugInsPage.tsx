@@ -1,11 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Alert, App, Button, Flex, Space, Table, Tag, Tooltip, Typography, type TableColumnsType } from 'antd'
+import { Link } from 'react-router'
 import type { InstalledPlugIn } from '@pkhex-everywhere/engine'
 import { useQuery } from '@pkhex-everywhere/react'
 import { PageHeader } from '../../components/PageHeader'
 import { containsText } from '../../components/filters/containsText'
 import { TextFilter } from '../../components/filters/TextFilter'
-import { notifySuccessInHost, useNavigate } from '../../host'
+import { useNavigate } from '../../host'
 import type { AvailablePlugIn } from '../../plugins/plugIns'
 import { usePlugIns } from '../../plugins/PlugInsContext'
 import { routes } from '../../routes'
@@ -61,7 +62,7 @@ export default function PlugInsPage() {
   async function install(plugIn: AvailablePlugIn) {
     const id = await reachingTheSource(plugIn.id, () => plugIns.install(plugIn.sourceUrl, plugIn.id))
     if (!id) return
-    await notifySuccessInHost('Plug-in installed')
+    notification.success({ title: 'Plug-in installed' })
     await navigate(routes.plugIn(id))
   }
 
@@ -72,7 +73,7 @@ export default function PlugInsPage() {
   const uninstall = (id: string) => whileBusy(id, "Couldn't uninstall the plug-in", () => plugIns.uninstall(id))
 
   const installedColumns: TableColumnsType<InstalledPlugIn> = [
-    nameColumn((plugIn) => (plugIn.needsReinstall ? plugIn.id : <a href={routes.plugIn(plugIn.id)}>{plugIn.name}</a>)),
+    nameColumn((plugIn) => (plugIn.needsReinstall ? plugIn.id : <Link to={routes.plugIn(plugIn.id)}>{plugIn.name}</Link>)),
     {
       title: 'Version',
       key: 'version',

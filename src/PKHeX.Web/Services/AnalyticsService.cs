@@ -1,6 +1,5 @@
 using Microsoft.JSInterop;
 using PKHeX.Facade;
-using PKHeX.Web.Components;
 using PKHeX.Web.Extensions;
 
 namespace PKHeX.Web.Services;

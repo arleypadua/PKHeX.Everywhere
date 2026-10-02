@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { App, Button, Result, Spin } from 'antd'
 import { EngineError } from '@pkhex-everywhere/engine'
 import { useBox, useEngine, useParty } from '@pkhex-everywhere/react'
-import { notifySuccessInHost, useNavigate } from '../../host'
+import { useNavigate } from '../../host'
 import { routes } from '../../routes'
 import { DraftEditor } from './DraftEditor'
 
@@ -37,7 +37,7 @@ export default function PokemonClonePage({ source, id }: PokemonClonePageProps) 
     setPhase('adding')
     try {
       const added = await engine.pokemon.addToBox()
-      await notifySuccessInHost(`${saved.species} cloned`)
+      notification.success({ title: `${saved.species} cloned` })
       await navigate(routes.box, { replace: true })
       await navigate(routes.pokemon(added))
     } catch (error) {

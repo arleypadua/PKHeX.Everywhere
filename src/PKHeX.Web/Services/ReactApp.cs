@@ -13,5 +13,5 @@ public sealed class ReactApp(IJSRuntime js, IConfiguration configuration)
         await (await Module()).InvokeAsync<T>(identifier, [configuration["React:DevServerUrl"], ..args]);
 
     private Task<IJSObjectReference> Module() =>
-        _module ??= js.InvokeAsync<IJSObjectReference>("import", "./Components/ReactPage.razor.js").AsTask();
+        _module ??= js.InvokeAsync<IJSObjectReference>("import", "./App.razor.js").AsTask();
 }

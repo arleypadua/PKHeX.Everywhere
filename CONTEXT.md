@@ -1,6 +1,6 @@
 # PKHeX.Everywhere
 
-Save editing for Pokémon games, in the browser and on the command line. The web UI is moving from Blazor to React page by page, while all save editing stays in C#.
+Save editing for Pokémon games, in the browser and on the command line. The web UI is a React app, while all save editing stays in C# and runs in .NET WebAssembly.
 
 ## Language
 
@@ -35,13 +35,6 @@ _Avoid_: notification, message
 **Entity hook**:
 A generated React hook, such as `useParty()` or `usePokemon(at)`, that returns an entity's data together with its commands.
 _Avoid_: query hook, data hook
-
-**React page**:
-A page written in React and mounted inside a Blazor route, which keeps the Blazor layout, menu and router around it.
-_Avoid_: island, micro-frontend
-
-**Island**:
-A Blazor component mounted inside React. Only the final layout swap uses islands.
 
 **Plug-in host**:
 The Engine-side registry and runtime for plug-ins built against SDK v2. It loads a plug-in from its assembly bytes and runs its hooks, and it publishes `PlugInRan` after each run.

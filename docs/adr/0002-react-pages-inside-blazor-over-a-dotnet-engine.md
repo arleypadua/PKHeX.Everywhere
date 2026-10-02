@@ -1,5 +1,7 @@
 # React pages inside Blazor, over a .NET engine
 
+Superseded by [ADR 0006](0006-a-react-app-over-a-dotnet-wasm-engine.md). The Engine pattern below still holds.
+
 The web UI moves from AntDesign Blazor to AntDesign React one page at a time, and all save editing stays in C#. Blazor stays the host and keeps the layout, menu and router. A migrated page is a Blazor route that mounts a React page. React pages read and write the save only through the Engine, using the generated SDK.
 
 ## Why Blazor stays the host

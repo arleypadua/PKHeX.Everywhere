@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PKHeX.Core;
 using PKHeX.Everywhere.Engine;
@@ -9,7 +8,6 @@ using PKHeX.Everywhere.Engine.PlugIns;
 using PKHeX.Web;
 using PKHeX.Web.Extensions;
 using PKHeX.Web.Services;
-using PKHeX.Web.Services.Plugins;
 using App = PKHeX.Web.App;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -18,7 +16,6 @@ builder.Configuration
     .AddJsonFile($"appsettings.{builder.HostEnvironment.Environment}.json", optional: true, reloadOnChange: true);
 
 builder.RootComponents.Add<App>("#app");
-builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddSingleton(Session.Current);
@@ -26,13 +23,9 @@ builder.Services.AddScoped<GameService>();
 builder.Services.AddSingleton<ReactApp>();
 
 builder.Services.AddSingleton(sp => new PlugInHost(sp.GetRequiredService<Session>()));
-builder.Services.AddScoped<PlugInStore>();
-builder.Services.AddScoped<PlugInRanHandler>();
 
-builder.Services.AddScoped<UserJourneyService>();
 builder.Services.AddSingleton<AnalyticsService>();
 builder.Services.AddScoped<JsService>();
-builder.Services.AddScoped<AntdThemeService>();
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddScoped<BrowserWindowService.Instance>();
 

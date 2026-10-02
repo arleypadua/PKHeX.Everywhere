@@ -21,7 +21,16 @@ public class GameHandlerTests
         session.Load(Game.LoadFrom(SaveFilePath.HgSs), "soulsilver.dsv");
 
         Value(Dispatch(session, "game.get", "[]"))!.ToJsonString()
-            .Should().Be($$"""{"fileName":"soulsilver.dsv","version":"{{session.Game!.GameVersionApproximation.Name}}","generation":4}""");
+            .Should().Be($$"""{"fileName":"soulsilver.dsv","version":"{{session.Game!.GameVersionApproximation.Name}}","generation":4,"hasEvents":true}""");
+    }
+
+    [Fact]
+    public void GetSaysWhenTheSaveHasNoEvents()
+    {
+        var session = new Session();
+        session.Load(Game.LoadFrom(SaveFilePath.Yellow), "yellow.sav");
+
+        Value(Dispatch(session, "game.get", "[]"))!["hasEvents"]!.GetValue<bool>().Should().BeFalse();
     }
 
     [Fact]
