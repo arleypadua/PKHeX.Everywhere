@@ -31,7 +31,8 @@ public record Call(
 public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<Type> Events, IReadOnlyList<string> ErrorCodes, IReadOnlyList<string> Topics)
 {
     private const string Namespace = "PKHeX.Everywhere.Engine";
-    private static readonly string[] InjectedTypes = ["PKHeX.Facade.Game", $"{Namespace}.Session"];
+    private const string GameType = "PKHeX.Facade.Game";
+    private static readonly string[] InjectedTypes = [GameType, $"{Namespace}.Session"];
 
     public IEnumerable<Call> Queries => Calls.Where(c => c.Kind == CallKind.Query);
 
@@ -51,6 +52,7 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<Type> Events, IR
             throw new InvalidOperationException($"Query '{query.ConstructorArguments[0].Value}' reads the save, so it must declare the topics it reads.");
 
         var calls = declared
+            .Select(m => (m.Method, m.Attribute, Requires: Requirements(m.Method)))
             .Select(m => new Call(
                 (string)m.Attribute!.ConstructorArguments[0].Value!,
                 m.Attribute.AttributeType.Name == "QueryAttribute" ? CallKind.Query : CallKind.Command,
@@ -62,8 +64,8 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<Type> Events, IR
                     .ToList(),
                 Awaited(m.Method.ReturnType),
                 Awaited(nullability.Create(m.Method.ReturnParameter)),
-                m.Method.GetParameters().Any(p => p.ParameterType.FullName == "PKHeX.Facade.Game") || Requirements(m.Method).Contains("Save"),
-                Requirements(m.Method).Contains("Draft")))
+                m.Method.GetParameters().Any(p => p.ParameterType.FullName == GameType) || m.Requires.Contains("Save"),
+                m.Requires.Contains("Draft")))
             .OrderBy(c => c.Name, StringComparer.Ordinal)
             .ToList();
 
