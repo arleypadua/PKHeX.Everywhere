@@ -51,12 +51,14 @@ public sealed class PlugInHost
     /// <summary>
     /// Registers a supported assembly with its stored state, or lists an unsupported one as needing reinstall.
     /// Registering a plug-in the host already knows is an update, and one without stored state is an install.
+    /// An update without stored state keeps the state of the registered plug-in.
     /// </summary>
     public InstalledPlugIn Install(byte[] assembly, StoredPlugIn? stored = null)
     {
         var id = PlugInSdkDetector.NameOf(assembly)
                  ?? throw new IncompatiblePlugInException(PlugInSdk.None);
         var known = _plugIns.ContainsKey(id) || _needsReinstall.Contains(id);
+        if (stored is null && _plugIns.ContainsKey(id)) stored = State(id) with { HasNewerVersion = false };
 
         if (!IsSupported(assembly))
         {

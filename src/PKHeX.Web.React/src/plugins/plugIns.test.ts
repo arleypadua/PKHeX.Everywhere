@@ -40,7 +40,7 @@ function fakeEngine() {
       register: vi.fn(async (assembly: string, stored: PlugInState | null) => {
         plugIns.set('Example', {
           version: versionOf(assembly),
-          state: stored ?? { enabled: true, hasNewerVersion: false, toggles: [], settings: [] },
+          state: stored ?? plugIns.get('Example')?.state ?? { enabled: true, hasNewerVersion: false, toggles: [], settings: [] },
           needsReinstall: !supported(assembly),
         })
         return installed('Example')
@@ -154,7 +154,7 @@ describe('plug-ins', () => {
     expect(await plugIns.available()).toEqual([
       expect.objectContaining({ sourceUrl: source, id: 'Example', name: 'Example plug-in', version: '2.0.0' }),
     ])
-    await plugIns.install(source, 'Example')
+    expect(await plugIns.install(source, 'Example')).toBe('Example')
 
     expect(engine.plugins.register).toHaveBeenCalledWith(v2, null)
     expect(await store.readPlugIn('Example')).toMatchObject({ sourceUrl: source, fileUrl: `${source}/Example/2.0.0/Example.dll`, assembly: v2 })
@@ -171,6 +171,7 @@ describe('plug-ins', () => {
 
     expect(await loader.update('Example')).toBe(true)
 
+    expect(engine.plugins.register).toHaveBeenLastCalledWith(v3, null)
     expect(plugIns.get('Example')).toEqual({ version: 'v3', state: storedState, needsReinstall: false })
     expect((await store.readPlugIn('Example'))?.assembly).toBe(v3)
   })
@@ -183,5 +184,37 @@ describe('plug-ins', () => {
 
     expect(engine.plugins.unregister).toHaveBeenCalledWith('Example')
     expect(await store.readPlugIns()).toEqual([])
+  })
+
+  it('registers an installed or updated plug-in again after a reload', async () => {
+    const { engine } = fakeEngine()
+    store.writeSource(readSource(manifest))
+    const newer = { ...manifest, PlugIns: [{ ...manifest.PlugIns[0], PublishedVersions: [{ Version: '3.0.0', Sdk: 2 }] }] }
+    const fetch = fakeFetch({
+      [`${source}/Example/2.0.0/Example.dll`]: v2,
+      [`${source}/pkhexwebplugins.json`]: newer,
+      [`${source}/Example/3.0.0/Example.dll`]: v3,
+    })
+    const plugIns = createPlugIns(engine, store, fetch)
+    await plugIns.install(source, 'Example')
+    await plugIns.update('Example')
+
+    const reloaded = fakeEngine()
+    await createPlugIns(reloaded.engine, store, fakeFetch({})).registerStored()
+
+    expect(reloaded.engine.plugins.register).toHaveBeenCalledWith(v3, expect.objectContaining({ enabled: true }))
+  })
+
+  it('registers nothing after a reload once a plug-in is uninstalled', async () => {
+    const { engine } = fakeEngine()
+    store.writeSource(readSource(manifest))
+    const plugIns = createPlugIns(engine, store, fakeFetch({ [`${source}/Example/2.0.0/Example.dll`]: v2 }))
+    await plugIns.install(source, 'Example')
+    await plugIns.uninstall('Example')
+
+    const reloaded = fakeEngine()
+    await createPlugIns(reloaded.engine, store, fakeFetch({})).registerStored()
+
+    expect(reloaded.engine.plugins.register).not.toHaveBeenCalled()
   })
 })

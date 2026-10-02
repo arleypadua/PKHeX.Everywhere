@@ -3,7 +3,7 @@ using Microsoft.JSInterop;
 namespace PKHeX.Web.Services.Plugins;
 
 /// <summary>
-/// Reaches the React app's plug-in store, which owns plug-in storage, until the plug-in pages move to React.
+/// Reaches the React app's plug-in store, which owns plug-in storage, until the plug-in page moves to React.
 /// </summary>
 public sealed class PlugInStore(IJSRuntime js, IConfiguration configuration)
 {
@@ -11,13 +11,7 @@ public sealed class PlugInStore(IJSRuntime js, IConfiguration configuration)
 
     public async Task Start() => await (await Module()).InvokeVoidAsync("start", DevServerUrl);
 
-    public Task<AvailablePlugIn[]> Available() => Call<AvailablePlugIn[]>("available");
-
-    public Task Install(string sourceUrl, string id) => Call<object?>("install", sourceUrl, id);
-
     public Task<bool> Update(string id) => Call<bool>("update", id);
-
-    public Task Uninstall(string id) => Call<object?>("uninstall", id);
 
     public Task Persist(string id) => Call<object?>("persist", id);
 
@@ -29,12 +23,3 @@ public sealed class PlugInStore(IJSRuntime js, IConfiguration configuration)
     private async Task<T> Call<T>(string method, params object?[] args) =>
         await (await Module()).InvokeAsync<T>("plugIns", [DevServerUrl, method, .. args]);
 }
-
-public sealed record AvailablePlugIn(
-    string SourceUrl,
-    string SourceName,
-    string Id,
-    string Name,
-    string? Description,
-    string? ProjectUrl,
-    string Version);

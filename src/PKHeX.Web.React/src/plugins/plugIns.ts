@@ -54,7 +54,7 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
     return sources.filter((s): s is PlugInSource => !!s)
   }
 
-  async function replace(stored: StoredPlugIn, plugIn: SourcePlugIn, state: StoredPlugIn['state']) {
+  async function replace(stored: StoredPlugIn, plugIn: SourcePlugIn, state: StoredPlugIn['state'] | null) {
     const version = await engine.plugins.newestCompatible(plugIn.publishedVersions, null)
     if (!version) return false
 
@@ -62,7 +62,7 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
     const assembly = await download(fileUrl)
     if (!(await engine.plugins.isSupported(assembly))) return false
 
-    await engine.plugins.register(assembly, { ...state, hasNewerVersion: false })
+    await engine.plugins.register(assembly, state && { ...state, hasNewerVersion: false })
     await store.writePlugIn({ ...stored, fileUrl, assembly, state: await engine.plugins.state(stored.id) })
     return true
   }
@@ -156,6 +156,7 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
 
       const installed = await engine.plugins.register(assembly, null)
       await store.writePlugIn({ id: installed.id, sourceUrl, fileUrl, assembly, state: await engine.plugins.state(installed.id) })
+      return installed.id
     },
 
     async update(id: string) {
@@ -163,7 +164,7 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
       if (!stored) return false
 
       const plugIn = (await fetchSource(stored.sourceUrl)).plugIns.find((p) => p.id === id)
-      return !!plugIn && replace(stored, plugIn, await engine.plugins.state(id))
+      return !!plugIn && replace(stored, plugIn, null)
     },
 
     async uninstall(id: string) {

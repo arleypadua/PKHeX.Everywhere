@@ -7,13 +7,14 @@ import { connectHost, useTheme, type HostBridge } from './host'
 import { PageErrorBoundary } from './PageErrorBoundary'
 import { pages } from './pages'
 import { createPlugIns } from './plugins/plugIns'
+import { PlugInsProvider } from './plugins/PlugInsContext'
 import { createPlugInStore } from './plugins/store'
 
 export { setTheme } from './host'
 
 const engine = createEngine({ host: blazorHost() })
 
-// Blazor still runs the plug-in management pages, and calls these through ReactPage.razor.js until they move to React.
+// Blazor still runs the plug-in page, and calls these through ReactPage.razor.js until they move to React.
 export const plugIns = createPlugIns(engine, createPlugInStore())
 
 const plugInsLoaded = engine.ready.then(async () => {
@@ -58,11 +59,13 @@ function PageShell({ name, props }: { name: string; props: Record<string, unknow
     >
       <App component={false}>
         <NotifyingEngineProvider>
-          <PageErrorBoundary engine={engine}>
-            <Suspense fallback={<Spin />}>
-              <Page name={name} props={props} />
-            </Suspense>
-          </PageErrorBoundary>
+          <PlugInsProvider value={plugIns}>
+            <PageErrorBoundary engine={engine}>
+              <Suspense fallback={<Spin />}>
+                <Page name={name} props={props} />
+              </Suspense>
+            </PageErrorBoundary>
+          </PlugInsProvider>
         </NotifyingEngineProvider>
       </App>
     </ConfigProvider>
