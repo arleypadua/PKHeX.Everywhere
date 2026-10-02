@@ -1,10 +1,6 @@
-import { Suspense } from 'react'
-import { Layout, Spin } from 'antd'
-import { Outlet } from 'react-router'
-import { engine } from '../app'
-import { PageErrorBoundary } from '../PageErrorBoundary'
+import { Layout } from 'antd'
 import { Footer } from './Footer'
-import { WhenPlugInsLoaded } from './WhenPlugInsLoaded'
+import { RoutedContent } from './RoutedContent'
 
 export function LoadLayout() {
   return (
@@ -22,13 +18,7 @@ export function LoadLayout() {
           }}
         >
           Open a save file
-          <PageErrorBoundary engine={engine}>
-            <Suspense fallback={<Spin />}>
-              <WhenPlugInsLoaded>
-                <Outlet />
-              </WhenPlugInsLoaded>
-            </Suspense>
-          </PageErrorBoundary>
+          <RoutedContent />
         </div>
       </Layout.Content>
       <Footer />

@@ -1,9 +1,5 @@
-import { Suspense, useState } from 'react'
-import { Spin } from 'antd'
-import { Outlet } from 'react-router'
-import { engine } from '../app'
-import { PageErrorBoundary } from '../PageErrorBoundary'
-import { WhenPlugInsLoaded } from './WhenPlugInsLoaded'
+import { useState } from 'react'
+import { RoutedContent } from './RoutedContent'
 
 export function EmptyPlugInLayout() {
   const [hovered, setHovered] = useState(false)
@@ -35,13 +31,7 @@ export function EmptyPlugInLayout() {
       >
         ✖
       </div>
-      <PageErrorBoundary engine={engine}>
-        <Suspense fallback={<Spin />}>
-          <WhenPlugInsLoaded>
-            <Outlet />
-          </WhenPlugInsLoaded>
-        </Suspense>
-      </PageErrorBoundary>
+      <RoutedContent />
     </>
   )
 }

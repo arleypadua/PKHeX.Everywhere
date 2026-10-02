@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useEngine } from '@pkhex-everywhere/react'
 import { useNavigate } from '../host'
-import { useLoadSave } from '../pages/load/useLoadSave'
 import { routeAfter } from './journey'
 
 export function GameJourney() {
@@ -16,16 +15,6 @@ export function GameJourney() {
       }),
     [engine, navigate],
   )
-
-  return null
-}
-
-export function AutoLoadDemo() {
-  const { openDemo } = useLoadSave()
-
-  useEffect(() => {
-    void openDemo()
-  }, [])
 
   return null
 }

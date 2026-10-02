@@ -1,6 +1,7 @@
 import { Divider, Layout, Space } from 'antd'
 import { Link } from 'react-router'
 import { applicationName, gitHubRepository } from '../constants'
+import { routes } from '../routes'
 
 export function Footer() {
   return (
@@ -13,10 +14,10 @@ export function Footer() {
         </a>
       </p>
       <Space wrap separator={<Divider orientation="vertical" />}>
-        <Link to="/privacy-policy">Privacy Policy</Link>
-        <Link to="/terms-of-use">Terms of Use</Link>
-        <Link to="/credits">Credits</Link>
-        <Link to="/release-notes">Release Notes</Link>
+        <Link to={routes.privacyPolicy}>Privacy Policy</Link>
+        <Link to={routes.termsOfUse}>Terms of Use</Link>
+        <Link to={routes.credits}>Credits</Link>
+        <Link to={routes.releaseNotes()}>Release Notes</Link>
         <a href="/blog">Blog</a>
       </Space>
     </Layout.Footer>

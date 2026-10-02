@@ -7,7 +7,7 @@ export type Outcome =
 
 export function outcomeOf(ran: PlugInRan, pages: DeclaredPage[]): Outcome | null {
   if (ran.failure)
-    return { kind: 'notify', type: 'error', message: 'Plugin failed to execute', description: 'Visit /plugins/errors for details.' }
+    return { kind: 'notify', type: 'error', message: 'Plugin failed to execute', description: `Visit ${routes.plugInErrors} for details.` }
 
   const outcome = ran.outcome
   if (outcome?.kind === 'notify')

@@ -10,17 +10,15 @@ import {
   ShopOutlined,
   TeamOutlined,
 } from '@ant-design/icons'
-import { Button, Layout, Menu, Spin, type MenuProps } from 'antd'
-import { Link, Outlet, useLocation } from 'react-router'
+import { Button, Layout, Menu, type MenuProps } from 'antd'
+import { Link, useLocation } from 'react-router'
 import { useLoadedGame, useQuery } from '@pkhex-everywhere/react'
-import { engine } from '../app'
 import { useNavigate } from '../host'
-import { PageErrorBoundary } from '../PageErrorBoundary'
 import { routes } from '../routes'
 import { Footer } from './Footer'
+import { RoutedContent } from './RoutedContent'
 import { menuEntries, type MenuEntry, type MenuIcon } from './menu'
 import { NewsBanner } from './NewsBanner'
-import { WhenPlugInsLoaded } from './WhenPlugInsLoaded'
 
 const icons: Record<MenuIcon, ReactNode> = {
   home: <HomeOutlined />,
@@ -76,13 +74,7 @@ export function MainLayout() {
         </Layout.Header>
         <Layout.Content style={{ margin: '24px 16px 0' }}>
           <div style={{ padding: 24, minHeight: 360 }}>
-            <PageErrorBoundary key={pathname} engine={engine}>
-              <Suspense fallback={<Spin />}>
-                <WhenPlugInsLoaded>
-                  <Outlet />
-                </WhenPlugInsLoaded>
-              </Suspense>
-            </PageErrorBoundary>
+            <RoutedContent key={pathname} />
           </div>
         </Layout.Content>
         <Footer />

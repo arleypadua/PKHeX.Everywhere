@@ -1,14 +1,15 @@
 import { lazy, useCallback, useEffect, type ReactNode } from 'react'
 import { App, ConfigProvider, theme as antdTheme } from 'antd'
 import { BrowserRouter, Navigate, Route, Routes, useParams, useSearchParams } from 'react-router'
-import type { EngineError } from '@pkhex-everywhere/engine'
+import type { EngineError, PageLayout } from '@pkhex-everywhere/engine'
 import { EngineProvider, useLoadedGame } from '@pkhex-everywhere/react'
 import { engine, plugIns } from '../app'
 import { useTheme } from '../host'
 import { PlugInsProvider } from '../plugins/PlugInsContext'
 import { routes } from '../routes'
 import { EmptyPlugInLayout } from './EmptyPlugInLayout'
-import { AutoLoadDemo, GameJourney } from './GameJourney'
+import { AutoLoadDemo } from './AutoLoadDemo'
+import { GameJourney } from './GameJourney'
 import { journey } from './journey'
 import { LoadLayout } from './LoadLayout'
 import { MainLayout } from './MainLayout'
@@ -66,9 +67,15 @@ function HomeRoute() {
   return redirect ? <Navigate to={routes.load} replace /> : <HomePage />
 }
 
-function LoadRoute() {
+function LoadRoute({ autoLoad }: { autoLoad: boolean }) {
   const { game } = useLoadedGame()
-  return game ? <Navigate to={routes.home} replace /> : <LoadPage />
+  if (game) return <Navigate to={routes.home} replace />
+  return (
+    <>
+      {autoLoad && <AutoLoadDemo />}
+      <LoadPage />
+    </>
+  )
 }
 
 function EncountersRoute() {
@@ -98,12 +105,12 @@ function PlugInRoute() {
   return <PlugInPage id={id} />
 }
 
-function PlugInModuleRoute({ layout }: { layout: 'standard' | 'empty' }) {
+function PlugInModuleRoute({ layout }: { layout: PageLayout }) {
   const { plugInId, path } = useParams()
   return <PlugInModulePage key={`${plugInId}/${path}`} plugInId={plugInId} path={path} layout={layout} />
 }
 
-function AppRoutes() {
+function AppRoutes({ autoLoad }: { autoLoad: boolean }) {
   return (
     <Routes>
       <Route element={<MainLayout />}>
@@ -130,7 +137,7 @@ function AppRoutes() {
         <Route path="*" element={<Page title="Not found"><p role="alert">Sorry, there's nothing at this address.</p></Page>} />
       </Route>
       <Route element={<LoadLayout />}>
-        <Route path="load" element={<LoadRoute />} />
+        <Route path="load" element={<LoadRoute autoLoad={autoLoad} />} />
       </Route>
       <Route element={<EmptyPlugInLayout />}>
         <Route path="plugins/:plugInId/:path/empty" element={<PlugInModuleRoute layout="empty" />} />
@@ -170,8 +177,7 @@ export function AppShell({ autoLoad }: { autoLoad: boolean }) {
             <BrowserRouter>
               <GameJourney />
               <PlugInOutcomes />
-              {autoLoad && <AutoLoadDemo />}
-              <AppRoutes />
+              <AppRoutes autoLoad={autoLoad} />
             </BrowserRouter>
           </PlugInsProvider>
         </NotifyingEngineProvider>
