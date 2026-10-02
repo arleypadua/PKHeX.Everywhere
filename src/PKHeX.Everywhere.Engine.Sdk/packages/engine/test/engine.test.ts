@@ -33,8 +33,10 @@ describe('createEngine', () => {
   })
 
   it('resolves ready once the host is ready', async () => {
+    vi.stubGlobal('window', {})
     const { host, signalReady } = fakeHost(() => ({ ok: true, value: null }))
     const engine = createEngine({ host })
+    vi.unstubAllGlobals()
     let isReady = false
     void engine.ready.then(() => (isReady = true))
 
@@ -171,6 +173,7 @@ describe('createEngine', () => {
       const { host, readyCalls } = fakeHost(() => ({ ok: true, value: null }))
 
       const engine = createEngine({ host })
+      void engine.ready
       await flush()
 
       expect(readyCalls()).toBe(0)
@@ -195,6 +198,15 @@ describe('createEngine', () => {
         { state: 'ready', loaded: 2, total: 2 },
       ])
       expect(engine.status).toEqual({ state: 'ready', loaded: 2, total: 2 })
+    })
+
+    it('ignores download progress until it boots', () => {
+      const { host, emitProgress } = fakeHost(() => ({ ok: true, value: null }))
+      const engine = createEngine({ host, lazy: true })
+
+      emitProgress(1, 2)
+
+      expect(engine.status).toEqual({ state: 'idle', loaded: 0, total: 0 })
     })
 
     it('reports booting to status listeners when a lazy engine gets its first call', async () => {

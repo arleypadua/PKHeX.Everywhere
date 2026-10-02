@@ -51,26 +51,30 @@ export function createEngine({ host = wasmHost(), lazy = false }: { host?: Engin
     return () => void statusListeners.delete(listener)
   }
 
-  host.onProgress?.((loaded, total) => setStatus({ loaded, total }))
+  let settle!: { resolve: () => void; reject: (error: unknown) => void }
+  const ready = new Promise<void>((resolve, reject) => (settle = { resolve, reject }))
+  ready.catch(() => {})
 
   let exports: Promise<EngineExports> | undefined
-  let ready: Promise<void> | undefined
 
   function boot() {
     if (exports) return exports
     setStatus({ state: 'booting' })
+    host.onProgress?.((loaded, total) => setStatus({ loaded, total }))
     exports = host
       .ready()
       .then(() => host.getAssemblyExports(engineAssembly))
       .then((assembly) => assembly.PKHeX.Everywhere.Engine.EngineExports)
-    ready = exports.then(
-      () => setStatus({ state: 'ready' }),
+    exports.then(
+      () => {
+        setStatus({ state: 'ready' })
+        settle.resolve()
+      },
       (error: unknown) => {
         setStatus({ state: 'failed', error })
-        throw error
+        settle.reject(error)
       },
     )
-    ready.catch(() => {})
     return exports
   }
 
@@ -124,10 +128,7 @@ export function createEngine({ host = wasmHost(), lazy = false }: { host?: Engin
 
   return {
     ...createClient(call),
-    get ready() {
-      boot()
-      return ready!
-    },
+    ready,
     get status() {
       return status
     },

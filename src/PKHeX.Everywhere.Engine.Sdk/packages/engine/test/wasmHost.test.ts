@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { DotnetRuntime, WasmHostOptions } from '../src'
-import type { EngineHost } from '../src'
+import type { DotnetRuntime, EngineHost, WasmHostOptions } from '../src'
 import { version } from '../package.json'
 
 let wasmHost: (options?: WasmHostOptions) => EngineHost
@@ -156,6 +155,19 @@ describe('wasmHost', () => {
     wasmHost({ dotnetUrl: '/b/dotnet.js' })
     expect(warn).toHaveBeenCalledOnce()
     expect(warn.mock.calls[0][0]).toContain('/b/dotnet.js')
+  })
+
+  it('does not warn when a later call names the same file as the page', () => {
+    globalThis.document = {
+      baseURI: 'https://example.com/',
+      querySelector: () => ({ content: '/_framework/dotnet.js' }),
+    } as unknown as Document
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    wasmHost({ load: fakeDotnet().load })
+    wasmHost({ dotnetUrl: '/_framework/dotnet.js' })
+
+    expect(warn).not.toHaveBeenCalled()
   })
 
   it('reports download progress in files', async () => {

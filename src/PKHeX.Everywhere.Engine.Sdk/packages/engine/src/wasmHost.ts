@@ -37,11 +37,13 @@ function pageDotnetUrl() {
 
 const importModule = (url: string) => import(/* @vite-ignore */ url) as Promise<DotnetModule>
 
+const resolveUrl = (url: string) => (globalThis.document ? new URL(url, document.baseURI).href : url)
+
 let shared: { dotnetUrl: string; host: EngineHost } | undefined
 
 export function wasmHost({ dotnetUrl, load = importModule }: WasmHostOptions = {}): EngineHost {
   if (shared) {
-    if (dotnetUrl !== undefined && dotnetUrl !== shared.dotnetUrl)
+    if (dotnetUrl !== undefined && resolveUrl(dotnetUrl) !== resolveUrl(shared.dotnetUrl))
       console.warn(`wasmHost() already loads the runtime from ${shared.dotnetUrl}, so ${dotnetUrl} is ignored.`)
     return shared.host
   }
