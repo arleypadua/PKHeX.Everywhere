@@ -38,6 +38,8 @@ These are rules of the format, not workarounds for the Facade:
 - The party checksum is always written as 0.
 - An empty party slot keeps "no mail" (`0xFF`), and the save doesn't compute party stats for a blank. Without this, export changed bytes in empty party slots.
 - Box Pokémon expand from 58 bytes to the party layout and compress back without loss. PP isn't stored in boxes, so it is refilled with Gen 9 values on load.
+- The bag is a `PlayerBag` whose pouches translate item indices to modern IDs. An unmapped item stays out of the pouch's items and keeps its slot, and the pouch reports it through the Facade's `IUnmappedItems`, so the Facade lists it as "Unknown item #n". Each pocket's items are the hack's items that modern games keep in that pocket.
+- CFRU saves its 450 main, 75 key, 50 ball, 128 TM and 75 berry slots as one run: block 13 from `0xAD8`, then sector 30. The main pocket ends in sector 30 at `0x1F0`, where the key items start. The key items pocket isn't editable yet.
 
 ## Known gaps for later slices
 
@@ -46,5 +48,5 @@ These are rules of the format, not workarounds for the Facade:
 
 ## Rejected alternatives
 
-- **Facade interfaces for saves and Pokémon.** Every Facade class would need a second path. The gate showed PKHeX's types are enough. #148 added two narrow ones, `IUnmappedValues` and `IMoveList`, for what PKHeX's types can't say.
+- **Facade interfaces for saves and Pokémon.** Every Facade class would need a second path. The gate showed PKHeX's types are enough. #148 and #149 added three narrow ones, `IUnmappedValues`, `IMoveList` and `IUnmappedItems`, for what PKHeX's types can't say.
 - **PKHeX's `CustomSaveReaders`.** It can't express a `Possible` match or a user's choice of format, which Radical Red needs.

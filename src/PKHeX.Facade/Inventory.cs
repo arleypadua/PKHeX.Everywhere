@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Immutable;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Repositories;
 using PKHeX.Core;
 
@@ -11,10 +12,12 @@ public class Inventory : IEnumerable<Inventory.Item>
     private readonly PlayerBag _bag;
     private readonly InventoryPouch _pouch;
 
-    public Inventory(string type, Game game)
+    public Inventory(string type, Game game) : this(type, game, game.SaveFile.Inventory) { }
+
+    internal Inventory(string type, Game game, PlayerBag bag)
     {
         _game = game;
-        _bag = _game.SaveFile.Inventory;
+        _bag = bag;
         _pouch = _bag.Pouches.FirstOrDefault(i => i.Type.ToString() == type)
             ?? throw new InvalidOperationException($"Inventory of type {type} not found");
 
@@ -27,6 +30,15 @@ public class Inventory : IEnumerable<Inventory.Item>
 
     public string Type { get; init; }
     public ImmutableList<Item> Items => GetItems();
+
+    /// <summary>
+    /// Returns the items the save stores with ids PKHeX doesn't know, such as a ROM hack's own items. They have id 0 and can't be set.
+    /// </summary>
+    public ImmutableList<Item> UnknownItems => _pouch is IUnmappedItems pouch
+        ? pouch.UnmappedItems
+            .Select(item => new Item(new InventoryItem { Count = item.Count }, _ => ItemDefinition.Unmapped(item.Id)))
+            .ToImmutableList()
+        : [];
 
     /// <summary>
     /// Returns the max count a single item can have

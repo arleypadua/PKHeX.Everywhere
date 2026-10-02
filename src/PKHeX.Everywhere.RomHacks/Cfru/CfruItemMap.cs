@@ -10,8 +10,6 @@ public sealed class CfruItemMap
         ..ItemStorage7USUM.GetAllHeld(), ..ItemStorage8SWSH.GetAllHeld(), ..ItemStorage9SV.GetAllHeld(), ..ItemStorage9ZA.GetAllHeld(),
     ];
 
-    private static readonly HashSet<ushort> Machines = [..ItemStorage9SV.Machine];
-
     private readonly ushort[] _modernByIndex;
     private readonly Dictionary<ushort, ushort> _indexByModern;
 
@@ -24,12 +22,15 @@ public sealed class CfruItemMap
             .DistinctBy(entry => entry.Item)
             .ToDictionary(entry => entry.Item, entry => entry.Index);
         HeldItems = _indexByModern.Keys
-            .Where(item => Holdable.Contains(item) && !Machines.Contains(item) && !ItemStorage8SWSH.IsTechRecord(item))
+            .Where(item => Holdable.Contains(item) && !CfruItemStorage.Machines.Contains(item) && !ItemStorage8SWSH.IsTechRecord(item))
             .Order()
             .ToArray();
+        Pockets = new CfruItemStorage(_indexByModern.Keys);
     }
 
     public ushort[] HeldItems { get; }
+
+    public CfruItemStorage Pockets { get; }
 
     public ushort ToModern(ushort index) => index < _modernByIndex.Length ? _modernByIndex[index] : (ushort)0;
 

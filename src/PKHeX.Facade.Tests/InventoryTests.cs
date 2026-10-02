@@ -109,6 +109,23 @@ public class InventoryTests
     }
 
     [Theory]
+    [SupportedSaveFiles]
+    public void Inventories_EditsToTwoPouches_ShouldBothSurvive(string saveFile)
+    {
+        var game = Game.LoadFrom(saveFile);
+        var pouches = game.Trainer.Inventories.InventoryItems.Values.Take(2).ToArray();
+        var edits = pouches.Select(pouch => (pouch.Type, Item: pouch.CurrentSupportedItems.First())).ToArray();
+
+        foreach (var (type, item) in edits) game.Trainer.Inventories[type].Set(item.Id, 1);
+
+        game.SaveAndReload(reloaded =>
+        {
+            foreach (var (type, item) in edits)
+                reloaded.Trainer.Inventories[type].Items.Should().ContainSingle(i => i.Id == item.Id && i.Count == 1);
+        });
+    }
+
+    [Theory]
     [InlineData(SaveFilePath.Emerald, "Items")]
     [InlineData(SaveFilePath.Crystal, "Items")]
     public void TrySet_NewItemInAFullPouch_ShouldReturnFalseAndLeaveThePouchUnchanged(string saveFile, string pouch)

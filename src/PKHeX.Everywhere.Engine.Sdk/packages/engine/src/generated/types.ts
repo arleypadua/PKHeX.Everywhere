@@ -5,7 +5,7 @@ export type ActionPlacement = 'quick' | 'pokemon' | 'pokemonStats'
 
 /** An item the pouch can hold that the trainer doesn't have yet. */
 export interface AddableItem {
-  /** The item's id in the save's own item list. From Generation 4 on, these are PKHeX.Core item ids; Generation 1 to 3 saves use their game's own numbering. */
+  /** The item's id in the save's own item list. From Generation 4 on, and in ROM hack saves, these are PKHeX.Core item ids; other Generation 1 to 3 saves use their game's own numbering. */
   id: number
   name: string
   /** The highest count `inventory.setItem` accepts for this item in this pouch. */
@@ -332,7 +332,7 @@ export interface MoveSlot {
 
 /** An item the trainer holds in a pouch. */
 export interface OwnedItem {
-  /** The item's id in the save's own item list. From Generation 4 on, these are PKHeX.Core item ids; Generation 1 to 3 saves use their game's own numbering. */
+  /** The item's id in the save's own item list. From Generation 4 on, and in ROM hack saves, these are PKHeX.Core item ids; other Generation 1 to 3 saves use their game's own numbering. 0 when the save stores an item PKHeX has no id for, such as a ROM hack's own item. `name` is then `Unknown item #n`, and `inventory.setItem` can't change it. */
   id: number
   name: string
   /** How many the trainer holds. */

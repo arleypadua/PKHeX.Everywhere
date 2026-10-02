@@ -6,10 +6,13 @@ namespace PKHeX.Facade;
 public class Inventories
 {
     private readonly Game _game;
+    // A pouch commits the whole bag, so every pouch shares one bag to keep edits to the others.
+    private readonly Lazy<PlayerBag> _bag;
 
     public Inventories(Game game)
     {
         _game = game;
+        _bag = new Lazy<PlayerBag>(() => game.SaveFile.Inventory);
 
         InventoryTypes = GetInventoryTypes();
         InventoryItems = GetInventories();
@@ -38,7 +41,7 @@ public class Inventories
     {
         try
         {
-            return _game.SaveFile.Inventory.Pouches.Select(i => i.Type.ToString()).ToImmutableHashSet();
+            return _bag.Value.Pouches.Select(i => i.Type.ToString()).ToImmutableHashSet();
         }
         catch (ArgumentOutOfRangeException) when (_game.SaveFile is SAV8LA)
         {
@@ -49,7 +52,7 @@ public class Inventories
 
     private ImmutableDictionary<string, Inventory> GetInventories() => InventoryTypes.ToImmutableDictionary(
         type => type,
-        type => new Inventory(type, _game)
+        type => new Inventory(type, _game, _bag.Value)
     );
 }
 

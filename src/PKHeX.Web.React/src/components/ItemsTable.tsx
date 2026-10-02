@@ -5,6 +5,8 @@ import { NumberFilter } from './filters/NumberFilter'
 import { containsText } from './filters/containsText'
 import { TextFilter } from './filters/TextFilter'
 
+const isUnknown = (item: OwnedItem) => item.id === 0
+
 interface ItemsTableProps {
   items: OwnedItem[]
   onEdit: (item: OwnedItem) => void
@@ -34,17 +36,18 @@ export function ItemsTable({ items, onEdit }: ItemsTableProps) {
     {
       title: 'Action',
       key: 'action',
-      render: (_, item) => (
-        <Button type="link" onClick={() => onEdit(item)}>
-          Edit
-        </Button>
-      ),
+      render: (_, item) =>
+        !isUnknown(item) && (
+          <Button type="link" onClick={() => onEdit(item)}>
+            Edit
+          </Button>
+        ),
     },
   ]
 
   return (
     <Table
-      rowKey="id"
+      rowKey={(item) => (isUnknown(item) ? item.name : item.id)}
       dataSource={items}
       columns={columns}
       size="small"
