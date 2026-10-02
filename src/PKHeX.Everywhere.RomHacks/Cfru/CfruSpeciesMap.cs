@@ -1,8 +1,5 @@
 namespace PKHeX.Everywhere.RomHacks.Cfru;
 
-/// <summary>
-/// Translates a hack's species indices to national species and forms, and back.
-/// </summary>
 public sealed class CfruSpeciesMap
 {
     private readonly (ushort Species, byte Form)[] _nationalByIndex;

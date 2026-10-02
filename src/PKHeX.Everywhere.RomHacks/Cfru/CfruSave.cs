@@ -40,12 +40,7 @@ public abstract class CfruSave : SaveFile
             _blocks[ReadUInt16LittleEndian(data.AsSpan(offset + 0xFF4))] = offset;
         }
 
-        var position = 0;
-        foreach (var region in BoxRegions())
-        {
-            region.Span.CopyTo(_boxes.AsSpan(position));
-            position += region.Length;
-        }
+        CopyBoxStream(toSave: false);
 
         Party = 0;
         Box = 0;
@@ -62,13 +57,17 @@ public abstract class CfruSave : SaveFile
             if (!IsValidSlot(data[slot..(slot + SlotSize)], signatures)) continue;
 
             var index = ReadUInt32LittleEndian(data[(slot + 0xFFC)..]);
-            if (active is not null && index <= activeIndex) continue;
+            if (active is not null && !IsNewer(index, activeIndex)) continue;
             active = slot;
             activeIndex = index;
         }
 
         return active;
     }
+
+    // The save counter wraps from uint.MaxValue to 0.
+    private static bool IsNewer(uint index, uint than) => index == 0 && than == uint.MaxValue
+        || (index > than && !(index == uint.MaxValue && than == 0));
 
     private static bool IsValidSlot(ReadOnlySpan<byte> slot, IReadOnlyCollection<uint> signatures)
     {
@@ -88,18 +87,22 @@ public abstract class CfruSave : SaveFile
 
     private Span<byte> Block(int block) => Data.Slice(BlockOffset(block), SectorSize);
 
-    private IEnumerable<Memory<byte>> BoxRegions() =>
-        BoxStream.Select(region => Buffer.Slice(BlockOffset(region.Block) + region.Start, region.End - region.Start));
+    private void CopyBoxStream(bool toSave)
+    {
+        var position = 0;
+        foreach (var (block, start, end) in BoxStream)
+        {
+            var region = Data.Slice(BlockOffset(block) + start, end - start);
+            var boxes = _boxes.AsSpan(position, region.Length);
+            if (toSave) boxes.CopyTo(region);
+            else region.CopyTo(boxes);
+            position += region.Length;
+        }
+    }
 
     protected override Memory<byte> GetFinalData()
     {
-        var position = 0;
-        foreach (var region in BoxRegions())
-        {
-            _boxes.AsSpan(position, region.Length).CopyTo(region.Span);
-            position += region.Length;
-        }
-
+        CopyBoxStream(toSave: true);
         SetChecksums();
         return Data.ToArray();
     }
