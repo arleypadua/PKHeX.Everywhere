@@ -538,6 +538,9 @@ public class UnboundSaveTests
         Owned(Pouch(LoadedUnbound(Exported(session)), "Items")).Where(owned => owned.Id == 0).Should().Equal(unknown);
     }
 
+    // The key items pocket isn't listed yet, so its bytes are checked where they follow the main pocket in sector 30.
+    private static readonly Range KeyItems = 0x1E1F0..0x1E31C;
+
     [Fact]
     public void TheMainPocketHolds450EntriesAndKeepsTheOtherPockets()
     {
@@ -550,9 +553,11 @@ public class UnboundSaveTests
             bag.CopyTo(save);
         });
 
-        var reloaded = LoadedUnbound(Exported(LoadedUnbound(full)));
+        var exported = Exported(LoadedUnbound(full));
+        var reloaded = LoadedUnbound(exported);
 
         Owned(Pouch(reloaded, "Items")).Should().HaveCount(450);
+        exported[KeyItems].Should().Equal(Fixture[KeyItems]);
         new[] { "Balls", "TMHMs", "Berries" }.Select(pouch => Owned(Pouch(reloaded, pouch))).Should().BeEquivalentTo(others);
         Error(SetItem(reloaded, "Items", Pouch(reloaded, "Items")["addable"]!.AsArray().First()!["id"]!.GetValue<int>(), 1))
             .Should().Be("pouch-full");

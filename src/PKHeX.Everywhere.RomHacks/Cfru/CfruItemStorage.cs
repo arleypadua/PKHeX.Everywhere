@@ -6,7 +6,7 @@ namespace PKHeX.Everywhere.RomHacks.Cfru;
 // Some key items, like the Escape Rope, became key items in later games, so an item any game lets a Pokémon hold isn't one.
 public sealed class CfruItemStorage : IItemStorage
 {
-    private static readonly HashSet<ushort> Machines =
+    internal static readonly HashSet<ushort> Machines =
     [
         ..ItemStorage4.Machine, ..ItemStorage5.Machine, ..ItemStorage6AO.Machine, ..ItemStorage7SM.Machine,
         ..ItemStorage8BDSP.Machine, ..ItemStorage9SV.Machine, ..ItemStorage9ZA.TM,

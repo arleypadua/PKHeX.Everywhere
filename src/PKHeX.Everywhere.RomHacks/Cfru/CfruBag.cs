@@ -7,14 +7,11 @@ namespace PKHeX.Everywhere.RomHacks.Cfru;
 /// </summary>
 public sealed class CfruBag : PlayerBag
 {
-    private const int SlotSize = 4;
     private const int MainPocket = 0xAD8;
     private const int MainSlots = 450;
-    private const int MainSlotsInBlock = (0xFF0 - MainPocket) / SlotSize;
+    private const int MainSlotsInBlock = (0xFF0 - MainPocket) / CfruPouch.SlotSize;
 
-    // CFRU keeps the pockets in one run of memory that is saved to block 13 from the main pocket on, then to sector 30.
-    // Main items overflow into the start of sector 30, followed by 75 key items at 0x1F0.
-    // TMs are reusable, so the game holds one of each.
+    // The main pocket runs past block 13 into the start of sector 30. TMs are reusable, so the game holds one of each.
     public CfruBag(ReadOnlySpan<byte> data, int block13, int sector30, CfruItemMap map)
     {
         Info = map.Pockets;

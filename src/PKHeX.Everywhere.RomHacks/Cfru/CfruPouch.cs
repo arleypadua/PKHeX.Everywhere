@@ -10,7 +10,7 @@ namespace PKHeX.Everywhere.RomHacks.Cfru;
 public sealed class CfruPouch(InventoryType type, IItemStorage info, int maxCount, CfruItemMap map, params (int Offset, int Slots)[] regions)
     : InventoryPouch(type, info, maxCount, 0, regions.Sum(region => region.Slots)), IUnmappedItems
 {
-    private const int SlotSize = 4;
+    public const int SlotSize = 4;
 
     private InventoryItem[] _items = [];
     private (int Slot, ushort Id, int Count)[] _unmapped = [];
