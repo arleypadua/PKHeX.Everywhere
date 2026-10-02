@@ -1,11 +1,15 @@
-import { afterEach, describe, expect, it } from 'vitest'
-import { wasmHost, type DotnetRuntime } from '../src'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { DotnetRuntime, WasmHostOptions } from '../src'
+import type { EngineHost } from '../src'
 import { version } from '../package.json'
 
-function fakeDotnet({ failMain = false } = {}) {
+let wasmHost: (options?: WasmHostOptions) => EngineHost
+
+function fakeDotnet({ failMain = false, progress = [] as [number, number][] } = {}) {
   const loaded: string[] = []
   const moduleImports = new Map<string, Record<string, unknown>>()
   let created = 0
+  let onProgress: ((loaded: number, total: number) => void) | undefined
   let mainRuns = 0
   const runtime: DotnetRuntime = {
     setModuleImports: (name, imports) => void moduleImports.set(name, imports),
@@ -20,8 +24,13 @@ function fakeDotnet({ failMain = false } = {}) {
     loaded.push(url)
     return {
       dotnet: {
+        withModuleConfig(config: { onDownloadResourceProgress?: (loaded: number, total: number) => void }) {
+          onProgress = config.onDownloadResourceProgress
+          return this
+        },
         create: async () => {
           created++
+          for (const [done, total] of progress) onProgress?.(done, total)
           return runtime
         },
       },
@@ -34,7 +43,13 @@ const hex = (bytes: Uint8Array) => Array.from(bytes, (b) => b.toString(16).padSt
 const bytes = (hexString: string) => Uint8Array.from(hexString.match(/../g)!, (b) => parseInt(b, 16))
 
 describe('wasmHost', () => {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ wasmHost } = await import('../src/wasmHost'))
+  })
+
   afterEach(() => {
+    vi.restoreAllMocks()
     globalThis.pkhexEngineOnChange = undefined
     globalThis.pkhexEngineOnEvent = undefined
     Reflect.deleteProperty(globalThis, 'document')
@@ -101,18 +116,66 @@ describe('wasmHost', () => {
     await expect(host.ready()).rejects.toThrow('Main failed')
   })
 
-  it('passes changes and events from .NET to the listeners', () => {
-    const host = wasmHost({ load: fakeDotnet().load })
+  it('passes changes and events from .NET to every listener', () => {
     const changes: string[][] = []
     const events: string[] = []
-    host.onChange((topics) => changes.push(topics))
-    host.onEvent((event) => events.push(event))
+    wasmHost({ load: fakeDotnet().load }).onChange((topics) => changes.push(['first', ...topics]))
+    wasmHost().onChange((topics) => changes.push(['second', ...topics]))
+    wasmHost().onEvent((event) => events.push(`first ${event}`))
+    wasmHost().onEvent((event) => events.push(`second ${event}`))
 
     globalThis.pkhexEngineOnChange?.(['party'])
     globalThis.pkhexEngineOnEvent?.('{"type":"gameExported"}')
 
-    expect(changes).toEqual([['party']])
-    expect(events).toEqual(['{"type":"gameExported"}'])
+    expect(changes).toEqual([
+      ['first', 'party'],
+      ['second', 'party'],
+    ])
+    expect(events).toEqual(['first {"type":"gameExported"}', 'second {"type":"gameExported"}'])
+  })
+
+  it('returns the same runtime on every call', async () => {
+    const dotnet = fakeDotnet()
+
+    const first = wasmHost({ load: dotnet.load })
+    const second = wasmHost({ load: dotnet.load })
+    await first.ready()
+    await second.ready()
+
+    expect(second).toBe(first)
+    expect(dotnet.created()).toBe(1)
+  })
+
+  it('warns when a later call asks for a different dotnetUrl', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    wasmHost({ dotnetUrl: '/a/dotnet.js', load: fakeDotnet().load })
+    wasmHost({ dotnetUrl: '/a/dotnet.js' })
+    expect(warn).not.toHaveBeenCalled()
+
+    wasmHost({ dotnetUrl: '/b/dotnet.js' })
+    expect(warn).toHaveBeenCalledOnce()
+    expect(warn.mock.calls[0][0]).toContain('/b/dotnet.js')
+  })
+
+  it('reports download progress in files', async () => {
+    const host = wasmHost({ load: fakeDotnet({ progress: [[1, 3], [2, 3], [3, 3]] }).load })
+    const progress: [number, number][] = []
+    host.onProgress?.((loaded, total) => progress.push([loaded, total]))
+
+    await host.ready()
+
+    expect(progress).toEqual([[1, 3], [2, 3], [3, 3]])
+  })
+
+  it('reports the latest progress to listeners added after the download', async () => {
+    const host = wasmHost({ load: fakeDotnet({ progress: [[1, 2], [2, 2]] }).load })
+    await host.ready()
+    const progress: [number, number][] = []
+
+    host.onProgress?.((loaded, total) => progress.push([loaded, total]))
+
+    expect(progress).toEqual([[2, 2]])
   })
 
   describe('crypto for .NET', () => {

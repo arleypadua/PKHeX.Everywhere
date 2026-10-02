@@ -26,6 +26,20 @@ console.log(party.map((pokemon) => `${pokemon.species} Lv. ${pokemon.level}`))
 
 `game.load` takes the save as base64. Commands that fail reject with an `EngineError`, whose `code` is one of `errorCodes`. Use `engine.subscribe(topics, callback)` to get a callback when a command changes the save.
 
+## Boot status
+
+In a browser, `createEngine()` starts downloading the runtime right away. Pass `{ lazy: true }` to wait for the first call instead. On a server it does nothing until called.
+
+`engine.status` is `{ state, loaded, total, error? }`, where `state` is `idle`, `booting`, `ready` or `failed`, and `loaded` and `total` count downloaded files. `engine.onStatusChange(listener)` returns a function that stops listening:
+
+```ts
+engine.onStatusChange(({ state, loaded, total }) => {
+  if (state === 'booting') progress.value = total ? loaded / total : 0
+})
+```
+
+If the runtime fails to load, `state` becomes `failed` and every call rejects with the error.
+
 ## Where the runtime loads from
 
 By default the browser loads `_framework/dotnet.js` from jsDelivr, pinned to the installed version of this package.
@@ -60,6 +74,8 @@ const engine = createEngine({ host: wasmHost({ dotnetUrl: '/_framework/dotnet.js
 ```
 
 `dotnetUrl` also works with the Vite plugin, for example to load the runtime from your own CDN.
+
+A page has one runtime. Every `wasmHost()` call returns it, so engines created on the same page share it. The first call picks the URL, and a later call with a different `dotnetUrl` logs a warning.
 
 ## License
 
