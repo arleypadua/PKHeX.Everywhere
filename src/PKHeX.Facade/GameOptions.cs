@@ -14,6 +14,7 @@ public class GameOptions(SaveFile saveFile)
     public IReadOnlyList<Choice> Balls => ToChoices(_source.Value.Balls.Where(ball => ball.Value > 0));
     public IReadOnlyList<Choice> Languages => saveFile.Generation >= 3 ? ToChoices(_source.Value.Languages) : [];
     public IReadOnlyList<Choice> HeldItems => ToChoices(_source.Value.Items);
+    public IReadOnlyList<Choice> OriginGames => saveFile.Generation >= 3 ? ToChoices(_source.Value.Games) : [];
 
     private static Choice[] ToChoices(IEnumerable<ComboItem> items) => items.Select(item => new Choice(item.Value, item.Text)).ToArray();
 }

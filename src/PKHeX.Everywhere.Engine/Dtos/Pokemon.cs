@@ -1,3 +1,4 @@
+using System.Globalization;
 using PKHeX.Facade;
 using PKHeX.Facade.Pokemons;
 
@@ -82,6 +83,11 @@ public record EditablePokemon(
     string HandlingTrainerName,
     TrainerGender HandlingTrainerGender,
     PokemonHandler CurrentHandler,
+    int Version,
+    int MetLocation,
+    int MetLevel,
+    string? MetDate,
+    bool FatefulEncounter,
     Legality Legality);
 
 public record PokemonPatch(
@@ -105,11 +111,16 @@ public record PokemonPatch(
     TrainerGender? OriginalTrainerGender = null,
     string? HandlingTrainerName = null,
     TrainerGender? HandlingTrainerGender = null,
-    PokemonHandler? CurrentHandler = null);
+    PokemonHandler? CurrentHandler = null,
+    int? Version = null,
+    int? MetLocation = null,
+    int? MetLevel = null,
+    string? MetDate = null,
+    bool? FatefulEncounter = null);
 
 public record Choice(int Id, string Name);
 
-public record PokemonOptions(Choice[] Species, Choice[] Abilities, Choice[] Forms);
+public record PokemonOptions(Choice[] Species, Choice[] Abilities, Choice[] Forms, Choice[] MetLocations);
 
 public static class PokemonMapping
 {
@@ -153,6 +164,11 @@ public static class PokemonMapping
         details.HandlingTrainerName,
         details.HandlingTrainerGender.ToTrainerGender(),
         details.CurrentHandler.ToDto(),
+        details.Version,
+        details.MetLocation,
+        details.MetLevel,
+        details.MetDate?.ToString(DateFormat, CultureInfo.InvariantCulture),
+        details.FatefulEncounter,
         new Legality(details.Legality.Valid, details.Legality.Messages.ToArray()));
 
     public static Facade.Pokemons.PokemonPatch ToFacade(this PokemonPatch patch) => new(
@@ -176,7 +192,19 @@ public static class PokemonMapping
         patch.OriginalTrainerGender?.ToGender(),
         patch.HandlingTrainerName,
         patch.HandlingTrainerGender?.ToGender(),
-        patch.CurrentHandler?.ToHandler());
+        patch.CurrentHandler?.ToHandler(),
+        patch.Version,
+        patch.MetLocation,
+        patch.MetLevel,
+        patch.MetDate is { } metDate ? ParseMetDate(metDate) : null,
+        patch.FatefulEncounter);
+
+    private const string DateFormat = "yyyy-MM-dd";
+
+    private static DateOnly ParseMetDate(string value) =>
+        DateOnly.TryParseExact(value, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
+            ? date
+            : throw new InvalidPatchException(nameof(PokemonPatch.MetDate), $"Met date must be a yyyy-MM-dd date, got \"{value}\".");
 
     public static PokemonHandler ToDto(this Owner.Handler handler) =>
         handler == Owner.Handler.SomeoneElse ? PokemonHandler.HandlingTrainer : PokemonHandler.OriginalTrainer;
@@ -197,7 +225,8 @@ public static class PokemonMapping
     public static PokemonOptions ToDto(this Facade.Pokemons.PokemonOptions options) => new(
         options.Species.ToChoices(),
         options.Abilities.ToChoices(),
-        options.Forms.ToChoices());
+        options.Forms.ToChoices(),
+        options.MetLocations.ToChoices());
 
     public static Choice[] ToChoices(this IEnumerable<Facade.Pokemons.Choice> choices) =>
         choices.Select(choice => new Choice(choice.Id, choice.Name)).ToArray();

@@ -171,6 +171,11 @@ describe('entity hooks', () => {
       handlingTrainerName: '',
       handlingTrainerGender: 'male',
       currentHandler: 'originalTrainer',
+      version: 7,
+      metLocation: 126,
+      metLevel: 5,
+      metDate: '2021-03-04',
+      fatefulEncounter: false,
       legality: { valid: true, messages: [] },
     }
     const { engine, emitChange } = fakeEngine((name, args) => {
