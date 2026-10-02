@@ -17,14 +17,14 @@ public sealed class WebAppHost : IAsyncDisposable
 
     public Uri BaseAddress { get; }
 
-    public static async Task<WebAppHost> StartAsync(string wwwroot)
+    public static async Task<WebAppHost> StartAsync(string root)
     {
-        var builder = WebApplication.CreateSlimBuilder(new WebApplicationOptions { WebRootPath = wwwroot });
+        var builder = WebApplication.CreateSlimBuilder(new WebApplicationOptions { WebRootPath = root });
         builder.Logging.ClearProviders();
         builder.WebHost.UseKestrel().UseUrls("http://127.0.0.1:0");
 
         var app = builder.Build();
-        var files = new PhysicalFileProvider(wwwroot);
+        var files = new PhysicalFileProvider(root);
         app.UseStaticFiles(new StaticFileOptions
         {
             FileProvider = files,

@@ -11,4 +11,4 @@ RuntimeCryptographyProvider.Md5 = new JsMd5Provider();
 
 _ = new PlugInHost(Session.Current);
 
-EngineExports.SignalReady();
+EngineExports.ForwardSessionToJs();

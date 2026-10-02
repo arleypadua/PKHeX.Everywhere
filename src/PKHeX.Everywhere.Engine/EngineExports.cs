@@ -9,8 +9,7 @@ public static partial class EngineExports
     [JSExport]
     public static Task<string> Call(string name, string args) => Dispatcher.Dispatch(Session.Current, name, args);
 
-    // The Engine host signals from Main. The flag covers JS that starts waiting after the signal, the callback covers JS that is already waiting.
-    public static void SignalReady()
+    public static void ForwardSessionToJs()
     {
         Session.Current.Changed += topics =>
         {
@@ -21,13 +20,7 @@ public static partial class EngineExports
             if (JSHost.GlobalThis.GetTypeOfProperty("pkhexEngineOnEvent") == "function" && Session.Current.Serialize(engineEvent) is { } json)
                 OnEvent(json);
         };
-
-        JSHost.GlobalThis.SetProperty("pkhexEngineReady", true);
-        if (JSHost.GlobalThis.GetTypeOfProperty("pkhexEngineOnReady") == "function") OnReady();
     }
-
-    [JSImport("globalThis.pkhexEngineOnReady")]
-    private static partial void OnReady();
 
     [JSImport("globalThis.pkhexEngineOnChange")]
     private static partial void OnChange([JSMarshalAs<JSType.Array<JSType.String>>] string[] topics);
