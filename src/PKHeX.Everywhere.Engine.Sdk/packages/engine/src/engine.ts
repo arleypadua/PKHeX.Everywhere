@@ -114,7 +114,7 @@ export function createEngine({ host = wasmHost(), lazy = false }: { host?: Engin
     return () => void failureListeners.delete(listener)
   }
 
-  const onChange = shared<string[]>((notify) => host.onChange(notify))
+  const onChange = whileListened<string[]>((notify) => host.onChange(notify))
 
   function subscribe(topics: readonly Topic[], callback: (changed: Topic[]) => void) {
     return onChange((changed) => {
@@ -122,7 +122,7 @@ export function createEngine({ host = wasmHost(), lazy = false }: { host?: Engin
     })
   }
 
-  const onEvent = shared<EngineEvent>((notify) => host.onEvent((json) => notify(JSON.parse(json) as EngineEvent)))
+  const onEvent = whileListened<EngineEvent>((notify) => host.onEvent((json) => notify(JSON.parse(json) as EngineEvent)))
 
   const engine: Engine = {
     ...createClient(call),
@@ -139,7 +139,7 @@ export function createEngine({ host = wasmHost(), lazy = false }: { host?: Engin
   return engine
 }
 
-function shared<T>(attach: (notify: (value: T) => void) => void | (() => void)) {
+function whileListened<T>(attach: (notify: (value: T) => void) => void | (() => void)) {
   const listeners = new Set<(value: T) => void>()
   let attached = false
   let detach: void | (() => void)
@@ -147,10 +147,10 @@ function shared<T>(attach: (notify: (value: T) => void) => void | (() => void)) 
   return (listener: (value: T) => void) => {
     listeners.add(listener)
     if (!attached) {
-      attached = true
       detach = attach((value) => {
-        for (const listener of [...listeners]) listener(value)
+        for (const notify of [...listeners]) notify(value)
       })
+      attached = true
     }
     return () => {
       if (!listeners.delete(listener) || listeners.size > 0 || !detach) return

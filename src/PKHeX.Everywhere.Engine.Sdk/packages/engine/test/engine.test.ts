@@ -196,14 +196,19 @@ describe('createEngine', () => {
     expect(events).toEqual([{ type: 'itemChanged', itemId: 4, count: 2 }])
   })
 
-  it('works with hosts that return nothing when listening', () => {
-    const { host: inner, emitChange, emitEvent } = fakeHost(() => ({ ok: true, value: null }))
+  it('works with hosts that return nothing when listening', async () => {
+    vi.stubGlobal('window', {})
+    const { host: inner, signalReady, emitChange, emitEvent } = fakeHost(() => ({ ok: true, value: null }))
     const host: EngineHost = {
       ...inner,
       onChange: (listener) => void inner.onChange(listener),
       onEvent: (listener) => void inner.onEvent(listener),
+      onProgress: (listener) => void inner.onProgress?.(listener),
     }
     const engine = createEngine({ host })
+    vi.unstubAllGlobals()
+    signalReady()
+    await engine.ready
     const changes: string[][] = []
     const events: EngineEvent[] = []
 
