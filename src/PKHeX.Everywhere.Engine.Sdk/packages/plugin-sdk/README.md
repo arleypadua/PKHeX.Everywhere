@@ -2,7 +2,7 @@
 
 Types for the page modules of [PKHeX.Everywhere](https://pkhex-web.github.io) plug-ins.
 
-**[Writing a plugin](https://arley-space--docs.wawesome.app/docs/guides/plugins/)** · [API reference](https://arley-space--docs.wawesome.app/docs/reference/plugin-sdk/)
+**[Writing a plugin](https://docs.pkhex-everywhere.fyi/docs/guides/plugins/)** · [API reference](https://docs.pkhex-everywhere.fyi/docs/reference/plugin-sdk/)
 
 ## Install
 

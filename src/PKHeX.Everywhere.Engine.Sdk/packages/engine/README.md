@@ -2,7 +2,7 @@
 
 Runs PKHeX in the browser. Load a Pokémon save file, read and edit it, and export it. The package contains the .NET runtime with PKHeX.Core.
 
-**[Documentation](https://arley-space--docs.wawesome.app/docs/)** · [Getting started](https://arley-space--docs.wawesome.app/docs/getting-started/) · [API reference](https://arley-space--docs.wawesome.app/docs/reference/engine/)
+**[Documentation](https://docs.pkhex-everywhere.fyi/docs/)** · [Getting started](https://docs.pkhex-everywhere.fyi/docs/getting-started/) · [API reference](https://docs.pkhex-everywhere.fyi/docs/reference/engine/)
 
 ## Install
 
