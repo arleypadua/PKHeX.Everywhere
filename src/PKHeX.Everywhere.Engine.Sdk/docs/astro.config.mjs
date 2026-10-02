@@ -19,6 +19,36 @@ const typeDocOptions = {
   displayBasePath: fileURLToPath(new URL('../../..', import.meta.url)),
 }
 
+const measurementId = 'G-V7YFZ3P3JV'
+
+const googleAnalytics = process.env.DOCS_GOOGLE_ANALYTICS === 'true'
+  ? [
+      {
+        tag: 'script',
+        content: `window.dataLayer = window.dataLayer || []
+window.gtag = function () { dataLayer.push(arguments) }
+gtag('consent', 'default', {
+  ad_storage: 'denied',
+  ad_user_data: 'denied',
+  ad_personalization: 'denied',
+  analytics_storage: 'granted',
+})
+gtag('consent', 'default', {
+  analytics_storage: 'denied',
+  region: ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT',
+    'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO',
+    'GB', 'CH'],
+})
+gtag('js', new Date())
+gtag('config', '${measurementId}')`,
+      },
+      {
+        tag: 'script',
+        attrs: { async: true, src: `https://www.googletagmanager.com/gtag/js?id=${measurementId}` },
+      },
+    ]
+  : []
+
 export default defineConfig({
   site: 'https://docs.pkhex-everywhere.fyi',
   integrations: [
@@ -37,6 +67,7 @@ export default defineConfig({
   }
 })`,
         },
+        ...googleAnalytics,
       ],
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/arleypadua/PKHeX.Everywhere' },
