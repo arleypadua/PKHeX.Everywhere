@@ -8,6 +8,7 @@ import { AdSlot } from '../../components/AdSlot'
 import { downloadFile, romHacksEnabled, useNavigate } from '../../host'
 import { journey } from '../../layout/journey'
 import { routes } from '../../routes'
+import { FormatPickerModal } from './FormatPickerModal'
 import { LoadRomHackModal } from './LoadRomHackModal'
 import { useLoadSave } from './useLoadSave'
 
@@ -17,7 +18,7 @@ const swordVersionId = 44
 
 export default function LoadPage() {
   const { game } = useLoadedGame()
-  const { openFile, openDemo } = useLoadSave()
+  const { openFile, openDemo, formatChoice, chooseFormat, cancelFormatChoice } = useLoadSave()
   const fileInput = useRef<HTMLInputElement>(null)
 
   const openFilePicker = () => fileInput.current?.click()
@@ -34,6 +35,7 @@ export default function LoadPage() {
       {game ? <LoadedGame game={game} onOpen={openFilePicker} /> : <NoGame onOpen={openFilePicker} onDemo={openDemo} />}
       <AdSlot slot={bottomAdSlot} />
       <input ref={fileInput} type="file" hidden onChange={loadFile} />
+      {formatChoice && <FormatPickerModal choice={formatChoice} onChoose={chooseFormat} onCancel={cancelFormatChoice} />}
     </Flex>
   )
 }

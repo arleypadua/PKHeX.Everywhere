@@ -1,16 +1,21 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { App } from 'antd'
-import { EngineError, type ErrorCode } from '@pkhex-everywhere/engine'
+import { EngineError, type FormatEntry } from '@pkhex-everywhere/engine'
 import { useEngine } from '@pkhex-everywhere/react'
+import { romHacksEnabled } from '../../host'
+import { loadFailure } from './loadFailure'
 
 const maxFileSize = 6 * 1024 * 1024
 
-// Until there is a format picker, a save that might be a ROM hack gets the same message as any unrecognized file.
-const unsupported: ErrorCode[] = ['invalid-save', 'format-choice-required']
+export interface FormatChoice {
+  file: File
+  candidates: FormatEntry[]
+}
 
 export function useLoadSave() {
   const engine = useEngine()
   const { notification } = App.useApp()
+  const [formatChoice, setFormatChoice] = useState<FormatChoice>()
 
   const openFile = useCallback(
     async (file: File, formatId?: string) => {
@@ -22,13 +27,26 @@ export function useLoadSave() {
         await engine.game.load(file, undefined, formatId)
         return true
       } catch (error) {
-        if (!(error instanceof EngineError) || !unsupported.includes(error.code)) throw error
-        notification.error({ title: `'${file.name}' is not a supported save file.`, description: 'The file is not a valid save file.' })
+        const failure = loadFailure(error, romHacksEnabled)
+        if (!failure) throw error
+        if (failure.kind === 'formatChoice') setFormatChoice({ file, candidates: failure.candidates })
+        else notification.error({ title: `'${file.name}' is not a supported save file.`, description: 'The file is not a valid save file.' })
         return false
       }
     },
     [engine, notification],
   )
+
+  const chooseFormat = useCallback(
+    async (formatId: string) => {
+      if (!formatChoice) return
+      setFormatChoice(undefined)
+      await openFile(formatChoice.file, formatId)
+    },
+    [formatChoice, openFile],
+  )
+
+  const cancelFormatChoice = useCallback(() => setFormatChoice(undefined), [])
 
   const openDemo = useCallback(async () => {
     try {
@@ -41,5 +59,5 @@ export function useLoadSave() {
     }
   }, [engine, notification])
 
-  return { openFile, openDemo }
+  return { openFile, openDemo, formatChoice, chooseFormat, cancelFormatChoice }
 }
