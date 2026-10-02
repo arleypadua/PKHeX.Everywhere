@@ -1,47 +1,17 @@
-import { cpSync, createReadStream, existsSync, statSync } from 'node:fs'
-import { extname, join, relative, resolve } from 'node:path'
-import { defaultClientConditions, defineConfig, type Plugin } from 'vite'
+import { join, resolve } from 'node:path'
+import { defaultClientConditions, defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import pkhexEngine from '@pkhex-everywhere/engine/vite'
 
 const host = resolve(import.meta.dirname, '../PKHeX.Everywhere.Engine.Host/bin')
 const debugFramework = join(host, 'Debug/net10.0/wwwroot/_framework')
 const publishedFramework = join(host, 'Release/net10.0/publish/wwwroot/_framework')
 
-const contentTypes: Record<string, string> = {
-  '.js': 'text/javascript',
-  '.wasm': 'application/wasm',
-  '.json': 'application/json',
-  '.map': 'application/json',
-}
-
-function engineHost(): Plugin {
-  return {
-    name: 'engine-host',
-    configureServer(server) {
-      server.middlewares.use('/_framework', (req, res) => {
-        const file = join(debugFramework, new URL(req.url ?? '/', 'http://localhost').pathname)
-        if (relative(debugFramework, file).startsWith('..') || !existsSync(file) || !statSync(file).isFile()) {
-          res.statusCode = 404
-          return res.end()
-        }
-        res.setHeader('Content-Type', contentTypes[extname(file)] ?? 'application/octet-stream')
-        res.setHeader('Cache-Control', 'no-cache')
-        createReadStream(file).pipe(res)
-      })
-    },
-    writeBundle({ dir }) {
-      if (!existsSync(publishedFramework))
-        throw new Error(`${publishedFramework} is missing. Run 'dotnet publish ../PKHeX.Everywhere.Engine.Host -c Release' first.`)
-      cpSync(publishedFramework, join(dir!, '_framework'), {
-        recursive: true,
-        filter: (source) => !/\.(br|gz)$/.test(source),
-      })
-    },
-  }
-}
-
-export default defineConfig({
-  plugins: [react(), engineHost()],
+export default defineConfig(({ command }) => ({
+  plugins: [
+    react(),
+    pkhexEngine({ frameworkDir: command === 'serve' ? debugFramework : publishedFramework }),
+  ],
   resolve: { preserveSymlinks: true, conditions: ['source', ...defaultClientConditions] },
   server: { port: 5173, strictPort: true },
-})
+}))

@@ -28,13 +28,38 @@ console.log(party.map((pokemon) => `${pokemon.species} Lv. ${pokemon.level}`))
 
 ## Where the runtime loads from
 
-By default the browser loads `_framework/dotnet.js` from jsDelivr, pinned to the installed version of this package. To serve the runtime yourself, copy `node_modules/@pkhex-everywhere/engine/_framework` to your site and pass its URL:
+By default the browser loads `_framework/dotnet.js` from jsDelivr, pinned to the installed version of this package.
+
+### Vite
+
+To serve the runtime from your own site, add the plugin:
+
+```ts
+import { defineConfig } from 'vite'
+import pkhexEngine from '@pkhex-everywhere/engine/vite'
+
+export default defineConfig({
+  plugins: [pkhexEngine()],
+})
+```
+
+In dev it serves `/_framework`, and at build it copies `_framework` into the output. `createEngine()` then loads `/_framework/dotnet.js` from your site and makes no request to jsDelivr. The plugin serves the `_framework` inside this package. Pass `frameworkDir` to serve another folder:
+
+```ts
+pkhexEngine({ frameworkDir: '/path/to/_framework' })
+```
+
+### Other bundlers
+
+Copy `node_modules/@pkhex-everywhere/engine/_framework` to your site and pass the URL of `dotnet.js`:
 
 ```ts
 import { createEngine, wasmHost } from '@pkhex-everywhere/engine'
 
 const engine = createEngine({ host: wasmHost({ dotnetUrl: '/_framework/dotnet.js' }) })
 ```
+
+`dotnetUrl` also works with the Vite plugin, for example to load the runtime from your own CDN.
 
 ## License
 

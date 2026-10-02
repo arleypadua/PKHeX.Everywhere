@@ -12,9 +12,11 @@ for package in engine react plugin-sdk; do
 done
 
 cd "$here"
-rm -rf node_modules dist
+rm -rf node_modules dist dist-self-hosted
 npm install --include=dev
 npx tsc --noEmit
 npx vite build
+npx vite build --mode self-hosted --outDir dist-self-hosted
 npx playwright install --only-shell chromium
 node smoke.mjs
+node smoke.mjs self-hosted
