@@ -75,6 +75,7 @@ export function usePokemon(at: PokemonHandle) {
       clone: () => engine.pokemon.clone(at),
       commit: () => engine.pokemon.commit(),
       edit: () => engine.pokemon.edit(at),
+      export: () => engine.pokemon.export(at),
       setLevel: (level: number) => engine.pokemon.setLevel(at, level),
       update: (patch: PokemonPatch) => engine.pokemon.update(at, patch),
     }),

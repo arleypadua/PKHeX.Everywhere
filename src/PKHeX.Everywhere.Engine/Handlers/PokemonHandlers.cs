@@ -20,6 +20,13 @@ public static class PokemonHandlers
     [Query("pokemon.options", Topics.Party, Topics.Box, Topics.Draft)]
     public static Dtos.PokemonOptions Options(Session session, PokemonHandle at) => session.Find(at).Pokemon.Options().ToDto();
 
+    [Command("pokemon.export")]
+    public static ExportedPokemon Export(Session session, PokemonHandle at)
+    {
+        var file = session.Find(at).Pokemon.ToFile();
+        return new ExportedPokemon(file.Bytes, file.Name);
+    }
+
     [Command("pokemon.setLevel")]
     public static void SetLevel(Session session, PokemonHandle at, int level)
     {

@@ -329,6 +329,42 @@ public class DraftHandlerTests
         Get(session, PokemonHandle.Party(0))["level"]!.GetValue<int>().Should().NotBe(42);
     }
 
+    [Theory]
+    [MemberData(nameof(SavesAndSlots))]
+    public void ExportReturnsTheDraftWithUnsavedEdits(string saveFile, bool inBox)
+    {
+        var session = Loaded(saveFile);
+        var at = Slot(session, inBox);
+        Edit(session, at);
+        Update(session, Draft, new { nickname = "Sparky" });
+
+        var draft = Exported(session, Draft);
+        var saved = Exported(session, at);
+
+        draft.Pokemon.Nickname.Should().Be("Sparky");
+        draft.FileName.Should().Be(draft.Pokemon.FileName);
+        saved.Pokemon.Nickname.Should().Be(Details(session, at)["nickname"]!.GetValue<string>());
+        saved.FileName.Should().Be(saved.Pokemon.FileName);
+    }
+
+    [Fact]
+    public void PlugInActionChangesShowInTheDraftAfterTheRun()
+    {
+        var session = Loaded(SaveFilePath.Emerald);
+        var host = new PlugInHost(session);
+        host.Register(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "plugins", "PKHeX.Everywhere.Engine.Tests.PlugIn.dll")));
+        host.SetToggle("PKHeX.Everywhere.Engine.Tests.PlugIn", LevelUp, true);
+        Edit(session, PokemonHandle.Party(0));
+        Value(Dispatch(session, "pokemon.setLevel", Args(Draft, 41)));
+        var changes = new List<string[]>();
+        session.Changed += changes.Add;
+
+        Value(Dispatch(session, "plugins.run", Args(LevelUp, Draft)));
+
+        changes.Should().ContainSingle().Which.Should().Contain(Topics.All);
+        Exported(session, Draft).Pokemon.CurrentLevel.Should().Be(42);
+    }
+
     private static PokemonHandle Slot(Session session, bool inBox) =>
         inBox ? FirstBoxPokemon(session.Game!)!.Value.At : PokemonHandle.Party(0);
 
@@ -339,6 +375,13 @@ public class DraftHandlerTests
     private static void Update(Session session, PokemonHandle at, object patch) => Value(Dispatch(session, "pokemon.update", Args(at, patch)));
 
     private static JsonNode Details(Session session, PokemonHandle at) => Value(Dispatch(session, "pokemon.details", Args(at)))!;
+
+    private static (string FileName, PKHeX.Core.PKM Pokemon) Exported(Session session, PokemonHandle at)
+    {
+        var file = Value(Dispatch(session, "pokemon.export", Args(at)))!;
+        var bytes = Convert.FromBase64String(file["bytes"]!.GetValue<string>());
+        return (file["fileName"]!.GetValue<string>(), PKHeX.Core.EntityFormat.GetFromBytes(bytes)!);
+    }
 
     private static JsonNode Get(Session session, PokemonHandle at) => Value(Dispatch(session, "pokemon.get", Args(at)))!;
 }
