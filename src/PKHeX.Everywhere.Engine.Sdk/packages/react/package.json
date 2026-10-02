@@ -1,6 +1,6 @@
 {
   "name": "@pkhex-everywhere/react",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "React hooks for @pkhex-everywhere/engine.",
   "license": "GPL-3.0-or-later",
   "homepage": "https://arley-space--docs.wawesome.app/docs/",
@@ -30,7 +30,7 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@pkhex-everywhere/engine": "^0.2.1",
+    "@pkhex-everywhere/engine": "^0.2.2",
     "react": "^19.0.0"
   },
   "devDependencies": {
