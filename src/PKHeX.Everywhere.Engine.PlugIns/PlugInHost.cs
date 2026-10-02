@@ -19,6 +19,7 @@ public sealed class PlugInHost
     private readonly List<PlugInFailure> _failures = [];
     private readonly IGameProvider _game;
     private readonly AsyncLocal<bool> _runningHook = new();
+    private int _lastFailureId;
 
     public PlugInHost(Session session)
     {
@@ -188,9 +189,9 @@ public sealed class PlugInHost
                ?? throw new EngineException(ErrorCodes.NotFound, $"{plugInId} has no embedded module {page.Module}.");
     }
 
-    public void Dismiss(PlugInFailure failure)
+    public void Dismiss(int failureId)
     {
-        if (_failures.Remove(failure)) _session.Invalidate(Topics.All);
+        if (_failures.RemoveAll(f => f.Id == failureId) > 0) _session.Invalidate(Topics.PlugIns);
     }
 
     public Task Handle(IEngineEvent engineEvent) => engineEvent switch
@@ -228,7 +229,7 @@ public sealed class PlugInHost
         }
         catch (Exception e)
         {
-            Record(new PlugInFailure(plugInId, hookId, e.Message, e.StackTrace));
+            Record(new PlugInFailure(++_lastFailureId, plugInId, hookId, e.Message, e.StackTrace));
             ran = new PlugInRan(plugInId, hookId, null, e);
         }
 
@@ -319,4 +320,4 @@ public sealed record InstalledPlugIn(string Id, string Name, string Version, boo
 
 public sealed record PlugInRan(string PlugInId, string HookId, Outcome? Outcome, Exception? Failure);
 
-public sealed record PlugInFailure(string PlugInId, string HookId, string Message, string? StackTrace);
+public sealed record PlugInFailure(int Id, string PlugInId, string HookId, string Message, string? StackTrace);

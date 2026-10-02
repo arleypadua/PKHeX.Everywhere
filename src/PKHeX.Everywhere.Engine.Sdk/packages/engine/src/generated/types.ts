@@ -169,6 +169,7 @@ export interface PlugInAction {
 }
 
 export interface PlugInFailure {
+  id: number
   plugInId: string
   hookId: string
   message: string
