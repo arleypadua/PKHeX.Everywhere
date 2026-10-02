@@ -30,6 +30,7 @@ export function issueLink(error: PageError, game: SaveVersion | null): string | 
     `* **Id**: ${error.id}`,
     `* **Game version**: ${game?.version ?? ''}`,
     `* **Generation**: ${game?.generation ?? ''}`,
+    `* **Save format**: ${game?.formatId ?? ''}`,
     '## Type',
     '```',
     error.type,
@@ -60,6 +61,7 @@ export function reportPageError(error: unknown, pageError: PageError, game: Save
     version_id: game?.versionId ?? null,
     generation_name: game?.generation ?? null,
     generation_id: game?.generationId ?? null,
+    format_id: game?.formatId ?? null,
   })
   if (!(error instanceof EngineError)) captureError(error, { exception_id: pageError.id })
 }

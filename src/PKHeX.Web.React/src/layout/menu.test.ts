@@ -1,8 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import type { InstalledPlugIn, SaveSummary } from '@pkhex-everywhere/engine'
+import type { InstalledPlugIn, SaveCapability, SaveSummary } from '@pkhex-everywhere/engine'
 import { menuEntries } from './menu'
 
-const save = (hasEvents: boolean): SaveSummary => ({ fileName: 'emerald.sav', version: 'Emerald', generation: 3, hasEvents })
+const allCapabilities: SaveCapability[] = ['legality', 'autoLegality', 'encounters', 'showdown', 'events', 'plugIns']
+
+const save = (hasEvents: boolean, capabilities = allCapabilities): SaveSummary => ({
+  fileName: 'emerald.sav',
+  version: 'Emerald',
+  generation: 3,
+  hasEvents,
+  format: null,
+  capabilities,
+})
 
 const plugIn = (id: string, needsReinstall = false): InstalledPlugIn => ({
   id,
@@ -35,6 +44,18 @@ describe('menuEntries', () => {
       'Analytics',
       'Save',
     ])
+  })
+
+  it('hides Events when the save does not support them', () => {
+    expect(labels(menuEntries(save(true, []), []))).not.toContain('Events')
+  })
+
+  it('links Plug-Ins straight to the plug-ins page when the save does not support plug-ins', () => {
+    expect(menuEntries(save(false, []), [plugIn('A')]).find((entry) => entry.label === 'Plug-Ins')).toEqual({
+      route: '/plugins',
+      label: 'Plug-Ins',
+      icon: 'api',
+    })
   })
 
   it('links Plug-Ins straight to the plug-ins page when none is installed', () => {

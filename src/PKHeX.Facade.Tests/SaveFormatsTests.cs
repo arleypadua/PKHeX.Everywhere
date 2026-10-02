@@ -35,6 +35,7 @@ public class SaveFormatsTests
         public string Id => "marked";
         public string Name => "Marked";
         public GameVersion BaseGame => GameVersion.SL;
+        public IReadOnlySet<Capability> Capabilities { get; } = new HashSet<Capability>();
         public SaveFormatMatch Detect(ReadOnlySpan<byte> data) => data.SequenceEqual(Marked) ? SaveFormatMatch.Certain : SaveFormatMatch.No;
         public SaveFile Load(byte[] data) => BlankSaveFile.Get(GameVersion.SL, "Marked");
     }
@@ -44,6 +45,7 @@ public class SaveFormatsTests
         public string Id => "possible";
         public string Name => "Possible";
         public GameVersion BaseGame => GameVersion.FR;
+        public IReadOnlySet<Capability> Capabilities { get; } = new HashSet<Capability>();
         public SaveFormatMatch Detect(ReadOnlySpan<byte> data) => SaveFormatMatch.Possible;
         public SaveFile Load(byte[] data) => throw new InvalidOperationException("A possible match must not load.");
     }

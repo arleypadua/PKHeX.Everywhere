@@ -17,7 +17,8 @@ public static class SaveFormats
         ref _all,
         all => all.Any(registered => registered.Id == format.Id) ? all : all.Add(format));
 
-    internal static SaveFile? LoadCertain(byte[] data) => _all
-        .FirstOrDefault(format => format.Detect(data) == SaveFormatMatch.Certain)
-        ?.Load(data);
+    internal static Game? LoadCertain(byte[] data) =>
+        _all.FirstOrDefault(format => format.Detect(data) == SaveFormatMatch.Certain) is { } format
+            ? new Game(format.Load(data), format)
+            : null;
 }

@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using AwesomeAssertions;
 using PKHeX.Everywhere.Engine.Dtos;
+using PKHeX.Everywhere.Engine.PlugIns;
 using PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 using PKHeX.Facade;
 using PKHeX.Facade.Tests.Base;
@@ -139,29 +140,92 @@ public class UnboundSaveTests
     }
 
     [Fact]
-    public void LegalityReportsInvalidWithoutChangingTheSave()
+    public void TheSummaryNamesTheFormatAndListsNoCapabilities()
+    {
+        var summary = Value(Dispatch(LoadedUnbound(), "game.get", "[]"))!;
+
+        summary["format"]!["id"]!.GetValue<string>().Should().Be("unbound");
+        summary["format"]!["name"]!.GetValue<string>().Should().Be("Pokémon Unbound");
+        summary["format"]!["baseGameId"]!.GetValue<int>().Should().Be((int)Core.GameVersion.FR);
+        summary["capabilities"]!.AsArray().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TheVersionAndOverviewCarryTheFormatId()
+    {
+        var session = LoadedUnbound();
+        var exported = new List<GameExported>();
+        session.Published += engineEvent =>
+        {
+            if (engineEvent is GameExported e) exported.Add(e);
+        };
+
+        Value(Dispatch(session, "game.version", "[]"))!["formatId"]!.GetValue<string>().Should().Be("unbound");
+        Exported(session);
+        exported.Should().ContainSingle().Which.Game.FormatId.Should().Be("unbound");
+    }
+
+    [Fact]
+    public void DetailsLeaveLegalityOut() =>
+        Details(LoadedUnbound(), PokemonHandle.Party(0))["legality"].Should().BeNull();
+
+    [Theory]
+    [MemberData(nameof(CallsBehindCapabilities))]
+    public void CallsBehindACapabilityFailWithNotSupportedWithoutChangingTheSave(string call, string args)
     {
         var session = LoadedUnbound();
 
-        Details(session, PokemonHandle.Party(0))["legality"]!["valid"]!.GetValue<bool>().Should().BeFalse();
+        Error(Dispatch(session, call, args)).Should().Be("not-supported");
 
         Exported(session).Should().Equal(Fixture);
     }
 
-    [Fact]
-    public void ShowdownExportsThePokemon() =>
-        Value(Dispatch(LoadedUnbound(), "pokemon.showdown", Args(PokemonHandle.Party(0))))!.GetValue<string>()
-            .Should().StartWith("Latias (F) @").And.EndWith("- Mist Ball\n- Light Screen\n- Reflect\n- Roost");
+    public static TheoryData<string, string> CallsBehindCapabilities => new()
+    {
+        { "pokemon.showdown", Args(PokemonHandle.Party(0)) },
+        { "party.showdown", "[]" },
+        { "box.showdown", "[]" },
+        { "encounters.versions", "[]" },
+        { "encounters.search", Args((int)Core.GameVersion.FR, (int)Core.Species.Latias) },
+        { "box.addEncounter", Args(0) },
+        { "events.get", "[]" },
+        { "events.flag", Args(0) },
+        { "events.setFlag", Args(0, true) },
+        { "events.setWork", Args(0, 1) },
+        { "events.giveTickets", Args(false) },
+    };
 
     [Fact]
-    public void EncountersFailWithoutChangingTheSave()
+    public void PlugInHooksDontRun()
     {
         var session = LoadedUnbound();
+        var host = new PlugInHost(session);
+        var ran = PlugInRuns(session);
+        host.Register(PlugIn("PKHeX.Everywhere.Engine.Tests.PlugIn"));
 
-        Error(Dispatch(session, "encounters.search", Args((int)Core.GameVersion.FR, (int)Core.Species.Latias))).Should().Be("bad-arguments");
-        Value(Dispatch(session, "encounters.search", Args((int)Core.GameVersion.SL, (int)Core.Species.Latias)))!.AsArray().Should().NotBeEmpty();
-        Error(Dispatch(session, "box.addEncounter", Args(0))).Should().Be("unexpected");
+        Value(Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Party(0), 60)));
 
+        ran.Should().BeEmpty();
+        Details(session, PokemonHandle.Party(0))["nickname"]!.GetValue<string>().Should().NotBe("Changed");
+    }
+
+    [Fact]
+    public void PlugInActionsAndPagesAreOff()
+    {
+        var session = LoadedUnbound();
+        var host = new PlugInHost(session);
+        var ran = PlugInRuns(session);
+        host.Register(PlugIn("PKHeX.Everywhere.Engine.Tests.PlugIn"));
+        host.Register(PlugIn("PKHeX.Web.Plugins.AutoLegality"));
+        Value(Dispatch(session, "plugins.actions", """["quick", null]"""))!.AsArray().Should().BeEmpty();
+        Value(Dispatch(session, "plugins.actions", Args("pokemon", PokemonHandle.Party(0))))!.AsArray().Should().BeEmpty();
+        Value(Dispatch(session, "plugins.pages", "[]"))!.AsArray().Should().BeEmpty();
+        Error(Dispatch(session, "plugins.run", """["PKHeX.Everywhere.Engine.Tests.PlugIn.Greet", null]""")).Should().Be("not-supported");
+        Error(Dispatch(session, "plugins.run", Args("PKHeX.Web.Plugins.AutoLegality.MakeLegalOnClick", PokemonHandle.Party(0))))
+            .Should().Be("not-supported");
+        Error(Dispatch(session, "plugins.pageModule", """["PKHeX.Everywhere.Engine.Tests.PlugIn", "hello"]""")).Should().Be("not-supported");
+
+        ran.Should().BeEmpty();
         Exported(session).Should().Equal(Fixture);
     }
 
@@ -175,6 +239,8 @@ public class UnboundSaveTests
         session.Game!.SaveFile.Should().BeOfType<Core.SAV3FRLG>();
         Value(Dispatch(session, "game.version", "[]"))!["generation"]!.GetValue<string>().Should().Be("Gen3");
     }
+
+    private static byte[] PlugIn(string id) => File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "plugins", $"{id}.dll"));
 
     private static object Arg(PokemonHandle at) =>
         new { source = at.Source.ToString().ToLowerInvariant(), slot = at.Slot, box = at.Box };

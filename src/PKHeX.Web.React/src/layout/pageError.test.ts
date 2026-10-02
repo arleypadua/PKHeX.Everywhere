@@ -6,7 +6,7 @@ import { captureError } from '../sentry'
 
 vi.mock('../sentry', async (original) => ({ ...(await original<typeof import('../sentry')>()), captureError: vi.fn() }))
 
-const emerald: SaveVersion = { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3 }
+const emerald: SaveVersion = { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3, formatId: null }
 
 function boom() {
   const error = new TypeError('Cannot read properties of undefined')
@@ -48,6 +48,7 @@ describe('page errors', () => {
         '* **Id**: b7a9f2c4',
         '* **Game version**: Emerald',
         '* **Generation**: Gen3',
+        '* **Save format**: ',
         '## Type',
         '```',
         'TypeError',
@@ -69,7 +70,7 @@ describe('page errors', () => {
   it('leaves the game blank in the link when none is loaded', () => {
     const body = new URL(issueLink(toPageError(boom(), 'id'), null)!).searchParams.get('body')
 
-    expect(body).toContain('* **Game version**: \n* **Generation**: \n')
+    expect(body).toContain('* **Game version**: \n* **Generation**: \n* **Save format**: \n')
   })
 
   it('has no link for a Pokémon format the save does not support', () => {
@@ -100,6 +101,7 @@ describe('page errors', () => {
       version_id: 3,
       generation_name: 'Gen3',
       generation_id: 3,
+      format_id: null,
     })
   })
 

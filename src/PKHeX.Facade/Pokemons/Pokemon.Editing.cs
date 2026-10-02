@@ -45,7 +45,7 @@ public partial class Pokemon
         Pkm is ICombatPower combatPower ? combatPower.Stat_CP : null,
         Pkm is PB7 pb7 ? pb7.CalcCP : null,
         Moves.Values.Select(move => new MoveSlot(move.Move.Id, move.Move.Name, move.PP.Current, move.PP.Max)).ToArray(),
-        this.LegalityReport());
+        Game.Supports(Capability.Legality) ? this.LegalityReport() : null);
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices());
 

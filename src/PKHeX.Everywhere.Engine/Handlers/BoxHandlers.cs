@@ -13,7 +13,7 @@ public static class BoxHandlers
         .ToArray();
 
     [Query("box.showdown", Topics.Box)]
-    public static string Showdown(Game game) => game.Trainer.PokemonBox.Boxed().Select(boxed => boxed.Pokemon).Showdown();
+    public static string Showdown(Game game) => game.Trainer.PokemonBox.Showdown();
 
     [Command("box.addFromFile", Topics.Box)]
     public static AddedPokemon AddFromFile(Session session, Game game, byte[] bytes)
@@ -40,6 +40,7 @@ public static class BoxHandlers
     [Command("box.addEncounter", Topics.Box)]
     public static AddedPokemon AddEncounter(Session session, Game game, int index)
     {
+        game.Require(Capability.Encounters);
         if (session.Encounters is not { } encounters || index < 0 || index >= encounters.Count)
             throw new EngineException(ErrorCodes.NotFound, "That encounter isn't in the latest search. Search again.");
 

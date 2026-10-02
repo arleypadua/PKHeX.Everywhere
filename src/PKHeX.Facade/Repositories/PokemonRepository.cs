@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using PKHeX.Core;
 using PKHeX.Core.Searching;
 using PKHeX.Facade.Pokemons;
@@ -15,8 +16,15 @@ public class PokemonRepository
         _saveFile = game.SaveFile;
     }
 
+    public IImmutableList<GameVersionDefinition> EncounterVersions()
+    {
+        _game.Require(Capability.Encounters);
+        return _game.AvailableVersions;
+    }
+
     public IEnumerable<Encounter> FindEncounter(GameVersion version, Species species, bool? shiny = null, bool? egg = null)
     {
+        _game.Require(Capability.Encounters);
         var settings = new SearchSettings
         {
             Context = _saveFile.Context,

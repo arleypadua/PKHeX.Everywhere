@@ -7,6 +7,7 @@ public interface ISaveFormat
     string Id { get; }
     string Name { get; }
     GameVersion BaseGame { get; }
+    IReadOnlySet<Capability> Capabilities { get; }
 
     SaveFormatMatch Detect(ReadOnlySpan<byte> data);
     SaveFile Load(byte[] data);
@@ -18,3 +19,5 @@ public enum SaveFormatMatch
     Possible,
     Certain,
 }
+
+public record SaveFormatDescription(string Id, string Name, GameVersion BaseGame);

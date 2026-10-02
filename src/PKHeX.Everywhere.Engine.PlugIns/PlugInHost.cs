@@ -166,6 +166,7 @@ public sealed class PlugInHost
 
     public async Task<PlugInRan> RunAction(string id, Pokemon? target = null)
     {
+        _session.Game?.Require(Capability.PlugIns);
         ActionPlacement[] placements = target is null ? [ActionPlacement.Quick] : [ActionPlacement.Pokemon, ActionPlacement.PokemonStats];
         var action = placements.SelectMany(EnabledActions).FirstOrDefault(a => a.HookId == id)
                      ?? throw new EngineException(ErrorCodes.NotFound, $"No enabled plug-in action {id}.");
@@ -178,13 +179,13 @@ public sealed class PlugInHost
         return ran;
     }
 
-    public IReadOnlyList<DeclaredPage> Pages() => _plugIns.Values
-        .Where(p => p.Enabled)
+    public IReadOnlyList<DeclaredPage> Pages() => EnabledPlugIns()
         .SelectMany(p => p.Settings.Pages, (p, page) => new DeclaredPage(p.Id, page.Path, page.Title, page.Layout))
         .ToList();
 
     public string PageModule(string plugInId, string path)
     {
+        _session.Game?.Require(Capability.PlugIns);
         var plugIn = _plugIns.GetValueOrDefault(plugInId) is { Enabled: true } enabled
             ? enabled
             : throw new EngineException(ErrorCodes.NotFound, $"No enabled plug-in {plugInId}.");
@@ -239,8 +240,11 @@ public sealed class PlugInHost
         return ran;
     }
 
-    private IEnumerable<(string PlugInId, string HookId, THook Hook)> EnabledHooksOf<THook>() where THook : IPluginHook => _plugIns.Values
-        .Where(p => p.Enabled)
+    private IEnumerable<RegisteredPlugIn> EnabledPlugIns() => _session.Game?.Supports(Capability.PlugIns) == false
+        ? []
+        : _plugIns.Values.Where(p => p.Enabled);
+
+    private IEnumerable<(string PlugInId, string HookId, THook Hook)> EnabledHooksOf<THook>() where THook : IPluginHook => EnabledPlugIns()
         .SelectMany(p => p.EnabledHooksOf<THook>(), (p, h) => (p.Id, h.Id, h.Hook));
 
     private IEnumerable<EnabledAction> EnabledActions(ActionPlacement placement) => placement switch

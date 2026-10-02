@@ -22,7 +22,7 @@ export function DraftEditor({ actions }: DraftEditorProps) {
   return (
     <Flex vertical gap={20}>
       <PageHeader title="Pokemon" extra={<PokemonImage pokemon={pokemon} />} />
-      <LegalityBanner legality={details.legality} />
+      {details.legality && <LegalityBanner legality={details.legality} />}
       <Tabs
         items={[
           { key: 'description', label: 'Description', children: <DescriptionTab /> },

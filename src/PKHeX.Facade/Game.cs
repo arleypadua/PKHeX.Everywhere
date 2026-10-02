@@ -1,5 +1,7 @@
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 ﻿using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Events;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Facade.Repositories;
@@ -10,9 +12,13 @@ public class Game
 {
     public readonly SaveFile SaveFile;
 
-    public Game(SaveFile saveFile)
+    private static readonly FrozenSet<Capability> AllCapabilities = Enum.GetValues<Capability>().ToFrozenSet();
+
+    public Game(SaveFile saveFile, ISaveFormat? format = null)
     {
         SaveFile = saveFile;
+        Format = format is null ? null : new SaveFormatDescription(format.Id, format.Name, format.BaseGame);
+        Capabilities = format?.Capabilities ?? AllCapabilities;
         SpeciesRepository = new SpeciesRepository(this);
         PokemonRepository = new PokemonRepository(this);
         LocationRepository = new LocationRepository(this);
@@ -21,7 +27,18 @@ public class Game
 
         Trainer = new Trainer(this);
         BattlePoints = BattlePoints.GetInstance(saveFile);
-        _events = new Lazy<GameEvents?>(() => GameEvents.For(this));
+        _events = new Lazy<GameEvents?>(() => Supports(Capability.Events) ? GameEvents.For(this) : null);
+    }
+
+    public SaveFormatDescription? Format { get; }
+
+    public IReadOnlySet<Capability> Capabilities { get; }
+
+    public bool Supports(Capability capability) => Capabilities.Contains(capability);
+
+    public void Require(Capability capability)
+    {
+        if (!Supports(capability)) throw new CapabilityNotSupportedException(capability);
     }
 
     private readonly Lazy<GameEvents?> _events;
@@ -71,10 +88,12 @@ public class Game
     }
 
     public static Game LoadFrom(string path) =>
-        LoadFrom(() => SaveFormats.LoadCertain(File.ReadAllBytes(path)) ?? SaveUtil.GetSaveFile(path), path);
+        LoadFrom(() => SaveFormats.LoadCertain(File.ReadAllBytes(path)) ?? FromPKHeX(SaveUtil.GetSaveFile(path)), path);
 
     public static Game LoadFrom(byte[] bytes, string? path = null) =>
-        LoadFrom(() => SaveFormats.LoadCertain(bytes) ?? SaveUtil.GetSaveFile(bytes, path), path);
+        LoadFrom(() => SaveFormats.LoadCertain(bytes) ?? FromPKHeX(SaveUtil.GetSaveFile(bytes, path)), path);
+
+    private static Game? FromPKHeX(SaveFile? saveFile) => saveFile is null ? null : new Game(saveFile);
 
     /**
      * A save format is picked by file size before anything is parsed, so a file that merely matches a
@@ -86,14 +105,11 @@ public class Game
      * as GameNotLoadedException gives callers one failure to handle, and keeps the original cause as
      * the inner exception so a real decoding bug is still diagnosable.
      */
-    private static Game LoadFrom(Func<SaveFile?> getSaveFile, string? path)
+    private static Game LoadFrom(Func<Game?> load, string? path)
     {
         try
         {
-            var saveFile = getSaveFile()
-                           ?? throw new GameNotLoadedException(path);
-
-            return new Game(saveFile);
+            return load() ?? throw new GameNotLoadedException(path);
         }
         catch (Exception e) when (e is not (
             GameNotLoadedException or IOException or UnauthorizedAccessException or OutOfMemoryException))

@@ -21,7 +21,7 @@ public class GameHandlerTests
         session.Load(Game.LoadFrom(SaveFilePath.HgSs), "soulsilver.dsv");
 
         Value(Dispatch(session, "game.get", "[]"))!.ToJsonString()
-            .Should().Be($$"""{"fileName":"soulsilver.dsv","version":"{{session.Game!.GameVersionApproximation.Name}}","generation":4,"hasEvents":true}""");
+            .Should().Be($$"""{"fileName":"soulsilver.dsv","version":"{{session.Game!.GameVersionApproximation.Name}}","generation":4,"hasEvents":true,"format":null,"capabilities":["legality","autoLegality","encounters","showdown","events","plugIns"]}""");
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class GameHandlerTests
         var version = session.Game!.GameVersionApproximation;
 
         Value(Dispatch(session, "game.version", "[]"))!.ToJsonString()
-            .Should().Be($$"""{"version":"{{version.Name}}","versionId":{{version.Id}},"generation":"Gen4","generationId":4}""");
+            .Should().Be($$"""{"version":"{{version.Name}}","versionId":{{version.Id}},"generation":"Gen4","generationId":4,"formatId":null}""");
     }
 
     [Fact]

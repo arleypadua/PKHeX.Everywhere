@@ -7,6 +7,7 @@ import { ButtonOrMenu } from '../../components/ButtonOrMenu'
 import { PageHeader } from '../../components/PageHeader'
 import { PokemonTable } from '../../components/PokemonTable'
 import { useCopyShowdown } from '../../hooks/useCopyShowdown'
+import { useSupports } from '../../hooks/useSupports'
 import { openCalculator, useNavigate } from '../../host'
 import { routes } from '../../routes'
 import { useLoadPokemonFile } from './useLoadPokemonFile'
@@ -29,6 +30,8 @@ export default function BoxPage() {
   const engine = useEngine()
   const navigate = useNavigate()
   const copyShowdown = useCopyShowdown()
+  const encountersSupported = useSupports('encounters')
+  const showdownSupported = useSupports('showdown')
   const { notification } = App.useApp()
   const loadPokemonFile = useLoadPokemonFile()
   const fileInput = useRef<HTMLInputElement>(null)
@@ -65,20 +68,26 @@ export default function BoxPage() {
           <>
             <ButtonOrMenu
               actions={[
-                { key: 'add', label: 'Add', type: 'primary', onClick: () => navigate(routes.searchEncounter) },
+                ...(encountersSupported
+                  ? [{ key: 'add', label: 'Add', type: 'primary' as const, onClick: () => navigate(routes.searchEncounter) }]
+                  : []),
                 {
                   key: 'load',
                   label: 'Load *.pk',
                   icon: <FolderOpenOutlined />,
                   onClick: () => fileInput.current?.click(),
                 },
-                {
-                  key: 'calculator',
-                  label: 'Calculator',
-                  icon: <CalculatorOutlined />,
-                  onClick: openSelectedInCalculator,
-                },
-                { key: 'showdown', label: 'Showdown', icon: <CopyOutlined />, onClick: copyBoxShowdown },
+                ...(showdownSupported
+                  ? [
+                      {
+                        key: 'calculator',
+                        label: 'Calculator',
+                        icon: <CalculatorOutlined />,
+                        onClick: openSelectedInCalculator,
+                      },
+                      { key: 'showdown', label: 'Showdown', icon: <CopyOutlined />, onClick: copyBoxShowdown },
+                    ]
+                  : []),
               ]}
             />
             <input ref={fileInput} type="file" hidden onChange={loadFile} />

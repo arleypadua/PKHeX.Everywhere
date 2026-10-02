@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Text.Json;
+using PKHeX.Facade;
 
 namespace PKHeX.Everywhere.Engine;
 
@@ -40,6 +41,10 @@ public static class Dispatcher
         catch (EngineException e)
         {
             return Failure(e.Code, e.Message);
+        }
+        catch (CapabilityNotSupportedException e)
+        {
+            return Failure(ErrorCodes.NotSupported, e.Message);
         }
         catch (Exception e)
         {

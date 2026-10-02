@@ -82,11 +82,11 @@ public class PokemonMetConditionsPatchTests
     [Fact]
     public void ReportsAMetLevelAboveTheCurrentLevelAsIllegal()
     {
-        var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Level < 100 && p.Details().Legality.Valid);
+        var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Level < 100 && p.Details().Legality!.Valid);
 
         pokemon.Update(new PokemonPatch(MetLevel: pokemon.Level + 1));
 
-        pokemon.Details().Legality.Valid.Should().BeFalse();
+        pokemon.Details().Legality!.Valid.Should().BeFalse();
     }
 
     [Theory]

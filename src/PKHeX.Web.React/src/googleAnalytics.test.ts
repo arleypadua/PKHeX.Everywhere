@@ -76,7 +76,7 @@ describe('Google Analytics', () => {
 
     engine.emit({
       type: 'gameExported',
-      game: { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3, trainerGender: 'Female', boxCount: 420, party },
+      game: { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3, trainerGender: 'Female', boxCount: 420, party, formatId: null },
     })
 
     expect(gtag).toHaveBeenCalledWith('event', 'game_exported', {
@@ -86,6 +86,7 @@ describe('Google Analytics', () => {
       generation_id: 3,
       gender: 'Female',
       box_size: 420,
+      format_id: null,
       party_species_id_01: 25,
       party_species_name_01: 'Pikachu',
       party_level_01: 12,
@@ -112,7 +113,7 @@ describe('Google Analytics', () => {
 
     engine.emit({
       type: 'gameLoaded',
-      game: { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3, trainerGender: 'Female', boxCount: 420, party },
+      game: { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3, trainerGender: 'Female', boxCount: 420, party, formatId: null },
     })
 
     expect(gtag).toHaveBeenCalledWith(
@@ -120,6 +121,17 @@ describe('Google Analytics', () => {
       'game_loaded',
       expect.objectContaining({ version_name: 'Emerald', box_size: 420, party_species_id_01: 25, party_level_02: 5 }),
     )
+  })
+
+  it('sends the save format with game_loaded', () => {
+    const { gtag, engine } = started()
+
+    engine.emit({
+      type: 'gameLoaded',
+      game: { version: 'FireRed', versionId: 5, generation: 'Gen9', generationId: 9, trainerGender: 'Male', boxCount: 750, party, formatId: 'unbound' },
+    })
+
+    expect(gtag).toHaveBeenCalledWith('event', 'game_loaded', expect.objectContaining({ format_id: 'unbound' }))
   })
 
   it.each([

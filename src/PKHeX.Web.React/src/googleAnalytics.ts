@@ -75,6 +75,7 @@ function gameParams(game: GameOverview): Params {
     generation_id: game.generationId,
     gender: game.trainerGender,
     box_size: game.boxCount,
+    format_id: game.formatId,
   }
   for (let i = 0; i < 6; i++) {
     const member = game.party[i]

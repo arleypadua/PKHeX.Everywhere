@@ -41,7 +41,7 @@ These are rules of the format, not workarounds for the Facade:
 - An unmapped species reads as species 0, so its box slot shows as empty. The fixture has two such Pokémon. In the party, `PokemonParty.Commit` drops members with species 0, so an unmapped party member would be lost on export. #148 has to handle this when it adds "Unknown (#n)".
 - Held items are raw hack IDs shown with modern item names (#148).
 - Max PP and base stats come from national data, not the hack.
-- The save summary reports FireRed and generation 9 until the format description lands (#147).
+- The save summary still reports FireRed and generation 9. Since #147 it also names the save format, which the UI shows instead.
 
 ## Rejected alternatives
 

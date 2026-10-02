@@ -59,5 +59,6 @@ function gameContext() {
     version_id: game?.versionId ?? null,
     generation_name: game?.generation ?? null,
     generation_id: game?.generationId ?? null,
+    format_id: game?.formatId ?? null,
   }
 }

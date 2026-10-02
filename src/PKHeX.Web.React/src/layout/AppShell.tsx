@@ -1,9 +1,10 @@
 import { useCallback, useEffect, type ReactNode } from 'react'
 import { App, ConfigProvider, theme as antdTheme } from 'antd'
 import { BrowserRouter, Navigate, Route, Routes, useParams, useSearchParams } from 'react-router'
-import type { EngineError, PageLayout } from '@pkhex-everywhere/engine'
+import type { EngineError, PageLayout, SaveCapability } from '@pkhex-everywhere/engine'
 import { EngineProvider, RequireGame, useLoadedGame } from '@pkhex-everywhere/react'
 import { engine, plugIns } from '../app'
+import { useSupports } from '../hooks/useSupports'
 import { useTheme } from '../host'
 import { PlugInsProvider } from '../plugins/PlugInsContext'
 import AnalyticsPage from '../pages/analytics/AnalyticsPage'
@@ -48,9 +49,21 @@ function useTitle(title: string | undefined) {
   }, [title])
 }
 
-function Page({ title, requiresSave, children }: { title?: string; requiresSave?: boolean; children: ReactNode }) {
+interface PageProps {
+  title?: string
+  requiresSave?: boolean
+  capability?: SaveCapability
+  children: ReactNode
+}
+
+function Page({ title, requiresSave, capability, children }: PageProps) {
   useTitle(title)
-  return requiresSave ? <RequireGame>{children}</RequireGame> : children
+  const page = capability ? <RequireCapability capability={capability}>{children}</RequireCapability> : children
+  return requiresSave ? <RequireGame>{page}</RequireGame> : page
+}
+
+function RequireCapability({ capability, children }: { capability: SaveCapability; children: ReactNode }) {
+  return useSupports(capability) ? children : <p role="alert">This save doesn't support this page.</p>
 }
 
 const integer = (value: string | null) => (value && /^-?\d+$/.test(value) ? Number(value) : null)
@@ -113,15 +126,15 @@ function AppRoutes({ autoLoad }: { autoLoad: boolean }) {
         <Route path="party" element={<Page title="Party" requiresSave><PartyPage /></Page>} />
         <Route path="pokemon-box" element={<Page title="Pokemon Box" requiresSave><BoxPage /></Page>} />
         <Route path="items" element={<Page title="Items" requiresSave><ItemsPage /></Page>} />
-        <Route path="events" element={<Page title="Events" requiresSave><EventsPage /></Page>} />
-        <Route path="pokemon/search-encounter" element={<Page title="Encounters"><EncountersRoute /></Page>} />
+        <Route path="events" element={<Page title="Events" requiresSave capability="events"><EventsPage /></Page>} />
+        <Route path="pokemon/search-encounter" element={<Page title="Encounters" capability="encounters"><EncountersRoute /></Page>} />
         <Route path="pokemon/:source/:id" element={<Page title="Pokemon" requiresSave><PokemonEditorRoute /></Page>} />
         <Route path="pokemon/:source/:id/clone" element={<Page title="Clone Pokemon" requiresSave><PokemonCloneRoute /></Page>} />
         <Route path="plugins" element={<PlugInsPage />} />
         <Route path="plugins/errors" element={<PlugInErrorsPage />} />
         <Route path="plugins/:id" element={<PlugInRoute />} />
-        <Route path="plugins/:plugInId/:path" element={<PlugInModuleRoute layout="standard" />} />
-        <Route path="plugins/:plugInId/:path/standard" element={<PlugInModuleRoute layout="standard" />} />
+        <Route path="plugins/:plugInId/:path" element={<Page capability="plugIns"><PlugInModuleRoute layout="standard" /></Page>} />
+        <Route path="plugins/:plugInId/:path/standard" element={<Page capability="plugIns"><PlugInModuleRoute layout="standard" /></Page>} />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="save" element={<Page title="Save"><LoadPage /></Page>} />
         <Route path="settings" element={<Page title="Settings"><SettingsPage /></Page>} />
@@ -135,7 +148,7 @@ function AppRoutes({ autoLoad }: { autoLoad: boolean }) {
         <Route path="load" element={<LoadRoute autoLoad={autoLoad} />} />
       </Route>
       <Route element={<EmptyPlugInLayout />}>
-        <Route path="plugins/:plugInId/:path/empty" element={<PlugInModuleRoute layout="empty" />} />
+        <Route path="plugins/:plugInId/:path/empty" element={<Page capability="plugIns"><PlugInModuleRoute layout="empty" /></Page>} />
       </Route>
     </Routes>
   )
