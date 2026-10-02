@@ -1,9 +1,12 @@
 import { useCallback } from 'react'
 import { App } from 'antd'
-import { EngineError } from '@pkhex-everywhere/engine'
+import { EngineError, type ErrorCode } from '@pkhex-everywhere/engine'
 import { useEngine } from '@pkhex-everywhere/react'
 
 const maxFileSize = 6 * 1024 * 1024
+
+// Until there is a format picker, a save that might be a ROM hack gets the same message as any unrecognized file.
+const unsupported: ErrorCode[] = ['invalid-save', 'format-choice-required']
 
 export function useLoadSave() {
   const engine = useEngine()
@@ -19,8 +22,8 @@ export function useLoadSave() {
         await engine.game.load(file, undefined, formatId)
         return true
       } catch (error) {
-        if (!(error instanceof EngineError) || error.code !== 'invalid-save') throw error
-        notification.error({ title: error.message, description: 'The file is not a valid save file.' })
+        if (!(error instanceof EngineError) || !unsupported.includes(error.code)) throw error
+        notification.error({ title: `'${file.name}' is not a supported save file.`, description: 'The file is not a valid save file.' })
         return false
       }
     },

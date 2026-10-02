@@ -88,12 +88,15 @@ public class Game
     }
 
     public static Game LoadFrom(string path) =>
-        LoadFrom(() => SaveFormats.LoadCertain(File.ReadAllBytes(path)) ?? FromPKHeX(SaveUtil.GetSaveFile(path)), path);
+        LoadFrom(() => SaveFormats.Detect(File.ReadAllBytes(path)) ?? FromPKHeX(SaveUtil.GetSaveFile(path)), path);
 
     public static Game LoadFrom(byte[] bytes, string? path = null, ISaveFormat? format = null) =>
-        LoadFrom(() => format is null
-            ? SaveFormats.LoadCertain(bytes) ?? FromPKHeX(SaveUtil.GetSaveFile(bytes, path))
-            : new Game(format.Load(bytes), format), path);
+        LoadFrom(() => format switch
+        {
+            null => SaveFormats.Detect(bytes) ?? FromPKHeX(SaveUtil.GetSaveFile(bytes, path)),
+            SaveFormats.PKHeXFormat => FromPKHeX(SaveUtil.GetSaveFile(bytes, path)),
+            _ => new Game(format.Load(bytes), format),
+        }, path);
 
     private static Game? FromPKHeX(SaveFile? saveFile) => saveFile is null ? null : new Game(saveFile);
 
@@ -114,7 +117,7 @@ public class Game
             return load() ?? throw new GameNotLoadedException(path);
         }
         catch (Exception e) when (e is not (
-            GameNotLoadedException or IOException or UnauthorizedAccessException or OutOfMemoryException))
+            GameNotLoadedException or FormatChoiceRequiredException or IOException or UnauthorizedAccessException or OutOfMemoryException))
         {
             throw new GameNotLoadedException(path, e);
         }

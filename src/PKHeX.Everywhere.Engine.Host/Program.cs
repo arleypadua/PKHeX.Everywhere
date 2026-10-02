@@ -3,6 +3,7 @@ using PKHeX.Core;
 using PKHeX.Everywhere.Engine;
 using PKHeX.Everywhere.Engine.Host;
 using PKHeX.Everywhere.Engine.PlugIns;
+using PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 using PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 using PKHeX.Facade;
 
@@ -12,6 +13,7 @@ RuntimeCryptographyProvider.Aes = new JsAesProvider();
 RuntimeCryptographyProvider.Md5 = new JsMd5Provider();
 
 SaveFormats.Register(new UnboundFormat());
+SaveFormats.Register(new RadicalRedFormat());
 
 _ = new PlugInHost(Session.Current);
 

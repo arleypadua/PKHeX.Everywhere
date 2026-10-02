@@ -25,8 +25,9 @@ public static class GameHandlers
     /// <param name="data">The save file's bytes.</param>
     /// <param name="fileName">The file name to export the save with. Defaults to the name of a <c>File</c>, or <c>save.sav</c>.</param>
     /// <param name="formatId">
-    /// The id of a save format from <c>game.formats()</c> to load the save with, skipping detection.
+    /// The id of a save format from <c>game.formats()</c> to load the save with, skipping detection. Pass <c>pkhex</c> to load it with PKHeX's own detection.
     /// An unknown id fails with <c>not-found</c>, and a save the format can't read fails with <c>invalid-save</c>.
+    /// Without it, a save that might be in one of the formats fails with <c>format-choice-required</c>, whose <c>candidates</c> list them.
     /// </param>
     [Command("game.load", Topics.All)]
     public static void Load(Session session, byte[] data, string? fileName = null, string? formatId = null)
@@ -43,6 +44,13 @@ public static class GameHandlers
         catch (GameNotLoadedException e)
         {
             throw new EngineException(ErrorCodes.InvalidSave, $"'{fileName}' is not a supported save file.", e);
+        }
+        catch (FormatChoiceRequiredException e)
+        {
+            throw new EngineException(ErrorCodes.FormatChoiceRequired, e.Message, e)
+            {
+                Candidates = e.Candidates.Select(candidate => candidate.ToEntry()).ToArray(),
+            };
         }
 
         session.Load(game, fileName);
