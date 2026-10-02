@@ -57,7 +57,7 @@ public class GameHandlerTests
         var exported = Value(Dispatch(session, "game.export", "[]"))!;
 
         exported["fileName"]!.GetValue<string>().Should().Be(SaveFilePath.HgSs);
-        published.Should().Equal(new GameExported());
+        published.Should().ContainSingle().Which.Should().BeOfType<GameExported>();
         var reloaded = new Session();
         Value(Dispatch(reloaded, "game.load", Args(exported["bytes"]!.GetValue<string>(), "exported.dsv")));
         reloaded.Game!.Trainer.Name.Should().Be(session.Game!.Trainer.Name);

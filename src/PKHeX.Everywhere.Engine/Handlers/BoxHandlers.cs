@@ -53,7 +53,7 @@ public static class BoxHandlers
             throw new EngineException(ErrorCodes.BoxFull, "Your box is full.");
 
         var at = PokemonSlots.BoxHandle(game.SaveFile, index);
-        session.Raise(new PokemonAdded(at, source));
+        session.Raise(new PokemonAdded(at, source, box.All[index].ToOverview()));
         return new AddedPokemon(new PokemonId(box.All[index].UniqueId.Value), at);
     }
 }

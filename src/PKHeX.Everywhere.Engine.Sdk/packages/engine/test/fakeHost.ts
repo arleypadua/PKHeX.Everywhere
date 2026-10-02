@@ -6,10 +6,12 @@ export function fakeHost(dispatch: (name: string, args: unknown[]) => unknown) {
   const calls: { name: string; args: string }[] = []
   const requestedAssemblies: string[] = []
   const changeListeners: ((topics: string[]) => void)[] = []
+  const eventListeners: ((event: string) => void)[] = []
 
   const host: EngineHost = {
     ready: () => ready,
     onChange: (listener) => void changeListeners.push(listener),
+    onEvent: (listener) => void eventListeners.push(listener),
     getAssemblyExports: async (assemblyName) => {
       requestedAssemblies.push(assemblyName)
       return {
@@ -31,5 +33,7 @@ export function fakeHost(dispatch: (name: string, args: unknown[]) => unknown) {
 
   const emitChange = (topics: string[]) => changeListeners.forEach((listener) => listener(topics))
 
-  return { host, signalReady, emitChange, calls, requestedAssemblies }
+  const emitEvent = (event: string) => eventListeners.forEach((listener) => listener(event))
+
+  return { host, signalReady, emitChange, emitEvent, calls, requestedAssemblies }
 }

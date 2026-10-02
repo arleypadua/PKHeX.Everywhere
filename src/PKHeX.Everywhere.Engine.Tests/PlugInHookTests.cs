@@ -26,8 +26,7 @@ public class PlugInHookTests
     {
         var session = Loaded(saveFile);
         var host = new PlugInHost(session);
-        var ran = new List<PlugInRan>();
-        host.Ran += ran.Add;
+        var ran = PlugInRuns(session);
         host.Register(TestPlugIn);
         return (session, host, ran);
     }
@@ -45,7 +44,7 @@ public class PlugInHookTests
         SetItem(session, at, 2);
 
         ran.Should().ContainSingle().Which.HookId.Should().Be(EchoItem);
-        ran[0].Outcome.Should().BeOfType<Outcome.Notification>().Which.Message.Should().Be($"{at.ItemId} x2");
+        ran[0].Outcome!.Message.Should().Be($"{at.ItemId} x2");
     }
 
     [Fact]
@@ -116,8 +115,7 @@ public class PlugInHookTests
         SetItem(session, at, 2);
 
         ran.Select(r => r.HookId).Should().BeEquivalentTo([EchoItem, FailOnItem]);
-        ran.Single(r => r.HookId == FailOnItem).Failure.Should().BeOfType<InvalidOperationException>()
-            .Which.Message.Should().Be($"Failed on item {at.ItemId}");
+        ran.Single(r => r.HookId == FailOnItem).Failure.Should().Be(new HookFailure(nameof(InvalidOperationException), $"Failed on item {at.ItemId}"));
 
         var failure = host.Failures.Should().ContainSingle().Subject;
         failure.PlugInId.Should().Be(TestPlugInId);

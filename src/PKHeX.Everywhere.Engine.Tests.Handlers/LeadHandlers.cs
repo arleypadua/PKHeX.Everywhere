@@ -7,7 +7,7 @@ public record Lead(PokemonHandle At, string Species, int Level);
 
 public static class LeadHandlers
 {
-    public static void AddTo(Session session) => session.AddHandlers(HandlerRegistry.TryInvoke);
+    public static void AddTo(Session session) => session.AddHandlers(HandlerRegistry.TryInvoke, HandlerRegistry.TryWriteEvent);
 
     [Query("lead.get", Topics.Party)]
     public static Lead Get(Game game)

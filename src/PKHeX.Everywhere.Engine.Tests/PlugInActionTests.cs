@@ -32,8 +32,7 @@ public class PlugInActionTests
     {
         var session = Loaded(SaveFilePath.Emerald);
         var host = new PlugInHost(session);
-        var ran = new List<PlugInRan>();
-        host.Ran += ran.Add;
+        var ran = PlugInRuns(session);
         host.Register(PlugInBytes(plugIn));
         return (session, host, ran);
     }
@@ -241,7 +240,7 @@ public class PlugInActionTests
 
         Error(Run(session, Fail)).Should().Be(ErrorCodes.PlugInFailed);
 
-        ran.Should().ContainSingle().Which.Failure.Should().BeOfType<InvalidOperationException>();
+        ran.Should().ContainSingle().Which.Failure!.Type.Should().Be(nameof(InvalidOperationException));
         host.Failures.Should().ContainSingle().Which.HookId.Should().Be(Fail);
     }
 

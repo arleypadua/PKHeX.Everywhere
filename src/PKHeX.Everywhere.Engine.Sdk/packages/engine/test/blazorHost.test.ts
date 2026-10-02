@@ -8,6 +8,7 @@ describe('blazorHost', () => {
     globalThis.pkhexEngineReady = undefined
     globalThis.pkhexEngineOnReady = undefined
     globalThis.pkhexEngineOnChange = undefined
+    globalThis.pkhexEngineOnEvent = undefined
   })
 
   it('is ready when .NET signalled before the host was created', async () => {
@@ -38,5 +39,14 @@ describe('blazorHost', () => {
     globalThis.pkhexEngineOnChange?.(['party'])
 
     expect(changes).toEqual([['party']])
+  })
+
+  it('passes events from .NET to the listener', () => {
+    const events: string[] = []
+    blazorHost().onEvent((event) => events.push(event))
+
+    globalThis.pkhexEngineOnEvent?.('{"type":"gameExported"}')
+
+    expect(events).toEqual(['{"type":"gameExported"}'])
   })
 })

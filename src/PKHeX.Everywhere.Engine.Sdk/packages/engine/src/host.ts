@@ -9,5 +9,6 @@ export interface AssemblyExports {
 export interface EngineHost {
   ready(): Promise<void>
   onChange(listener: (topics: string[]) => void): void
+  onEvent(listener: (event: string) => void): void
   getAssemblyExports(assemblyName: string): Promise<AssemblyExports>
 }

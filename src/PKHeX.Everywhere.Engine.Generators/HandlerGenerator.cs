@@ -13,6 +13,7 @@ public sealed class HandlerGenerator : IIncrementalGenerator
     private const string QueryAttribute = "PKHeX.Everywhere.Engine.QueryAttribute";
     private const string CommandAttribute = "PKHeX.Everywhere.Engine.CommandAttribute";
     private const string HandleInterface = "PKHeX.Everywhere.Engine.IHandle";
+    private const string EventInterface = "PKHeX.Everywhere.Engine.IEngineEvent";
 
     private static readonly DiagnosticDescriptor NotStatic = new(
         "PKE001", "Handler must be static", "Handler '{0}' must be a static method", "Engine", DiagnosticSeverity.Error, true);
@@ -24,11 +25,21 @@ public sealed class HandlerGenerator : IIncrementalGenerator
     {
         var queries = Handlers(context, QueryAttribute);
         var commands = Handlers(context, CommandAttribute);
+        var events = Events(context);
         var ns = context.CompilationProvider.Select(static (compilation, _) => Namespace(compilation.AssemblyName));
 
-        context.RegisterSourceOutput(queries.Combine(commands).Combine(ns),
-            static (spc, input) => Emit(spc, input.Right, input.Left.Left.AddRange(input.Left.Right)));
+        context.RegisterSourceOutput(queries.Combine(commands).Combine(events).Combine(ns),
+            static (spc, input) => Emit(spc, input.Right, input.Left.Left.Left.AddRange(input.Left.Left.Right), input.Left.Right));
     }
+
+    private static IncrementalValueProvider<ImmutableArray<INamedTypeSymbol>> Events(IncrementalGeneratorInitializationContext context) =>
+        context.SyntaxProvider.CreateSyntaxProvider(
+                static (node, _) => node is TypeDeclarationSyntax { BaseList: not null },
+                static (ctx, _) => ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) as INamedTypeSymbol)
+            .Where(static type => type is { TypeKind: TypeKind.Class or TypeKind.Struct, IsAbstract: false }
+                                  && type.AllInterfaces.Any(i => i.ToDisplayString() == EventInterface))
+            .Select(static (type, _) => type!)
+            .Collect();
 
     private static IncrementalValueProvider<ImmutableArray<IMethodSymbol>> Handlers(IncrementalGeneratorInitializationContext context, string attribute) =>
         context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -42,9 +53,13 @@ public sealed class HandlerGenerator : IIncrementalGenerator
         .Select(segment => new string(segment.Select(c => char.IsLetterOrDigit(c) ? c : '_').ToArray()))
         .Select(segment => segment.Length == 0 || char.IsDigit(segment[0]) ? "_" + segment : segment));
 
-    private static void Emit(SourceProductionContext context, string ns, ImmutableArray<IMethodSymbol> methods)
+    private static void Emit(SourceProductionContext context, string ns, ImmutableArray<IMethodSymbol> methods, ImmutableArray<INamedTypeSymbol> events)
     {
         var json = new JsonEmitter(context);
+        var eventCases = new StringBuilder();
+        foreach (var type in events.Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).OrderBy(t => t.ToDisplayString()))
+            eventCases.AppendLine($"                case {type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} e: {json.WriteEvent(type, "e")} return true;");
+
         var cases = new StringBuilder();
         var names = new List<string>();
 
@@ -84,6 +99,15 @@ public sealed class HandlerGenerator : IIncrementalGenerator
                     switch (call)
                     {
             {{cases}}        }
+
+                    return false;
+                }
+
+                public static bool TryWriteEvent(global::PKHeX.Everywhere.Engine.IEngineEvent engineEvent, Utf8JsonWriter writer)
+                {
+                    switch (engineEvent)
+                    {
+            {{eventCases}}        }
 
                     return false;
                 }

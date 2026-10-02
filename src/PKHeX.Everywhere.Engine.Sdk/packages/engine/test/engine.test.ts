@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createEngine, EngineError, type PokemonSummary } from '../src'
+import { createEngine, EngineError, type EngineEvent, type PokemonSummary } from '../src'
 import { fakeHost } from './fakeHost'
 
 const pikachu = {
@@ -91,5 +91,18 @@ describe('createEngine', () => {
     emitChange(['party'])
 
     expect(changes).toEqual([])
+  })
+
+  it('passes Engine events to listeners until they stop listening', () => {
+    const { host, emitEvent } = fakeHost(() => ({ ok: true, value: null }))
+    const engine = createEngine({ host })
+    const events: EngineEvent[] = []
+    const stop = engine.onEvent((event) => events.push(event))
+
+    emitEvent('{"type":"itemChanged","itemId":4,"count":2}')
+    stop()
+    emitEvent('{"type":"itemChanged","itemId":5,"count":1}')
+
+    expect(events).toEqual([{ type: 'itemChanged', itemId: 4, count: 2 }])
   })
 })

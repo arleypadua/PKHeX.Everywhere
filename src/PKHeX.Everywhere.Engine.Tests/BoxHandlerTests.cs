@@ -96,7 +96,7 @@ public class BoxHandlerTests
         pokemon["species"]!.GetValue<string>().Should().Be(species);
         added["id"]!.GetValue<string>().Should().Be(pokemon["id"]!.GetValue<string>());
         changes.Should().ContainSingle().Which.Should().Equal(Topics.Box);
-        published.Should().Equal(new PokemonAdded(expected, PokemonAddSource.File));
+        published.Should().Equal(new PokemonAdded(expected, PokemonAddSource.File, game.Trainer.PokemonBox.All[index].ToOverview()));
     }
 
     private static void FailsWith(Session session, byte[] bytes, string code)

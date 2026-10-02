@@ -28,6 +28,25 @@ internal sealed class JsonEmitter(SourceProductionContext context)
 
     public string Read(ITypeSymbol type, string element, Location? location) => ReadExpression(type, element, location);
 
+    public string WriteEvent(ITypeSymbol type, string value)
+    {
+        var name = MethodName("WriteEvent", type);
+        if (!_writers.ContainsKey(name))
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"    public static void {name}(Utf8JsonWriter writer, {Name(type)} value)");
+            sb.AppendLine("    {");
+            sb.AppendLine("        writer.WriteStartObject();");
+            sb.AppendLine($"        writer.WriteString(\"type\", \"{Naming.CamelCase(type.Name)}\");");
+            EmitProperties(sb, type);
+            sb.AppendLine("        writer.WriteEndObject();");
+            sb.AppendLine("    }");
+            _writers[name] = sb.ToString();
+        }
+
+        return $"GeneratedJson.{name}(writer, {value});";
+    }
+
     public string Build(string ns)
     {
         while (_pending.Count > 0)
@@ -215,17 +234,21 @@ internal sealed class JsonEmitter(SourceProductionContext context)
         else
         {
             sb.AppendLine("        writer.WriteStartObject();");
-            foreach (var property in Properties(type))
-            {
-                sb.AppendLine($"        writer.WritePropertyName(\"{Naming.CamelCase(property.Name)}\");");
-                EmitWrite(sb, property.Type, $"value.{property.Name}", "        ", property.Locations.FirstOrDefault());
-            }
-
+            EmitProperties(sb, type);
             sb.AppendLine("        writer.WriteEndObject();");
         }
 
         sb.AppendLine("    }");
         _writers[MethodName("Write", type)] = sb.ToString();
+    }
+
+    private void EmitProperties(StringBuilder sb, ITypeSymbol type)
+    {
+        foreach (var property in Properties(type))
+        {
+            sb.AppendLine($"        writer.WritePropertyName(\"{Naming.CamelCase(property.Name)}\");");
+            EmitWrite(sb, property.Type, $"value.{property.Name}", "        ", property.Locations.FirstOrDefault());
+        }
     }
 
     private void BuildReader(ITypeSymbol type)

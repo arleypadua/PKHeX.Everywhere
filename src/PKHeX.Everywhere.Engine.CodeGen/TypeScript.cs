@@ -18,8 +18,9 @@ public static class TypeScript
     {
         var types = new TypeCollector();
         var client = Client(contract, types);
+        foreach (var engineEvent in contract.Events) types.Render(engineEvent, null);
 
-        yield return ("engine/src/generated/types.ts", types.Declarations());
+        yield return ("engine/src/generated/types.ts", types.Declarations() + Events(contract));
         yield return ("engine/src/generated/client.ts", client);
         yield return ("engine/src/generated/errors.ts", Errors(contract));
         yield return ("engine/src/generated/topics.ts", Topics(contract));
@@ -38,6 +39,9 @@ public static class TypeScript
         {{string.Concat(contract.Queries.Select(c => $"  {Quote(c.Name)}: [{string.Join(", ", c.Topics.Select(Quote))}],\n"))}}}
 
         """;
+
+    private static string Events(Contract contract) =>
+        $"\nexport type EngineEvent = {(contract.Events.Count == 0 ? "never" : string.Join(" | ", contract.Events.Select(e => e.Name)))}\n";
 
     private static string Errors(Contract contract) => $"""
         {Header}
@@ -277,6 +281,7 @@ public static class TypeScript
 
             var optional = OptionalParameters(type);
             var sb = new StringBuilder($"export interface {type.Name} {{\n");
+            if (Contract.IsEvent(type)) sb.AppendLine($"  type: {Quote(JsonNamingPolicy.CamelCase.ConvertName(type.Name))}");
             foreach (var property in Properties(type))
             {
                 var name = JsonNamingPolicy.CamelCase.ConvertName(property.Name);

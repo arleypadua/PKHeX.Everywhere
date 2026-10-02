@@ -102,7 +102,7 @@ public class EncounterHandlerTests
         pokemon["species"]!.GetValue<string>().Should().Be(row["species"]!.GetValue<string>());
         added["id"]!.GetValue<string>().Should().Be(pokemon["id"]!.GetValue<string>());
         changes.Should().ContainSingle().Which.Should().Equal(Topics.Box);
-        published.Should().Equal(new PokemonAdded(expected, PokemonAddSource.Encounter));
+        published.Should().Equal(new PokemonAdded(expected, PokemonAddSource.Encounter, game.Trainer.PokemonBox.All[index].ToOverview()));
     }
 
     [Fact]

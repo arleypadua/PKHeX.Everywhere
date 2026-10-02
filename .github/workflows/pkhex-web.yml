@@ -47,6 +47,8 @@ jobs:
           cd ../../../
 
       - name: Install NPM dependencies and build PKHeX.Web.React
+        env:
+          VITE_GOOGLE_ANALYTICS: 'true'
         run: |
           cd src/PKHeX.Web.React
 

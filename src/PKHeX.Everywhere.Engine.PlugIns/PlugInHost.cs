@@ -26,11 +26,9 @@ public sealed class PlugInHost
         _session = session;
         _game = new SessionGameProvider(session);
         Hosts.AddOrUpdate(session, this);
-        session.AddHandlers(HandlerRegistry.TryInvoke);
+        session.AddHandlers(HandlerRegistry.TryInvoke, HandlerRegistry.TryWriteEvent);
         session.Published += HandlePublished;
     }
-
-    public event Action<PlugInRan>? Ran;
 
     public IReadOnlyList<PlugInFailure> Failures => _failures.ToList();
 
@@ -233,15 +231,15 @@ public sealed class PlugInHost
         PlugInRan ran;
         try
         {
-            ran = new PlugInRan(plugInId, hookId, await run(), null);
+            ran = new PlugInRan(plugInId, hookId, PlugInOutcome.From(await run()), null);
         }
         catch (Exception e)
         {
             Record(new PlugInFailure(++_lastFailureId, plugInId, hookId, e.Message, e.StackTrace));
-            ran = new PlugInRan(plugInId, hookId, null, e);
+            ran = new PlugInRan(plugInId, hookId, null, new HookFailure(e.GetType().Name, e.Message));
         }
 
-        Ran?.Invoke(ran);
+        _session.PublishNow(ran);
         return ran;
     }
 
@@ -326,6 +324,8 @@ public sealed record StoredPlugIn(
 
 public sealed record InstalledPlugIn(string Id, string Name, string Version, bool Enabled, bool HasNewerVersion, bool NeedsReinstall);
 
-public sealed record PlugInRan(string PlugInId, string HookId, Outcome? Outcome, Exception? Failure);
+public sealed record PlugInRan(string PlugInId, string HookId, PlugInOutcome? Outcome, HookFailure? Failure) : IEngineEvent;
+
+public sealed record HookFailure(string Type, string Message);
 
 public sealed record PlugInFailure(int Id, string PlugInId, string HookId, string Message, string? StackTrace);
