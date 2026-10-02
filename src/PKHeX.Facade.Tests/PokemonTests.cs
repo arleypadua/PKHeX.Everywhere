@@ -63,6 +63,19 @@ public class PokemonTests
         pokemon.HeldItem.Should().Be(leftovers);
     }
 
+    [Theory]
+    [InlineData(Ball.Cherish, "Cherish Ball")]
+    [InlineData(Ball.Fast, "Fast Ball")]
+    [InlineData(Ball.Dream, "Dream Ball")]
+    [InlineData(Ball.LAOrigin, "Origin Ball")]
+    public void Ball_ShouldResolveFromTheBallNames(Ball ball, string name)
+    {
+        var game = Game.EmptyOf(GameVersionRepository.Instance.Get(GameVersion.PLA));
+        var pokemon = new Pokemon(new PA8 { Ball = (byte)ball }, game);
+
+        pokemon.Ball.Should().Be(new ItemDefinition((ushort)ball, name));
+    }
+
     [Fact]
     public void IsAlpha_ShouldSurviveSerialization()
     {
