@@ -2,7 +2,7 @@
 
 React hooks for [`@pkhex-everywhere/engine`](https://www.npmjs.com/package/@pkhex-everywhere/engine). Hooks suspend until their data arrives and refetch when a command changes it.
 
-**[Documentation](https://arley-space--docs.wawesome.app/docs/guides/react/)** · [API reference](https://arley-space--docs.wawesome.app/docs/reference/react/)
+**[Documentation](https://docs.pkhex-everywhere.fyi/docs/guides/react/)** · [API reference](https://docs.pkhex-everywhere.fyi/docs/reference/react/)
 
 ## Install
 
