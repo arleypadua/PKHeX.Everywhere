@@ -39,8 +39,8 @@ public class EditAndExportTests(WebAppFixture fixture) : E2ETest(fixture)
 
         var heldItemSelect = page.GetByRole(AriaRole.Combobox, new() { Name = "Held Item", Exact = true });
         await heldItemSelect.ClickAsync();
-        await heldItemSelect.PressSequentiallyAsync(heldItem);
-        await page.GetByRole(AriaRole.Option, new() { Name = heldItem, Exact = true }).ClickAsync();
+        await heldItemSelect.FillAsync(heldItem);
+        await heldItemSelect.PressAsync("Enter");
         await Assertions.Expect(page.SelectValue("Held Item")).ToContainTextAsync(heldItem);
 
         await page.GetByRole(AriaRole.Button, new() { Name = "Save", Exact = true }).ClickAsync();
