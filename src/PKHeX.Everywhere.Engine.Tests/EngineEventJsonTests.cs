@@ -10,7 +10,7 @@ using static PKHeX.Everywhere.Engine.Tests.EngineResults;
 
 namespace PKHeX.Everywhere.Engine.Tests;
 
-public class EventChannelTests
+public class EngineEventJsonTests
 {
     private const string TestPlugInId = "PKHeX.Everywhere.Engine.Tests.PlugIn";
 

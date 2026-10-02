@@ -29,7 +29,7 @@ A hierarchical path, such as `party`, `box/3` or `inventory`, naming a part of t
 _Avoid_: cache key, channel
 
 **Engine event**:
-A typed record a command raises through the Session, published after the command succeeds. JS receives it next to Topics.
+A typed record a command raises through the Session, published after the command succeeds. `PlugInRan` is the exception: it is published as soon as the hook runs. JS receives events next to Topics.
 _Avoid_: notification, message
 
 **Entity hook**:

@@ -102,6 +102,7 @@ public class AnalyticsService(IJSRuntime js, IConfiguration configuration)
         }
         catch (JSException)
         {
+            // A failed analytics call must not surface as an unobserved task exception.
         }
     }
 }
