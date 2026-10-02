@@ -122,29 +122,25 @@ const features = [
   const sparkleTarget = document.querySelector<HTMLElement>('[data-sparkle]')
   if (sparkleTarget && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const tints = ['#9d85ff', '#ff7fc0', '#ffc94d']
-    const sparksPerBurst = 12
-    let offset = 0
-    const burst = () => {
-      if (document.hidden) return
-      const { width, height } = sparkleTarget.getBoundingClientRect()
-      offset += Math.PI / sparksPerBurst
-      for (let i = 0; i < sparksPerBurst; i++) {
+    const launch = () => {
+      if (!document.hidden) {
+        const { width, height } = sparkleTarget.getBoundingClientRect()
         const spark = document.createElement('span')
         spark.className = 'spark'
-        const angle = offset + (i / sparksPerBurst) * Math.PI * 2
-        const reach = 1 + Math.random() * 0.25
-        spark.style.setProperty('--size', `${8 + Math.random() * 8}px`)
-        spark.style.setProperty('--tint', tints[i % tints.length])
+        const angle = Math.random() * Math.PI * 2
+        const reach = 0.4 + Math.random() * 1.1
+        spark.style.setProperty('--size', `${4 + Math.random() * 14}px`)
+        spark.style.setProperty('--tint', tints[Math.floor(Math.random() * tints.length)])
         spark.style.setProperty('--dx', `${Math.cos(angle) * (width / 2 + 40) * reach}px`)
         spark.style.setProperty('--dy', `${Math.sin(angle) * (height / 2 + 40) * reach}px`)
         spark.style.setProperty('--spin', `${(Math.random() - 0.5) * 180}deg`)
-        spark.style.setProperty('--life', `${2200 + Math.random() * 600}ms`)
+        spark.style.setProperty('--life', `${1800 + Math.random() * 1200}ms`)
         spark.addEventListener('animationend', () => spark.remove())
         sparkleTarget.append(spark)
       }
+      setTimeout(launch, 60 + Math.random() * 240)
     }
-    burst()
-    setInterval(burst, 1800)
+    launch()
   }
 
   document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
