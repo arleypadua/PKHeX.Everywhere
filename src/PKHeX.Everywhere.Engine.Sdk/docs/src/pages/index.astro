@@ -131,8 +131,11 @@ const features = [
         const reach = 0.4 + Math.random() * 1.1
         spark.style.setProperty('--size', `${9 + Math.random() * 10}px`)
         spark.style.setProperty('--tint', tints[Math.floor(Math.random() * tints.length)])
-        spark.style.setProperty('--dx', `${Math.cos(angle) * (width / 2 + 40) * reach}px`)
-        spark.style.setProperty('--dy', `${Math.sin(angle) * (height / 2 + 40) * reach}px`)
+        const [cos, sin] = [Math.cos(angle), Math.sin(angle)]
+        spark.style.setProperty('--sx', `${cos * width * 0.25}px`)
+        spark.style.setProperty('--sy', `${sin * height * 0.4}px`)
+        spark.style.setProperty('--dx', `${cos * (width / 2 + 40) * reach}px`)
+        spark.style.setProperty('--dy', `${sin * (height / 2 + 40) * reach}px`)
         spark.style.setProperty('--spin', `${(Math.random() - 0.5) * 180}deg`)
         spark.style.setProperty('--life', `${3000 + reach * 900}ms`)
         spark.addEventListener('animationend', () => spark.remove())
@@ -229,10 +232,10 @@ const features = [
     50% { filter: drop-shadow(0 0 0.5em rgba(255, 127, 184, 0.45)); }
   }
   @keyframes drift {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(0deg); }
+    0% { opacity: 0; transform: translate(calc(-50% + var(--sx)), calc(-50% + var(--sy))) scale(0.3) rotate(0deg); }
     8% { opacity: 1; }
     60% { opacity: 0.8; }
-    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.9) rotate(var(--spin)); }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--sx) + var(--dx)), calc(-50% + var(--sy) + var(--dy))) scale(0.9) rotate(var(--spin)); }
   }
   @media (prefers-reduced-motion: reduce) {
     .everywhere .word {
