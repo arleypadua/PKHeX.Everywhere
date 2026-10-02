@@ -17,6 +17,7 @@
         <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
         <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
         <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+        <EnableConfigurationBindingGenerator>false</EnableConfigurationBindingGenerator>
         <InvariantGlobalization>false</InvariantGlobalization>
         <EventSourceSupport>false</EventSourceSupport>
         <UseSystemResourceKeys>true</UseSystemResourceKeys>

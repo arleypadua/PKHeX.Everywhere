@@ -4,7 +4,7 @@ The PKHeX.Web UI. Vite owns `index.html`, and `src/index.ts` mounts the app into
 
 - `npm run dev` builds the Engine host and serves the app and its `_framework` from Vite at http://localhost:5173, with HMR. Dev builds load the demo save on start. `./dev.sh stop` stops it, from any terminal.
 - `npm run build` publishes the Engine host in Release and writes the app to `dist`, with the host's `_framework` copied in. `npm run preview` serves `dist`.
-- `public/` holds the static files: `404.html`, `ads.txt`, `robots.txt`, the Google verification file, the icon, the font, the demo save and the blog. Build the blog with `npm ci && npm run build` in `blog/`; it writes to `public/blog`.
+- `public/` holds the static files: `404.html`, `ads.txt`, `robots.txt`, the Google verification file, the icon, the font, the demo save and the blog. `npm run build:blog` builds the blog into `public/blog`, and `npm run build` runs it.
 - Production still deploys PKHeX.Web, which boots .NET through Blazor and loads `npm run build:blazor` output from `../PKHeX.Web/wwwroot/react`. That build uses `src/blazorHost.ts` instead of `wasmHost`.
 - Google Analytics runs only when the build sets `VITE_GOOGLE_ANALYTICS=true`. Only the GitHub Pages deploy sets it, so local and PR preview builds send nothing.
 - Sentry runs only when the build sets `VITE_SENTRY=true`, which only the GitHub Pages deploy does. `src/index.ts` starts it before the app, so it reports an Engine host that fails to boot. `src/sentry.ts` adds the route and loaded game to every event. PKHeX.Web reports .NET exceptions through `captureBlazorError`.

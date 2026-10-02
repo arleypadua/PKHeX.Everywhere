@@ -14,14 +14,16 @@ const contentTypes: Record<string, string> = {
   '.map': 'application/json',
 }
 
-// Serves the Engine host's _framework from `dotnet build` in dev, and copies the Release publish into dist.
 function engineHost(): Plugin {
   return {
     name: 'engine-host',
     configureServer(server) {
-      server.middlewares.use('/_framework', (req, res, next) => {
-        const file = join(debugFramework, decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname))
-        if (relative(debugFramework, file).startsWith('..') || !existsSync(file) || !statSync(file).isFile()) return next()
+      server.middlewares.use('/_framework', (req, res) => {
+        const file = join(debugFramework, new URL(req.url ?? '/', 'http://localhost').pathname)
+        if (relative(debugFramework, file).startsWith('..') || !existsSync(file) || !statSync(file).isFile()) {
+          res.statusCode = 404
+          return res.end()
+        }
         res.setHeader('Content-Type', contentTypes[extname(file)] ?? 'application/octet-stream')
         res.setHeader('Cache-Control', 'no-cache')
         createReadStream(file).pipe(res)

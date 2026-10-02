@@ -23,7 +23,6 @@ export interface WasmHostOptions {
 
 const importModule = (url: string) => import(/* @vite-ignore */ url) as Promise<DotnetModule>
 
-// Boots PKHeX.Everywhere.Engine.Host, whose Main attaches the plug-in host and signals the Engine is ready.
 export function wasmHost({ dotnetUrl = '/_framework/dotnet.js', load = importModule }: WasmHostOptions = {}): EngineHost {
   let booted: Promise<DotnetRuntime> | undefined
   const boot = () =>

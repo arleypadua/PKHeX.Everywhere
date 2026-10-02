@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "./dev.sh",
-    "build": "tsc --noEmit && dotnet publish ../PKHeX.Everywhere.Engine.Host -c Release && vite build",
+    "build": "tsc --noEmit && dotnet publish ../PKHeX.Everywhere.Engine.Host -c Release && npm run build:blog && vite build",
     "build:blazor": "tsc --noEmit && vite build --mode blazor",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build:blog": "cd blog && npm ci --include=dev && npm run build"
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.4",
