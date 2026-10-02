@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <!-- Hot reload loads its module from _content, which Vite doesn't serve. -->
+        <WasmEnableHotReload>false</WasmEnableHotReload>
+    </PropertyGroup>
+
+    <!-- Microsoft.NET.Sdk.BlazorWebAssembly's defaults, which PKHeX.Web ran with. -->
+    <PropertyGroup>
+        <PublishTrimmed>true</PublishTrimmed>
+        <TrimMode>partial</TrimMode>
+        <TrimmerRemoveSymbols>false</TrimmerRemoveSymbols>
+        <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+        <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+        <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+        <InvariantGlobalization>false</InvariantGlobalization>
+        <EventSourceSupport>false</EventSourceSupport>
+        <UseSystemResourceKeys>true</UseSystemResourceKeys>
+        <UseSizeOptimizedLinq>true</UseSizeOptimizedLinq>
+        <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
+        <Http3Support>false</Http3Support>
+        <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+        <DebuggerSupport Condition="'$(Configuration)' != 'Debug'">false</DebuggerSupport>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\PKHeX.Everywhere.Engine\PKHeX.Everywhere.Engine.csproj" />
+        <ProjectReference Include="..\PKHeX.Everywhere.Engine.PlugIns\PKHeX.Everywhere.Engine.PlugIns.csproj" />
+    </ItemGroup>
+
+</Project>

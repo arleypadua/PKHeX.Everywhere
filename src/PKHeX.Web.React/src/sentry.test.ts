@@ -87,6 +87,18 @@ describe('Sentry', () => {
     expect(events[0].tags).toMatchObject({ boot: 'failed' })
   })
 
+  it('captures an Engine host that fails to boot', async () => {
+    start()
+    const engine = { ...fakeEngine(), ready: Promise.reject(new Error('Main failed')) }
+
+    watchEngine(engine, true)
+    await flush()
+
+    expect(events).toHaveLength(1)
+    expect(events[0].exception?.values?.[0]?.value).toBe('Main failed')
+    expect(events[0].tags).toMatchObject({ boot: 'failed' })
+  })
+
   it('captures Engine calls that fail with an unexpected or internal code', async () => {
     start()
     const engine = fakeEngine()

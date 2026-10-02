@@ -1,2 +1,4 @@
 node_modules/
 .dev.pid
+dist/
+public/blog/

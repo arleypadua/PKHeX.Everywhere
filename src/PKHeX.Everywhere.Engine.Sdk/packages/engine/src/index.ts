@@ -1,5 +1,5 @@
 export { createEngine, EngineError, type Engine } from './engine'
-export { blazorHost } from './blazorHost'
+export { wasmHost, type DotnetRuntime, type WasmHostOptions } from './wasmHost'
 export type { AssemblyExports, EngineExports, EngineHost } from './host'
 export { createClient, type CallName, type CommandName, type EngineClient, type Invoke, type QueryName } from './generated/client'
 export { errorCodes, type ErrorCode } from './generated/errors'

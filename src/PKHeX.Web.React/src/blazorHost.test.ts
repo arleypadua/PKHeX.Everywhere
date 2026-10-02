@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { blazorHost } from '../src'
+import { blazorHost } from './blazorHost'
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0))
 

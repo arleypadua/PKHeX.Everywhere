@@ -1,4 +1,4 @@
-import type { AssemblyExports, EngineHost } from './host'
+import type { AssemblyExports, EngineHost } from '@pkhex-everywhere/engine'
 
 interface DotnetRuntime {
   getAssemblyExports(assemblyName: string): Promise<AssemblyExports>
@@ -13,7 +13,7 @@ declare global {
   var getDotnetRuntime: ((id: number) => DotnetRuntime | undefined) | undefined
 }
 
-// Blazor.start() resolves before the renderer attaches, so readiness comes from the .NET side (EngineExports.SignalReady).
+// PKHeX.Web only. Blazor.start() resolves before the renderer attaches, so readiness comes from the .NET side (EngineExports.SignalReady).
 export function blazorHost(): EngineHost {
   return {
     ready: () =>

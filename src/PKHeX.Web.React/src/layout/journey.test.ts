@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
+import type { GameOverview } from '@pkhex-everywhere/engine'
 import { createJourney, routeAfter } from './journey'
+
+const emerald: GameOverview = { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3, trainerGender: 'Male', boxCount: 420, party: [] }
 
 describe('journey', () => {
   it('sends Home to the load page when no save is loaded', () => {
@@ -32,7 +35,7 @@ describe('journey', () => {
   })
 
   it('goes Home after a save loads and to the load page after it closes', () => {
-    expect(routeAfter({ type: 'gameLoaded' })).toBe('/')
+    expect(routeAfter({ type: 'gameLoaded', game: emerald })).toBe('/')
     expect(routeAfter({ type: 'gameClosed' })).toBe('/load')
     expect(routeAfter({ type: 'itemChanged', itemId: 1, count: 1 })).toBeNull()
   })

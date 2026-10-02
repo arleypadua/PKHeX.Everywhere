@@ -115,7 +115,7 @@ jobs:
         run: |
           npm ci
           npm test
-          npm run build
+          npm run build:blazor
       - name: Build
         run: dotnet build src/PKHeX.Web.E2E/PKHeX.Web.E2E.csproj
       - name: Install Chromium

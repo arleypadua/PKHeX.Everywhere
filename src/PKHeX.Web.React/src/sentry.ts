@@ -50,7 +50,7 @@ export function watchEngine(engine: WatchedEngine, enabled = enabledInBuild) {
       (version) => (game = version),
       () => {},
     )
-  void engine.ready.then(refresh)
+  engine.ready.then(refresh, (error: unknown) => Sentry.captureException(error, { tags: { boot: 'failed' } }))
   engine.subscribe(['game'], () => void refresh())
 
   engine.onCallFailed((call, error) => {

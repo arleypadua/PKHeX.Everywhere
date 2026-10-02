@@ -1,0 +1,23 @@
+@font-face {
+    font-family: 'Pokemon GB';
+    src: url("/font/pkmgb.ttf");
+}
+
+html, body {
+    font-family: 'Pokemon GB', "Lucida Console", sans-serif;
+}
+
+#root {
+    height: 100%;
+}
+
+.loading-text {
+    font-size: 15px;
+    color: slategrey;
+    text-align: center;
+    width: 100%;
+}
+
+code {
+    color: #c02d76;
+}

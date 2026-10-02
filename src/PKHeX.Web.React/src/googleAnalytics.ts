@@ -41,6 +41,8 @@ function toAnalyticsEvent(event: EngineEvent): [string, Params] | null {
   switch (event.type) {
     case 'itemChanged':
       return ['item_modified', { item_id: event.itemId, quantity: event.count }]
+    case 'gameLoaded':
+      return ['game_loaded', gameParams(event.game)]
     case 'gameExported':
       return ['game_exported', gameParams(event.game)]
     case 'pokemonAdded':

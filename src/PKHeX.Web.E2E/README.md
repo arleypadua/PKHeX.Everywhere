@@ -12,6 +12,9 @@ Build the JS assets once:
 cd src/PKHeX.Web/_js
 npm ci
 npm run build
+cd ../../PKHeX.Web.React
+npm ci
+npm run build:blazor
 ```
 
 Build the project and install Chromium (needs PowerShell):

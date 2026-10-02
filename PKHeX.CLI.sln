@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PKHeX.Everywhere.Engine.Plu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PKHeX.Everywhere.Engine.Tests.PlugIn", "src\PKHeX.Everywhere.Engine.Tests.PlugIn\PKHeX.Everywhere.Engine.Tests.PlugIn.csproj", "{B00F394E-83A9-4A35-AF7B-169DC176AF60}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PKHeX.Everywhere.Engine.Host", "src\PKHeX.Everywhere.Engine.Host\PKHeX.Everywhere.Engine.Host.csproj", "{8D901320-9A4F-41F3-A277-6B31796C0FE5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -269,6 +271,18 @@ Global
 		{B00F394E-83A9-4A35-AF7B-169DC176AF60}.Release|x64.Build.0 = Release|Any CPU
 		{B00F394E-83A9-4A35-AF7B-169DC176AF60}.Release|x86.ActiveCfg = Release|Any CPU
 		{B00F394E-83A9-4A35-AF7B-169DC176AF60}.Release|x86.Build.0 = Release|Any CPU
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5}.Debug|x64.Build.0 = Debug|Any CPU
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5}.Debug|x86.Build.0 = Debug|Any CPU
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5}.Release|x64.ActiveCfg = Release|Any CPU
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5}.Release|x64.Build.0 = Release|Any CPU
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5}.Release|x86.ActiveCfg = Release|Any CPU
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -298,6 +312,7 @@ Global
 		{430ADD1A-BDEB-4268-B346-4197F6D8B083} = {581836A3-E798-46C3-BB0B-77FE8D00586E}
 		{2E0E0038-78C5-428D-9540-599F4C4687D7} = {581836A3-E798-46C3-BB0B-77FE8D00586E}
 		{B00F394E-83A9-4A35-AF7B-169DC176AF60} = {581836A3-E798-46C3-BB0B-77FE8D00586E}
+		{8D901320-9A4F-41F3-A277-6B31796C0FE5} = {581836A3-E798-46C3-BB0B-77FE8D00586E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DC818BE7-9140-4DBD-A070-2FF1372FF25E}

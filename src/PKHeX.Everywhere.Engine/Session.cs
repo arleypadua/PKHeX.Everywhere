@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Text;
 using System.Text.Json;
+using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Facade.Repositories;
@@ -36,7 +37,7 @@ public sealed class Session
 
         Invalidate(Topics.All);
         GameChanged?.Invoke();
-        Raise(new GameLoaded());
+        Raise(new GameLoaded(game.ToOverview()));
     }
 
     public void Close()

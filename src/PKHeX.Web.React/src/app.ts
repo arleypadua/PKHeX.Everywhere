@@ -1,8 +1,9 @@
-import { blazorHost, createEngine } from '@pkhex-everywhere/engine'
+import { createEngine, wasmHost } from '@pkhex-everywhere/engine'
+import { blazorHost } from './blazorHost'
 import { createPlugIns } from './plugins/plugIns'
 import { createPlugInStore } from './plugins/store'
 
-export const engine = createEngine({ host: blazorHost() })
+export const engine = createEngine({ host: import.meta.env.MODE === 'blazor' ? blazorHost() : wasmHost() })
 
 export const plugIns = createPlugIns(engine, createPlugInStore())
 

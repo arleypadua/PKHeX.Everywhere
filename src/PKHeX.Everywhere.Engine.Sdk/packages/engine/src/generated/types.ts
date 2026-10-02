@@ -138,6 +138,7 @@ export interface GameExported {
 
 export interface GameLoaded {
   type: 'gameLoaded'
+  game: GameOverview
 }
 
 export interface GameOverview {
