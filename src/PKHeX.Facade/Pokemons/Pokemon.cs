@@ -31,11 +31,17 @@ public partial class Pokemon(PKM pokemon, Game game)
 
     public bool IsEmpty => IsBlank(pokemon);
 
-    public bool IsUnknown => pokemon is IUnmappedValues { UnmappedSpecies: not null };
+    public bool IsUnknown => IsUnmapped(pokemon);
 
-    public bool IsEditable => !IsUnknown;
+    internal static bool IsBlank(PKM pkm) => pkm.Species == 0 && !IsUnmapped(pkm);
 
-    internal static bool IsBlank(PKM pkm) => pkm.Species == 0 && pkm is not IUnmappedValues { UnmappedSpecies: not null };
+    private static bool IsUnmapped(PKM pkm) => pkm is IUnmappedValues { UnmappedSpecies: not null };
+
+    /// <exception cref="UnknownSpeciesException">The species has no PKHeX id, so the Pokémon can't be edited or copied.</exception>
+    public void RequireEditable()
+    {
+        if (IsUnknown) throw new UnknownSpeciesException($"{Species.Name} can't be edited, as its species is unknown.");
+    }
 
     public SpeciesDefinition Species
     {
@@ -137,6 +143,7 @@ public partial class Pokemon(PKM pokemon, Game game)
 
     public void ChangeLevel(int level)
     {
+        RequireEditable();
         var clamped = Math.Clamp(level, 1, 100);
         pokemon.CurrentLevel = Convert.ToByte(clamped);
     }
@@ -164,6 +171,7 @@ public partial class Pokemon(PKM pokemon, Game game)
 
     public Pokemon MakeCopy()
     {
+        RequireEditable();
         var underlyingPkm = Pkm.Clone();
         underlyingPkm.ClearNickname();
 
@@ -247,5 +255,7 @@ public partial class Pokemon(PKM pokemon, Game game)
         public required byte[] Bytes { get; init; }
     }
 }
+
+public class UnknownSpeciesException(string message) : Exception(message);
 
 public record HiddenPowerDefinition(string Type, int? Power);

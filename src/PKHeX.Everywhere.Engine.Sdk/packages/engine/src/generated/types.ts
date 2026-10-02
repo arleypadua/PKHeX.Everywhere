@@ -77,7 +77,7 @@ export interface EditablePokemon {
   ability: number
   /** PKHeX item id. 0 means no item. See `game.heldItems()`. */
   heldItem: number
-  /** Set when the Pokémon holds an item PKHeX has no id for, such as a ROM hack's own item, to a name like `Unknown item #640`. `heldItem` is 0 then. The item stays unless `heldItem` is changed. */
+  /** Set when the Pokémon holds an item PKHeX has no id for, such as a ROM hack's own item, to a name like `Unknown item #640`. `heldItem` is 0 then, and the item stays until `heldItem` is set to another item. */
   unknownHeldItem: string | null
   /** PKHeX ball id. See `game.balls()`. */
   ball: number

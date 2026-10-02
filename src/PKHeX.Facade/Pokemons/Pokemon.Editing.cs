@@ -55,9 +55,10 @@ public partial class Pokemon
     /// Applies the patch in a fixed order, species before form before ability and origin game before met location and stat inputs before combat power, so each field is checked against the ones before it.
     /// </summary>
     /// <exception cref="InvalidPatchException">A field holds a value the save can't store. Nothing is applied.</exception>
+    /// <exception cref="UnknownSpeciesException">The species has no PKHeX id.</exception>
     public void Update(PokemonPatch patch)
     {
-        Require(IsEditable, nameof(PokemonPatch.Species), $"{Species.Name} can't be edited, as its species is unknown.");
+        RequireEditable();
         Clone().Apply(patch);
         Apply(patch);
     }

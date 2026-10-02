@@ -109,7 +109,7 @@ public enum PokemonHandler
 /// <param name="Nature">PKHeX nature id. See <c>game.natures()</c>.</param>
 /// <param name="Ability">PKHeX ability id, or 0 in games without abilities.</param>
 /// <param name="HeldItem">PKHeX item id. 0 means no item. See <c>game.heldItems()</c>.</param>
-/// <param name="UnknownHeldItem">Set when the Pokémon holds an item PKHeX has no id for, such as a ROM hack's own item, to a name like <c>Unknown item #640</c>. <c>heldItem</c> is 0 then. The item stays unless <c>heldItem</c> is changed.</param>
+/// <param name="UnknownHeldItem">Set when the Pokémon holds an item PKHeX has no id for, such as a ROM hack's own item, to a name like <c>Unknown item #640</c>. <c>heldItem</c> is 0 then, and the item stays until <c>heldItem</c> is set to another item.</param>
 /// <param name="Ball">PKHeX ball id. See <c>game.balls()</c>.</param>
 /// <param name="Friendship">Friendship with the current handler, 0 to 255.</param>
 /// <param name="Language">PKHeX language id. See <c>game.languages()</c>.</param>

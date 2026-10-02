@@ -1,6 +1,7 @@
 using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
+using PKHeX.Facade.Pokemons;
 using Pokemon = PKHeX.Facade.Pokemons.Pokemon;
 
 namespace PKHeX.Everywhere.Engine;
@@ -28,9 +29,18 @@ internal static class PokemonSlots
 
     public static PokemonSlot FindEditableSaved(this Game game, PokemonHandle at) => RequireEditable(game.FindSaved(at));
 
-    private static PokemonSlot RequireEditable(PokemonSlot slot) => slot.Pokemon.IsEditable
-        ? slot
-        : throw new EngineException(ErrorCodes.UnknownSpecies, $"{slot.Pokemon.Species.Name} can't be edited, as its species is unknown.");
+    private static PokemonSlot RequireEditable(PokemonSlot slot)
+    {
+        try
+        {
+            slot.Pokemon.RequireEditable();
+            return slot;
+        }
+        catch (UnknownSpeciesException e)
+        {
+            throw new EngineException(ErrorCodes.UnknownSpecies, e.Message, e);
+        }
+    }
 
     public static Draft RequireDraft(this Session session) =>
         session.Draft ?? throw new EngineException(ErrorCodes.NoDraft, "No Pokémon is open for editing.");

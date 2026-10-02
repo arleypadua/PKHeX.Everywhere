@@ -31,7 +31,7 @@ The Engine tests in `UnboundSaveTests` cover the gate:
 
 These are rules of the format, not workarounds for the Facade:
 
-- Species, form, moves and the held item translate between hack indices and national or modern IDs. Writing back the value a getter returned keeps the raw index, so duplicate indices (Unbound has four Gourgeist) and unmapped values survive edits to other fields. Writing 0 as the held item removes an unmapped one.
+- Species, form, moves and the held item translate between hack indices and national or modern IDs. Writing back the value a getter returned keeps the raw index, so duplicate indices (Unbound has four Gourgeist) and unmapped values survive edits to other fields.
 - An unmapped species or held item reads as 0. The Pokémon reports the raw value through the Facade's `IUnmappedValues`, so the Facade shows it as "Unknown (#n)" or "Unknown item #n", keeps it in the party and boxes, and refuses to edit a Pokémon with an unknown species.
 - PKHeX counts the party by species, so the save overrides `SetPartySlotAtIndex` to count an unmapped member.
 - The save lists its held items through `HeldItems` and its moves through the Facade's `IMoveList`. Species come from the personal table's `IsSpeciesInGame`, which the Facade checks for every save.

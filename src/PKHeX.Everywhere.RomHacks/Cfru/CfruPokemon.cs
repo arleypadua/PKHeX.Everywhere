@@ -141,14 +141,13 @@ public abstract class CfruPokemon : PKM, IUnmappedValues
 
     public ushort HeldItemIndex { get => ReadUInt16LittleEndian(Data[0x22..]); set => WriteUInt16LittleEndian(Data[0x22..], value); }
 
-    // Like the species, writing back the item already shown keeps an unmapped one. Writing 0 removes it.
+    // Like the species, writing back the item already shown keeps an unmapped one.
     public override int HeldItem
     {
         get => ItemMap.ToModern(HeldItemIndex);
         set
         {
-            if (value == HeldItem && value != 0) return;
-            if ((uint)value <= ushort.MaxValue && ItemMap.ToIndex((ushort)value) is { } index) HeldItemIndex = index;
+            if (value != HeldItem && (uint)value <= ushort.MaxValue && ItemMap.ToIndex((ushort)value) is { } index) HeldItemIndex = index;
         }
     }
 

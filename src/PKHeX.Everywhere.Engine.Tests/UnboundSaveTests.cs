@@ -335,6 +335,8 @@ public class UnboundSaveTests
         Error(Dispatch(session, "pokemon.setLevel", Args(UnknownSpecies, 60))).Should().Be("unknown-species");
         Error(Dispatch(session, "pokemon.edit", Args(UnknownSpecies))).Should().Be("unknown-species");
         Error(Dispatch(session, "pokemon.clone", Args(UnknownSpecies))).Should().Be("unknown-species");
+        Value(Dispatch(session, "pokemon.details", Args(UnknownSpecies)))!["species"]!.GetValue<int>().Should().Be(0);
+        Value(Dispatch(session, "pokemon.showdown", Args(UnknownSpecies))).Should().NotBeNull();
 
         Exported(session).Should().Equal(Fixture);
     }
@@ -401,18 +403,6 @@ public class UnboundSaveTests
         var reloaded = Details(LoadedUnbound(Exported(session)), HoldsUnknownItem);
         reloaded["ivs"]!["attack"]!.GetValue<int>().Should().Be(0);
         reloaded["unknownHeldItem"]!.GetValue<string>().Should().Be("Unknown item #640");
-    }
-
-    [Fact]
-    public void AnUnmappedHeldItemCanBeRemoved()
-    {
-        var session = LoadedUnbound();
-
-        Value(Update(session, HoldsUnknownItem, new { heldItem = 0 }));
-
-        var reloaded = Details(LoadedUnbound(Exported(session)), HoldsUnknownItem);
-        reloaded["heldItem"]!.GetValue<int>().Should().Be(0);
-        reloaded["unknownHeldItem"].Should().BeNull();
     }
 
     private static object Arg(PokemonHandle at) =>
