@@ -40,6 +40,8 @@ jobs:
 
       - name: Build and check links
         working-directory: src/PKHeX.Everywhere.Engine.Sdk/docs
+        env:
+          DOCS_GOOGLE_ANALYTICS: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
         run: npm run build
 
       - name: Deploy to wawesome.io
@@ -47,4 +49,4 @@ jobs:
         working-directory: src/PKHeX.Everywhere.Engine.Sdk/docs
         env:
           WAWESOME_DEPLOY_CREDENTIAL: ${{ secrets.WAWESOME_DEPLOY_CREDENTIAL }}
-        run: npx wawesome deploy --skip-build -m "${{ github.sha }}"
+        run: npx wawesome deploy --skip-build -m "$(git log -1 --format='%h %s')"
