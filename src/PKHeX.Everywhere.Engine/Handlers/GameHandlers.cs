@@ -38,7 +38,7 @@ public static class GameHandlers
         Game game;
         try
         {
-            game = format is null ? Game.LoadFrom(data, fileName) : Game.LoadFrom(data, fileName, format);
+            game = Game.LoadFrom(data, fileName, format);
         }
         catch (GameNotLoadedException e)
         {
