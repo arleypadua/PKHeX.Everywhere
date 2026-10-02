@@ -32,8 +32,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: '24'
 
       - name: Install Engine SDK dependencies
         working-directory: src/PKHeX.Everywhere.Engine.Sdk
@@ -47,5 +46,3 @@ jobs:
           publish-script: npm run release
           commit-message: 'chore: version packages'
           pr-title: 'chore: version packages'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
