@@ -1,13 +1,14 @@
 using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 using static System.Buffers.Binary.BinaryPrimitives;
 
 namespace PKHeX.Everywhere.RomHacks.Cfru;
 
 /// <summary>
-/// A Pokémon from a CFRU save, held in the vanilla Gen 3 party layout with hack indices for species and moves.
+/// A Pokémon from a CFRU save, held in the vanilla Gen 3 party layout with hack indices for species, moves and items.
 /// It reports the Gen 9 context, so species, moves and forms resolve through PKHeX's national data.
 /// </summary>
-public abstract class CfruPokemon : PKM
+public abstract class CfruPokemon : PKM, IUnmappedValues
 {
     public const int SizeParty = 100;
     public const int SizeStored = 80;
@@ -37,6 +38,7 @@ public abstract class CfruPokemon : PKM
     }
 
     protected abstract CfruSpeciesMap SpeciesMap { get; }
+    protected abstract CfruItemMap ItemMap { get; }
 
     public static void Expand(ReadOnlySpan<byte> boxed, Span<byte> party)
     {
@@ -122,7 +124,7 @@ public abstract class CfruPokemon : PKM
         get => SpeciesMap.ToNational(SpeciesIndex).Species;
         set
         {
-            if (value != Species && SpeciesMap.ToIndex(value, 0) is { } index) SpeciesIndex = index;
+            if (value != Species && SpeciesMap.ToIndex(value) is { } index) SpeciesIndex = index;
         }
     }
 
@@ -135,7 +137,23 @@ public abstract class CfruPokemon : PKM
         }
     }
 
-    public override int HeldItem { get => ReadUInt16LittleEndian(Data[0x22..]); set => WriteUInt16LittleEndian(Data[0x22..], (ushort)value); }
+    public ushort? UnmappedSpecies => SpeciesIndex != 0 && Species == 0 ? SpeciesIndex : null;
+
+    public ushort HeldItemIndex { get => ReadUInt16LittleEndian(Data[0x22..]); set => WriteUInt16LittleEndian(Data[0x22..], value); }
+
+    // Like the species, writing back the item already shown keeps an unmapped one. Writing 0 removes it.
+    public override int HeldItem
+    {
+        get => ItemMap.ToModern(HeldItemIndex);
+        set
+        {
+            if (value == HeldItem && value != 0) return;
+            if ((uint)value <= ushort.MaxValue && ItemMap.ToIndex((ushort)value) is { } index) HeldItemIndex = index;
+        }
+    }
+
+    public ushort? UnmappedHeldItem => HeldItemIndex != 0 && HeldItem == 0 ? HeldItemIndex : null;
+
     public override uint EXP { get => ReadUInt32LittleEndian(Data[0x24..]); set => WriteUInt32LittleEndian(Data[0x24..], value); }
 
     private byte PPUps { get => Data[0x28]; set => Data[0x28] = value; }

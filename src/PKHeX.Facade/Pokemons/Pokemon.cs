@@ -1,4 +1,5 @@
 using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Extensions;
 using PKHeX.Facade.Repositories;
 
@@ -28,9 +29,19 @@ public partial class Pokemon(PKM pokemon, Game game)
     
     public GameVersionDefinition Version => GameVersionRepository.Instance.Get(Pkm.Version);
 
+    public bool IsEmpty => IsBlank(pokemon);
+
+    public bool IsUnknown => pokemon is IUnmappedValues { UnmappedSpecies: not null };
+
+    public bool IsEditable => !IsUnknown;
+
+    internal static bool IsBlank(PKM pkm) => pkm.Species == 0 && pkm is not IUnmappedValues { UnmappedSpecies: not null };
+
     public SpeciesDefinition Species
     {
-        get => Game.SpeciesRepository.Get((Species)Pkm.Species);
+        get => pokemon is IUnmappedValues { UnmappedSpecies: { } unmapped }
+            ? SpeciesDefinition.Unknown(unmapped)
+            : Game.SpeciesRepository.Get((Species)Pkm.Species);
         set
         {
             if (Pkm.Species == value.ShortId) return;

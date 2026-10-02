@@ -29,7 +29,7 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
             return;
         }
 
-        var members = _partyData.Where(pkm => pkm.Species != 0).ToList();
+        var members = _partyData.Where(pkm => !Pokemon.IsBlank(pkm)).ToList();
         for (var i = 0; i < MaxPartySize; i++)
             game.SaveFile.SetPartySlotAtIndex(i < members.Count ? members[i] : game.SaveFile.BlankPKM, i, EntityImportSettings.None);
     }
