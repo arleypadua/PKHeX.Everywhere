@@ -52,6 +52,9 @@ public static class SaveFilePath
     public const string LetsGoEevee = "./data/save/savedata_7b_lge.bin";
     public const string Emerald = "./data/save/emerald.sav"; // emerald
     public const string Crystal = "./data/save/crystal.sav"; // crystal
+    public const string FireRed = "./data/save/firered.sav";
+    public const string Unbound = "./data/save/unbound.sav"; // Unbound 2.0
+    public const string RadicalRed = "./data/save/radicalred.sav";
 
     public static string PathFrom(GameVersion version) => version switch
     {

@@ -43,6 +43,7 @@
     <ProjectReference Include="..\PKHeX.Everywhere.Engine.Tests.Handlers\PKHeX.Everywhere.Engine.Tests.Handlers.csproj" />
     <ProjectReference Include="..\PKHeX.Everywhere.Engine.CodeGen\PKHeX.Everywhere.Engine.CodeGen.csproj" />
     <ProjectReference Include="..\PKHeX.Everywhere.Engine.PlugIns\PKHeX.Everywhere.Engine.PlugIns.csproj" />
+    <ProjectReference Include="..\PKHeX.Everywhere.RomHacks\PKHeX.Everywhere.RomHacks.csproj" />
     <ProjectReference Include="..\PKHeX.Everywhere.Engine.Tests.PlugIn\PKHeX.Everywhere.Engine.Tests.PlugIn.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
     <ProjectReference Include="..\PKHeX.Web.Plugins.Nuzlocking\PKHeX.Web.Plugins.Nuzlocking.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
     <ProjectReference Include="..\PKHeX.Web.Plugins.LiveRun\PKHeX.Web.Plugins.LiveRun.csproj" ReferenceOutputAssembly="false" PlugIn="true" />
