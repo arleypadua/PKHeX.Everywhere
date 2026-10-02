@@ -152,10 +152,20 @@ describe('plug-ins', () => {
     const loader = createPlugIns(engine, store, fakeFetch({ [`${source}/pkhexwebplugins.json`]: newer }))
     await loader.registerStored()
 
-    await loader.refresh()
+    expect(await loader.refresh()).toEqual({ hasNewerVersions: true })
 
     expect(engine.plugins.newestCompatible).toHaveBeenCalledWith([{ version: '3.0.0', sdk: 2 }], 'Example')
     expect((await store.readPlugIn('Example'))?.state.hasNewerVersion).toBe(true)
+  })
+
+  it('reports no newer versions when every plug-in is on the newest compatible version', async () => {
+    const { engine } = fakeEngine()
+    store.writeSource({ sourceUrl: source, name: 'Example', sourceDescription: null, plugIns: [] })
+    await store.writePlugIn({ id: 'Example', sourceUrl: source, fileUrl: 'f', assembly: v2, state: storedState })
+    const loader = createPlugIns(engine, store, fakeFetch({ [`${source}/pkhexwebplugins.json`]: manifest }))
+    await loader.registerStored()
+
+    expect(await loader.refresh()).toEqual({ hasNewerVersions: false })
   })
 
   it('installs the newest compatible version from a source and stores it', async () => {
