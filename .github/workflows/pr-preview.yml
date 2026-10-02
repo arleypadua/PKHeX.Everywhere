@@ -44,6 +44,10 @@ jobs:
       - name: Test
         run: dotnet test --no-build --verbosity normal --filter Category!=E2E
 
+      - name: Install Engine SDK dependencies
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk
+        run: npm ci
+
       - name: Build PKHeX.Web.React
         working-directory: src/PKHeX.Web.React
         run: |
