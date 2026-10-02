@@ -27,8 +27,8 @@ const reactExample = `function Party() {
 
 const features = [
   {
-    title: 'Built on PKHeX.Core',
-    body: 'The engine runs <a href="https://github.com/kwsch/PKHeX">PKHeX.Core</a>, the save editing library by <a href="https://github.com/kwsch">Kurt</a> and its contributors, on .NET WebAssembly. Saves never leave the page.',
+    title: 'Runs in the browser',
+    body: 'The engine is .NET WebAssembly. There is no server, and saves never leave the page.',
   },
   {
     title: 'Every generation',
@@ -84,6 +84,24 @@ const features = [
           </article>
         ))
       }
+    </section>
+
+    <section class="thanks">
+      <p class="thanks-eyebrow">Built on PKHeX</p>
+      <h2>Thank you, Kurt</h2>
+      <p>
+        Every read and write in this SDK goes through <a href="https://github.com/kwsch/PKHeX">PKHeX.Core</a>, which{' '}
+        <a href="https://github.com/kwsch">Kurt (kwsch)</a> has built and maintained for over a decade. Without it, this
+        project would not exist.
+      </p>
+      <p class="community">
+        Thanks also to the PKHeX contributors and the community around it, who research save formats, report bugs and bring
+        PKHeX up to date with each new game.
+      </p>
+      <div class="thanks-actions">
+        <a class="btn primary" href="https://github.com/kwsch/PKHeX">Star PKHeX on GitHub</a>
+        <a class="btn" href="https://github.com/kwsch/PKHeX/graphs/contributors">Meet the contributors</a>
+      </div>
     </section>
 
     <section class="samples">
@@ -351,6 +369,51 @@ const features = [
   .features p {
     margin: 0;
     color: var(--sl-color-gray-3);
+  }
+
+  .thanks {
+    position: relative;
+    text-align: center;
+    padding: 3rem 2rem;
+    border-radius: 1.5rem;
+    border: 1px solid color-mix(in srgb, #ffc94d 35%, var(--sl-color-gray-5));
+    background:
+      radial-gradient(ellipse at top, color-mix(in srgb, #ffc94d 14%, transparent), transparent 70%),
+      color-mix(in srgb, var(--sl-color-gray-6) 60%, transparent);
+  }
+  .thanks-eyebrow {
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-sm);
+    color: #e0a92e;
+    margin: 0 0 0.75rem;
+  }
+  .thanks h2 {
+    font-family: var(--pkx-pixel);
+    font-size: clamp(1.25rem, 3.5vw, 2rem);
+    line-height: 1.3;
+    margin: 0 0 1.25rem;
+    color: var(--sl-color-white);
+  }
+  .thanks > p:not(.thanks-eyebrow) {
+    max-width: 44rem;
+    margin: 0 auto;
+    font-size: var(--sl-text-lg);
+    color: var(--sl-color-gray-2);
+  }
+  .thanks > p.community {
+    margin-top: 1rem;
+    font-size: var(--sl-text-base);
+    color: var(--sl-color-gray-3);
+  }
+  .thanks p a {
+    color: var(--sl-color-accent-high);
+  }
+  .thanks-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
   }
 
   .samples {
