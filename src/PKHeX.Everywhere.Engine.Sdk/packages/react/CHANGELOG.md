@@ -1,5 +1,18 @@
 # @pkhex-everywhere/react
 
+## 0.3.0
+
+### Patch Changes
+
+- c6812ee: `game.formats()` lists the save formats PKHeX doesn't know, such as ROM hacks, by id and name. `game.load()` takes an optional `formatId` that loads the save with that format and skips detection. An unknown id fails with `not-found`. Client methods and hook commands now carry the engine's doc comments, and `useLoadedGame().load()` takes `formatId` too.
+- Updated dependencies [c6812ee]
+- Updated dependencies [79bb0ce]
+- Updated dependencies [cb21c83]
+- Updated dependencies [dde2b58]
+- Updated dependencies [f11f9a8]
+- Updated dependencies [670a8ed]
+  - @pkhex-everywhere/engine@0.3.0
+
 ## 0.2.3
 
 ### Patch Changes
