@@ -1,5 +1,11 @@
 # @pkhex-everywhere/engine
 
+## 0.2.2
+
+### Patch Changes
+
+- 109cd2c: Pokémon caught in a Fast Ball or any later ball now show that ball's name instead of an unrelated item's.
+
 ## 0.2.1
 
 ### Patch Changes
