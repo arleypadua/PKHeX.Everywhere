@@ -2,6 +2,12 @@ using PKHeX.Everywhere.PlugIns;
 
 namespace PKHeX.Everywhere.Engine.PlugIns;
 
+/// <summary>
+/// A plug-in's saved state. Persist it and pass it to <c>plugins.register</c> to restore the plug-in as the user left it.
+/// </summary>
+/// <param name="Toggles">Whether each of the plug-in's hooks is on.</param>
+/// <param name="Settings">The plug-in's settings, including file contents.</param>
+/// <param name="HasNewerVersion">Whether the last <c>plugins.newestCompatible</c> check for this plug-in found a newer version it can run.</param>
 public sealed record PlugInState(bool Enabled, HookToggle[] Toggles, PlugInSetting[] Settings, bool HasNewerVersion)
 {
     public static PlugInState From(StoredPlugIn stored) => new(
@@ -20,11 +26,19 @@ public sealed record PlugInState(bool Enabled, HookToggle[] Toggles, PlugInSetti
         HasNewerVersion);
 }
 
+/// <summary>
+/// Whether one hook of a plug-in is on.
+/// </summary>
+/// <param name="HookId">The hook's id, the full name of its .NET type.</param>
 public sealed record HookToggle(string HookId, bool Enabled);
 
 /// <summary>
-/// One setting, typed by whichever value is set, as plug-in storage has always written it.
+/// One plug-in setting. Exactly one value field is set, and which one gives the setting's type.
 /// </summary>
+/// <param name="Key">The setting's name, as the plug-in defines it.</param>
+/// <param name="ReadOnly">Whether only the plug-in can change it. <c>plugins.updateSetting</c> rejects read-only settings.</param>
+/// <param name="FileName">The file's name, set for file settings.</param>
+/// <param name="File">The file's contents. <c>plugins.details</c> leaves them out.</param>
 public sealed record PlugInSetting(
     string Key,
     bool ReadOnly,
@@ -52,8 +66,16 @@ public sealed record PlugInSetting(
 }
 
 /// <summary>
-/// What the plug-in page shows. Settings leave out file contents, which only the persistable state carries.
+/// A registered plug-in's manifest, hooks and settings, for showing it to the user.
 /// </summary>
+/// <param name="Id">The plug-in's id, its assembly name.</param>
+/// <param name="Name">The display name from the plug-in's manifest.</param>
+/// <param name="Information">Longer text about the plug-in from its manifest.</param>
+/// <param name="Version">The plug-in assembly's version.</param>
+/// <param name="PublicKeyToken">The assembly's public key token in lowercase hex, or empty when the assembly isn't signed.</param>
+/// <param name="HasNewerVersion">Whether the last <c>plugins.newestCompatible</c> check for this plug-in found a newer version it can run.</param>
+/// <param name="Hooks">Every hook the plug-in has, on or off.</param>
+/// <param name="Settings">The plug-in's settings, without file contents.</param>
 public sealed record PlugInDetails(
     string Id,
     string Name,

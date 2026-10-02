@@ -12,7 +12,7 @@ This version allows you to manage your party, pokemon box, items, and custom act
 The app is a React app ([src/PKHeX.Web.React](./src/PKHeX.Web.React)) over a .NET WebAssembly engine ([src/PKHeX.Everywhere.Engine.Host](./src/PKHeX.Everywhere.Engine.Host)). Run `npm run dev` in `src/PKHeX.Web.React` to start it locally, and `npm run build` to write the site to `dist`.
 
 ## npm packages
-The engine that powers PKHeX.Web is published to npm, so you can build your own browser tools on PKHeX:
+The engine that powers PKHeX.Web is published to npm, so you can build your own browser tools on PKHeX. Read the [documentation](https://arley-space--docs.wawesome.app):
 
 - [`@pkhex-everywhere/engine`](./src/PKHeX.Everywhere.Engine.Sdk/packages/engine/README.md): load, read, edit and export saves in the browser.
 - [`@pkhex-everywhere/react`](./src/PKHeX.Everywhere.Engine.Sdk/packages/react/README.md): React hooks for the engine.

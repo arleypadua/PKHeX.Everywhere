@@ -8,7 +8,9 @@ interface EngineContextValue {
 }
 
 interface EngineProviderProps {
+  /** The engine the hooks below read from, usually created once with `createEngine()`. */
   engine: Engine
+  /** Called with `EngineError` rejections nothing else handled, for example to show a toast. */
   onUnhandledError?: (error: EngineError) => void
   children?: ReactNode
 }
@@ -18,6 +20,7 @@ const EngineContext = createContext<EngineContextValue | null>(null)
 // Every mounted page has its own provider, so the first one to see an error reports it for all of them.
 const reported = new WeakSet<EngineError>()
 
+/** Gives the hooks below it an engine and a query cache that refetches when a command changes the save. */
 export function EngineProvider({ engine, onUnhandledError, children }: EngineProviderProps) {
   const [cache] = useState(() => new QueryCache())
   useEffect(() => engine.subscribe(['*'], cache.invalidate), [engine, cache])
@@ -47,6 +50,7 @@ export function useEngineContext(): EngineContextValue {
   return context
 }
 
+/** The engine from the nearest `EngineProvider`, for any call the hooks don't cover. */
 export function useEngine(): Engine {
   return useEngineContext().engine
 }

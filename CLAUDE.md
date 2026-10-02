@@ -14,6 +14,8 @@ Run the `unslop` skill on any text we produce: PR descriptions, issue text, UI c
 
 **Do not add comments by default.** Only comment when the code makes a hacky or non-obvious decision a future reader couldn't infer. No comments restating what the code does, no section headers, no "added X" notes.
 
+Exception: the public API of the npm packages gets doc comments, written for the people using them. That covers exported types and functions in `src/PKHeX.Everywhere.Engine.Sdk/packages`, plus the C# DTOs and events the engine codegen turns into TypeScript, whose `///` comments end up in the generated types. These comments show in editors and in the docs site's API reference.
+
 ### Layers
 
 Domain logic goes in `PKHeX.Facade`, and the Engine stays thin: resolve Handles, call the Facade, map DTOs, report Topics. If an Engine handler needs a rule or a save-type check, add it to the Facade instead. See [ADR 0004](docs/adr/0004-domain-logic-lives-in-the-facade.md).

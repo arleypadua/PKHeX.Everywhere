@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url'
 import type { Plugin } from 'vite'
 import { dotnetUrlMeta } from './dotnetUrlMeta'
 
+/** Options for the `@pkhex-everywhere/engine/vite` plugin. */
 export interface PkhexEngineOptions {
+  /** The `_framework` folder to serve. Defaults to the one inside this package. */
   frameworkDir?: string
 }
 
@@ -21,6 +23,7 @@ function assertExists(frameworkDir: string) {
   if (!existsSync(frameworkDir)) throw new Error(`The .NET runtime folder ${frameworkDir} is missing.`)
 }
 
+/** A Vite plugin that serves the runtime from your site in dev and copies `_framework` into the build. */
 export default function pkhexEngine({ frameworkDir = packagedFramework }: PkhexEngineOptions = {}): Plugin {
   let base = '/'
   return {

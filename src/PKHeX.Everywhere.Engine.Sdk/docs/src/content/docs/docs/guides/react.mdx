@@ -1,0 +1,132 @@
+---
+title: React
+description: EngineProvider, Suspense hooks, RequireGame and commands from React.
+---
+
+`@pkhex-everywhere/react` wraps the engine in hooks. Hooks suspend until their data arrives and refetch when a command changes it.
+
+```sh
+npm install @pkhex-everywhere/engine @pkhex-everywhere/react
+```
+
+## A complete app
+
+This app opens a save from a file input, lists the party and downloads the edited save:
+
+```tsx
+import { Suspense, type ChangeEvent } from 'react'
+import { createEngine } from '@pkhex-everywhere/engine'
+import { EngineProvider, RequireGame, useEngineStatus, useLoadedGame, useParty } from '@pkhex-everywhere/react'
+
+const engine = createEngine()
+
+function Booting() {
+  const { loaded, total } = useEngineStatus()
+  return <progress value={loaded} max={total || 1} />
+}
+
+function OpenSave() {
+  const { load } = useLoadedGame()
+  const open = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) void load(file)
+  }
+  return <input type="file" onChange={open} />
+}
+
+function Party() {
+  const { party } = useParty()
+  return (
+    <ul id="party">
+      {party.map((pokemon) => (
+        <li key={pokemon.id}>{pokemon.species}</li>
+      ))}
+    </ul>
+  )
+}
+
+function Download() {
+  const { export: exportSave } = useLoadedGame()
+  const download = async () => {
+    const { bytes, fileName } = await exportSave()
+    const url = URL.createObjectURL(new Blob([bytes]))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(url))
+  }
+  return <button onClick={download}>Download</button>
+}
+
+export function App() {
+  return (
+    <EngineProvider engine={engine}>
+      <Suspense fallback={<Booting />}>
+        <RequireGame fallback={<OpenSave />}>
+          <Party />
+          <Download />
+        </RequireGame>
+      </Suspense>
+    </EngineProvider>
+  )
+}
+```
+
+The Suspense fallback shows the runtime download with `useEngineStatus()`. `<RequireGame>` renders its fallback until a save is loaded, then its children. If the runtime fails to load, the hooks throw the error to the nearest error boundary.
+
+## Hooks
+
+Each data hook returns the query result and the commands that change it:
+
+| Hook | Returns |
+| --- | --- |
+| `useLoadedGame()` | `{ game, load, loadBlank, close, export, file }` |
+| `useParty()` | `{ party }` |
+| `useBox()` | `{ box, addEncounter, addFromFile }` |
+| `usePokemon(at)` | `{ pokemon, edit, clone, commit, addToBox, setLevel, update }` |
+| `usePokemonDetails(at)` | `{ details, update }` |
+| `useTrainer()` | `{ trainer, setName, setMoney, setGender, setBattlePoints }` |
+| `useInventory()` | `{ inventory, setItem }` |
+| `useEvents()` | `{ events, setFlag, setWork, giveTickets }` |
+| `useEngineStatus()` | the engine's boot status |
+| `useEngine()` | the engine itself, for any call |
+
+Commands are plain async functions. You don't update state after one. The engine reports what changed, and every hook that read it refetches.
+
+```tsx
+function Money() {
+  const { trainer, setMoney } = useTrainer()
+  return <button onClick={() => setMoney((trainer.money ?? 0) + 1000)}>{trainer.money}</button>
+}
+```
+
+## Any query
+
+`useQuery(name, ...args)` runs any query by name, with the same Suspense and refetching:
+
+```tsx
+const species = useQuery('species.list')
+const details = useQuery('pokemon.details', { source: 'party', slot: 0 })
+```
+
+While a refetch runs, the hook keeps showing the previous value.
+
+## Hooks that need a save
+
+Most hooks throw `no-save` when no save is loaded, so render them inside `<RequireGame>`. A hook that runs without a save fails with a message naming the call and the fix, and the error's `code` stays `no-save`. The same goes for `no-draft`.
+
+These work without a save:
+
+- `useEngineStatus()`
+- `useEngine()`
+- `useLoadedGame()`, where `game` is `null` until a save is loaded
+- `useQuery` with `game.get`, `game.version`, `game.blankVersions`, `catalog.names` and the `plugins.*` queries
+
+## Unhandled errors
+
+Pass `onUnhandledError` to `EngineProvider` to catch `EngineError` rejections nothing else handled, for example to show a toast:
+
+```tsx
+<EngineProvider engine={engine} onUnhandledError={(error) => toast(error.message)}>
+```

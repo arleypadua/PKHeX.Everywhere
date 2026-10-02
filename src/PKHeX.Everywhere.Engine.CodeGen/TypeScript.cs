@@ -16,7 +16,7 @@ public static class TypeScript
     /// </summary>
     public static IEnumerable<(string File, string Content)> Write(Contract contract)
     {
-        var types = new TypeCollector(BinaryOutputs(contract));
+        var types = new TypeCollector(BinaryOutputs(contract), new Docs());
         var client = Client(contract, types);
         foreach (var engineEvent in contract.Events) types.Render(engineEvent, null);
 
@@ -80,7 +80,7 @@ public static class TypeScript
         """;
 
     private static string Events(Contract contract) =>
-        $"\nexport type EngineEvent = {(contract.Events.Count == 0 ? "never" : string.Join(" | ", contract.Events.Select(e => e.Name)))}\n";
+        $"\n/** Every event `engine.onEvent` delivers. Narrow on `type`. */\nexport type EngineEvent = {(contract.Events.Count == 0 ? "never" : string.Join(" | ", contract.Events.Select(e => e.Name)))}\n";
 
     private static string Errors(Contract contract) => $"""
         {Header}
@@ -140,7 +140,7 @@ public static class TypeScript
 
     private static string Hooks(Contract contract)
     {
-        var types = new TypeCollector(BinaryOutputs(contract));
+        var types = new TypeCollector(BinaryOutputs(contract), new Docs());
         var hooks = new List<string>();
         var usesCommands = false;
 
@@ -288,7 +288,7 @@ public static class TypeScript
         Output,
     }
 
-    private sealed class TypeCollector(HashSet<Type> binaryOutputs)
+    private sealed class TypeCollector(HashSet<Type> binaryOutputs, Docs docs)
     {
         private const string Binary = "Binary";
         private const string Base64 = "Base64";
@@ -372,20 +372,21 @@ public static class TypeScript
 
         private string Declare(string name, Type type)
         {
-            if (name == Binary) return "export type Binary = Uint8Array | ArrayBuffer | Blob\n";
-            if (name == Base64) return "export type Base64 = string\n";
+            if (name == Binary) return "/** Bytes a call accepts. A `File` is a `Blob`, so it works too. */\nexport type Binary = Uint8Array | ArrayBuffer | Blob\n";
+            if (name == Base64) return "/** Bytes encoded as a base64 string. */\nexport type Base64 = string\n";
 
+            var doc = docs.Comment(type);
             if (type.IsEnum)
             {
                 var members = Enum.GetNames(type).Select(n => Quote(JsonNamingPolicy.CamelCase.ConvertName(n)));
-                return $"export type {type.Name} = {string.Join(" | ", members)}\n";
+                return $"{doc}export type {type.Name} = {string.Join(" | ", members)}\n";
             }
 
             if (Contract.IsBranded(type))
-                return $"export type {type.Name} = string & {{ readonly __brand: {Quote(type.Name)} }}\n";
+                return $"{doc}export type {type.Name} = string & {{ readonly __brand: {Quote(type.Name)} }}\n";
 
             var optional = OptionalParameters(type);
-            var sb = new StringBuilder($"export interface {type.Name} {{\n");
+            var sb = new StringBuilder($"{doc}export interface {type.Name} {{\n");
             if (Contract.IsEvent(type)) sb.AppendLine($"  type: {Quote(JsonNamingPolicy.CamelCase.ConvertName(type.Name))}");
             foreach (var property in Properties(type))
             {
@@ -393,6 +394,7 @@ public static class TypeScript
                     ? "Uint8Array<ArrayBuffer>"
                     : Render(property.PropertyType, _nullability.Create(property));
                 var mark = optional.Contains(property.Name) && rendered.EndsWith(" | null") ? "?" : "";
+                sb.Append(docs.Comment(property, "  "));
                 sb.AppendLine($"  {JsonNamingPolicy.CamelCase.ConvertName(property.Name)}{mark}: {rendered}");
             }
 

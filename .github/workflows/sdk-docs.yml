@@ -1,0 +1,50 @@
+name: SDK Docs
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'src/PKHeX.Everywhere.Engine.Sdk/**'
+      - '.github/workflows/sdk-docs.yml'
+  pull_request:
+    paths:
+      - 'src/PKHeX.Everywhere.Engine.Sdk/**'
+      - '.github/workflows/sdk-docs.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Engine SDK dependencies
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk
+        run: npm ci
+
+      - name: Install docs dependencies
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk/docs
+        run: npm ci
+
+      - name: Build and check links
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk/docs
+        run: npm run build
+
+      - name: Deploy to wawesome.io
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk/docs
+        env:
+          WAWESOME_DEPLOY_CREDENTIAL: ${{ secrets.WAWESOME_DEPLOY_CREDENTIAL }}
+        run: npx wawesome deploy --skip-build -m "${{ github.sha }}"

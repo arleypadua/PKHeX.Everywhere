@@ -10,7 +10,9 @@ export const engineAssembly = 'PKHeX.Everywhere.Engine.dll'
 
 type Envelope<T> = { ok: true; value: T } | { ok: false; error: { code: ErrorCode; message: string } }
 
+/** The error a call rejects with when the engine refuses it, such as `no-save` when no save is loaded. */
 export class EngineError extends Error {
+  /** Why the call failed. One of `errorCodes`. */
   readonly code: ErrorCode
 
   constructor(code: ErrorCode, message: string) {
@@ -20,19 +22,31 @@ export class EngineError extends Error {
   }
 }
 
+/** Where the engine is in downloading and starting the .NET runtime. */
 export type EngineStatus = {
+  /** `idle` until the first call or, in a browser, until `createEngine()` starts the download. */
   state: 'idle' | 'booting' | 'ready' | 'failed'
+  /** Runtime files downloaded so far. */
   loaded: number
+  /** Runtime files to download, or 0 before the count is known. */
   total: number
+  /** Why the runtime failed to load, when `state` is `failed`. */
   error?: unknown
 }
 
+/** The engine `createEngine()` returns: the client's namespaces plus boot status and change notifications. */
 export type Engine = EngineClient & {
+  /** Resolves once the runtime is up, and rejects if it fails to load. */
   readonly ready: Promise<void>
+  /** The current boot status. */
   readonly status: EngineStatus
+  /** Calls `listener` on every status change. Returns a function that stops listening. */
   onStatusChange(listener: (status: EngineStatus) => void): () => void
+  /** Calls `callback` when a command changes something under `topics`. Returns a function that unsubscribes. */
   subscribe(topics: readonly Topic[], callback: (changed: Topic[]) => void): () => void
+  /** Calls `listener` with each typed event the engine raises, such as `gameLoaded`. Returns a function that stops listening. */
   onEvent(listener: (event: EngineEvent) => void): () => void
+  /** Calls `listener` when any call rejects, before the caller sees the error. Returns a function that stops listening. */
   onCallFailed(listener: (call: CallName, error: unknown) => void): () => void
 }
 
@@ -46,6 +60,12 @@ export function call<T>(engine: Engine, name: CallName, args: unknown[]): Promis
   return invoke<T>(name, args)
 }
 
+/**
+ * Creates an engine. In a browser it starts downloading the runtime right away unless `lazy` is set.
+ *
+ * @param options.host Where the runtime runs. Defaults to `wasmHost()`.
+ * @param options.lazy Wait for the first call before downloading the runtime.
+ */
 export function createEngine({ host = wasmHost(), lazy = false }: { host?: EngineHost; lazy?: boolean } = {}): Engine {
   let status: EngineStatus = { state: 'idle', loaded: 0, total: 0 }
   const statusListeners = new Set<(status: EngineStatus) => void>()

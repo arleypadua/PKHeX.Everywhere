@@ -1,0 +1,78 @@
+---
+title: Writing a plugin
+description: Add hooks, actions and pages to PKHeX.Web with a .NET plug-in and a page module.
+---
+
+A PKHeX.Everywhere plug-in is a .NET assembly that references `PKHeX.Everywhere.PlugIns`. It can react to changes, add actions to the Pokémon editor and the home page, and declare pages. A page is a JavaScript module typed with `@pkhex-everywhere/plugin-sdk`.
+
+## The .NET side
+
+Every plug-in has exactly one `Settings` subclass with a parameterless constructor. It names the plug-in, declares settings and pages, and turns hooks on by default:
+
+```csharp
+public class HelloSettings : Settings
+{
+    public HelloSettings() : base(new PlugInManifest("Hello", "Greets the trainer"))
+    {
+        this["Greeting"] = new SettingValue.StringValue("Hello");
+        EnabledByDefault<Greet>();
+        DeclarePage(new PlugInPage("hello", "hello.js", PageLayout.Standard, "Hello"));
+    }
+}
+```
+
+Hooks are classes that implement one of the hook interfaces. Their constructors can take `IGameProvider` and your `Settings` subclass:
+
+```csharp
+public class Greet(IGameProvider game, HelloSettings settings) : IQuickAction
+{
+    public string Description => "Greets the trainer";
+    public string Label => "Greet";
+    public IDisable.DisableInfo DisabledInfo => IDisable.Enabled;
+
+    public Task<Outcome> OnActionRequested() =>
+        Outcome.Notify($"{settings.GetString("Greeting")}, {game.LoadedGame.Trainer.Name}").Completed();
+}
+```
+
+| Interface | Runs |
+| --- | --- |
+| `IRunOnPokemonChange` | when a Pokémon changes |
+| `IRunOnPokemonSave` | when a Pokémon is saved |
+| `IRunOnItemChanged` | when an item count changes |
+| `IPokemonEditAction`, `IPokemonStatsEditAction` | from a button in the Pokémon editor |
+| `IQuickAction` | from a button on the home page |
+
+A hook returns `Outcome.Void`, `Outcome.Notify(message)` or `Outcome.OpenPage(path)`.
+
+## Pages
+
+A page module exports a `mount` function. The app calls it with the element to render into and a `PageContext`, and calls what it returns when the page closes:
+
+```sh
+npm install --save-dev @pkhex-everywhere/plugin-sdk
+```
+
+```ts title="hello.ts"
+import type { Mount } from '@pkhex-everywhere/plugin-sdk'
+
+export const mount: Mount = async (element, ctx) => {
+  const save = await ctx.getSave()
+  element.textContent = save ? `Editing ${save.fileName}` : 'No save loaded'
+  return () => element.replaceChildren()
+}
+```
+
+`PageContext` gives you the plug-in id, the app theme, the loaded save's bytes, your settings, `loadSave` to load new bytes into the app, and `navigate`.
+
+The app imports the module from a string, so relative imports don't resolve. Bundle it into one ES module, then embed it in the assembly under the name `PlugInPage` uses:
+
+```xml
+<EmbeddedResource Include="Pages\hello.js" LogicalName="hello.js" />
+```
+
+`PageLayout.Empty` renders the page without the app's chrome.
+
+## Examples
+
+The plug-ins in the [PKHeX.Everywhere repo](https://github.com/arleypadua/PKHeX.Everywhere/tree/main/src) are complete examples: `PKHeX.Web.Plugins.LiveRun` uses a page, `PKHeX.Web.Plugins.Nuzlocking` uses editor and quick actions, and `PKHeX.Web.Plugins.AutoLegality` uses change and save hooks. PKHeX.Web installs plug-ins from that repo's plug-in source.

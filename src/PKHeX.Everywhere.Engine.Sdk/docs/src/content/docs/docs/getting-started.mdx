@@ -1,0 +1,73 @@
+---
+title: Getting started
+description: Install the engine, load a save, read the party and export the save.
+---
+
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+
+<Steps>
+
+1. Install the engine:
+
+   ```sh
+   npm install @pkhex-everywhere/engine
+   ```
+
+2. Create an engine. In a browser it starts downloading the runtime right away:
+
+   ```ts
+   import { createEngine } from '@pkhex-everywhere/engine'
+
+   const engine = createEngine()
+   ```
+
+3. Load a save. `game.load` takes a `File`, `Blob`, `ArrayBuffer` or `Uint8Array`, and takes the file name from a `File`:
+
+   ```ts
+   const input = document.querySelector<HTMLInputElement>('input[type=file]')!
+
+   input.onchange = async () => {
+     await engine.game.load(input.files![0])
+   }
+   ```
+
+4. Read it:
+
+   ```ts
+   const party = await engine.party.get()
+   console.log(party.map((pokemon) => `${pokemon.species} Lv. ${pokemon.level}`))
+   ```
+
+5. Export the save to get the edited bytes back:
+
+   ```ts
+   const { bytes, fileName } = await engine.game.export()
+   const url = URL.createObjectURL(new Blob([bytes]))
+   const link = Object.assign(document.createElement('a'), { href: url, download: fileName })
+   link.click()
+   ```
+
+</Steps>
+
+## Serve the runtime yourself
+
+By default the runtime loads from jsDelivr, pinned to the installed version. To serve it from your own site with Vite, add the plugin:
+
+```ts title="vite.config.ts"
+import { defineConfig } from 'vite'
+import pkhexEngine from '@pkhex-everywhere/engine/vite'
+
+export default defineConfig({
+  plugins: [pkhexEngine()],
+})
+```
+
+Other bundlers are covered in the [Engine guide](/docs/guides/engine/#where-the-runtime-loads-from).
+
+## Using React?
+
+Install the hooks too and read the [React guide](/docs/guides/react/):
+
+```sh
+npm install @pkhex-everywhere/engine @pkhex-everywhere/react
+```

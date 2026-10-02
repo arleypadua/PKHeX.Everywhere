@@ -2,6 +2,8 @@
 
 React hooks for [`@pkhex-everywhere/engine`](https://www.npmjs.com/package/@pkhex-everywhere/engine). Hooks suspend until their data arrives and refetch when a command changes it.
 
+**[Documentation](https://arley-space--docs.wawesome.app/docs/guides/react/)** · [API reference](https://arley-space--docs.wawesome.app/docs/reference/react/)
+
 ## Install
 
 ```sh
@@ -75,17 +77,6 @@ export function App() {
 The Suspense fallback shows the runtime download with `useEngineStatus()`. `<RequireGame>` renders its fallback until a save is loaded, then its children. If the runtime fails to load, the hooks throw the error to the nearest error boundary.
 
 CI builds this app from the packed packages and runs it.
-
-## Hooks that need a save
-
-Most hooks throw `no-save` when no save is loaded, so render them inside `<RequireGame>`. Hover a hook to see what it needs. A hook that runs without a save fails with a message naming the call and the fix, and the error's `code` stays `no-save`. The same goes for `no-draft`.
-
-These work without a save:
-
-- `useEngineStatus()`
-- `useEngine()`
-- `useLoadedGame()`, where `game` is `null` until a save is loaded
-- `useQuery` with `game.get`, `game.version`, `game.blankVersions`, `catalog.names` and the `plugins.*` queries
 
 ## License
 

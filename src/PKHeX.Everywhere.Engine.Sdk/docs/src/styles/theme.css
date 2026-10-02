@@ -1,0 +1,41 @@
+@font-face {
+  font-family: 'Pokemon GB';
+  src: url('/fonts/pkmgb.ttf') format('truetype');
+  font-display: swap;
+}
+
+:root {
+  --sl-color-accent-low: #1e1247;
+  --sl-color-accent: #7c5cff;
+  --sl-color-accent-high: #d4caff;
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #ecebf5;
+  --sl-color-gray-2: #c4c2d6;
+  --sl-color-gray-3: #8e8aa8;
+  --sl-color-gray-4: #5a5673;
+  --sl-color-gray-5: #3a3652;
+  --sl-color-gray-6: #1f1c33;
+  --sl-color-black: #0e0b1c;
+  --pkx-pixel: 'Pokemon GB', ui-monospace, monospace;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #e6e0ff;
+  --sl-color-accent: #512bd4;
+  --sl-color-accent-high: #2a1478;
+  --sl-color-white: #0e0b1c;
+  --sl-color-gray-1: #1f1c33;
+  --sl-color-gray-2: #3a3652;
+  --sl-color-gray-3: #5a5673;
+  --sl-color-gray-4: #8e8aa8;
+  --sl-color-gray-5: #c4c2d6;
+  --sl-color-gray-6: #ecebf5;
+  --sl-color-gray-7: #f6f5fb;
+  --sl-color-black: #ffffff;
+}
+
+.site-title {
+  font-family: var(--pkx-pixel);
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}

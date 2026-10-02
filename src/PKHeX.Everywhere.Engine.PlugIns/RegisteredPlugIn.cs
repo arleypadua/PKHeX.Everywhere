@@ -65,4 +65,9 @@ public sealed class RegisteredPlugIn
     private static string HookIdOf(Type hookType) => hookType.FullName ?? hookType.Name;
 }
 
+/// <summary>
+/// One hook of a plug-in: an action or an event handler it adds.
+/// </summary>
+/// <param name="Id">The hook's id, the full name of its .NET type.</param>
+/// <param name="Enabled">Whether the hook is on. Hooks start off unless the plug-in turns them on by default.</param>
 public sealed record PlugInHook(string Id, string Description, bool Enabled);

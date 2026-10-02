@@ -3,6 +3,11 @@ using System.Text.Json.Serialization;
 
 namespace PKHeX.Everywhere.Engine.PlugIns;
 
+/// <summary>
+/// A plug-in version a plug-in source publishes, with the plug-in SDK it targets.
+/// </summary>
+/// <param name="Version">The version number, such as <c>1.2.0</c>. <c>plugins.newestCompatible</c> skips versions that don't parse as one.</param>
+/// <param name="Sdk">The plug-in SDK the version is built against: <c>1</c> for the older PKHeX.Web plug-ins, <c>2</c> for PKHeX.Everywhere plug-ins. The engine runs SDK 2 only.</param>
 [JsonConverter(typeof(PublishedVersionConverter))]
 public sealed record PublishedVersion(string Version, int Sdk);
 

@@ -318,10 +318,36 @@ public sealed record StoredPlugIn(
     IReadOnlyDictionary<string, Settings.SettingValue> Settings,
     bool HasNewerVersion = false);
 
+/// <summary>
+/// A plug-in the engine has registered, as listed by <c>plugins.installed</c>.
+/// </summary>
+/// <param name="Id">The plug-in's id, its assembly name.</param>
+/// <param name="Name">The display name from the plug-in's manifest, or the id when the plug-in needs reinstall.</param>
+/// <param name="Version">The plug-in assembly's version, or empty when the plug-in needs reinstall.</param>
+/// <param name="HasNewerVersion">Whether the last <c>plugins.newestCompatible</c> check for this plug-in found a newer version it can run.</param>
+/// <param name="NeedsReinstall">Whether the assembly targets a plug-in SDK the engine can't run. The plug-in stays listed but doesn't load until a supported version replaces it.</param>
 public sealed record InstalledPlugIn(string Id, string Name, string Version, bool Enabled, bool HasNewerVersion, bool NeedsReinstall);
 
+/// <summary>
+/// Fires each time a plug-in hook runs, whether through <c>plugins.run</c> or in response to a change in the save.
+/// </summary>
+/// <param name="PlugInId">The plug-in's id, its assembly name.</param>
+/// <param name="HookId">The hook's id, the full name of its .NET type.</param>
+/// <param name="Outcome">What the hook asks the host to do, or <c>null</c> when it failed.</param>
+/// <param name="Failure">Why the hook failed, or <c>null</c> when it succeeded.</param>
 public sealed record PlugInRan(string PlugInId, string HookId, PlugInOutcome? Outcome, HookFailure? Failure) : IEngineEvent;
 
+/// <summary>
+/// The error a plug-in hook threw.
+/// </summary>
+/// <param name="Type">The .NET exception's type name, such as <c>InvalidOperationException</c>.</param>
 public sealed record HookFailure(string Type, string Message);
 
+/// <summary>
+/// A hook failure the engine kept, as listed by <c>plugins.failures</c>. The engine keeps the 20 most recent.
+/// </summary>
+/// <param name="Id">Pass it to <c>plugins.dismissFailure</c> to remove the failure.</param>
+/// <param name="PlugInId">The plug-in's id, its assembly name.</param>
+/// <param name="HookId">The hook's id, the full name of its .NET type.</param>
+/// <param name="StackTrace">The .NET stack trace, when there is one.</param>
 public sealed record PlugInFailure(int Id, string PlugInId, string HookId, string Message, string? StackTrace);

@@ -1,0 +1,37 @@
+---
+title: Overview
+description: What the PKHeX.Everywhere SDK is and where to start.
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components'
+
+The SDK runs [PKHeX.Core](https://github.com/kwsch/PKHeX) on .NET WebAssembly and gives you a typed TypeScript client for it. Load a Pokémon save file, read and edit it, and export it, all in the browser.
+
+There are three packages:
+
+| Package | What it is |
+| --- | --- |
+| `@pkhex-everywhere/engine` | The runtime and the client. Works with any framework, or none. |
+| `@pkhex-everywhere/react` | Provider and Suspense hooks over the engine. |
+| `@pkhex-everywhere/plugin-sdk` | Types for page modules of PKHeX.Everywhere plug-ins. |
+
+## Start here
+
+<CardGrid>
+  <LinkCard title="Getting started" description="Install, load a save, read the party, export it." href="/docs/getting-started/" />
+  <LinkCard title="Engine" description="Booting, loading saves, queries and commands, events." href="/docs/guides/engine/" />
+  <LinkCard title="React" description="EngineProvider, the hooks, and RequireGame." href="/docs/guides/react/" />
+  <LinkCard title="Writing a plugin" description="Add pages to PKHeX.Web with the plugin SDK." href="/docs/guides/plugins/" />
+</CardGrid>
+
+## API reference
+
+Generated from the TypeScript sources of each package:
+
+- [`@pkhex-everywhere/engine`](/docs/reference/engine/)
+- [`@pkhex-everywhere/react`](/docs/reference/react/)
+- [`@pkhex-everywhere/plugin-sdk`](/docs/reference/plugin-sdk/)
+
+## License
+
+All packages are GPL-3.0-or-later, because the runtime contains PKHeX.Core.
