@@ -1,4 +1,4 @@
-import { lazy, useCallback, useEffect, type ReactNode } from 'react'
+import { useCallback, useEffect, type ReactNode } from 'react'
 import { App, ConfigProvider, theme as antdTheme } from 'antd'
 import { BrowserRouter, Navigate, Route, Routes, useParams, useSearchParams } from 'react-router'
 import type { EngineError, PageLayout } from '@pkhex-everywhere/engine'
@@ -6,6 +6,25 @@ import { EngineProvider, RequireGame, useLoadedGame } from '@pkhex-everywhere/re
 import { engine, plugIns } from '../app'
 import { useTheme } from '../host'
 import { PlugInsProvider } from '../plugins/PlugInsContext'
+import AnalyticsPage from '../pages/analytics/AnalyticsPage'
+import BoxPage from '../pages/box/BoxPage'
+import CreditsPage from '../pages/static/CreditsPage'
+import EncountersPage from '../pages/encounters/EncountersPage'
+import EventsPage from '../pages/events/EventsPage'
+import HomePage from '../pages/home/HomePage'
+import ItemsPage from '../pages/items/ItemsPage'
+import LoadPage from '../pages/load/LoadPage'
+import PartyPage from '../pages/party/PartyPage'
+import PlugInPage from '../pages/plugins/PlugInPage'
+import PlugInsPage from '../pages/plugins/PlugInsPage'
+import PlugInModulePage from '../pages/plugins/PlugInModulePage'
+import PlugInErrorsPage from '../pages/plugins/PlugInErrorsPage'
+import PokemonClonePage from '../pages/pokemon-editor/PokemonClonePage'
+import PokemonEditorPage from '../pages/pokemon-editor/PokemonEditorPage'
+import PrivacyPolicyPage from '../pages/static/PrivacyPolicyPage'
+import ReleaseNotesPage from '../pages/release-notes/ReleaseNotesPage'
+import SettingsPage from '../pages/settings/SettingsPage'
+import TermsOfUsePage from '../pages/static/TermsOfUsePage'
 import { routes } from '../routes'
 import { EmptyPlugInLayout } from './EmptyPlugInLayout'
 import { AutoLoadDemo } from './AutoLoadDemo'
@@ -15,26 +34,6 @@ import { LoadLayout } from './LoadLayout'
 import { MainLayout } from './MainLayout'
 import { PlugInOutcomes } from './PlugInOutcomes'
 import { PlugInUpdateNotice } from './PlugInUpdateNotice'
-
-const AnalyticsPage = lazy(() => import('../pages/analytics/AnalyticsPage'))
-const BoxPage = lazy(() => import('../pages/box/BoxPage'))
-const CreditsPage = lazy(() => import('../pages/static/CreditsPage'))
-const EncountersPage = lazy(() => import('../pages/encounters/EncountersPage'))
-const EventsPage = lazy(() => import('../pages/events/EventsPage'))
-const HomePage = lazy(() => import('../pages/home/HomePage'))
-const ItemsPage = lazy(() => import('../pages/items/ItemsPage'))
-const LoadPage = lazy(() => import('../pages/load/LoadPage'))
-const PartyPage = lazy(() => import('../pages/party/PartyPage'))
-const PlugInPage = lazy(() => import('../pages/plugins/PlugInPage'))
-const PlugInsPage = lazy(() => import('../pages/plugins/PlugInsPage'))
-const PlugInModulePage = lazy(() => import('../pages/plugins/PlugInModulePage'))
-const PlugInErrorsPage = lazy(() => import('../pages/plugins/PlugInErrorsPage'))
-const PokemonClonePage = lazy(() => import('../pages/pokemon-editor/PokemonClonePage'))
-const PokemonEditorPage = lazy(() => import('../pages/pokemon-editor/PokemonEditorPage'))
-const PrivacyPolicyPage = lazy(() => import('../pages/static/PrivacyPolicyPage'))
-const ReleaseNotesPage = lazy(() => import('../pages/release-notes/ReleaseNotesPage'))
-const SettingsPage = lazy(() => import('../pages/settings/SettingsPage'))
-const TermsOfUsePage = lazy(() => import('../pages/static/TermsOfUsePage'))
 
 const fontFamily = `'Pokemon GB', "Lucida Console", sans-serif`
 
