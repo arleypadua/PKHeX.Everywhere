@@ -3,6 +3,11 @@
   "version": "2.0.0",
   "description": "Types for plug-in page modules of https://pkhex-web.github.io.",
   "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arleypadua/PKHeX.Everywhere.git",
+    "directory": "src/PKHeX.Everywhere.Engine.Sdk/packages/plugin-sdk"
+  },
   "type": "module",
   "types": "./index.d.ts",
   "exports": {

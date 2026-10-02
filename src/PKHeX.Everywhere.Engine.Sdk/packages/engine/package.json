@@ -1,22 +1,37 @@
 {
   "name": "@pkhex-everywhere/engine",
   "version": "0.0.0",
-  "private": true,
+  "description": "PKHeX in the browser: load, read and edit Pokémon save files.",
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arleypadua/PKHeX.Everywhere.git",
+    "directory": "src/PKHeX.Everywhere.Engine.Sdk/packages/engine"
+  },
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
+  "files": [
+    "dist",
+    "_framework"
+  ],
   "scripts": {
+    "build": "node scripts/publish-framework.mjs && vite build && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
+  "dependencies": {
+    "crypto-js": "^4.2.0"
+  },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
-    "crypto-js": "^4.2.0",
     "typescript": "~7.0.2",
+    "vite": "^8.3.1",
     "vitest": "^5.0.3"
-  },
-  "peerDependencies": {
-    "crypto-js": "^4.2.0"
   }
 }

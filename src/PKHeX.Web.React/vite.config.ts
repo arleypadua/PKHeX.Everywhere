@@ -1,6 +1,6 @@
 import { cpSync, createReadStream, existsSync, statSync } from 'node:fs'
 import { extname, join, relative, resolve } from 'node:path'
-import { defineConfig, type Plugin } from 'vite'
+import { defaultClientConditions, defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 
 const host = resolve(import.meta.dirname, '../PKHeX.Everywhere.Engine.Host/bin')
@@ -42,6 +42,6 @@ function engineHost(): Plugin {
 
 export default defineConfig({
   plugins: [react(), engineHost()],
-  resolve: { preserveSymlinks: true },
+  resolve: { preserveSymlinks: true, conditions: ['source', ...defaultClientConditions] },
   server: { port: 5173, strictPort: true },
 })

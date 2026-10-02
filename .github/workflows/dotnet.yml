@@ -63,6 +63,33 @@ jobs:
       - run: npm run typecheck
       - run: npm test
 
+  engine_sdk_packages:
+    needs: changes
+    if: always() && (needs.changes.outputs.sdk == 'true' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+      - name: Update submodules to the latest commit
+        run: |
+          git submodule update --remote --recursive
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Engine SDK dependencies
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk
+        run: npm ci
+      - name: Load the sample save from the packed tarballs
+        working-directory: src/PKHeX.Everywhere.Engine.Sdk/example
+        run: ./smoke.sh
+
   changes:
     runs-on: ubuntu-latest
     permissions:
@@ -70,6 +97,7 @@ jobs:
       pull-requests: read
     outputs:
       web: ${{ steps.filter.outputs.web }}
+      sdk: ${{ steps.filter.outputs.sdk }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -82,6 +110,12 @@ jobs:
               - 'src/PKHeX.Everywhere.Engine*/**'
               - 'src/PKHeX.Web.E2E/**'
               - 'external/**'
+            sdk:
+              - 'src/PKHeX.Everywhere.Engine*/**'
+              - 'src/PKHeX.Facade/**'
+              - 'src/PKHeX.Web.React/public/data/**'
+              - 'external/**'
+              - '.github/workflows/dotnet.yml'
 
   e2e:
     needs: changes

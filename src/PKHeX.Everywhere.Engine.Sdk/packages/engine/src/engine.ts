@@ -4,6 +4,7 @@ import type { Topic } from './generated/topics'
 import type { EngineEvent } from './generated/types'
 import type { EngineHost } from './host'
 import { affects } from './topics'
+import { wasmHost } from './wasmHost'
 
 export const engineAssembly = 'PKHeX.Everywhere.Engine.dll'
 
@@ -27,7 +28,7 @@ export type Engine = EngineClient & {
   onCallFailed(listener: (call: CallName, error: unknown) => void): () => void
 }
 
-export function createEngine({ host }: { host: EngineHost }): Engine {
+export function createEngine({ host = wasmHost() }: { host?: EngineHost } = {}): Engine {
   const exports = host
     .ready()
     .then(() => host.getAssemblyExports(engineAssembly))
