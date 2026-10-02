@@ -61,7 +61,7 @@ const features = [
     <section class="hero">
       <div class="glow" aria-hidden="true"></div>
       <p class="eyebrow">@pkhex-everywhere/engine</p>
-      <h1>PKHeX, <span>everywhere</span>.</h1>
+      <h1>PKHeX, <span class="everywhere" data-sparkle><span class="word">everywhere</span></span>.</h1>
       <p class="tagline">
         Load, read, edit and export Pokémon save files from TypeScript. It all runs in the browser.
       </p>
@@ -119,6 +119,27 @@ const features = [
 </StarlightPage>
 
 <script>
+  const sparkleTarget = document.querySelector<HTMLElement>('[data-sparkle]')
+  if (sparkleTarget && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const tints = ['#9d85ff', '#ff7fc0', '#ffc94d']
+    const spawn = () => {
+      if (document.hidden) return
+      const spark = document.createElement('span')
+      spark.className = 'spark'
+      const size = 10 + Math.random() * 12
+      spark.style.setProperty('--size', `${size}px`)
+      spark.style.setProperty('--tint', tints[Math.floor(Math.random() * tints.length)])
+      spark.style.setProperty('--dx', `${(Math.random() - 0.5) * 60}px`)
+      spark.style.setProperty('--dy', `${-20 - Math.random() * 50}px`)
+      spark.style.setProperty('--life', `${1200 + Math.random() * 1200}ms`)
+      spark.style.left = `${Math.random() * 100}%`
+      spark.style.top = `${20 + Math.random() * 60}%`
+      spark.addEventListener('animationend', () => spark.remove())
+      sparkleTarget.append(spark)
+    }
+    setInterval(spawn, 260)
+  }
+
   document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
     button.addEventListener('click', async () => {
       await navigator.clipboard.writeText(button.dataset.copy!)
@@ -171,11 +192,47 @@ const features = [
     margin: 0;
     color: var(--sl-color-white);
   }
-  .hero h1 span {
-    background: linear-gradient(90deg, var(--sl-color-accent), #ff6fb5);
+  .everywhere {
+    position: relative;
+    display: inline-block;
+  }
+  .everywhere .word {
+    background: linear-gradient(90deg, var(--sl-color-accent), #ff6fb5 40%, #ffd36f 50%, #ff6fb5 60%, var(--sl-color-accent));
+    background-size: 250% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    filter: drop-shadow(0 0 0.35em color-mix(in srgb, var(--sl-color-accent) 70%, transparent));
+    animation: shimmer 6s ease-in-out infinite, pulse 3s ease-in-out infinite;
+  }
+  .everywhere :global(.spark) {
+    position: absolute;
+    width: var(--size);
+    height: var(--size);
+    pointer-events: none;
+    background: radial-gradient(circle, #fff 0 18%, var(--tint) 45%);
+    clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+    filter: drop-shadow(0 0 6px var(--tint));
+    opacity: 0;
+    animation: drift var(--life) ease-out forwards;
+  }
+  @keyframes shimmer {
+    0%, 100% { background-position: 100% 0; }
+    50% { background-position: 0 0; }
+  }
+  @keyframes pulse {
+    0%, 100% { filter: drop-shadow(0 0 0.25em color-mix(in srgb, var(--sl-color-accent) 55%, transparent)); }
+    50% { filter: drop-shadow(0 0 0.6em color-mix(in srgb, #ff6fb5 60%, transparent)); }
+  }
+  @keyframes drift {
+    0% { opacity: 0; transform: translate(0, 0) scale(0.4) rotate(0deg); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1) rotate(90deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .everywhere .word {
+      animation: none;
+    }
   }
   .tagline {
     max-width: 36rem;
