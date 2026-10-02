@@ -17,7 +17,7 @@ public partial class Pokemon(PKM pokemon, Game game)
 
     public ItemDefinition Ball
     {
-        get => ItemRepository.GetItem(pokemon.Ball);
+        get => ItemRepository.GetBall((Ball)pokemon.Ball) ?? ItemDefinition.Unknown(pokemon.Ball);
         set => pokemon.Ball = Convert.ToByte(value.Id);
     }
 
