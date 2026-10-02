@@ -2,7 +2,6 @@ import { EllipsisOutlined } from '@ant-design/icons'
 import { Button, Dropdown, Space } from 'antd'
 import { draftHandle } from '@pkhex-everywhere/engine'
 import { useEngine, useQuery } from '@pkhex-everywhere/react'
-import { fromBase64 } from '../../base64'
 import { PlugInActionButton } from '../../components/PlugInActionButton'
 import { downloadFile } from '../../host'
 
@@ -16,7 +15,7 @@ export function SaveDropdown({ onSave }: SaveDropdownProps) {
 
   const exportFile = async () => {
     const { bytes, fileName } = await engine.pokemon.export(draftHandle)
-    downloadFile(fromBase64(bytes), fileName)
+    downloadFile(bytes, fileName)
   }
 
   return (

@@ -41,7 +41,7 @@ export function App() {
 }
 ```
 
-Load a save with `useLoadedGame().load(base64, fileName)` or `engine.game.load` before rendering hooks that read it.
+Load a save with `useLoadedGame().load(file)` or `engine.game.load` before rendering hooks that read it.
 
 ## License
 

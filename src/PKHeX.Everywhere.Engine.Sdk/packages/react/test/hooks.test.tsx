@@ -96,7 +96,7 @@ describe('entity hooks', () => {
     const { engine, calls } = fakeEngine(() => null)
 
     const result = await renderEngineHook(engine, () => useLoadedGame())
-    await act(() => result.current.load('AAAA', 'save.sav'))
+    await act(() => result.current.load(new Uint8Array([0, 0, 0]), 'save.sav'))
     await act(() => result.current.close())
 
     expect(result.current.game).toBeNull()

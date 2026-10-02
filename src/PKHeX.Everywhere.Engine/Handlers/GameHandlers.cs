@@ -7,6 +7,8 @@ namespace PKHeX.Everywhere.Engine.Handlers;
 [EntityHook("useLoadedGame")]
 public static class GameHandlers
 {
+    private const string DefaultFileName = "save.sav";
+
     [Query("game.get", Topics.Game)]
     public static SaveSummary? Get(Session session) => session.Game?.ToSummary(session.FileName);
 
@@ -18,8 +20,9 @@ public static class GameHandlers
     public static LoadedSave? File(Session session) => session.Game?.ToFile(session.FileName);
 
     [Command("game.load", Topics.All)]
-    public static void Load(Session session, byte[] data, string fileName)
+    public static void Load(Session session, byte[] data, string? fileName = null)
     {
+        fileName ??= DefaultFileName;
         Game game;
         try
         {

@@ -4,7 +4,6 @@ import { Navigate } from 'react-router'
 import type { PageLayout } from '@pkhex-everywhere/engine'
 import type { PageContext } from '@pkhex-everywhere/plugin-sdk'
 import { useEngine, useQuery } from '@pkhex-everywhere/react'
-import { fromBase64, toBase64 } from '../../base64'
 import { PageHeader } from '../../components/PageHeader'
 import { useNavigate, useTheme } from '../../host'
 import { mountPageModule, settingValue } from '../../plugins/pageModule'
@@ -45,12 +44,11 @@ function PageModule({ plugInId, path, style }: { plugInId: string; path: string;
         return themeRef.current
       },
       async getSave() {
-        const save = await engine.game.file()
-        return save && { bytes: fromBase64(save.bytes), fileName: save.fileName, version: save.version }
+        return engine.game.file()
       },
       getSetting: async (key) => settingValue(await engine.plugins.setting(plugInId, key)),
       async loadSave(bytes, fileName) {
-        await engine.game.load(toBase64(bytes), fileName)
+        await engine.game.load(bytes, fileName)
       },
       navigate: (url) => void navigate(url),
     }

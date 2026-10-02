@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { IDBFactory } from 'fake-indexeddb'
 import type { InstalledPlugIn, PlugInSetting, PlugInState, PublishedVersion } from '@pkhex-everywhere/engine'
-import { toBase64 } from '../base64'
+import { fromBase64, toBase64 } from '../base64'
 import { createPlugIns } from './plugIns'
 import { createPlugInStore, defaultSourceUrl, readSource, type PlugInStore } from './store'
 
@@ -33,11 +33,11 @@ const manifest = {
 // Stands in for the Engine: assemblies are their version, and only v2 and v3 are supported.
 function fakeEngine() {
   const plugIns = new Map<string, { version: string; state: PlugInState; needsReinstall: boolean }>()
-  const versionOf = (assembly: string) => new TextDecoder().decode(Uint8Array.from(atob(assembly), (c) => c.charCodeAt(0)))
-  const supported = (assembly: string) => versionOf(assembly) !== 'v1'
+  const versionOf = (assembly: Uint8Array) => new TextDecoder().decode(assembly)
+  const supported = (assembly: Uint8Array) => versionOf(assembly) !== 'v1'
   const engine = {
     plugins: {
-      register: vi.fn(async (assembly: string, stored: PlugInState | null) => {
+      register: vi.fn(async (assembly: Uint8Array, stored: PlugInState | null) => {
         plugIns.set('Example', {
           version: versionOf(assembly),
           state: stored ?? plugIns.get('Example')?.state ?? { enabled: true, hasNewerVersion: false, toggles: [], settings: [] },
@@ -47,7 +47,7 @@ function fakeEngine() {
       }),
       unregister: vi.fn(async (id: string) => void plugIns.delete(id)),
       installed: async () => [...plugIns.keys()].map(installed),
-      isSupported: async (assembly: string) => supported(assembly),
+      isSupported: async (assembly: Uint8Array) => supported(assembly),
       state: async (id: string) => plugIns.get(id)!.state,
       setEnabled: async (id: string, enabled: boolean) => write(id, (state) => ({ ...state, enabled })),
       setHookEnabled: async (id: string, hookId: string, enabled: boolean) =>
@@ -98,7 +98,7 @@ describe('plug-ins', () => {
 
     await createPlugIns(engine, store, fakeFetch({})).registerStored()
 
-    expect(engine.plugins.register).toHaveBeenCalledWith(v2, storedState)
+    expect(engine.plugins.register).toHaveBeenCalledWith(fromBase64(v2), storedState)
   })
 
   it('seeds the default source when none is stored', async () => {
@@ -178,7 +178,7 @@ describe('plug-ins', () => {
     ])
     expect(await plugIns.install(source, 'Example')).toBe('Example')
 
-    expect(engine.plugins.register).toHaveBeenCalledWith(v2, null)
+    expect(engine.plugins.register).toHaveBeenCalledWith(fromBase64(v2), null)
     expect(await store.readPlugIn('Example')).toMatchObject({ sourceUrl: source, fileUrl: `${source}/Example/2.0.0/Example.dll`, assembly: v2 })
     expect(await plugIns.available()).toEqual([])
   })
@@ -193,7 +193,7 @@ describe('plug-ins', () => {
 
     expect(await loader.update('Example')).toBe(true)
 
-    expect(engine.plugins.register).toHaveBeenLastCalledWith(v3, null)
+    expect(engine.plugins.register).toHaveBeenLastCalledWith(fromBase64(v3), null)
     expect(plugIns.get('Example')).toEqual({ version: 'v3', state: storedState, needsReinstall: false })
     expect((await store.readPlugIn('Example'))?.assembly).toBe(v3)
   })
@@ -224,7 +224,7 @@ describe('plug-ins', () => {
     const reloaded = fakeEngine()
     await createPlugIns(reloaded.engine, store, fakeFetch({})).registerStored()
 
-    expect(reloaded.engine.plugins.register).toHaveBeenCalledWith(v3, expect.objectContaining({ enabled: true }))
+    expect(reloaded.engine.plugins.register).toHaveBeenCalledWith(fromBase64(v3), expect.objectContaining({ enabled: true }))
   })
 
   it('registers nothing after a reload once a plug-in is uninstalled', async () => {

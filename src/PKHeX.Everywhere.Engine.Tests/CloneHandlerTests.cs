@@ -64,7 +64,7 @@ public class CloneHandlerTests
         added["id"]!.GetValue<string>().Should().Be(Get(session, expected)["id"]!.GetValue<string>());
         Details(session, expected)["nickname"]!.GetValue<string>().Should().Be("Twin");
         published.Should().Equal(new PokemonSaved(expected, game.Trainer.PokemonBox.All[index].ToOverview()));
-        Error(Dispatch(session, "pokemon.details", Args(Draft))).Should().Be("not-found");
+        Error(Dispatch(session, "pokemon.details", Args(Draft))).Should().Be(ErrorCodes.NoDraft);
         game.SaveAndReload(reloaded => reloaded.Trainer.PokemonBox.All[index].Nickname.Should().Be("Twin"));
     }
 
@@ -84,11 +84,11 @@ public class CloneHandlerTests
     }
 
     [Fact]
-    public void AddToBoxReturnsNotFoundWithoutADraft()
+    public void AddToBoxReturnsNoDraftWithoutADraft()
     {
         var session = Loaded(SaveFilePath.HgSs);
 
-        Error(Dispatch(session, "pokemon.addToBox", "[]")).Should().Be("not-found");
+        Error(Dispatch(session, "pokemon.addToBox", "[]")).Should().Be(ErrorCodes.NoDraft);
     }
 
     private static void Clone(Session session, PokemonHandle at) => Value(Dispatch(session, "pokemon.clone", Args(at)));

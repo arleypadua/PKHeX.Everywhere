@@ -2,7 +2,6 @@ import { useCallback } from 'react'
 import { App } from 'antd'
 import { EngineError } from '@pkhex-everywhere/engine'
 import { useEngine } from '@pkhex-everywhere/react'
-import { toBase64 } from '../../base64'
 import { useNavigate } from '../../host'
 import { routes } from '../../routes'
 
@@ -14,7 +13,7 @@ export function useLoadPokemonFile(): (file: File) => Promise<void> {
   return useCallback(
     async (file: File) => {
       try {
-        const added = await engine.box.addFromFile(toBase64(new Uint8Array(await file.arrayBuffer())))
+        const added = await engine.box.addFromFile(file)
         notification.success({ title: 'Pokémon added to your box' })
         navigate(routes.pokemon(added))
       } catch (error) {

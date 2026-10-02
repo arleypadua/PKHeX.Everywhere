@@ -66,6 +66,16 @@ public class GameHandlerTests
     }
 
     [Fact]
+    public void LoadNamesTheSaveWhenNoFileNameIsGiven()
+    {
+        var session = new Session();
+
+        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), null!)));
+
+        session.FileName.Should().Be("save.sav");
+    }
+
+    [Fact]
     public void LoadReturnsInvalidSaveForBytesThatAreNotASave() =>
         Error(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(new byte[1234]), "nope.sav")))
             .Should().Be("invalid-save");

@@ -26,6 +26,21 @@ public sealed class EntityHookAttribute(string name) : Attribute
     public string Name { get; } = name;
 }
 
+public enum Requirement
+{
+    Save,
+    Draft,
+}
+
+/// <summary>
+/// Declares what a call needs that its parameters don't show. A <c>Game</c> parameter already means a loaded save.
+/// </summary>
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class RequiresAttribute(params Requirement[] requirements) : Attribute
+{
+    public Requirement[] Requirements { get; } = requirements;
+}
+
 /// <summary>
 /// Marks a record with a single string <c>Value</c>. It crosses the boundary as a plain string and becomes a branded string type in TypeScript.
 /// </summary>

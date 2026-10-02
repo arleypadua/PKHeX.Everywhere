@@ -8,7 +8,7 @@ public enum CallKind
     Command,
 }
 
-public record Parameter(string Name, Type Type, NullabilityInfo Nullability)
+public record Parameter(string Name, Type Type, NullabilityInfo Nullability, bool IsOptional)
 {
     public bool IsHandle => Contract.IsHandle(Type);
 }
@@ -20,7 +20,9 @@ public record Call(
     IReadOnlyList<string> Topics,
     IReadOnlyList<Parameter> Parameters,
     Type ReturnType,
-    NullabilityInfo ReturnNullability)
+    NullabilityInfo ReturnNullability,
+    bool RequiresSave,
+    bool RequiresDraft)
 {
     public string Entity => Name[..Name.IndexOf('.')];
     public string Verb => Name[(Name.IndexOf('.') + 1)..];
@@ -29,7 +31,8 @@ public record Call(
 public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<Type> Events, IReadOnlyList<string> ErrorCodes, IReadOnlyList<string> Topics)
 {
     private const string Namespace = "PKHeX.Everywhere.Engine";
-    private static readonly string[] InjectedTypes = ["PKHeX.Facade.Game", $"{Namespace}.Session"];
+    private const string GameType = "PKHeX.Facade.Game";
+    private static readonly string[] InjectedTypes = [GameType, $"{Namespace}.Session"];
 
     public IEnumerable<Call> Queries => Calls.Where(c => c.Kind == CallKind.Query);
 
@@ -49,6 +52,7 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<Type> Events, IR
             throw new InvalidOperationException($"Query '{query.ConstructorArguments[0].Value}' reads the save, so it must declare the topics it reads.");
 
         var calls = declared
+            .Select(m => (m.Method, m.Attribute, Requires: Requirements(m.Method)))
             .Select(m => new Call(
                 (string)m.Attribute!.ConstructorArguments[0].Value!,
                 m.Attribute.AttributeType.Name == "QueryAttribute" ? CallKind.Query : CallKind.Command,
@@ -56,10 +60,12 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<Type> Events, IR
                 DeclaredTopics(m.Attribute),
                 m.Method.GetParameters()
                     .Where(p => !InjectedTypes.Contains(p.ParameterType.FullName))
-                    .Select(p => new Parameter(p.Name!, p.ParameterType, nullability.Create(p)))
+                    .Select(p => new Parameter(p.Name!, p.ParameterType, nullability.Create(p), p.HasDefaultValue))
                     .ToList(),
                 Awaited(m.Method.ReturnType),
-                Awaited(nullability.Create(m.Method.ReturnParameter))))
+                Awaited(nullability.Create(m.Method.ReturnParameter)),
+                m.Method.GetParameters().Any(p => p.ParameterType.FullName == GameType) || m.Requires.Contains("Save"),
+                m.Requires.Contains("Draft")))
             .OrderBy(c => c.Name, StringComparer.Ordinal)
             .ToList();
 
@@ -105,6 +111,12 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<Type> Events, IR
         ((IEnumerable<CustomAttributeTypedArgument>)attribute.ConstructorArguments[1].Value!)
             .Select(a => (string)a.Value!)
             .ToList();
+
+    private static List<string> Requirements(MethodInfo method) => method.CustomAttributes
+        .Where(a => a.AttributeType.FullName == $"{Namespace}.RequiresAttribute")
+        .SelectMany(a => (IEnumerable<CustomAttributeTypedArgument>)a.ConstructorArguments[0].Value!)
+        .Select(a => Enum.GetName(a.ArgumentType, a.Value!)!)
+        .ToList();
 
     private static string? Hook(Type handlers) =>
         handlers.CustomAttributes

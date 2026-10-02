@@ -1,5 +1,5 @@
-import type { Base64, Engine, PlugInSetting, PlugInState } from '@pkhex-everywhere/engine'
-import { toBase64 } from '../base64'
+import type { Engine, PlugInSetting, PlugInState } from '@pkhex-everywhere/engine'
+import { fromBase64, toBase64 } from '../base64'
 import {
   defaultSourceUrl,
   downloadUrl,
@@ -32,7 +32,7 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
     return response
   }
 
-  const download = async (url: string): Promise<Base64> => toBase64(new Uint8Array(await (await get(url)).arrayBuffer()))
+  const download = async (url: string) => new Uint8Array(await (await get(url)).arrayBuffer())
 
   async function fetchSource(sourceUrl: string) {
     const source = { ...readSource(await (await get(sourceManifestUrl(sourceUrl))).json()), sourceUrl }
@@ -63,7 +63,7 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
     if (!(await engine.plugins.isSupported(assembly))) return false
 
     await engine.plugins.register(assembly, state && { ...state, hasNewerVersion: false })
-    await store.writePlugIn({ ...stored, fileUrl, assembly, state: await engine.plugins.state(stored.id) })
+    await store.writePlugIn({ ...stored, fileUrl, assembly: toBase64(assembly), state: await engine.plugins.state(stored.id) })
     return true
   }
 
@@ -112,7 +112,7 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
     async registerStored() {
       for (const plugIn of await store.readPlugIns()) {
         try {
-          await engine.plugins.register(plugIn.assembly, plugIn.state)
+          await engine.plugins.register(fromBase64(plugIn.assembly), plugIn.state)
         } catch (error) {
           console.error(`Couldn't load plug-in ${plugIn.id}.`, error)
         }
@@ -161,7 +161,7 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
       if (!(await engine.plugins.isSupported(assembly))) throw new Error(`${plugIn.name} ${version.version} can't run in this app.`)
 
       const installed = await engine.plugins.register(assembly, null)
-      await store.writePlugIn({ id: installed.id, sourceUrl, fileUrl, assembly, state: await engine.plugins.state(installed.id) })
+      await store.writePlugIn({ id: installed.id, sourceUrl, fileUrl, assembly: toBase64(assembly), state: await engine.plugins.state(installed.id) })
       return installed.id
     },
 
