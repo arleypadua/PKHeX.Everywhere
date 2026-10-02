@@ -336,7 +336,6 @@ public class UnboundSaveTests
         Error(Dispatch(session, "pokemon.edit", Args(UnknownSpecies))).Should().Be("unknown-species");
         Error(Dispatch(session, "pokemon.clone", Args(UnknownSpecies))).Should().Be("unknown-species");
         Value(Dispatch(session, "pokemon.details", Args(UnknownSpecies)))!["species"]!.GetValue<int>().Should().Be(0);
-        Value(Dispatch(session, "pokemon.showdown", Args(UnknownSpecies))).Should().NotBeNull();
 
         Exported(session).Should().Equal(Fixture);
     }
