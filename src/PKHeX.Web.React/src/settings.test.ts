@@ -67,7 +67,7 @@ describe('settings', () => {
       expect(createSettings(localStorage).readLastDateNewsSeen()).toBeNull()
     })
 
-    it('writes the date as yyyy-MM-dd', () => {
+    it('writes the date under the key Blazor read', () => {
       createSettings(localStorage).writeLastDateNewsSeen('2026-10-01')
       expect(localStorage.getItem('lastDateNewsSeen')).toBe('2026-10-01')
     })

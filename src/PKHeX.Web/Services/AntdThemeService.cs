@@ -23,9 +23,16 @@ public class AntdThemeService(ReactApp reactApp)
 
     public async Task Load()
     {
-        Theme = ToTheme(await reactApp.InvokeAsync<string>("getTheme"));
-        _self ??= DotNetObjectReference.Create(this);
-        await reactApp.InvokeVoidAsync("onThemeChanged", _self);
+        try
+        {
+            Theme = ToTheme(await reactApp.InvokeAsync<string>("getTheme"));
+            _self ??= DotNetObjectReference.Create(this);
+            await reactApp.InvokeVoidAsync("onThemeChanged", _self);
+        }
+        catch (JSException)
+        {
+            // App renders nothing until the theme loads, so a missing React bundle must not leave it blank.
+        }
     }
 
     [JSInvokable]

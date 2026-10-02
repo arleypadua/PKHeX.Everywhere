@@ -6,8 +6,8 @@ interface ReleaseNotesPageProps {
   since?: string | null
 }
 
-export default function ReleaseNotesPage(props: ReleaseNotesPageProps) {
-  const since = props.since ?? settings.readLastDateNewsSeen()
+export default function ReleaseNotesPage({ since: sinceQuery }: ReleaseNotesPageProps) {
+  const since = sinceQuery ?? settings.readLastDateNewsSeen()
   return (
     <Typography>
       <h1>Release Notes</h1>
