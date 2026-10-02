@@ -87,10 +87,11 @@ public partial class Pokemon
         if (patch.MetLevel is { } metLevel) ApplyMetLevel(metLevel);
         if (patch.MetDate is { } metDate) ApplyMetDate(metDate);
         if (patch.FatefulEncounter is { } fatefulEncounter) ApplyFatefulEncounter(fatefulEncounter);
-        if (patch.Ivs is { } ivs) ApplyStats(ivs, nameof(PokemonPatch.Ivs), "IV", Pkm.MaxIV, SetIv, Pkm.GetIV);
-        if (patch.Evs is { } evs) ApplyStats(evs, nameof(PokemonPatch.Evs), "EV", Pkm.MaxEV, SetEv, Pkm.GetEV);
+        if (patch.Ivs is { } ivs) ApplyStats(ivs, nameof(PokemonPatch.Ivs), "IV", Pkm.MaxIV, (index, value) => Pkm.SetIV(index, value), Pkm.GetIV);
+        if (patch.Evs is { } evs) ApplyStats(evs, nameof(PokemonPatch.Evs), "EV", Pkm.MaxEV, (index, value) => Pkm.SetEV(index, value), Pkm.GetEV);
         if (patch.Avs is { } avs) ApplyAvs(avs);
-        if (patch is { Ivs: not null } or { Evs: not null } or { Avs: not null } && Pkm is ICombatPower combatPower) combatPower.ResetCP();
+        var statInputsChanged = patch is { Ivs: not null } or { Evs: not null } or { Avs: not null };
+        if (statInputsChanged && Pkm is ICombatPower combatPower) combatPower.ResetCP();
         if (patch.CombatPower is { } cp) ApplyCombatPower(cp);
     }
 
@@ -287,7 +288,7 @@ public partial class Pokemon
     private static void ApplyStats(StatPatch patch, string field, string kind, int max, Action<int, int> set, Func<int, int> get)
     {
         var values = StatsIn(patch).ToList();
-        foreach (var (index, name, label, value) in values)
+        foreach (var (_, name, label, value) in values)
             Require(value >= 0 && value <= max, $"{field}.{name}", $"{label} {kind} must be between 0 and {max}, got {value}.");
         foreach (var (index, _, _, value) in values) set(index, value);
         // Game Boy games derive the HP IV from the others and share one Special IV, so a write can be dropped or overwritten.
@@ -295,46 +296,18 @@ public partial class Pokemon
             Require(get(index) == value, $"{field}.{name}", $"{label} {kind} {value} can't be stored in this game.");
     }
 
-    private void SetIv(int index, int value)
-    {
-        switch (index)
-        {
-            case 0: Pkm.IV_HP = value; break;
-            case 1: Pkm.IV_ATK = value; break;
-            case 2: Pkm.IV_DEF = value; break;
-            case 3: Pkm.IV_SPE = value; break;
-            case 4: Pkm.IV_SPA = value; break;
-            default: Pkm.IV_SPD = value; break;
-        }
-    }
-
-    private void SetEv(int index, int value)
-    {
-        switch (index)
-        {
-            case 0: Pkm.EV_HP = value; break;
-            case 1: Pkm.EV_ATK = value; break;
-            case 2: Pkm.EV_DEF = value; break;
-            case 3: Pkm.EV_SPE = value; break;
-            case 4: Pkm.EV_SPA = value; break;
-            default: Pkm.EV_SPD = value; break;
-        }
-    }
-
     // Indexes follow PKHeX's stat order: HP, Attack, Defense, Speed, Special Attack, Special Defense.
-    private static IEnumerable<(int Index, string Name, string Label, int Value)> StatsIn(StatPatch patch)
+    private static IEnumerable<PatchedStat> StatsIn(StatPatch patch) => new PatchedStat?[]
     {
-        (int, string, string, int?)[] stats =
-        [
-            (0, nameof(StatPatch.Health), "HP", patch.Health),
-            (1, nameof(StatPatch.Attack), "Attack", patch.Attack),
-            (2, nameof(StatPatch.Defense), "Defense", patch.Defense),
-            (3, nameof(StatPatch.Speed), "Speed", patch.Speed),
-            (4, nameof(StatPatch.SpecialAttack), "Special Attack", patch.SpecialAttack),
-            (5, nameof(StatPatch.SpecialDefense), "Special Defense", patch.SpecialDefense),
-        ];
-        return stats.Where(s => s.Item4 is not null).Select(s => (s.Item1, s.Item2, s.Item3, s.Item4!.Value));
-    }
+        patch.Health is { } health ? new(0, nameof(StatPatch.Health), "HP", health) : null,
+        patch.Attack is { } attack ? new(1, nameof(StatPatch.Attack), "Attack", attack) : null,
+        patch.Defense is { } defense ? new(2, nameof(StatPatch.Defense), "Defense", defense) : null,
+        patch.Speed is { } speed ? new(3, nameof(StatPatch.Speed), "Speed", speed) : null,
+        patch.SpecialAttack is { } specialAttack ? new(4, nameof(StatPatch.SpecialAttack), "Special Attack", specialAttack) : null,
+        patch.SpecialDefense is { } specialDefense ? new(5, nameof(StatPatch.SpecialDefense), "Special Defense", specialDefense) : null,
+    }.OfType<PatchedStat>();
+
+    private sealed record PatchedStat(int Index, string Name, string Label, int Value);
 
     private StatValues ComputedStats()
     {
