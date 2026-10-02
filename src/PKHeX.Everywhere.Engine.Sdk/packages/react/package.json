@@ -1,6 +1,6 @@
 {
   "name": "@pkhex-everywhere/react",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "React hooks for @pkhex-everywhere/engine.",
   "license": "GPL-3.0-or-later",
   "repository": {
