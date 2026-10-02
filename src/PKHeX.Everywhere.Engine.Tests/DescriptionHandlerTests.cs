@@ -27,6 +27,7 @@ public class DescriptionHandlerTests
         List(session, "game.balls").Should().Be(Serialized(options.Balls));
         List(session, "game.languages").Should().Be(Serialized(options.Languages));
         List(session, "game.heldItems").Should().Be(Serialized(options.HeldItems));
+        List(session, "game.moves").Should().Be(Serialized(options.Moves));
     }
 
     [Theory]
@@ -34,6 +35,7 @@ public class DescriptionHandlerTests
     [InlineData("game.balls")]
     [InlineData("game.languages")]
     [InlineData("game.heldItems")]
+    [InlineData("game.moves")]
     public void GameListsReturnNoSaveWithoutALoadedSave(string call) =>
         Error(Dispatch(new Session(), call, "[]")).Should().Be("no-save");
 
@@ -103,6 +105,7 @@ public class DescriptionHandlerTests
         options["species"]!.ToJsonString().Should().Be(Serialized(expected.Species));
         options["abilities"]!.ToJsonString().Should().Be(Serialized(expected.Abilities));
         options["forms"]!.ToJsonString().Should().Be(Serialized(expected.Forms));
+        options["moves"]!.ToJsonString().Should().Be(Serialized(expected.Moves));
     }
 
     [Fact]

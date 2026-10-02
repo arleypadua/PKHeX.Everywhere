@@ -31,6 +31,7 @@ public class CommandTopicTests
         ["game.languages"] = (_, _) => ["[]"],
         ["game.heldItems"] = (_, _) => ["[]"],
         ["game.originGames"] = (_, _) => ["[]"],
+        ["game.moves"] = (_, _) => ["[]"],
         ["game.export"] = (_, _) => ["[]"],
         ["game.file"] = (_, _) => ["[]"],
         ["game.get"] = (_, _) => ["[]"],

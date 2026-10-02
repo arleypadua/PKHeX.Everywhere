@@ -56,6 +56,9 @@ public static class GameHandlers
     [Query("game.originGames", Topics.Game)]
     public static Choice[] OriginGames(Game game) => game.Options.OriginGames.ToChoices();
 
+    [Query("game.moves", Topics.Game)]
+    public static Choice[] Moves(Game game) => game.Options.Moves.ToChoices();
+
     [Query("game.blankVersions")]
     public static VersionEntry[] BlankVersions() =>
         GameVersionRepository.Instance.Blank.Select(version => version.ToEntry()).ToArray();

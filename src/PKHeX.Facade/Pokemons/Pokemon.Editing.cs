@@ -44,9 +44,10 @@ public partial class Pokemon
         HiddenPower,
         Pkm is ICombatPower combatPower ? combatPower.Stat_CP : null,
         Pkm is PB7 pb7 ? pb7.CalcCP : null,
+        Moves.Values.Select(move => new MoveSlot(move.Move.Id, move.Move.Name, move.PP.Current, move.PP.Max)).ToArray(),
         this.LegalityReport());
 
-    public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices());
+    public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices());
 
     /// <summary>
     /// Applies the patch in a fixed order, species before form before ability and origin game before met location and stat inputs before combat power, so each field is checked against the ones before it.
@@ -72,6 +73,7 @@ public partial class Pokemon
         if (patch.Friendship is { } friendship) ApplyFriendship(friendship);
         if (patch.Nickname is { } nickname) ApplyNickname(nickname.Trim());
         if (patch.Level is { } level) ApplyLevel(level);
+        if (patch.Moves is { } moves) ApplyMoves(moves);
         if (patch.IsShiny is { } isShiny) ApplyIsShiny(isShiny);
         if (patch.IsAlpha is { } isAlpha) ApplyIsAlpha(isAlpha);
         if (patch.TrainerId is not null || patch.SecretId is not null) ApplyTrainerIds(patch.TrainerId ?? Pkm.DisplayTID, patch.SecretId ?? Pkm.DisplaySID);
@@ -184,6 +186,18 @@ public partial class Pokemon
     {
         Require(level is >= 1 and <= 100, nameof(PokemonPatch.Level), $"Level must be between 1 and 100, got {level}.");
         ChangeLevel(level);
+    }
+
+    private void ApplyMoves(IReadOnlyList<int> moves)
+    {
+        Require(moves.Count == 4, nameof(PokemonPatch.Moves), $"Moves must list all 4 slots, got {moves.Count}.");
+        foreach (var move in moves)
+        {
+            var known = move == (int)Move.None || Moves.Values.Any(m => m.Move.Id == move) || Game.Options.Moves.Any(m => m.Id == move);
+            Require(known, nameof(PokemonPatch.Moves), $"Move {move} isn't in this game.");
+        }
+
+        ChangeMoves(moves.Select(move => (ushort)move).ToArray());
     }
 
     private void ApplyIsShiny(bool isShiny)
@@ -345,6 +359,10 @@ public partial class Pokemon
             .Select(id => new Choice(id, AbilityRepository.Instance.Get(id).Name))
             .ToArray();
     }
+
+    private Choice[] MoveChoices() => MoveRepository.Instance.PossibleMovesFor(this)
+        .Select(move => new Choice(move.Id, move.Name))
+        .ToArray();
 
     private Choice[] FormChoices() => Form.HasForm
         ? FormRepository.GetFor(Pkm).Select(form => new Choice(form.Id, form.Name)).ToArray()

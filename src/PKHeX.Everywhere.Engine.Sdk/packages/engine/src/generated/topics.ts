@@ -19,6 +19,7 @@ export const queryTopics: Record<QueryName, readonly Topic[]> = {
   'game.get': ['game'],
   'game.heldItems': ['game'],
   'game.languages': ['game'],
+  'game.moves': ['game'],
   'game.natures': ['game'],
   'game.originGames': ['game'],
   'game.version': ['game'],

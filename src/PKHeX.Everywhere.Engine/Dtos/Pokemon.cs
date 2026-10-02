@@ -97,11 +97,14 @@ public record EditablePokemon(
     HiddenPower? HiddenPower,
     int? CombatPower,
     int? CalculatedCombatPower,
+    MoveSlot[] Moves,
     Legality Legality);
 
 public record StatValues(int Health, int Attack, int Defense, int SpecialAttack, int SpecialDefense, int Speed);
 
 public record HiddenPower(string Type, int? Power);
+
+public record MoveSlot(int Id, string Name, int Pp, int MaxPp);
 
 public record PokemonPatch(
     int? Species = null,
@@ -133,7 +136,8 @@ public record PokemonPatch(
     StatPatch? Ivs = null,
     StatPatch? Evs = null,
     StatPatch? Avs = null,
-    int? CombatPower = null);
+    int? CombatPower = null,
+    int[]? Moves = null);
 
 public record StatPatch(
     int? Health = null,
@@ -145,7 +149,7 @@ public record StatPatch(
 
 public record Choice(int Id, string Name);
 
-public record PokemonOptions(Choice[] Species, Choice[] Abilities, Choice[] Forms, Choice[] MetLocations);
+public record PokemonOptions(Choice[] Species, Choice[] Abilities, Choice[] Forms, Choice[] MetLocations, Choice[] Moves);
 
 public record PokemonOverview(int SpeciesId, string Species, string Gender, string Ball, int Level);
 
@@ -206,6 +210,7 @@ public static class PokemonMapping
         details.HiddenPower is { } hiddenPower ? new HiddenPower(hiddenPower.Type, hiddenPower.Power) : null,
         details.CombatPower,
         details.CalculatedCombatPower,
+        details.Moves.Select(move => new MoveSlot(move.Id, move.Name, move.Pp, move.MaxPp)).ToArray(),
         new Legality(details.Legality.Valid, details.Legality.Messages.ToArray()));
 
     public static Facade.Pokemons.PokemonPatch ToFacade(this PokemonPatch patch) => new(
@@ -238,7 +243,8 @@ public static class PokemonMapping
         patch.Ivs?.ToFacade(),
         patch.Evs?.ToFacade(),
         patch.Avs?.ToFacade(),
-        patch.CombatPower);
+        patch.CombatPower,
+        patch.Moves);
 
     private static StatValues ToDto(this Facade.Pokemons.StatValues stats) =>
         new(stats.Health, stats.Attack, stats.Defense, stats.SpecialAttack, stats.SpecialDefense, stats.Speed);
@@ -273,7 +279,8 @@ public static class PokemonMapping
         options.Species.ToChoices(),
         options.Abilities.ToChoices(),
         options.Forms.ToChoices(),
-        options.MetLocations.ToChoices());
+        options.MetLocations.ToChoices(),
+        options.Moves.ToChoices());
 
     public static Choice[] ToChoices(this IEnumerable<Facade.Pokemons.Choice> choices) =>
         choices.Select(choice => new Choice(choice.Id, choice.Name)).ToArray();

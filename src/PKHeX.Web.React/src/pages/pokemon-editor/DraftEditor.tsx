@@ -6,6 +6,7 @@ import { PageHeader } from '../../components/PageHeader'
 import { PokemonSprite } from '../../components/PokemonSprite'
 import { DescriptionTab } from './DescriptionTab'
 import { LegalityBanner } from './LegalityBanner'
+import { MovesTab } from './MovesTab'
 import { TrainerTab } from './TrainerTab'
 import { MetConditionsTab } from './MetConditionsTab'
 import { StatsTab } from './StatsTab'
@@ -25,9 +26,10 @@ export function DraftEditor({ actions }: DraftEditorProps) {
       <Tabs
         items={[
           { key: 'description', label: 'Description', children: <DescriptionTab /> },
-          { key: 'trainer', label: 'Trainer', children: <TrainerTab /> },
           { key: 'metConditions', label: 'Met Conditions', children: <MetConditionsTab /> },
           { key: 'stats', label: 'Stats', children: <StatsTab /> },
+          { key: 'moves', label: 'Moves', children: <MovesTab /> },
+          { key: 'trainer', label: 'Trainer', children: <TrainerTab /> },
         ]}
       />
       <Flex justify="end">{actions}</Flex>

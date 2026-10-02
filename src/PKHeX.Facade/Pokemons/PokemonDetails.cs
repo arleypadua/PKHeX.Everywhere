@@ -38,9 +38,12 @@ public record PokemonDetails(
     HiddenPowerDefinition? HiddenPower,
     int? CombatPower,
     int? CalculatedCombatPower,
+    IReadOnlyList<MoveSlot> Moves,
     PokemonLegality Legality);
 
 public record StatValues(int Health, int Attack, int Defense, int SpecialAttack, int SpecialDefense, int Speed);
+
+public record MoveSlot(int Id, string Name, int Pp, int MaxPp);
 
 public record PokemonLegality(bool Valid, IReadOnlyList<string> Messages);
 
@@ -77,7 +80,8 @@ public record PokemonPatch(
     StatPatch? Ivs = null,
     StatPatch? Evs = null,
     StatPatch? Avs = null,
-    int? CombatPower = null);
+    int? CombatPower = null,
+    IReadOnlyList<int>? Moves = null);
 
 public record StatPatch(
     int? Health = null,
@@ -98,6 +102,6 @@ public class InvalidPatchException(string field, string message) : Exception(mes
 public record Choice(int Id, string Name);
 
 /// <summary>
-/// The choices that depend on the Pokémon itself: its evolution line, its species' abilities, its forms and the met locations of its origin game.
+/// The choices that depend on the Pokémon itself: its evolution line, its species' abilities, its forms, the met locations of its origin game and the moves it can legally know.
 /// </summary>
-public record PokemonOptions(IReadOnlyList<Choice> Species, IReadOnlyList<Choice> Abilities, IReadOnlyList<Choice> Forms, IReadOnlyList<Choice> MetLocations);
+public record PokemonOptions(IReadOnlyList<Choice> Species, IReadOnlyList<Choice> Abilities, IReadOnlyList<Choice> Forms, IReadOnlyList<Choice> MetLocations, IReadOnlyList<Choice> Moves);
