@@ -144,13 +144,21 @@ public sealed class PlugInHost
 
     public void SetToggle(string id, string hookId, bool enabled)
     {
-        Get(id).SetToggle(hookId, enabled);
+        var plugIn = Get(id);
+        if (!plugIn.HookIds.Contains(hookId)) throw new KeyNotFoundException($"Plug-in {id} has no hook {hookId}.");
+
+        plugIn.SetToggle(hookId, enabled);
         _session.Invalidate(Topics.All);
     }
 
     public void UpdateSetting(string id, string key, Settings.SettingValue value)
     {
-        Get(id).Settings[key] = value;
+        var settings = Get(id).Settings;
+        var current = settings.GetOrDefault(key) ?? throw new KeyNotFoundException($"Plug-in {id} has no setting {key}.");
+        if (current.ReadOnly) throw new InvalidOperationException($"Setting {key} is read-only.");
+        if (current.GetType() != value.GetType()) throw new InvalidOperationException($"Setting {key} takes a {current.GetType().Name}.");
+
+        settings[key] = value;
         _session.Invalidate(Topics.All);
     }
 

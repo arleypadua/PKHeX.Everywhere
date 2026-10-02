@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { IDBFactory } from 'fake-indexeddb'
-import type { InstalledPlugIn, PlugInState, PublishedVersion } from '@pkhex-everywhere/engine'
+import type { InstalledPlugIn, PlugInSetting, PlugInState, PublishedVersion } from '@pkhex-everywhere/engine'
 import { toBase64 } from '../base64'
 import { createPlugIns } from './plugIns'
 import { createPlugInStore, defaultSourceUrl, readSource, type PlugInStore } from './store'
@@ -49,6 +49,11 @@ function fakeEngine() {
       installed: async () => [...plugIns.keys()].map(installed),
       isSupported: async (assembly: string) => supported(assembly),
       state: async (id: string) => plugIns.get(id)!.state,
+      setEnabled: async (id: string, enabled: boolean) => write(id, (state) => ({ ...state, enabled })),
+      setHookEnabled: async (id: string, hookId: string, enabled: boolean) =>
+        write(id, (state) => ({ ...state, toggles: state.toggles.map((t) => (t.hookId === hookId ? { hookId, enabled } : t)) })),
+      updateSetting: async (id: string, setting: PlugInSetting) =>
+        write(id, (state) => ({ ...state, settings: state.settings.map((s) => (s.key === setting.key ? setting : s)) })),
       newestCompatible: vi.fn(async (versions: PublishedVersion[], id: string | null) => {
         const newest = versions.filter((v) => v.sdk === 2).at(-1) ?? null
         const plugIn = id ? plugIns.get(id) : undefined
@@ -56,6 +61,11 @@ function fakeEngine() {
         return newest
       }),
     },
+  }
+  function write(id: string, change: (state: PlugInState) => PlugInState) {
+    const plugIn = plugIns.get(id)!
+    plugIn.state = change(plugIn.state)
+    return plugIn.state
   }
   function installed(id: string): InstalledPlugIn {
     const p = plugIns.get(id)!
@@ -74,10 +84,12 @@ function fakeFetch(files: Record<string, unknown>) {
 
 describe('plug-ins', () => {
   let store: PlugInStore
+  let indexedDb: IDBFactory
 
   beforeEach(() => {
     localStorage.clear()
-    store = createPlugInStore(localStorage, new IDBFactory())
+    indexedDb = new IDBFactory()
+    store = createPlugInStore(localStorage, indexedDb)
   })
 
   it('registers every stored plug-in with its stored state', async () => {
@@ -216,5 +228,32 @@ describe('plug-ins', () => {
     await createPlugIns(reloaded.engine, store, fakeFetch({})).registerStored()
 
     expect(reloaded.engine.plugins.register).not.toHaveBeenCalled()
+  })
+
+  it('stores every change so it survives a reload, including file uploads and removals', async () => {
+    const { engine } = fakeEngine()
+    const fileSetting = { ...storedState.settings[0], key: 'Data', stringValue: null, fileName: '', file: null }
+    const state = { ...storedState, settings: [...storedState.settings, fileSetting] }
+    await store.writePlugIn({ id: 'Example', sourceUrl: source, fileUrl: 'f', assembly: v2, state })
+    const plugIns = createPlugIns(engine, store, fakeFetch({}))
+    await plugIns.registerStored()
+    const file = toBase64(new Uint8Array([1, 2, 3]))
+    const reloaded = async () => (await createPlugInStore(localStorage, indexedDb).readPlugIn('Example'))!.state
+
+    await plugIns.setEnabled('Example', true)
+    await plugIns.setHookEnabled('Example', 'Hook', true)
+    await plugIns.updateSetting('Example', { ...storedState.settings[0], stringValue: 'Hey' })
+    await plugIns.updateSetting('Example', { ...fileSetting, fileName: 'data.bin', file })
+
+    expect(await reloaded()).toEqual({
+      enabled: true,
+      hasNewerVersion: false,
+      toggles: [{ hookId: 'Hook', enabled: true }],
+      settings: [{ ...storedState.settings[0], stringValue: 'Hey' }, { ...fileSetting, fileName: 'data.bin', file }],
+    })
+
+    await plugIns.updateSetting('Example', fileSetting)
+
+    expect((await reloaded()).settings[1]).toEqual(fileSetting)
   })
 })

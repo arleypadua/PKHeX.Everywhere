@@ -14,8 +14,7 @@ export { setTheme } from './host'
 
 const engine = createEngine({ host: blazorHost() })
 
-// Blazor still runs the plug-in page, and calls these through ReactPage.razor.js until they move to React.
-export const plugIns = createPlugIns(engine, createPlugInStore())
+const plugIns = createPlugIns(engine, createPlugInStore())
 
 const plugInsLoaded = engine.ready.then(async () => {
   await plugIns.registerStored().catch((error) => console.error("Couldn't load plug-ins.", error))

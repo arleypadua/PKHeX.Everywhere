@@ -25,6 +25,7 @@ export const queryTopics: Record<QueryName, readonly Topic[]> = {
   'party.get': ['party'],
   'party.showdown': ['party'],
   'plugins.actions': ['*'],
+  'plugins.details': ['plugins'],
   'plugins.failures': ['*'],
   'plugins.installed': ['plugins'],
   'plugins.isSupported': [],

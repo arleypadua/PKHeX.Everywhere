@@ -1,4 +1,4 @@
-import type { Base64, Engine } from '@pkhex-everywhere/engine'
+import type { Base64, Engine, PlugInSetting, PlugInState } from '@pkhex-everywhere/engine'
 import { toBase64 } from '../base64'
 import {
   defaultSourceUrl,
@@ -65,6 +65,11 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
     await engine.plugins.register(assembly, state && { ...state, hasNewerVersion: false })
     await store.writePlugIn({ ...stored, fileUrl, assembly, state: await engine.plugins.state(stored.id) })
     return true
+  }
+
+  async function save(id: string, state: PlugInState) {
+    const stored = await store.readPlugIn(id)
+    if (stored) await store.writePlugIn({ ...stored, state })
   }
 
   async function storedWithSource(id: string, sources: PlugInSource[]) {
@@ -172,9 +177,11 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
       await store.removePlugIn(id)
     },
 
-    async persist(id: string) {
-      const stored = await store.readPlugIn(id)
-      if (stored) await store.writePlugIn({ ...stored, state: await engine.plugins.state(id) })
-    },
+    setEnabled: async (id: string, enabled: boolean) => save(id, await engine.plugins.setEnabled(id, enabled)),
+
+    setHookEnabled: async (id: string, hookId: string, enabled: boolean) =>
+      save(id, await engine.plugins.setHookEnabled(id, hookId, enabled)),
+
+    updateSetting: async (id: string, setting: PlugInSetting) => save(id, await engine.plugins.updateSetting(id, setting)),
   }
 }
