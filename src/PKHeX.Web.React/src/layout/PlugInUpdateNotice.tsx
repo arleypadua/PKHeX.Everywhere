@@ -6,13 +6,13 @@ export function PlugInUpdateNotice() {
   const { notification } = App.useApp()
 
   useEffect(() => {
-    let mounted = true
+    let active = true
     void plugInsRefreshed.then(({ hasNewerVersions }) => {
-      if (mounted && hasNewerVersions)
-        notification.info({ title: 'New plug-in version available', description: 'Visit the plug-in page and update them.' })
+      if (active && hasNewerVersions)
+        notification.info({ title: 'New plug-in version available', description: 'Update it from the Plug-ins page.' })
     })
     return () => {
-      mounted = false
+      active = false
     }
   }, [notification])
 
