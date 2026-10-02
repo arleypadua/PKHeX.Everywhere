@@ -11,7 +11,8 @@ internal class CapturedWith(Pokemon pokemon) : EditPokemonAttribute.SimpleAttrib
     public override Result HandleSelection()
     {
         var balls = GetLegalBalls(Pokemon.Pkm)
-            .Select(b => ItemRepository.GetItem((ushort)b));
+            .Select(ItemRepository.GetBall)
+            .OfType<ItemDefinition>();
 
         var ball = AnsiConsole.Prompt(new SelectionPrompt<OptionOrBack>()
             .Title(Display)

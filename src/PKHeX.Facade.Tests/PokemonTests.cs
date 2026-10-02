@@ -70,7 +70,8 @@ public class PokemonTests
     [InlineData(Ball.LAOrigin, "Origin Ball")]
     public void Ball_ShouldResolveFromTheBallNames(Ball ball, string name)
     {
-        var pokemon = new Pokemon(new PA8 { Ball = (byte)ball }, Game.EmptyOf(GameVersionRepository.Instance.Get(GameVersion.PLA)));
+        var game = Game.EmptyOf(GameVersionRepository.Instance.Get(GameVersion.PLA));
+        var pokemon = new Pokemon(new PA8 { Ball = (byte)ball }, game);
 
         pokemon.Ball.Should().Be(new ItemDefinition((ushort)ball, name));
     }
