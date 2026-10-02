@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
 import { createStarlightTypeDocPlugin } from 'starlight-typedoc'
 import starlightLinksValidator from 'starlight-links-validator'
+import { fileURLToPath } from 'node:url'
 
 const [engineTypeDoc, engineSidebar] = createStarlightTypeDocPlugin()
 const [reactTypeDoc, reactSidebar] = createStarlightTypeDocPlugin()
@@ -15,7 +16,7 @@ const typeDocOptions = {
   entryFileName: 'index',
   sourceLinkTemplate: 'https://github.com/arleypadua/PKHeX.Everywhere/blob/main/{path}#L{line}',
   disableGit: true,
-  basePath: '../../..',
+  displayBasePath: fileURLToPath(new URL('../../..', import.meta.url)),
 }
 
 export default defineConfig({
@@ -26,6 +27,17 @@ export default defineConfig({
       logo: { src: './public/favicon.svg', replacesTitle: false },
       favicon: '/favicon.svg',
       customCss: ['./src/styles/theme.css'],
+      head: [
+        {
+          tag: 'script',
+          content: `document.addEventListener('DOMContentLoaded', () => {
+  for (const link of document.querySelectorAll('a[href^="https://github.com"], a[href^="https://pkhex-web.github.io"]')) {
+    link.target = '_blank'
+    link.rel = 'noopener'
+  }
+})`,
+        },
+      ],
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/arleypadua/PKHeX.Everywhere' },
       ],
