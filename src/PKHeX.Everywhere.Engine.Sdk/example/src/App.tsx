@@ -1,18 +1,3 @@
-# @pkhex-everywhere/react
-
-React hooks for [`@pkhex-everywhere/engine`](https://www.npmjs.com/package/@pkhex-everywhere/engine). Hooks suspend until their data arrives and refetch when a command changes it.
-
-## Install
-
-```sh
-npm install @pkhex-everywhere/engine @pkhex-everywhere/react
-```
-
-## Example
-
-This app opens a save from a file input, lists the party and downloads the edited save:
-
-```tsx
 import { Suspense, type ChangeEvent } from 'react'
 import { createEngine } from '@pkhex-everywhere/engine'
 import { EngineProvider, RequireGame, useEngineStatus, useLoadedGame, useParty } from '@pkhex-everywhere/react'
@@ -70,23 +55,3 @@ export function App() {
     </EngineProvider>
   )
 }
-```
-
-The Suspense fallback shows the runtime download with `useEngineStatus()`. `<RequireGame>` renders its fallback until a save is loaded, then its children. If the runtime fails to load, the hooks throw the error to the nearest error boundary.
-
-CI builds this app from the packed packages and runs it, so the code above works as written.
-
-## Hooks that need a save
-
-Most hooks throw `no-save` when no save is loaded, so render them inside `<RequireGame>`. Hover a hook to see what it needs. A hook that runs without a save fails with a message naming the call and the fix, and the error's `code` stays `no-save`. The same goes for `no-draft`.
-
-These work without a save:
-
-- `useEngineStatus()`
-- `useEngine()`
-- `useLoadedGame()`, where `game` is `null` until a save is loaded
-- `useQuery` with `game.get`, `game.version`, `game.blankVersions`, `catalog.names` and the `plugins.*` queries
-
-## License
-
-GPL-3.0-or-later.

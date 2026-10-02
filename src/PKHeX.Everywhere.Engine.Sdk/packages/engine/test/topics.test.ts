@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { affects } from '../src'
+import { affects } from '../src/internal'
 
 describe('affects', () => {
   it.each([

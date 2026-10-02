@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createEngine, EngineError, type EngineEvent, type EngineStatus, type PokemonSummary } from '../src'
+import { call } from '../src/internal'
 import { fakeHost } from './fakeHost'
 
 const pikachu = {
@@ -52,7 +53,7 @@ describe('createEngine', () => {
     const { host, signalReady, calls } = fakeHost(() => ({ ok: true, value: null }))
     signalReady()
 
-    await createEngine({ host }).call('party.get', [pikachu.at, 3])
+    await call(createEngine({ host }), 'party.get', [pikachu.at, 3])
 
     expect(calls).toEqual([{ name: 'party.get', args: JSON.stringify([pikachu.at, 3]) }])
   })

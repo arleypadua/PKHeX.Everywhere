@@ -31,10 +31,19 @@ export type Engine = EngineClient & {
   readonly ready: Promise<void>
   readonly status: EngineStatus
   onStatusChange(listener: (status: EngineStatus) => void): () => void
-  call<T>(name: CallName, args: unknown[]): Promise<T>
   subscribe(topics: readonly Topic[], callback: (changed: Topic[]) => void): () => void
   onEvent(listener: (event: EngineEvent) => void): () => void
   onCallFailed(listener: (call: CallName, error: unknown) => void): () => void
+}
+
+type Call = <T>(name: CallName, args: unknown[]) => Promise<T>
+
+const calls = new WeakMap<Engine, Call>()
+
+export function call<T>(engine: Engine, name: CallName, args: unknown[]): Promise<T> {
+  const invoke = calls.get(engine)
+  if (!invoke) throw new Error('This engine was not made by createEngine().')
+  return invoke<T>(name, args)
 }
 
 export function createEngine({ host = wasmHost(), lazy = false }: { host?: EngineHost; lazy?: boolean } = {}): Engine {
@@ -126,16 +135,17 @@ export function createEngine({ host = wasmHost(), lazy = false }: { host?: Engin
     return () => void eventListeners.delete(listener)
   }
 
-  return {
+  const engine: Engine = {
     ...createClient(call),
     ready,
     get status() {
       return status
     },
     onStatusChange,
-    call,
     subscribe,
     onEvent,
     onCallFailed,
   }
+  calls.set(engine, call)
+  return engine
 }

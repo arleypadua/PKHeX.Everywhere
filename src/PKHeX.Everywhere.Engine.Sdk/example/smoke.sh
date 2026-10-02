@@ -4,6 +4,13 @@ here="$(cd "$(dirname "$0")" && pwd)"
 sdk="$here/.."
 packs="$sdk/.packs"
 
+for readme in "$sdk"/packages/{engine,react}/README.md; do
+  if ! diff <(awk '/^```tsx$/{on=1; next} /^```$/{if (on) exit} on' "$readme") "$here/src/App.tsx"; then
+    echo "The React example in $readme doesn't match example/src/App.tsx." >&2
+    exit 1
+  fi
+done
+
 (cd "$sdk" && npm run build)
 rm -rf "$packs" && mkdir -p "$packs"
 for package in engine react plugin-sdk; do
