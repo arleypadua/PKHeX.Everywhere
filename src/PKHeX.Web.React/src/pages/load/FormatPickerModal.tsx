@@ -16,13 +16,13 @@ export function FormatPickerModal({ choice, onChoose, onCancel }: FormatPickerMo
   return (
     <Modal
       open
-      title="Which game is this save from?"
+      title="Is this save from a ROM hack?"
       okText="Open"
       onOk={() => formatId && onChoose(formatId)}
       onCancel={onCancel}
       okButtonProps={{ disabled: !formatId }}
     >
-      <Typography.Paragraph>'{choice.file.name}' might be from a ROM hack.</Typography.Paragraph>
+      <Typography.Paragraph>'{choice.file.name}' might be from one of these games.</Typography.Paragraph>
       <Radio.Group
         vertical
         aria-label="Game"
