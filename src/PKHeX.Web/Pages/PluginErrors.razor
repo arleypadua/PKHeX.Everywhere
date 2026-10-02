@@ -1,34 +1,3 @@
 @page "/plugins/errors"
-@using PKHeX.Everywhere.Engine.PlugIns
-@inject PlugInHost PlugInHost
 
-<h3>Plug-in execution errors</h3>
-
-<Space Direction="SpaceDirection.Vertical">
-@foreach (var failure in PlugInHost.Failures)
-{
-    @RenderFailure(failure.PlugInId, failure.Message, failure.StackTrace, () => PlugInHost.Dismiss(failure))
-}
-</Space>
-
-@code {
-
-    private RenderFragment RenderFailure(string plugInId, string message, string? stackTrace, Action dismiss) =>
-        @<Alert Type="@AlertType.Default" Closable OnClose="dismiss">
-            <dl>
-                <dt>Plug-in</dt>
-                <dd>@plugInId</dd>
-
-                <dt>Message</dt>
-                <dd>
-                    <code>@message</code>
-                </dd>
-
-                <dt>Stack trace</dt>
-                <dd>
-                    <code>@stackTrace</code>
-                </dd>
-            </dl>
-        </Alert>;
-
-}
+<ReactPage Name="plugin-errors" RequiresSave="false" />

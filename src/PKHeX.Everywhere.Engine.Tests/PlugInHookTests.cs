@@ -144,15 +144,20 @@ public class PlugInHookTests
     }
 
     [Fact]
-    public void DismissesAFailure()
+    public async Task DismissingAFailureRemovesItFromTheListAndReportsPlugIns()
     {
         var (session, host, _) = Hosted();
-        var (at, _) = AddableItem(session.Game!)!.Value;
-        SetItem(session, at, 2);
+        await host.Handle(new ItemChanged(1, 1));
+        await host.Handle(new ItemChanged(2, 1));
+        var changed = new List<string>();
+        session.Changed += changed.AddRange;
 
-        host.Dismiss(host.Failures[0]);
+        var first = Value(Dispatch(session, "plugins.failures", "[]"))!.AsArray()[0]!;
+        Value(Dispatch(session, "plugins.dismissFailure", Args(first["id"]!.GetValue<int>())));
 
-        host.Failures.Should().BeEmpty();
+        var listed = Value(Dispatch(session, "plugins.failures", "[]"))!.AsArray();
+        listed.Select(f => f!["message"]!.GetValue<string>()).Should().Equal("Failed on item 2");
+        changed.Should().Equal(Topics.PlugIns);
     }
 
     [Fact]

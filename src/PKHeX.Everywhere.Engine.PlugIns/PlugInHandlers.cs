@@ -7,6 +7,9 @@ public static class PlugInHandlers
     [Query("plugins.failures", Topics.All)]
     public static PlugInFailure[] Failures(Session session) => PlugInHost.Of(session).Failures.ToArray();
 
+    [Command("plugins.dismissFailure", Topics.PlugIns)]
+    public static void DismissFailure(Session session, int id) => PlugInHost.Of(session).Dismiss(id);
+
     [Query("plugins.actions", Topics.All)]
     public static PlugInAction[] Actions(Session session, ActionPlacement placement, PokemonHandle? target)
     {
