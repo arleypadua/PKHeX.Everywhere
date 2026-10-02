@@ -2,7 +2,7 @@ import { createClient, type CallName, type EngineClient } from './generated/clie
 import type { ErrorCode } from './generated/errors'
 import type { Topic } from './generated/topics'
 import type { EngineEvent } from './generated/types'
-import type { EngineHost } from './host'
+import type { EngineExports, EngineHost } from './host'
 import { affects } from './topics'
 import { wasmHost } from './wasmHost'
 
@@ -20,25 +20,68 @@ export class EngineError extends Error {
   }
 }
 
+export type EngineStatus = {
+  state: 'idle' | 'booting' | 'ready' | 'failed'
+  loaded: number
+  total: number
+  error?: unknown
+}
+
 export type Engine = EngineClient & {
   readonly ready: Promise<void>
+  readonly status: EngineStatus
+  onStatusChange(listener: (status: EngineStatus) => void): () => void
   call<T>(name: CallName, args: unknown[]): Promise<T>
   subscribe(topics: readonly Topic[], callback: (changed: Topic[]) => void): () => void
   onEvent(listener: (event: EngineEvent) => void): () => void
   onCallFailed(listener: (call: CallName, error: unknown) => void): () => void
 }
 
-export function createEngine({ host = wasmHost() }: { host?: EngineHost } = {}): Engine {
-  const exports = host
-    .ready()
-    .then(() => host.getAssemblyExports(engineAssembly))
-    .then((assembly) => assembly.PKHeX.Everywhere.Engine.EngineExports)
+export function createEngine({ host = wasmHost(), lazy = false }: { host?: EngineHost; lazy?: boolean } = {}): Engine {
+  let status: EngineStatus = { state: 'idle', loaded: 0, total: 0 }
+  const statusListeners = new Set<(status: EngineStatus) => void>()
 
-  const ready = exports.then(() => undefined)
+  function setStatus(next: Partial<EngineStatus>) {
+    status = { ...status, ...next }
+    for (const listener of [...statusListeners]) listener(status)
+  }
+
+  function onStatusChange(listener: (status: EngineStatus) => void) {
+    statusListeners.add(listener)
+    return () => void statusListeners.delete(listener)
+  }
+
+  let settle!: { resolve: () => void; reject: (error: unknown) => void }
+  const ready = new Promise<void>((resolve, reject) => (settle = { resolve, reject }))
   ready.catch(() => {})
 
+  let exports: Promise<EngineExports> | undefined
+
+  function boot() {
+    if (exports) return exports
+    setStatus({ state: 'booting' })
+    host.onProgress?.((loaded, total) => setStatus({ loaded, total }))
+    exports = host
+      .ready()
+      .then(() => host.getAssemblyExports(engineAssembly))
+      .then((assembly) => assembly.PKHeX.Everywhere.Engine.EngineExports)
+    exports.then(
+      () => {
+        setStatus({ state: 'ready' })
+        settle.resolve()
+      },
+      (error: unknown) => {
+        setStatus({ state: 'failed', error })
+        settle.reject(error)
+      },
+    )
+    return exports
+  }
+
+  if (!lazy && typeof window !== 'undefined') boot()
+
   async function dispatch<T>(name: CallName, args: unknown[]): Promise<T> {
-    const engine = await exports
+    const engine = await boot()
     const envelope = JSON.parse(await engine.Call(name, JSON.stringify(args))) as Envelope<T>
     if (envelope.ok) return envelope.value
     throw new EngineError(envelope.error.code, envelope.error.message)
@@ -83,5 +126,16 @@ export function createEngine({ host = wasmHost() }: { host?: EngineHost } = {}):
     return () => void eventListeners.delete(listener)
   }
 
-  return { ...createClient(call), ready, call, subscribe, onEvent, onCallFailed }
+  return {
+    ...createClient(call),
+    ready,
+    get status() {
+      return status
+    },
+    onStatusChange,
+    call,
+    subscribe,
+    onEvent,
+    onCallFailed,
+  }
 }

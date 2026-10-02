@@ -9,8 +9,13 @@ export interface DotnetRuntime {
   runMain(): Promise<number>
 }
 
+interface DotnetHostBuilder {
+  withModuleConfig(config: { onDownloadResourceProgress?: (loaded: number, total: number) => void }): DotnetHostBuilder
+  create(): Promise<DotnetRuntime>
+}
+
 interface DotnetModule {
-  dotnet: { create(): Promise<DotnetRuntime> }
+  dotnet: DotnetHostBuilder
 }
 
 declare global {
@@ -32,14 +37,43 @@ function pageDotnetUrl() {
 
 const importModule = (url: string) => import(/* @vite-ignore */ url) as Promise<DotnetModule>
 
-export function wasmHost({
-  dotnetUrl = pageDotnetUrl() ?? cdnDotnetUrl,
-  load = importModule,
-}: WasmHostOptions = {}): EngineHost {
+const resolveUrl = (url: string) => (globalThis.document ? new URL(url, document.baseURI).href : url)
+
+let shared: { dotnetUrl: string; host: EngineHost } | undefined
+
+export function wasmHost({ dotnetUrl, load = importModule }: WasmHostOptions = {}): EngineHost {
+  if (shared) {
+    if (dotnetUrl !== undefined && resolveUrl(dotnetUrl) !== resolveUrl(shared.dotnetUrl))
+      console.warn(`wasmHost() already loads the runtime from ${shared.dotnetUrl}, so ${dotnetUrl} is ignored.`)
+    return shared.host
+  }
+  const url = dotnetUrl ?? pageDotnetUrl() ?? cdnDotnetUrl
+  shared = { dotnetUrl: url, host: createWasmHost(url, load) }
+  return shared.host
+}
+
+function createWasmHost(dotnetUrl: string, load: (url: string) => Promise<DotnetModule>): EngineHost {
+  const changeListeners = new Set<(topics: string[]) => void>()
+  const eventListeners = new Set<(event: string) => void>()
+  const progressListeners = new Set<(loaded: number, total: number) => void>()
+  let progress: [number, number] | undefined
+
+  globalThis.pkhexEngineOnChange = (topics) => {
+    for (const listener of [...changeListeners]) listener(topics)
+  }
+  globalThis.pkhexEngineOnEvent = (event) => {
+    for (const listener of [...eventListeners]) listener(event)
+  }
+
+  const reportProgress = (loaded: number, total: number) => {
+    progress = [loaded, total]
+    for (const listener of [...progressListeners]) listener(loaded, total)
+  }
+
   let booted: Promise<DotnetRuntime> | undefined
   const boot = () =>
     (booted ??= load(dotnetUrl).then(async ({ dotnet }) => {
-      const runtime = await dotnet.create()
+      const runtime = await dotnet.withModuleConfig({ onDownloadResourceProgress: reportProgress }).create()
       runtime.setModuleImports('pkhex-crypto', crypto)
       await runtime.runMain()
       return runtime
@@ -48,10 +82,17 @@ export function wasmHost({
   return {
     ready: () => boot().then(() => undefined),
     onChange: (listener) => {
-      globalThis.pkhexEngineOnChange = listener
+      changeListeners.add(listener)
+      return () => void changeListeners.delete(listener)
     },
     onEvent: (listener) => {
-      globalThis.pkhexEngineOnEvent = listener
+      eventListeners.add(listener)
+      return () => void eventListeners.delete(listener)
+    },
+    onProgress: (listener) => {
+      progressListeners.add(listener)
+      if (progress) listener(...progress)
+      return () => void progressListeners.delete(listener)
     },
     getAssemblyExports: (assemblyName) => boot().then((runtime) => runtime.getAssemblyExports(assemblyName)),
   }

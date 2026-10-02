@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { createEngine, EngineError, type EngineEvent, type PokemonSummary } from '../src'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createEngine, EngineError, type EngineEvent, type EngineStatus, type PokemonSummary } from '../src'
 import { fakeHost } from './fakeHost'
 
 const pikachu = {
@@ -33,8 +33,10 @@ describe('createEngine', () => {
   })
 
   it('resolves ready once the host is ready', async () => {
+    vi.stubGlobal('window', {})
     const { host, signalReady } = fakeHost(() => ({ ok: true, value: null }))
     const engine = createEngine({ host })
+    vi.unstubAllGlobals()
     let isReady = false
     void engine.ready.then(() => (isReady = true))
 
@@ -136,5 +138,115 @@ describe('createEngine', () => {
     emitEvent('{"type":"itemChanged","itemId":5,"count":1}')
 
     expect(events).toEqual([{ type: 'itemChanged', itemId: 4, count: 2 }])
+  })
+
+  describe('boot', () => {
+    afterEach(() => vi.unstubAllGlobals())
+
+    const inBrowser = () => vi.stubGlobal('window', {})
+
+    it('starts booting as soon as it is created in a browser', () => {
+      inBrowser()
+      const { host, readyCalls } = fakeHost(() => ({ ok: true, value: null }))
+
+      const engine = createEngine({ host })
+
+      expect(readyCalls()).toBe(1)
+      expect(engine.status).toEqual({ state: 'booting', loaded: 0, total: 0 })
+    })
+
+    it('waits for the first call when lazy', async () => {
+      inBrowser()
+      const { host, signalReady, readyCalls } = fakeHost(() => ({ ok: true, value: [] }))
+
+      const engine = createEngine({ host, lazy: true })
+      await flush()
+      expect(readyCalls()).toBe(0)
+      expect(engine.status.state).toBe('idle')
+
+      signalReady()
+      await engine.party.get()
+      expect(readyCalls()).toBe(1)
+    })
+
+    it('does nothing on a server', async () => {
+      const { host, readyCalls } = fakeHost(() => ({ ok: true, value: null }))
+
+      const engine = createEngine({ host })
+      void engine.ready
+      await flush()
+
+      expect(readyCalls()).toBe(0)
+      expect(engine.status).toEqual({ state: 'idle', loaded: 0, total: 0 })
+    })
+
+    it('reports download progress and readiness to status listeners', async () => {
+      inBrowser()
+      const { host, signalReady, emitProgress } = fakeHost(() => ({ ok: true, value: null }))
+      const engine = createEngine({ host })
+      const statuses: EngineStatus[] = []
+      engine.onStatusChange((status) => statuses.push(status))
+
+      emitProgress(1, 2)
+      emitProgress(2, 2)
+      signalReady()
+      await engine.ready
+
+      expect(statuses).toEqual([
+        { state: 'booting', loaded: 1, total: 2 },
+        { state: 'booting', loaded: 2, total: 2 },
+        { state: 'ready', loaded: 2, total: 2 },
+      ])
+      expect(engine.status).toEqual({ state: 'ready', loaded: 2, total: 2 })
+    })
+
+    it('ignores download progress until it boots', () => {
+      const { host, emitProgress } = fakeHost(() => ({ ok: true, value: null }))
+      const engine = createEngine({ host, lazy: true })
+
+      emitProgress(1, 2)
+
+      expect(engine.status).toEqual({ state: 'idle', loaded: 0, total: 0 })
+    })
+
+    it('reports booting to status listeners when a lazy engine gets its first call', async () => {
+      const { host, signalReady } = fakeHost(() => ({ ok: true, value: null }))
+      const engine = createEngine({ host, lazy: true })
+      const states: string[] = []
+      engine.onStatusChange((status) => states.push(status.state))
+
+      const game = engine.game.get()
+      signalReady()
+      await game
+
+      expect(states).toEqual(['booting', 'ready'])
+    })
+
+    it('stops notifying status listeners after unsubscribing', () => {
+      inBrowser()
+      const { host, emitProgress } = fakeHost(() => ({ ok: true, value: null }))
+      const engine = createEngine({ host })
+      const statuses: EngineStatus[] = []
+      const stop = engine.onStatusChange((status) => statuses.push(status))
+
+      stop()
+      emitProgress(1, 2)
+
+      expect(statuses).toEqual([])
+    })
+
+    it('fails with the boot error and rejects every call with it', async () => {
+      inBrowser()
+      const { host, failReady } = fakeHost(() => ({ ok: true, value: null }))
+      const engine = createEngine({ host })
+      const boom = new Error('dotnet.js could not be loaded.')
+
+      failReady(boom)
+      await expect(engine.ready).rejects.toBe(boom)
+
+      expect(engine.status).toEqual({ state: 'failed', loaded: 0, total: 0, error: boom })
+      await expect(engine.party.get()).rejects.toBe(boom)
+      await expect(engine.game.get()).rejects.toBe(boom)
+    })
   })
 })

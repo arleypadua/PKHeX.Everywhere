@@ -8,7 +8,8 @@ export interface AssemblyExports {
 
 export interface EngineHost {
   ready(): Promise<void>
-  onChange(listener: (topics: string[]) => void): void
-  onEvent(listener: (event: string) => void): void
+  onChange(listener: (topics: string[]) => void): void | (() => void)
+  onEvent(listener: (event: string) => void): void | (() => void)
+  onProgress?(listener: (loaded: number, total: number) => void): void | (() => void)
   getAssemblyExports(assemblyName: string): Promise<AssemblyExports>
 }
