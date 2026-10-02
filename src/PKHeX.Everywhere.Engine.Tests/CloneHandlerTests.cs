@@ -63,7 +63,7 @@ public class CloneHandlerTests
         added["at"]!.ToJsonString().Should().Be(JsonNode.Parse(Args(expected))![0]!.ToJsonString());
         added["id"]!.GetValue<string>().Should().Be(Get(session, expected)["id"]!.GetValue<string>());
         Details(session, expected)["nickname"]!.GetValue<string>().Should().Be("Twin");
-        published.Should().Equal(new PokemonSaved(expected));
+        published.Should().Equal(new PokemonSaved(expected, game.Trainer.PokemonBox.All[index].ToOverview()));
         Error(Dispatch(session, "pokemon.details", Args(Draft))).Should().Be("not-found");
         game.SaveAndReload(reloaded => reloaded.Trainer.PokemonBox.All[index].Nickname.Should().Be("Twin"));
     }

@@ -260,7 +260,7 @@ public class DraftHandlerTests
     public void ChangesRaisePokemonChangedAndCommitRaisesPokemonSavedWithTheSlot()
     {
         var session = Loaded(SaveFilePath.HgSs);
-        var (inBox, _) = FirstBoxPokemon(session.Game!)!.Value;
+        var (inBox, index) = FirstBoxPokemon(session.Game!)!.Value;
         var published = new List<IEngineEvent>();
         session.Published += published.Add;
 
@@ -276,7 +276,7 @@ public class DraftHandlerTests
             new PokemonChanged(PokemonHandle.Party(0)),
             new PokemonChanged(Draft),
             new PokemonChanged(Draft),
-            new PokemonSaved(inBox));
+            new PokemonSaved(inBox, session.Game.Trainer.PokemonBox.All[index].ToOverview()));
     }
 
     [Fact]

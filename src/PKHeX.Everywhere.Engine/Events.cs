@@ -25,6 +25,6 @@ public sealed record PokemonAdded(PokemonHandle At, PokemonAddSource Source, Pok
 
 public sealed record PokemonChanged(PokemonHandle At) : IEngineEvent;
 
-public sealed record PokemonSaved(PokemonHandle At) : IEngineEvent;
+public sealed record PokemonSaved(PokemonHandle At, PokemonOverview Pokemon) : IEngineEvent;
 
 public sealed record GameExported(GameOverview Game) : IEngineEvent;

@@ -81,29 +81,12 @@ public class PlugInHookTests
     public async Task PokemonSavedRunsSaveHooksOnThePokemonAtTheHandle()
     {
         var (session, host, ran) = Hosted();
-        var (at, _) = FirstBoxPokemon(session.Game!)!.Value;
+        var (at, index) = FirstBoxPokemon(session.Game!)!.Value;
 
-        await host.Handle(new PokemonSaved(at));
+        await host.Handle(new PokemonSaved(at, session.Game.Trainer.PokemonBox.All[index].ToOverview()));
 
         ran.Select(r => r.HookId).Should().Equal(RenameOnSave);
         session.Game!.SaveFile.GetBoxSlotAtIndex(at.Box!.Value, at.Slot).Nickname.Should().Be("Saved");
-    }
-
-    [Fact]
-    public async Task PokemonHooksRunOnAPokemonOutsideTheSave()
-    {
-        var (session, host, ran) = Hosted();
-        var stored = session.Game!.Trainer.Party.Pokemons[0];
-        var editing = stored.Clone();
-
-        await host.PokemonChanged(editing);
-        editing.Nickname.Should().Be("Changed");
-
-        await host.PokemonSaved(editing);
-        editing.Nickname.Should().Be("Saved");
-
-        ran.Select(r => r.HookId).Should().Equal(RenameOnChange, RenameOnSave);
-        session.Game.SaveFile.GetPartySlotAtIndex(0).Nickname.Should().NotBe("Changed").And.NotBe("Saved");
     }
 
     [Fact]

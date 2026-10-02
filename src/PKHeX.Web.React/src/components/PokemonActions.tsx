@@ -22,7 +22,7 @@ export function PokemonActions({ pokemon }: PokemonActionsProps) {
       onClick={() => navigate(routes.pokemon(pokemon))}
       menu={{
         items: [
-          { key: 'clone', label: 'Clone', onClick: () => navigate(routes.clonePokemon(pokemon.id)) },
+          { key: 'clone', label: 'Clone', onClick: () => navigate(routes.clonePokemon(pokemon)) },
           { key: 'calculator', label: 'Calculator', onClick: async () => openCalculator(await showdown()) },
           { key: 'showdown', label: 'Showdown', onClick: async () => copyShowdown(await showdown(), pokemon.species) },
         ],

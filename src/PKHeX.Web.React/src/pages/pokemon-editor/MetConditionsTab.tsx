@@ -66,7 +66,7 @@ export function MetConditionsTab() {
           {
             key: 'ball',
             label: 'Captured With',
-            children: <ItemSelect items={balls} value={details.ball} onChange={(ball) => submit({ ball: ball.id })} />,
+            children: <ItemSelect items={balls} label="Ball" value={details.ball} onChange={(ball) => submit({ ball: ball.id })} />,
           },
         ]),
     ...(details.metDate === null

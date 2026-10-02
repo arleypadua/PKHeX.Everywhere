@@ -208,10 +208,6 @@ public sealed class PlugInHost
         _ => Task.CompletedTask,
     };
 
-    public Task PokemonChanged(Pokemon pokemon) => RunAll<IRunOnPokemonChange>(h => h.OnPokemonChange(pokemon));
-
-    public Task PokemonSaved(Pokemon pokemon) => RunAll<IRunOnPokemonSave>(h => h.OnPokemonSaved(pokemon));
-
     public Task RunAll<THook>(Func<THook, Task<Outcome>> run) where THook : IPluginHook => Run(run);
 
     private async Task Run<THook>(Func<THook, Task<Outcome>> run, Action? afterHooks = null) where THook : IPluginHook

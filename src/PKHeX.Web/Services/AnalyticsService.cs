@@ -1,6 +1,5 @@
 using Microsoft.JSInterop;
 using PKHeX.Facade;
-using PKHeX.Facade.Pokemons;
 using PKHeX.Web.Components;
 using PKHeX.Web.Extensions;
 
@@ -43,19 +42,6 @@ public class AnalyticsService(ReactApp reactApp)
             party_species_name_06 = party.ElementAtOrDefault(5)?.Species.Name,
             party_level_06 = party.ElementAtOrDefault(5)?.Level,
         };
-    }
-
-    public void TrackPokemon(string eventType, Pokemon pokemon, PokemonSource? source = null)
-    {
-        Track(eventType, new
-        {
-            species_id = pokemon.Species.Id,
-            species_name = pokemon.Species.Name,
-            gender = pokemon.Gender.Name,
-            ball_name = pokemon.Ball.Name,
-            level = pokemon.Level,
-            source = source?.ToString()
-        });
     }
 
     public void TrackError(Exception exception, string? currentRoute = null, Game? currentGame = null)

@@ -36,7 +36,7 @@ export default function PokemonEditorPage({ source, id }: PokemonEditorPageProps
     setPhase('saving')
     try {
       const committed = await engine.pokemon.commit()
-      if (committed !== id) await navigate(routes.pokemonEditorPreview({ at: saved.at, id: committed }), { replace: true })
+      if (committed !== id) await navigate(routes.pokemon({ at: saved.at, id: committed }), { replace: true })
       history.back()
     } catch (error) {
       setPhase('editing')

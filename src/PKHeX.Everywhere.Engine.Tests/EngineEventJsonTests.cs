@@ -93,6 +93,33 @@ public class EngineEventJsonTests
     }
 
     [Fact]
+    public void ACommittedPokemonIsSentWithThePokemon()
+    {
+        var session = Loaded(SaveFilePath.Emerald);
+        Value(Dispatch(session, "pokemon.edit", Args(PokemonHandle.Party(0))));
+        Value(Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Draft(), 42)));
+        var sent = Sent(session);
+
+        Value(Dispatch(session, "pokemon.commit", "[]"));
+
+        var pokemon = session.Game!.Trainer.Party.Pokemons[0];
+        var expected = new
+        {
+            type = "pokemonSaved",
+            at = new { source = "party", slot = 0, box = (int?)null },
+            pokemon = new
+            {
+                speciesId = pokemon.Species.Id,
+                species = pokemon.Species.Name,
+                gender = pokemon.Gender.Name,
+                ball = pokemon.Ball.Name,
+                level = 42,
+            },
+        };
+        sent.Should().ContainSingle().Which.ToJsonString().Should().Be(JsonSerializer.Serialize(expected));
+    }
+
+    [Fact]
     public void AnInstallIsSentFromThePlugInAssembly()
     {
         var session = new Session();

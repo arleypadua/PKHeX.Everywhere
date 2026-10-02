@@ -37,7 +37,7 @@ public class EncounterSearchTests(WebAppFixture fixture) : E2ETest(fixture)
 
         await Assertions.Expect(page.GetByText("Abra added to your box")).ToBeVisibleAsync();
         await Assertions.Expect(page).ToHaveURLAsync(new Regex("/pokemon/box/[^/]+$"));
-        await Assertions.Expect(page.GetByTestId("pokemon-species")).ToHaveTextAsync("Abra");
+        await Assertions.Expect(page.SelectValue("Species")).ToHaveTextAsync("Abra");
 
         await page.GoBackAsync();
         await Assertions.Expect(page).ToHaveURLAsync(search);

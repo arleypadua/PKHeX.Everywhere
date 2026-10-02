@@ -45,6 +45,8 @@ function toAnalyticsEvent(event: EngineEvent): [string, Params] | null {
       return ['game_exported', gameParams(event.game)]
     case 'pokemonAdded':
       return [event.source === 'file' ? 'pokemon_loaded_from_file' : 'pokemon_loaded_from_encounter', pokemonParams(event.pokemon)]
+    case 'pokemonSaved':
+      return ['pokemon_saved', pokemonParams(event.pokemon, event.at.source === 'party' ? 'Party' : 'Box')]
     case 'plugInRan':
       return [
         'plugin_hook_executed',
@@ -82,13 +84,13 @@ function gameParams(game: GameOverview): Params {
   return params
 }
 
-function pokemonParams(pokemon: PokemonOverview): Params {
+function pokemonParams(pokemon: PokemonOverview, source: string | null = null): Params {
   return {
     species_id: pokemon.speciesId,
     species_name: pokemon.species,
     gender: pokemon.gender,
     ball_name: pokemon.ball,
     level: pokemon.level,
-    source: null,
+    source,
   }
 }
