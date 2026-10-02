@@ -29,6 +29,7 @@ function serve(root, prefix = '/') {
 }
 
 const selfHosted = process.argv[2] === 'self-hosted'
+const save = resolve(import.meta.dirname, '../../PKHeX.Web.React/public/data/emerald.sav')
 const engineDir = resolve(import.meta.dirname, 'node_modules/@pkhex-everywhere/engine')
 const { version } = JSON.parse(readFileSync(join(engineDir, 'package.json'), 'utf8'))
 const cdnPrefix = `/npm/@pkhex-everywhere/engine@${version}/`
@@ -58,6 +59,7 @@ try {
   })
 
   await page.goto(appUrl)
+  await page.locator('input[type=file]').setInputFiles(save)
   const party = await page
     .locator('#party li')
     .first()
@@ -76,7 +78,12 @@ try {
   const expected = ['Torchic', 'Wurmple', 'Wingull']
   if (party.join() !== expected.join()) throw new Error(`Expected the party ${expected.join(', ')} but got ${party.join(', ')}`)
 
-  console.log(`${selfHosted ? 'Self-hosted' : 'CDN'} party: ${party.join(', ')}`)
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download' }).click()])
+  const exported = readFileSync(await download.path())
+  if (download.suggestedFilename() !== 'emerald.sav') throw new Error(`Expected emerald.sav but downloaded ${download.suggestedFilename()}`)
+  if (exported.length !== statSync(save).size) throw new Error(`The export has ${exported.length} bytes, expected ${statSync(save).size}`)
+
+  console.log(`${selfHosted ? 'Self-hosted' : 'CDN'} party: ${party.join(', ')}, exported ${exported.length} bytes`)
 } finally {
   await browser.close()
   app.close()

@@ -2,40 +2,20 @@ import { act, cleanup, render, renderHook, screen } from '@testing-library/react
 import { Suspense, type ReactNode } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
 import {
-  createClient,
   draftHandle,
   EngineError,
   type EditablePokemon,
   type Engine,
   type ErrorCode,
-  type Invoke,
   type PokemonHandle,
   type PokemonPatch,
   type PokemonSummary,
-  type Topic,
 } from '@pkhex-everywhere/engine'
 import { EngineProvider, useLoadedGame, useParty, usePokemon, usePokemonDetails } from '../src'
+import { fakeEngine } from './fakeEngine'
 
 const at: PokemonHandle = { source: 'party', slot: 0, box: null }
 const pikachu = { id: 'pikachu:1', at, species: 'Pikachu', level: 12 } as PokemonSummary
-
-type Dispatch = (name: string, args: unknown[]) => unknown
-
-function fakeEngine(dispatch: Dispatch) {
-  const calls: { name: string; args: unknown[] }[] = []
-  const listeners = new Set<(changed: Topic[]) => void>()
-  const call = (async (name: string, args: unknown[]) => {
-    calls.push({ name, args })
-    return dispatch(name, args)
-  }) as Invoke
-  const subscribe = (_: readonly Topic[], listener: (changed: Topic[]) => void) => {
-    listeners.add(listener)
-    return () => void listeners.delete(listener)
-  }
-  const emitChange = (changed: Topic[]) => listeners.forEach((listener) => listener(changed))
-  const engine = { ...createClient(call), call, subscribe } as unknown as Engine
-  return { engine, calls, emitChange }
-}
 
 const fail = (code: ErrorCode, message: string) => {
   throw new EngineError(code, message)

@@ -1,4 +1,4 @@
-import { affects } from '@pkhex-everywhere/engine'
+import { affects } from '@pkhex-everywhere/engine/internal'
 
 type Entry =
   | { status: 'pending'; promise: Promise<void> }

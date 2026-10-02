@@ -14,14 +14,82 @@ npm install @pkhex-everywhere/engine
 import { createEngine } from '@pkhex-everywhere/engine'
 
 const engine = createEngine()
+const input = document.querySelector<HTMLInputElement>('input[type=file]')!
 
-await engine.game.load(await (await fetch('/emerald.sav')).blob(), 'emerald.sav')
-
-const party = await engine.party.get()
-console.log(party.map((pokemon) => `${pokemon.species} Lv. ${pokemon.level}`))
+input.onchange = async () => {
+  await engine.game.load(input.files![0])
+  const party = await engine.party.get()
+  console.log(party.map((pokemon) => `${pokemon.species} Lv. ${pokemon.level}`))
+}
 ```
 
 Binary inputs take a `Uint8Array`, `ArrayBuffer`, `Blob` or `File`, and binary outputs come back as `Uint8Array`. `game.load` takes the file name from a `File` when you leave it out. Hover a method to see whether it needs a loaded save or an open draft. Commands that fail reject with an `EngineError`, whose `code` is one of `errorCodes`. Use `engine.subscribe(topics, callback)` to get a callback when a command changes the save.
+
+## React
+
+With [`@pkhex-everywhere/react`](https://www.npmjs.com/package/@pkhex-everywhere/react), this app opens a save from a file input, lists the party and downloads the edited save:
+
+```tsx
+import { Suspense, type ChangeEvent } from 'react'
+import { createEngine } from '@pkhex-everywhere/engine'
+import { EngineProvider, RequireGame, useEngineStatus, useLoadedGame, useParty } from '@pkhex-everywhere/react'
+
+const engine = createEngine()
+
+function Booting() {
+  const { loaded, total } = useEngineStatus()
+  return <progress value={loaded} max={total || 1} />
+}
+
+function OpenSave() {
+  const { load } = useLoadedGame()
+  const open = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) void load(file)
+  }
+  return <input type="file" onChange={open} />
+}
+
+function Party() {
+  const { party } = useParty()
+  return (
+    <ul id="party">
+      {party.map((pokemon) => (
+        <li key={pokemon.id}>{pokemon.species}</li>
+      ))}
+    </ul>
+  )
+}
+
+function Download() {
+  const { export: exportSave } = useLoadedGame()
+  const download = async () => {
+    const { bytes, fileName } = await exportSave()
+    const url = URL.createObjectURL(new Blob([bytes]))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(url))
+  }
+  return <button onClick={download}>Download</button>
+}
+
+export function App() {
+  return (
+    <EngineProvider engine={engine}>
+      <Suspense fallback={<Booting />}>
+        <RequireGame fallback={<OpenSave />}>
+          <Party />
+          <Download />
+        </RequireGame>
+      </Suspense>
+    </EngineProvider>
+  )
+}
+```
+
+`<RequireGame>` renders its fallback until a save is loaded. Without a save, `useEngineStatus()`, `useEngine()` and `useLoadedGame()` work, and the other hooks throw `no-save`. CI builds this app from the packed packages and runs it.
 
 ## Boot status
 

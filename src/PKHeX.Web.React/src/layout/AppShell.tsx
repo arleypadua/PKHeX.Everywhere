@@ -2,7 +2,7 @@ import { lazy, useCallback, useEffect, type ReactNode } from 'react'
 import { App, ConfigProvider, theme as antdTheme } from 'antd'
 import { BrowserRouter, Navigate, Route, Routes, useParams, useSearchParams } from 'react-router'
 import type { EngineError, PageLayout } from '@pkhex-everywhere/engine'
-import { EngineProvider, useLoadedGame } from '@pkhex-everywhere/react'
+import { EngineProvider, RequireGame, useLoadedGame } from '@pkhex-everywhere/react'
 import { engine, plugIns } from '../app'
 import { useTheme } from '../host'
 import { PlugInsProvider } from '../plugins/PlugInsContext'
@@ -51,12 +51,7 @@ function useTitle(title: string | undefined) {
 
 function Page({ title, requiresSave, children }: { title?: string; requiresSave?: boolean; children: ReactNode }) {
   useTitle(title)
-  return requiresSave ? <RequireSave>{children}</RequireSave> : children
-}
-
-function RequireSave({ children }: { children: ReactNode }) {
-  const { game } = useLoadedGame()
-  return game ? children : null
+  return requiresSave ? <RequireGame>{children}</RequireGame> : children
 }
 
 const integer = (value: string | null) => (value && /^-?\d+$/.test(value) ? Number(value) : null)

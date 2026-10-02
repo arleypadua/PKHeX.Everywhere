@@ -1,34 +1,26 @@
 import { act, cleanup, render, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
-import { affects, type Engine, type PokemonSummary } from '@pkhex-everywhere/engine'
+import type { Engine, PokemonSummary } from '@pkhex-everywhere/engine'
 import { EngineProvider, useQuery } from '../src'
 import { ErrorBoundary } from './ErrorBoundary'
+import { fakeEngine } from './fakeEngine'
 
 const pikachu = { id: 'pikachu:1', species: 'Pikachu', level: 12 } as PokemonSummary
 const raichu = { id: 'pikachu:1', species: 'Raichu', level: 30 } as PokemonSummary
 
 function deferredEngine() {
-  const calls: { name: string; args: unknown[] }[] = []
   const pending: { resolve: (value: unknown) => void; reject: (error: unknown) => void }[] = []
-  const subscribers: { topics: readonly string[]; callback: (changed: string[]) => void }[] = []
-  const engine = {
-    call: (name: string, args: unknown[]) => {
-      calls.push({ name, args })
-      return new Promise((resolve, reject) => pending.push({ resolve, reject }))
-    },
-    subscribe: (topics: readonly string[], callback: (changed: string[]) => void) => {
-      const subscriber = { topics, callback }
-      subscribers.push(subscriber)
-      return () => void subscribers.splice(subscribers.indexOf(subscriber), 1)
-    },
-  } as unknown as Engine
-  const resolveAll = (value: unknown) => act(async () => pending.splice(0).forEach((p) => p.resolve(value)))
-  const resolveNext = (value: unknown) => act(async () => pending.shift()!.resolve(value))
-  const rejectAll = (error: unknown) => act(async () => pending.splice(0).forEach((p) => p.reject(error)))
-  const emitChange = (changed: string[]) =>
-    act(async () => subscribers.filter((s) => affects(changed, s.topics)).forEach((s) => s.callback(changed)))
-  return { engine, calls, resolveAll, resolveNext, rejectAll, emitChange }
+  const { engine, calls, emitChange } = fakeEngine(() => new Promise((resolve, reject) => pending.push({ resolve, reject })))
+  const settle = (settle: () => void) =>
+    act(async () => {
+      await new Promise((resolve) => setTimeout(resolve))
+      settle()
+    })
+  const resolveAll = (value: unknown) => settle(() => pending.splice(0).forEach((p) => p.resolve(value)))
+  const resolveNext = (value: unknown) => settle(() => pending.shift()!.resolve(value))
+  const rejectAll = (error: unknown) => settle(() => pending.splice(0).forEach((p) => p.reject(error)))
+  return { engine, calls, resolveAll, resolveNext, rejectAll, emitChange: (changed: string[]) => act(async () => emitChange(changed)) }
 }
 
 function PartyNames() {
@@ -82,7 +74,9 @@ describe('useQuery', () => {
   })
 
   it('throws query errors to the nearest error boundary', async () => {
-    const engine = { call: () => Promise.reject(new Error('boom')), subscribe: () => () => {} } as unknown as Engine
+    const { engine } = fakeEngine(() => {
+      throw new Error('boom')
+    })
 
     renderParty(engine)
     await act(async () => {})

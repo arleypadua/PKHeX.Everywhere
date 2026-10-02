@@ -1,4 +1,6 @@
 export { EngineProvider, useEngine } from './EngineProvider'
 export { useQuery, type CallArgs, type CallResult } from './useQuery'
+export { useEngineStatus } from './useEngineStatus'
+export { RequireGame } from './RequireGame'
 export * from './generated/hooks'
 export { usePokemonDetails } from './usePokemonDetails'
