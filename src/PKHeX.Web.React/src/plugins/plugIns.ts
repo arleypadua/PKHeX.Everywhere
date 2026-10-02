@@ -123,6 +123,7 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
       const sources = await refreshSources()
       await updateIncompatible(sources)
       await flagNewerVersions(sources)
+      return { hasNewerVersions: (await engine.plugins.installed()).some((p) => p.hasNewerVersion) }
     },
 
     async available(): Promise<AvailablePlugIn[]> {

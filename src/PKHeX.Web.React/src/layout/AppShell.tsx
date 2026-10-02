@@ -14,6 +14,7 @@ import { journey } from './journey'
 import { LoadLayout } from './LoadLayout'
 import { MainLayout } from './MainLayout'
 import { PlugInOutcomes } from './PlugInOutcomes'
+import { PlugInUpdateNotice } from './PlugInUpdateNotice'
 
 const AnalyticsPage = lazy(() => import('../pages/analytics/AnalyticsPage'))
 const BoxPage = lazy(() => import('../pages/box/BoxPage'))
@@ -177,6 +178,7 @@ export function AppShell({ autoLoad }: { autoLoad: boolean }) {
             <BrowserRouter>
               <GameJourney />
               <PlugInOutcomes />
+              <PlugInUpdateNotice />
               <AppRoutes autoLoad={autoLoad} />
             </BrowserRouter>
           </PlugInsProvider>
