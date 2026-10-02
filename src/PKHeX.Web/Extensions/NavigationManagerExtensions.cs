@@ -15,9 +15,6 @@ public static class NavigationManagerExtensions
     public static void NavigateToItems(this NavigationManager navigation) =>
         navigation.NavigateTo("/items");
 
-    public static void NavigateToPokemonBox(this NavigationManager navigation, bool replace = false) => 
-        navigation.NavigateTo($"/pokemon-box", replace: replace);
-    
     public static void NavigateToSearchEncounter(this NavigationManager navigation, bool replace = false) =>
         navigation.NavigateTo($"/pokemon/search-encounter", replace);
     
