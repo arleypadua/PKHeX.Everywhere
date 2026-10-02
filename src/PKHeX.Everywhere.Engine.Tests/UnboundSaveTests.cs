@@ -404,6 +404,160 @@ public class UnboundSaveTests
         reloaded["unknownHeldItem"]!.GetValue<string>().Should().Be("Unknown item #640");
     }
 
+    private static JsonNode Pouch(Session session, string name) => Value(Dispatch(session, "inventory.get", "[]"))!.AsArray()
+        .Single(pouch => pouch!["name"]!.GetValue<string>() == name)!;
+
+    private static (int Id, string Name, int Count)[] Owned(JsonNode pouch) => pouch["items"]!.AsArray()
+        .Select(item => (item!["id"]!.GetValue<int>(), item["name"]!.GetValue<string>(), item["count"]!.GetValue<int>()))
+        .ToArray();
+
+    private static string SetItem(Session session, string pouch, int itemId, int count) =>
+        Dispatch(session, "inventory.setItem", Args(new ItemHandle(pouch, itemId), count));
+
+    private static int[] ChangedOffsets(byte[] exported) =>
+        Enumerable.Range(0, exported.Length).Where(offset => exported[offset] != Fixture[offset]).ToArray();
+
+    [Fact]
+    public void TheBagListsTheMainBallTmAndBerryPockets()
+    {
+        var pouches = Value(Dispatch(LoadedUnbound(), "inventory.get", "[]"))!.AsArray();
+
+        pouches.Select(pouch => (pouch!["name"]!.GetValue<string>(), pouch["items"]!.AsArray().Count))
+            .Should().Equal(("Balls", 16), ("Berries", 66), ("Items", 276), ("TMHMs", 128));
+    }
+
+    [Theory]
+    [InlineData("Items", "Max Repel", 18)]
+    [InlineData("Items", "Rare Candy", 73)]
+    [InlineData("Balls", "Premier Ball", 166)]
+    [InlineData("Balls", "Dream Ball", 2)]
+    [InlineData("TMHMs", "TM01", 1)]
+    [InlineData("TMHMs", "HM01", 1)]
+    [InlineData("Berries", "Oran Berry", 11)]
+    [InlineData("Berries", "Enigma Berry", 1)]
+    public void TheBagTranslatesItemsToModernIds(string pouch, string item, int count) =>
+        Owned(Pouch(LoadedUnbound(), pouch)).Should().ContainSingle(owned => owned.Id == Item(item) && owned.Count == count);
+
+    [Theory]
+    [InlineData("Items", 79, 92)]
+    [InlineData("TMHMs", 444, 1)]
+    [InlineData("Berries", 174, 4)]
+    public void AnUnmappedBagItemShowsAsUnknown(string pouch, int index, int count) =>
+        Owned(Pouch(LoadedUnbound(), pouch)).Should().ContainSingle(owned => owned.Name == $"Unknown item #{index}")
+            .Which.Should().Be((0, $"Unknown item #{index}", count));
+
+    [Fact]
+    public void AnUnmappedBagItemCantBeSet() =>
+        Error(SetItem(LoadedUnbound(), "Items", 0, 1)).Should().Be("bad-arguments");
+
+    [Fact]
+    public void TmsHoldOneOfEach() =>
+        Pouch(LoadedUnbound(), "TMHMs")["items"]!.AsArray().Select(item => item!["maxCount"]!.GetValue<int>())
+            .Should().OnlyContain(maxCount => maxCount == 1);
+
+    [Fact]
+    public void EveryMappedItemInThePocketsCanBeSetAgain()
+    {
+        var session = LoadedUnbound();
+
+        foreach (var pouch in new[] { "Items", "Balls", "TMHMs", "Berries" })
+        foreach (var (id, _, count) in Owned(Pouch(session, pouch)).Where(owned => owned.Id != 0))
+            Value(SetItem(session, pouch, id, count));
+
+        Exported(session).Should().Equal(Fixture);
+    }
+
+    // The fixture owns every TM, so the one added back is one removed first.
+    [Theory]
+    [InlineData("Items", 5)]
+    [InlineData("Balls", 5)]
+    [InlineData("TMHMs", 1)]
+    [InlineData("Berries", 5)]
+    public void AddingChangingAndRemovingAnItemSurvivesExportAndReload(string pouch, int changeTo)
+    {
+        var session = LoadedUnbound();
+        var before = Owned(Pouch(session, pouch));
+        var owned = before.Where(item => item.Id != 0).Select(item => item.Id).ToArray();
+        var (changed, removed, freed) = (owned[0], owned[1], owned[2]);
+
+        Value(SetItem(session, pouch, changed, changeTo));
+        Value(SetItem(session, pouch, removed, 0));
+        Value(SetItem(session, pouch, freed, 0));
+        var added = Pouch(session, pouch)["addable"]!.AsArray().Select(item => item!["id"]!.GetValue<int>()).First(id => id != removed);
+        Value(SetItem(session, pouch, added, 1));
+
+        var reloaded = LoadedUnbound(Exported(session));
+        reloaded.Game!.SaveFile.ChecksumsValid.Should().BeTrue();
+        var expected = before
+            .Where(item => item.Id != removed && item.Id != freed)
+            .Select(item => item.Id == changed ? item with { Count = changeTo } : item)
+            .Append((added, reloaded.Game.ItemRepository.GetGameItem((ushort)added).Name, 1));
+        Owned(Pouch(reloaded, pouch)).Should().BeEquivalentTo(expected);
+    }
+
+    [Theory]
+    [InlineData("Items")]
+    [InlineData("Balls")]
+    [InlineData("TMHMs")]
+    [InlineData("Berries")]
+    public void RemovingAnItemChangesOnlyItsSlot(string pouch)
+    {
+        var session = LoadedUnbound();
+
+        Value(SetItem(session, pouch, Owned(Pouch(session, pouch)).First(owned => owned.Id != 0).Id, 0));
+
+        var changed = ChangedOffsets(Exported(session));
+        changed.Should().NotBeEmpty();
+        (changed.Max() - changed.Min()).Should().BeLessThan(4);
+    }
+
+    [Theory]
+    [InlineData("Items")]
+    [InlineData("Balls")]
+    [InlineData("Berries")]
+    public void AddingAnItemChangesOnlyTheSlotItFills(string pouch)
+    {
+        var session = LoadedUnbound();
+
+        Value(SetItem(session, pouch, Pouch(session, pouch)["addable"]!.AsArray().First()!["id"]!.GetValue<int>(), 1));
+
+        var changed = ChangedOffsets(Exported(session));
+        changed.Should().NotBeEmpty();
+        (changed.Max() - changed.Min()).Should().BeLessThan(4);
+    }
+
+    [Fact]
+    public void UnmappedBagItemsSurviveAnEditInTheirPocket()
+    {
+        var session = LoadedUnbound();
+        var unknown = Owned(Pouch(session, "Items")).Where(owned => owned.Id == 0).ToArray();
+        unknown.Should().HaveCount(8);
+
+        Value(SetItem(session, "Items", Item("Max Repel"), 0));
+
+        Owned(Pouch(LoadedUnbound(Exported(session)), "Items")).Where(owned => owned.Id == 0).Should().Equal(unknown);
+    }
+
+    [Fact]
+    public void TheMainPocketHolds450EntriesAndKeepsTheOtherPockets()
+    {
+        var session = LoadedUnbound();
+        var others = new[] { "Balls", "TMHMs", "Berries" }.Select(pouch => Owned(Pouch(session, pouch))).ToArray();
+        var full = FixtureWith(save =>
+        {
+            var bag = save.Inventory;
+            foreach (var slot in bag.Pouches[0].Items.Where(slot => slot.Index == 0)) (slot.Index, slot.Count) = (Item("Potion"), 1);
+            bag.CopyTo(save);
+        });
+
+        var reloaded = LoadedUnbound(Exported(LoadedUnbound(full)));
+
+        Owned(Pouch(reloaded, "Items")).Should().HaveCount(450);
+        new[] { "Balls", "TMHMs", "Berries" }.Select(pouch => Owned(Pouch(reloaded, pouch))).Should().BeEquivalentTo(others);
+        Error(SetItem(reloaded, "Items", Pouch(reloaded, "Items")["addable"]!.AsArray().First()!["id"]!.GetValue<int>(), 1))
+            .Should().Be("pouch-full");
+    }
+
     private static object Arg(PokemonHandle at) =>
         new { source = at.Source.ToString().ToLowerInvariant(), slot = at.Slot, box = at.Box };
 }

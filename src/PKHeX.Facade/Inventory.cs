@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Immutable;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Repositories;
 using PKHeX.Core;
 
@@ -29,6 +30,15 @@ public class Inventory : IEnumerable<Inventory.Item>
 
     public string Type { get; init; }
     public ImmutableList<Item> Items => GetItems();
+
+    /// <summary>
+    /// Returns the items the save stores with ids PKHeX doesn't know, such as a ROM hack's own items. They have id 0 and can't be set.
+    /// </summary>
+    public ImmutableList<Item> UnknownItems => _pouch is IUnmappedItems pouch
+        ? pouch.UnmappedItems
+            .Select(item => new Item(new InventoryItem { Count = item.Count }, _ => ItemDefinition.Unmapped(item.Id)))
+            .ToImmutableList()
+        : [];
 
     /// <summary>
     /// Returns the max count a single item can have

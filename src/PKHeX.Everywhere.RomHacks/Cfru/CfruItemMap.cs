@@ -27,9 +27,12 @@ public sealed class CfruItemMap
             .Where(item => Holdable.Contains(item) && !Machines.Contains(item) && !ItemStorage8SWSH.IsTechRecord(item))
             .Order()
             .ToArray();
+        Pockets = new CfruItemStorage(_indexByModern.Keys);
     }
 
     public ushort[] HeldItems { get; }
+
+    public CfruItemStorage Pockets { get; }
 
     public ushort ToModern(ushort index) => index < _modernByIndex.Length ? _modernByIndex[index] : (ushort)0;
 

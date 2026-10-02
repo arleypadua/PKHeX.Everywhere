@@ -152,6 +152,7 @@ public abstract class CfruSave : SaveFile, IMoveList
     public override int MaxEV => EffortValues.Max255;
     public override int MaxMoney => 999999;
     public override ReadOnlySpan<ushort> HeldItems => ItemMap.HeldItems;
+    public override CfruBag Inventory => new(Data, BlockOffset(13), BlockOffset(30), ItemMap);
     public IReadOnlySet<ushort> Moves => CfruMoves.All;
 
     public override string GetString(ReadOnlySpan<byte> data) => StringConverter3.GetString(data, false);

@@ -15,7 +15,7 @@ public record ItemHandle(string Pouch, int ItemId) : IHandle
 /// <summary>
 /// An item the trainer holds in a pouch.
 /// </summary>
-/// <param name="Id">The item's id in the save's own item list. From Generation 4 on, these are PKHeX.Core item ids; Generation 1 to 3 saves use their game's own numbering.</param>
+/// <param name="Id">The item's id in the save's own item list. From Generation 4 on, and in ROM hack saves, these are PKHeX.Core item ids; other Generation 1 to 3 saves use their game's own numbering. 0 when the save stores an item PKHeX has no id for, such as a ROM hack's own item. <c>name</c> is then <c>Unknown item #n</c>, and <c>inventory.setItem</c> can't change it.</param>
 /// <param name="Count">How many the trainer holds.</param>
 /// <param name="MaxCount">The highest count <c>inventory.setItem</c> accepts for this item in this pouch.</param>
 public record OwnedItem(int Id, string Name, int Count, int MaxCount);
@@ -23,7 +23,7 @@ public record OwnedItem(int Id, string Name, int Count, int MaxCount);
 /// <summary>
 /// An item the pouch can hold that the trainer doesn't have yet.
 /// </summary>
-/// <param name="Id">The item's id in the save's own item list. From Generation 4 on, these are PKHeX.Core item ids; Generation 1 to 3 saves use their game's own numbering.</param>
+/// <param name="Id">The item's id in the save's own item list. From Generation 4 on, and in ROM hack saves, these are PKHeX.Core item ids; other Generation 1 to 3 saves use their game's own numbering.</param>
 /// <param name="MaxCount">The highest count <c>inventory.setItem</c> accepts for this item in this pouch.</param>
 public record AddableItem(int Id, string Name, int MaxCount);
 
@@ -40,6 +40,7 @@ public static class InventoryMapping
     public static Pouch ToPouch(this Inventory inventory) => new(
         inventory.Type,
         inventory.AllExceptNone()
+            .Concat(inventory.UnknownItems)
             .Select(item => new OwnedItem(item.Id, item.Name, item.Count, inventory.MaxCountOf(item.Id)))
             .ToArray(),
         inventory.CurrentSupportedItems

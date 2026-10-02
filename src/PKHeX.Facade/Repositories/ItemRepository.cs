@@ -49,4 +49,6 @@ public record ItemDefinition(ushort Id, string Name)
     public bool IsNone => Id == None;
     
     public static ItemDefinition Unknown(ushort id) => new(id, $"Unknown Item {id}");
+
+    public static ItemDefinition Unmapped(ushort stored) => new(Convert.ToUInt16(None), $"Unknown item #{stored}");
 }
