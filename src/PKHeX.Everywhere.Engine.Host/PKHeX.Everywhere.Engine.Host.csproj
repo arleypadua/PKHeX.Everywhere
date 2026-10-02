@@ -31,6 +31,7 @@
     <ItemGroup>
         <ProjectReference Include="..\PKHeX.Everywhere.Engine\PKHeX.Everywhere.Engine.csproj" />
         <ProjectReference Include="..\PKHeX.Everywhere.Engine.PlugIns\PKHeX.Everywhere.Engine.PlugIns.csproj" />
+        <ProjectReference Include="..\PKHeX.Everywhere.RomHacks\PKHeX.Everywhere.RomHacks.csproj" />
     </ItemGroup>
 
 </Project>

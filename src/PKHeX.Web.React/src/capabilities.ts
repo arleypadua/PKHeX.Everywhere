@@ -7,3 +7,7 @@ export function supports(game: SaveSummary | null, capability: SaveCapability): 
 export function gameName(game: SaveSummary): string {
   return game.format?.name ?? game.version
 }
+
+export function statsAreApproximate(game: SaveSummary | null): boolean {
+  return !!game?.format
+}

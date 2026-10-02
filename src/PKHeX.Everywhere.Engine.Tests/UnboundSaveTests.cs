@@ -101,6 +101,23 @@ public class UnboundSaveTests
     public void ExportingWithoutEditsKeepsEveryByte() =>
         Exported(LoadedUnbound()).Should().Equal(Fixture);
 
+    [Fact]
+    public void AnExportedEditKeepsTheRtcTrailerAndChangesOnlyItsSector()
+    {
+        var trailer = Enumerable.Range(1, 0x10).Select(b => (byte)b).ToArray();
+        var withTrailer = Fixture.Concat(trailer).ToArray();
+        var session = LoadedUnbound(withTrailer);
+
+        Value(Dispatch(session, "trainer.setMoney", Args(1234)));
+        var exported = Exported(session);
+
+        exported.Should().HaveCount(withTrailer.Length);
+        exported[Fixture.Length..].Should().Equal(trailer);
+        Enumerable.Range(0, exported.Length).Where(offset => exported[offset] != withTrailer[offset])
+            .Select(offset => offset / 0x1000).Distinct().Should().ContainSingle();
+        Value(Dispatch(LoadedUnbound(exported), "trainer.get", "[]"))!["money"]!.GetValue<uint>().Should().Be(1234);
+    }
+
     [Theory]
     [MemberData(nameof(EditedPokemon))]
     public void EditedMovesIvsAndHeldItemSurviveExportAndReload(PokemonHandle at)
