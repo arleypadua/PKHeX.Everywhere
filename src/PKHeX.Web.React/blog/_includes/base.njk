@@ -15,69 +15,32 @@
     <meta property="og:type" content="article">
     <meta name="twitter:card" content="summary">
 
-    <link href="https://pkhex-web.github.io/_content/AntDesign/css/ant-design-blazor.dark.css" rel="stylesheet">
     <link href="{{ site.baseUrl }}css/style.css" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
 </head>
 <body>
-<section class="ant-layout ant-layout-has-sider" style="min-height: 100vh;">
-    <section class="ant-layout">
-        <header class="ant-layout-header ant-header"
-                style="display: flex; justify-items: center; align-items: center; width: 100%;">
-            <a class="logo-link" href="/">PKHeX.Web</a>
-        </header>
-        <main class="ant-layout-content blog-main-layout">
-            <div class="site-layout-background blog-main-content" style="padding: 16px; min-height: 360px">
-                {{ content | safe }}
-            </div>
-        </main>
-
-        <footer class="ant-layout-footer" style="text-align: center;"
-        >
-            <p>PKHeX.Web - edit pokemon save files.
-            </p>
-            <p>
-                Issues or feedback on <a href="https://github.com/arleypadua/PKHeX.Everywhere"
-                                         target="_blank">GitHub</a></p>
-
-            <div class="ant-space ant-space-horizontal ant-space-align-start" style=" flex-wrap: wrap;">
-
-                <div class="ant-space-item" style=" margin-right:4px;">
-                    <a href="/privacy-policy">Privacy Policy</a>
-                </div>
-                <span class="ant-space-item-split" style="margin-right: 4px;">
-            <span class="ant-divider ant-divider-vertical">
-    </span>
-        </span>
-
-                <div class="ant-space-item" style=" margin-right:4px;">
-                    <a href="/terms-of-use">Terms of Use</a>
-                </div>
-                <span class="ant-space-item-split" style="margin-right: 4px;">
-            <span class="ant-divider ant-divider-vertical"
-            >
-    </span>
-        </span>
-
-                <div class="ant-space-item" style=" margin-right:4px;">
-                    <a href="/credits">Credits</a>
-                </div>
-                <span class="ant-space-item-split" style="margin-right: 4px;">
-            <span class="ant-divider ant-divider-vertical"
-            >
-    </span>
-        </span>
-
-                <div class="ant-space-item">
-                    <a href="/release-notes?since=2025-05-01">Release Notes</a>
-                </div>
-            </div>
-
-        </footer>
-
-    </section>
-    
-</section>
-
+<div class="blog-layout">
+    <header class="blog-header">
+        <a class="logo-link" href="/">PKHeX.Web</a>
+    </header>
+    <main class="blog-main-layout">
+        <div class="site-layout-background blog-main-content">
+            {{ content | safe }}
+        </div>
+    </main>
+    <footer class="blog-footer">
+        <p>PKHeX.Web - edit pokemon save files.</p>
+        <p>Issues or feedback on <a href="https://github.com/arleypadua/PKHeX.Everywhere" target="_blank">GitHub</a></p>
+        <div class="blog-footer-links">
+            <a href="/privacy-policy">Privacy Policy</a>
+            <span class="blog-divider"></span>
+            <a href="/terms-of-use">Terms of Use</a>
+            <span class="blog-divider"></span>
+            <a href="/credits">Credits</a>
+            <span class="blog-divider"></span>
+            <a href="/release-notes?since=2025-05-01">Release Notes</a>
+        </div>
+    </footer>
+</div>
 </body>
 </html>

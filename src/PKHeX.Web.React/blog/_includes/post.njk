@@ -15,7 +15,7 @@ layout: base.njk
 <h2>Tags</h2>
 {% for tag in tags %}
 <a href="{{ ('tags/' + tag) | withBaseUrl }}">
-    <span class="ant-tag ant-tag-default">
+    <span class="blog-tag">
         {{ tag }}
     </span>
 </a>
