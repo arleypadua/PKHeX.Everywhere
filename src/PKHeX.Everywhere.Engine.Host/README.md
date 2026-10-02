@@ -1,6 +1,6 @@
 # PKHeX.Everywhere.Engine.Host
 
-The .NET app the web app boots. It has no UI and no Blazor reference. `Program.cs` points PKHeX's AES and MD5 at the `pkhex-crypto` module, attaches the plug-in host to `Session.Current` and forwards its changes and events to JS.
+The .NET app the web app boots. It has no UI and no Blazor reference. `Program.cs` points PKHeX's AES and MD5 at the `pkhex-crypto` module, registers the ROM hack save formats, attaches the plug-in host to `Session.Current` and forwards its changes and events to JS.
 
 `wasmHost` in the Engine SDK loads `_framework/dotnet.js`, registers `pkhex-crypto` and runs `Main`. The browser runtime has no AES or MD5, so `pkhex-crypto` uses crypto-js.
 

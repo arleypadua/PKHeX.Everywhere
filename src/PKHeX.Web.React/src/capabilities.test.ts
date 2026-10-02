@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { SaveSummary } from '@pkhex-everywhere/engine'
-import { gameName, supports } from './capabilities'
+import { gameName, statsAreApproximate, supports } from './capabilities'
 
 const emerald: SaveSummary = {
   fileName: 'emerald.sav',
@@ -38,5 +38,16 @@ describe('gameName', () => {
 
   it('names the version otherwise', () => {
     expect(gameName(emerald)).toBe('Emerald')
+  })
+})
+
+describe('statsAreApproximate', () => {
+  it('is true for a save format, whose stats come from vanilla base stats', () => {
+    expect(statsAreApproximate(unbound)).toBe(true)
+  })
+
+  it('is false for a vanilla save or no save', () => {
+    expect(statsAreApproximate(emerald)).toBe(false)
+    expect(statsAreApproximate(null)).toBe(false)
   })
 })

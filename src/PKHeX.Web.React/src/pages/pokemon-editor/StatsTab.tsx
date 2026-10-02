@@ -1,7 +1,8 @@
-import { Button, Descriptions, Flex, Grid, InputNumber, Space } from 'antd'
+import { Alert, Button, Descriptions, Flex, Grid, InputNumber, Space } from 'antd'
 import type { DescriptionsProps } from 'antd'
 import { draftHandle, type StatPatch, type StatValues } from '@pkhex-everywhere/engine'
-import { useQuery } from '@pkhex-everywhere/react'
+import { useLoadedGame, useQuery } from '@pkhex-everywhere/react'
+import { gameName, statsAreApproximate } from '../../capabilities'
 import { PlugInActionButton } from '../../components/PlugInActionButton'
 import { useDraft } from './useDraft'
 
@@ -20,6 +21,7 @@ const total = (values: StatValues) => stats.reduce((sum, stat) => sum + values[s
 
 export function StatsTab() {
   const { details, submit } = useDraft()
+  const { game } = useLoadedGame()
   const actions = useQuery('plugins.actions', 'pokemonStats', draftHandle)
   const screens = Grid.useBreakpoint()
   const layout = screens.sm ? 'horizontal' : 'vertical'
@@ -59,6 +61,13 @@ export function StatsTab() {
 
   return (
     <Flex vertical gap={20}>
+      {game && statsAreApproximate(game) && (
+        <Alert
+          type="info"
+          showIcon
+          title={`Stats are approximate. They use the original games' base stats, which ${gameName(game)} may change.`}
+        />
+      )}
       {stats.map((stat) => (
         <Descriptions key={stat.key} bordered size="small" layout={layout} title={stat.label} items={statItems(stat)} />
       ))}
