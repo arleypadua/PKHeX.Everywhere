@@ -3,8 +3,84 @@
     src: url("../font/pkmgb.ttf");
 }
 
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 html, body {
     font-family: 'Pokemon GB', "Lucida Console", sans-serif;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+body {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    font-variant: tabular-nums;
+    line-height: 1.5715;
+    background-color: #000;
+    font-feature-settings: 'tnum';
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+}
+
+p, ol, ul, pre {
+    margin-top: 0;
+    margin-bottom: 1em;
+}
+
+small {
+    font-size: 80%;
+}
+
+hr {
+    box-sizing: content-box;
+    height: 0;
+    overflow: visible;
+}
+
+a {
+    color: #177ddc;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: #165996;
+}
+
+a:active {
+    color: #388ed3;
+}
+
+pre, code {
+    font-size: 1em;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+
+pre {
+    overflow: auto;
+}
+
+img {
+    vertical-align: middle;
+    border-style: none;
+}
+
+::selection {
+    color: #fff;
+    background: #177ddc;
 }
 
 .logo {
@@ -34,11 +110,61 @@ html, body {
     color: white;
 }
 
+.blog-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.blog-header {
+    display: flex;
+    align-items: center;
+    height: 64px;
+    padding: 0 50px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 64px;
+    background: #1f1f1f;
+}
+
 .blog-main-layout {
     display: flex;
+    flex: auto;
     justify-content: center;
 }
 
 .blog-main-content {
     width: 95%;
+    min-height: 360px;
+    padding: 16px;
+}
+
+.blog-footer {
+    padding: 24px 50px;
+    text-align: center;
+}
+
+.blog-footer-links {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.blog-divider {
+    align-self: center;
+    height: 0.9em;
+    margin: 0 12px;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.blog-tag {
+    display: inline-block;
+    margin-right: 8px;
+    padding: 0 7px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 12px;
+    line-height: 20px;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid #434343;
+    border-radius: 2px;
 }
