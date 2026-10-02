@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createEngine, EngineError, type EngineEvent, type EngineStatus, type PokemonSummary } from '../src'
+import { createEngine, EngineError, type EngineEvent, type EngineHost, type EngineStatus, type PokemonSummary } from '../src'
 import { call } from '../src/internal'
 import { fakeHost } from './fakeHost'
 
@@ -141,6 +141,90 @@ describe('createEngine', () => {
     expect(events).toEqual([{ type: 'itemChanged', itemId: 4, count: 2 }])
   })
 
+  it('registers no host listeners until something subscribes', () => {
+    const { host, listeners } = fakeHost(() => ({ ok: true, value: null }))
+
+    createEngine({ host })
+
+    expect(listeners()).toMatchObject({ change: 0, event: 0 })
+  })
+
+  it('holds one host change listener while it has subscribers', () => {
+    const { host, listeners } = fakeHost(() => ({ ok: true, value: null }))
+    const engine = createEngine({ host })
+
+    const first = engine.subscribe(['party'], () => {})
+    expect(listeners().change).toBe(1)
+    const second = engine.subscribe(['box/1'], () => {})
+    expect(listeners().change).toBe(1)
+
+    first()
+    expect(listeners().change).toBe(1)
+    second()
+    expect(listeners().change).toBe(0)
+  })
+
+  it('holds one host event listener while it has event listeners', () => {
+    const { host, listeners } = fakeHost(() => ({ ok: true, value: null }))
+    const engine = createEngine({ host })
+
+    const first = engine.onEvent(() => {})
+    expect(listeners().event).toBe(1)
+    const second = engine.onEvent(() => {})
+    expect(listeners().event).toBe(1)
+
+    first()
+    expect(listeners().event).toBe(1)
+    second()
+    expect(listeners().event).toBe(0)
+  })
+
+  it('delivers changes and events again after the last listener left and a new one arrives', () => {
+    const { host, emitChange, emitEvent } = fakeHost(() => ({ ok: true, value: null }))
+    const engine = createEngine({ host })
+    engine.subscribe(['party'], () => {})()
+    engine.onEvent(() => {})()
+
+    const changes: string[][] = []
+    const events: EngineEvent[] = []
+    engine.subscribe(['party'], (topics) => changes.push(topics))
+    engine.onEvent((event) => events.push(event))
+    emitChange(['party'])
+    emitEvent('{"type":"itemChanged","itemId":4,"count":2}')
+
+    expect(changes).toEqual([['party']])
+    expect(events).toEqual([{ type: 'itemChanged', itemId: 4, count: 2 }])
+  })
+
+  it('works with hosts that return nothing when listening', async () => {
+    vi.stubGlobal('window', {})
+    const { host: inner, signalReady, emitChange, emitEvent } = fakeHost(() => ({ ok: true, value: null }))
+    const host: EngineHost = {
+      ...inner,
+      onChange: (listener) => void inner.onChange(listener),
+      onEvent: (listener) => void inner.onEvent(listener),
+      onProgress: (listener) => void inner.onProgress?.(listener),
+    }
+    const engine = createEngine({ host })
+    vi.unstubAllGlobals()
+    signalReady()
+    await engine.ready
+    const changes: string[][] = []
+    const events: EngineEvent[] = []
+
+    const unsubscribe = engine.subscribe(['party'], (topics) => changes.push(topics))
+    const stop = engine.onEvent((event) => events.push(event))
+    emitChange(['party'])
+    emitEvent('{"type":"itemChanged","itemId":4,"count":2}')
+    unsubscribe()
+    stop()
+    emitChange(['party'])
+    emitEvent('{"type":"itemChanged","itemId":5,"count":1}')
+
+    expect(changes).toEqual([['party']])
+    expect(events).toEqual([{ type: 'itemChanged', itemId: 4, count: 2 }])
+  })
+
   describe('boot', () => {
     afterEach(() => vi.unstubAllGlobals())
 
@@ -248,6 +332,29 @@ describe('createEngine', () => {
       expect(engine.status).toEqual({ state: 'failed', loaded: 0, total: 0, error: boom })
       await expect(engine.party.get()).rejects.toBe(boom)
       await expect(engine.game.get()).rejects.toBe(boom)
+    })
+
+    it('releases the host progress listener once booted', async () => {
+      inBrowser()
+      const { host, signalReady, listeners } = fakeHost(() => ({ ok: true, value: null }))
+      const engine = createEngine({ host })
+      expect(listeners().progress).toBe(1)
+
+      signalReady()
+      await engine.ready
+
+      expect(listeners().progress).toBe(0)
+    })
+
+    it('releases the host progress listener when boot fails', async () => {
+      inBrowser()
+      const { host, failReady, listeners } = fakeHost(() => ({ ok: true, value: null }))
+      const engine = createEngine({ host })
+
+      failReady(new Error('dotnet.js could not be loaded.'))
+      await engine.ready.catch(() => {})
+
+      expect(listeners().progress).toBe(0)
     })
   })
 })

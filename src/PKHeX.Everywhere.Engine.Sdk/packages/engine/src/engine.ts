@@ -69,17 +69,19 @@ export function createEngine({ host = wasmHost(), lazy = false }: { host?: Engin
   function boot() {
     if (exports) return exports
     setStatus({ state: 'booting' })
-    host.onProgress?.((loaded, total) => setStatus({ loaded, total }))
+    const stopProgress = host.onProgress?.((loaded, total) => setStatus({ loaded, total }))
     exports = host
       .ready()
       .then(() => host.getAssemblyExports(engineAssembly))
       .then((assembly) => assembly.PKHeX.Everywhere.Engine.EngineExports)
     exports.then(
       () => {
+        stopProgress?.()
         setStatus({ state: 'ready' })
         settle.resolve()
       },
       (error: unknown) => {
+        stopProgress?.()
         setStatus({ state: 'failed', error })
         settle.reject(error)
       },
@@ -112,28 +114,15 @@ export function createEngine({ host = wasmHost(), lazy = false }: { host?: Engin
     return () => void failureListeners.delete(listener)
   }
 
-  const subscribers = new Set<{ topics: readonly Topic[]; callback: (changed: Topic[]) => void }>()
-  host.onChange((changed) => {
-    for (const subscriber of [...subscribers])
-      if (affects(changed, subscriber.topics)) subscriber.callback(changed as Topic[])
-  })
+  const onChange = whileListened<string[]>((notify) => host.onChange(notify))
 
   function subscribe(topics: readonly Topic[], callback: (changed: Topic[]) => void) {
-    const subscriber = { topics, callback }
-    subscribers.add(subscriber)
-    return () => void subscribers.delete(subscriber)
+    return onChange((changed) => {
+      if (affects(changed, topics)) callback(changed as Topic[])
+    })
   }
 
-  const eventListeners = new Set<(event: EngineEvent) => void>()
-  host.onEvent((json) => {
-    const event = JSON.parse(json) as EngineEvent
-    for (const listener of [...eventListeners]) listener(event)
-  })
-
-  function onEvent(listener: (event: EngineEvent) => void) {
-    eventListeners.add(listener)
-    return () => void eventListeners.delete(listener)
-  }
+  const onEvent = whileListened<EngineEvent>((notify) => host.onEvent((json) => notify(JSON.parse(json) as EngineEvent)))
 
   const engine: Engine = {
     ...createClient(call),
@@ -148,4 +137,26 @@ export function createEngine({ host = wasmHost(), lazy = false }: { host?: Engin
   }
   calls.set(engine, call)
   return engine
+}
+
+function whileListened<T>(attach: (notify: (value: T) => void) => void | (() => void)) {
+  const listeners = new Set<(value: T) => void>()
+  let attached = false
+  let detach: void | (() => void)
+
+  return (listener: (value: T) => void) => {
+    listeners.add(listener)
+    if (!attached) {
+      detach = attach((value) => {
+        for (const notify of [...listeners]) notify(value)
+      })
+      attached = true
+    }
+    return () => {
+      if (!listeners.delete(listener) || listeners.size > 0 || !detach) return
+      detach()
+      attached = false
+      detach = undefined
+    }
+  }
 }

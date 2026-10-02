@@ -10,18 +10,24 @@ export function fakeHost(dispatch: (name: string, args: unknown[]) => unknown) {
   let readyCalls = 0
   const calls: { name: string; args: string }[] = []
   const requestedAssemblies: string[] = []
-  const changeListeners: ((topics: string[]) => void)[] = []
-  const eventListeners: ((event: string) => void)[] = []
-  const progressListeners: ((loaded: number, total: number) => void)[] = []
+  const changeListeners = new Set<(topics: string[]) => void>()
+  const eventListeners = new Set<(event: string) => void>()
+  const progressListeners = new Set<(loaded: number, total: number) => void>()
+
+  const listen = <A extends unknown[]>(listeners: Set<(...args: A) => void>, listener: (...args: A) => void) => {
+    const entry = (...args: A) => listener(...args)
+    listeners.add(entry)
+    return () => void listeners.delete(entry)
+  }
 
   const host: EngineHost = {
     ready: () => {
       readyCalls++
       return ready
     },
-    onChange: (listener) => void changeListeners.push(listener),
-    onEvent: (listener) => void eventListeners.push(listener),
-    onProgress: (listener) => void progressListeners.push(listener),
+    onChange: (listener) => listen(changeListeners, listener),
+    onEvent: (listener) => listen(eventListeners, listener),
+    onProgress: (listener) => listen(progressListeners, listener),
     getAssemblyExports: async (assemblyName) => {
       requestedAssemblies.push(assemblyName)
       return {
@@ -57,5 +63,6 @@ export function fakeHost(dispatch: (name: string, args: unknown[]) => unknown) {
     calls,
     requestedAssemblies,
     readyCalls: () => readyCalls,
+    listeners: () => ({ change: changeListeners.size, event: eventListeners.size, progress: progressListeners.size }),
   }
 }
