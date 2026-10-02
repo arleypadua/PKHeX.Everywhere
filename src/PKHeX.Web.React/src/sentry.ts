@@ -59,8 +59,8 @@ export function watchEngine(engine: WatchedEngine, enabled = enabledInBuild) {
   })
 }
 
-export function captureError(error: unknown) {
-  Sentry.captureException(error)
+export function captureError(error: unknown, tags?: Record<string, string>) {
+  Sentry.captureException(error, { tags })
 }
 
 // An error boundary both tracks and logs its exception, so .NET reports it twice.
@@ -77,9 +77,13 @@ export function captureBlazorError(exception: BlazorException) {
   })
 }
 
+export function currentRoute() {
+  return location.href.replace(document.baseURI, '')
+}
+
 function gameContext() {
   return {
-    current_route: location.href.replace(document.baseURI, ''),
+    current_route: currentRoute(),
     version_name: game?.version ?? null,
     version_id: game?.versionId ?? null,
     generation_name: game?.generation ?? null,
