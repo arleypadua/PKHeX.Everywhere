@@ -29,9 +29,8 @@ export default function pkhexEngine({ frameworkDir = packagedFramework }: PkhexE
       base = config.base
     },
     configureServer(server) {
-      assertExists(frameworkDir)
       server.middlewares.use(`${base}_framework`, (req, res) => {
-        const file = join(frameworkDir, decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname))
+        const file = join(frameworkDir, new URL(req.url ?? '/', 'http://localhost').pathname)
         if (relative(frameworkDir, file).startsWith('..') || !existsSync(file) || !statSync(file).isFile()) {
           res.statusCode = 404
           return res.end()

@@ -25,8 +25,10 @@ export interface WasmHostOptions {
 
 const cdnDotnetUrl = `https://cdn.jsdelivr.net/npm/@pkhex-everywhere/engine@${version}/_framework/dotnet.js`
 
-const pageDotnetUrl = () =>
-  globalThis.document?.querySelector<HTMLMetaElement>(`meta[name="${dotnetUrlMeta}"]`)?.content || undefined
+function pageDotnetUrl() {
+  const content = globalThis.document?.querySelector<HTMLMetaElement>(`meta[name="${dotnetUrlMeta}"]`)?.content
+  return content ? new URL(content, document.baseURI).href : undefined
+}
 
 const importModule = (url: string) => import(/* @vite-ignore */ url) as Promise<DotnetModule>
 

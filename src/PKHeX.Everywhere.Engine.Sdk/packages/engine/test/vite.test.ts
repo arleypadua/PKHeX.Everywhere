@@ -83,6 +83,7 @@ describe('dev server', () => {
 
     expect((await fetch(`${url}_framework/missing.js`)).status).toBe(404)
     expect((await fetch(`${url}_framework/..%2Fmain.js`)).status).toBe(404)
+    expect((await fetch(`${url}_framework/%E0.js`)).status).toBe(404)
   })
 
   it('points the page at the same-origin dotnet.js', async () => {

@@ -60,19 +60,23 @@ describe('wasmHost', () => {
   })
 
   it('loads dotnet.js from the URL the Vite plugin puts on the page', async () => {
-    const meta = { content: '/app/_framework/dotnet.js' }
+    const meta = { content: './_framework/dotnet.js' }
     globalThis.document = {
+      baseURI: 'https://example.com/app/',
       querySelector: (selector: string) => (selector === 'meta[name="pkhex-engine-dotnet-url"]' ? meta : null),
     } as unknown as Document
     const dotnet = fakeDotnet()
 
     await wasmHost({ load: dotnet.load }).ready()
 
-    expect(dotnet.loaded).toEqual(['/app/_framework/dotnet.js'])
+    expect(dotnet.loaded).toEqual(['https://example.com/app/_framework/dotnet.js'])
   })
 
   it('prefers the given URL over the one the Vite plugin puts on the page', async () => {
-    globalThis.document = { querySelector: () => ({ content: '/_framework/dotnet.js' }) } as unknown as Document
+    globalThis.document = {
+      baseURI: 'https://example.com/',
+      querySelector: () => ({ content: '/_framework/dotnet.js' }),
+    } as unknown as Document
     const dotnet = fakeDotnet()
 
     await wasmHost({ dotnetUrl: 'https://my.cdn/dotnet.js', load: dotnet.load }).ready()

@@ -53,7 +53,9 @@ try {
     await route.fulfill({ response: await route.fetch({ url: cdnOrigin + url.pathname }) })
   })
   const appRequests = []
-  page.on('request', (request) => request.url().startsWith(appUrl) && appRequests.push(new URL(request.url()).pathname))
+  page.on('request', (request) => {
+    if (request.url().startsWith(appUrl)) appRequests.push(new URL(request.url()).pathname)
+  })
 
   await page.goto(appUrl)
   const party = await page
