@@ -5,13 +5,15 @@ declare global {
   var pkhexBlazorStarted: Promise<unknown> | undefined
 }
 
-export const dsn = 'https://48a86c94313f2f1c2066dee9be6add57@o4507742210949120.ingest.de.sentry.io/4507742217175120'
+const dsn = 'https://48a86c94313f2f1c2066dee9be6add57@o4507742210949120.ingest.de.sentry.io/4507742217175120'
 
 const enabledInBuild = import.meta.env.VITE_SENTRY === 'true'
 
 const internalCodes: ErrorCode[] = ['unexpected', 'unknown-call', 'bad-arguments']
 
 let game: SaveVersion | null = null
+
+const reportedBlazorErrors = new Set<string>()
 
 export interface BlazorException {
   type: string
@@ -61,7 +63,10 @@ export function captureError(error: unknown) {
   Sentry.captureException(error)
 }
 
+// An error boundary both tracks and logs its exception, so .NET reports it twice.
 export function captureBlazorError(exception: BlazorException) {
+  if (reportedBlazorErrors.has(exception.id)) return
+  reportedBlazorErrors.add(exception.id)
   const error = new Error(exception.message)
   error.name = exception.type
   error.stack = `${exception.type}: ${exception.message}`

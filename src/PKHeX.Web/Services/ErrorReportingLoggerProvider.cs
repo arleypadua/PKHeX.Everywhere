@@ -1,6 +1,6 @@
 namespace PKHeX.Web.Services;
 
-// Reports the exceptions .NET logs as errors, such as unhandled rendering exceptions, like Sentry's logging provider did.
+// Unhandled rendering exceptions only reach Sentry through the log.
 public sealed class ErrorReportingLoggerProvider(IServiceProvider services) : ILoggerProvider
 {
     public ILogger CreateLogger(string categoryName) => new Logger(services);

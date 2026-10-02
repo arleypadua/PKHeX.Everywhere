@@ -175,4 +175,16 @@ describe('Sentry', () => {
     expect(events[0].contexts?.game_context).toMatchObject({ current_route: 'party?box=2', exception_id: 'b7a9f2c4' })
     expect(events[0].extra).toMatchObject({ details: expect.stringContaining('at PKHeX.Web.Pages.Party.OnInitialized()') })
   })
+
+  it('captures a .NET exception once when .NET reports it again', async () => {
+    start()
+    const exception = { type: 'NullReferenceException', message: 'Boom', details: 'System.NullReferenceException: Boom', id: 'a1b2c3' }
+
+    captureBlazorError(exception)
+    captureError(new Error('Something else'))
+    captureBlazorError(exception)
+    await flush()
+
+    expect(events.map((event) => event.exception?.values?.[0]?.value)).toEqual(['Boom', 'Something else'])
+  })
 })

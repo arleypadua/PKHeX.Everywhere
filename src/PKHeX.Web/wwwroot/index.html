@@ -97,8 +97,10 @@
 
     <script src="_framework/blazor.webassembly.js" autostart="false"></script>
     <script>
-        window.pkhexBlazorStarted = Blazor.start();
         import('./react/sentry.js').catch(function () {});
+        window.pkhexBlazorStarted = typeof Blazor === 'undefined'
+            ? Promise.reject(new Error('blazor.webassembly.js did not load.'))
+            : Blazor.start();
     </script>
 </body>
 
