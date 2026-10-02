@@ -8,7 +8,7 @@ public enum CallKind
     Command,
 }
 
-public record Parameter(string Name, Type Type, NullabilityInfo Nullability)
+public record Parameter(string Name, Type Type, NullabilityInfo Nullability, bool IsOptional)
 {
     public bool IsHandle => Contract.IsHandle(Type);
 }
@@ -20,7 +20,9 @@ public record Call(
     IReadOnlyList<string> Topics,
     IReadOnlyList<Parameter> Parameters,
     Type ReturnType,
-    NullabilityInfo ReturnNullability)
+    NullabilityInfo ReturnNullability,
+    bool RequiresSave,
+    bool RequiresDraft)
 {
     public string Entity => Name[..Name.IndexOf('.')];
     public string Verb => Name[(Name.IndexOf('.') + 1)..];
@@ -56,10 +58,12 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<Type> Events, IR
                 DeclaredTopics(m.Attribute),
                 m.Method.GetParameters()
                     .Where(p => !InjectedTypes.Contains(p.ParameterType.FullName))
-                    .Select(p => new Parameter(p.Name!, p.ParameterType, nullability.Create(p)))
+                    .Select(p => new Parameter(p.Name!, p.ParameterType, nullability.Create(p), p.HasDefaultValue))
                     .ToList(),
                 Awaited(m.Method.ReturnType),
-                Awaited(nullability.Create(m.Method.ReturnParameter))))
+                Awaited(nullability.Create(m.Method.ReturnParameter)),
+                m.Method.GetParameters().Any(p => p.ParameterType.FullName == "PKHeX.Facade.Game") || Requirements(m.Method).Contains("Save"),
+                Requirements(m.Method).Contains("Draft")))
             .OrderBy(c => c.Name, StringComparer.Ordinal)
             .ToList();
 
@@ -105,6 +109,12 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<Type> Events, IR
         ((IEnumerable<CustomAttributeTypedArgument>)attribute.ConstructorArguments[1].Value!)
             .Select(a => (string)a.Value!)
             .ToList();
+
+    private static List<string> Requirements(MethodInfo method) => method.CustomAttributes
+        .Where(a => a.AttributeType.FullName == $"{Namespace}.RequiresAttribute")
+        .SelectMany(a => (IEnumerable<CustomAttributeTypedArgument>)a.ConstructorArguments[0].Value!)
+        .Select(a => Enum.GetName(a.ArgumentType, a.Value!)!)
+        .ToList();
 
     private static string? Hook(Type handlers) =>
         handlers.CustomAttributes

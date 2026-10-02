@@ -3,7 +3,6 @@ import { EllipsisOutlined, ExportOutlined, FolderOpenOutlined } from '@ant-desig
 import { Button, Descriptions, Dropdown, Flex, Space } from 'antd'
 import type { SaveSummary } from '@pkhex-everywhere/engine'
 import { useEngine, useLoadedGame, useQuery } from '@pkhex-everywhere/react'
-import { fromBase64 } from '../../base64'
 import { AdSlot } from '../../components/AdSlot'
 import { downloadFile, useNavigate } from '../../host'
 import { journey } from '../../layout/journey'
@@ -42,7 +41,7 @@ function LoadedGame({ game, onOpen }: { game: SaveSummary; onOpen: () => void })
 
   const exportSave = async () => {
     const { bytes, fileName } = await engine.game.export()
-    downloadFile(fromBase64(bytes), fileName)
+    downloadFile(bytes, fileName)
   }
 
   return (

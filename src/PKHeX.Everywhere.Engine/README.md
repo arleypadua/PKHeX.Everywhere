@@ -48,13 +48,15 @@ DTOs follow the same rules as the Engine's, and must live under a `PKHeX.Everywh
 
 `PKHeX.Everywhere.Engine.Tests.Handlers` is an example.
 
-`byte[]` crosses the boundary as a base64 string, typed `Base64` in TypeScript.
+`byte[]` crosses the boundary as a base64 string. A `byte[]` parameter is typed `Binary` (`Uint8Array | ArrayBuffer | Blob`) and the generated client encodes it. A `byte[]` property of a record a call returns is a `Uint8Array` and the client decodes it, so that record can't reach JS any other way. Elsewhere it stays a `Base64` string. A `fileName` parameter right after a `byte[]` one defaults to the name of a `File`.
+
+A call needs a loaded save when its handler takes a `Game`. Mark requirements the parameters don't show with `[Requires(Requirement.Save)]` or `[Requires(Requirement.Draft)]`. The generated methods and hooks list them in their JSDoc.
 
 A nullable record parameter with a default, such as the fields of `PokemonPatch`, is optional in TypeScript. A missing property reads as null.
 
 ## The draft
 
-`pokemon.edit(at)` opens a draft Pokémon in the Session, addressed as `{ source: 'draft', slot: 0 }` (`draftHandle` in the SDK) with the Topic `draft`. Pokémon calls resolve Handles through `session.Find`, which covers the draft. A call that only applies to a saved slot uses `game.FindSaved`, which rejects the draft with `draft-not-allowed`.
+`pokemon.edit(at)` opens a draft Pokémon in the Session, addressed as `{ source: 'draft', slot: 0 }` (`draftHandle` in the SDK) with the Topic `draft`. Pokémon calls resolve Handles through `session.Find`, which covers the draft. A call that only applies to a saved slot uses `game.FindSaved`, which rejects the draft with `draft-not-allowed`. A call on the draft with none open fails with `no-draft`.
 
 `pokemon.clone(at)` opens a draft from a copy with a new PID and no nickname. A clone has no slot, so `pokemon.commit()` rejects it with `no-slot`; `pokemon.addToBox()` writes it to the first empty box slot instead, or fails with `box-full`. See [ADR 0005](../../docs/adr/0005-editing-goes-through-an-engine-held-draft-slot.md).
 

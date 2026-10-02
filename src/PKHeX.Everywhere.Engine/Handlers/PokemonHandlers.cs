@@ -8,18 +8,23 @@ namespace PKHeX.Everywhere.Engine.Handlers;
 
 public static class PokemonHandlers
 {
+    [Requires(Requirement.Save)]
     [Query("pokemon.get", Topics.Party, Topics.Box, Topics.Draft)]
     public static PokemonSummary Get(Session session, PokemonHandle at) => session.Find(at).Pokemon.ToSummary(at);
 
+    [Requires(Requirement.Save)]
     [Query("pokemon.showdown", Topics.Party, Topics.Box, Topics.Draft)]
     public static string Showdown(Session session, PokemonHandle at) => session.Find(at).Pokemon.Showdown();
 
+    [Requires(Requirement.Save)]
     [Query("pokemon.details", Topics.Party, Topics.Box, Topics.Draft)]
     public static EditablePokemon Details(Session session, PokemonHandle at) => session.Find(at).Pokemon.Details().ToEditable();
 
+    [Requires(Requirement.Save)]
     [Query("pokemon.options", Topics.Party, Topics.Box, Topics.Draft)]
     public static Dtos.PokemonOptions Options(Session session, PokemonHandle at) => session.Find(at).Pokemon.Options().ToDto();
 
+    [Requires(Requirement.Save)]
     [Query("pokemon.export", Topics.Party, Topics.Box, Topics.Draft)]
     public static ExportedPokemon Export(Session session, PokemonHandle at)
     {
@@ -27,6 +32,7 @@ public static class PokemonHandlers
         return new ExportedPokemon(file.Bytes, file.Name);
     }
 
+    [Requires(Requirement.Save)]
     [Command("pokemon.setLevel")]
     public static void SetLevel(Session session, PokemonHandle at, int level)
     {
@@ -39,6 +45,7 @@ public static class PokemonHandlers
         session.Raise(new PokemonChanged(at));
     }
 
+    [Requires(Requirement.Save)]
     [Command("pokemon.update")]
     public static void Update(Session session, PokemonHandle at, PokemonPatch patch)
     {
@@ -64,6 +71,7 @@ public static class PokemonHandlers
     public static void Clone(Session session, Game game, PokemonHandle at) =>
         session.Draft = new Draft(game.FindSaved(at).Pokemon.MakeCopy(), null);
 
+    [Requires(Requirement.Draft)]
     [Command("pokemon.commit", Topics.Draft)]
     public static PokemonId Commit(Session session, Game game)
     {
@@ -80,6 +88,7 @@ public static class PokemonHandlers
         return new PokemonId(saved.Pokemon.UniqueId.Value);
     }
 
+    [Requires(Requirement.Draft)]
     [Command("pokemon.addToBox", Topics.Draft, Topics.Box)]
     public static AddedPokemon AddToBox(Session session, Game game)
     {

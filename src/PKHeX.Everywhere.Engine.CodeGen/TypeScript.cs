@@ -16,7 +16,7 @@ public static class TypeScript
     /// </summary>
     public static IEnumerable<(string File, string Content)> Write(Contract contract)
     {
-        var types = new TypeCollector();
+        var types = new TypeCollector(BinaryOutputs(contract));
         var client = Client(contract, types);
         foreach (var engineEvent in contract.Events) types.Render(engineEvent, null);
 
@@ -26,6 +26,45 @@ public static class TypeScript
         yield return ("engine/src/generated/topics.ts", Topics(contract));
         yield return ("react/src/generated/hooks.ts", Hooks(contract));
     }
+
+    // A returned record's bytes become a Uint8Array only when the client can convert them, so the record must never reach JS any other way.
+    private static HashSet<Type> BinaryOutputs(Contract contract)
+    {
+        var inputs = contract.Calls.SelectMany(c => c.Parameters).Select(p => Nullable.GetUnderlyingType(p.Type) ?? p.Type).ToHashSet();
+        return contract.Calls
+            .Select(c => Nullable.GetUnderlyingType(c.ReturnType) ?? c.ReturnType)
+            .Where(t => Contract.IsObject(t) && BytesProperties(t).Any() && !inputs.Contains(t))
+            .ToHashSet();
+    }
+
+    private static IEnumerable<string> BytesProperties(Type type) => TypeCollector.Properties(type)
+        .Where(p => p.PropertyType == typeof(byte[]))
+        .Select(p => JsonNamingPolicy.CamelCase.ConvertName(p.Name));
+
+    private static string? Requirements(Call call, bool react)
+    {
+        var needs = new List<string>();
+        var codes = new List<string>();
+        if (call.RequiresSave)
+        {
+            needs.Add("a loaded save");
+            codes.Add("`no-save`");
+        }
+
+        if (call.RequiresDraft)
+        {
+            needs.Add("an open draft");
+            codes.Add("`no-draft`");
+        }
+
+        if (needs.Count == 0) return null;
+
+        var wrap = react && call.RequiresSave ? " Wrap in `<RequireGame>`." : "";
+        return $"/** Requires {string.Join(" and ", needs)}; throws {string.Join(" or ", codes)} otherwise.{wrap} */";
+    }
+
+    private static string Parameters(IEnumerable<Parameter> parameters, TypeCollector types) =>
+        string.Join(", ", parameters.Select(p => $"{p.Name}{(p.IsOptional ? "?" : "")}: {types.Render(p.Type, p.Nullability, Direction.Input)}"));
 
     private static string Topics(Contract contract) => $$"""
         {{Header}}
@@ -66,7 +105,10 @@ public static class TypeScript
 
         var imports = types.Names.Count == 0
             ? ""
-            : $"import type {{ {string.Join(", ", types.Names.Order(StringComparer.Ordinal))} }} from './types'\n\n";
+            : $"import type {{ {string.Join(", ", types.Names.Order(StringComparer.Ordinal))} }} from './types'\n";
+        if (types.Helpers.Count > 0)
+            imports = $"import {{ {string.Join(", ", types.Helpers.Order(StringComparer.Ordinal))} }} from '../binary'\n" + imports;
+        if (imports != "") imports += "\n";
 
         return $$"""
             {{Header}}
@@ -98,7 +140,7 @@ public static class TypeScript
 
     private static string Hooks(Contract contract)
     {
-        var types = new TypeCollector();
+        var types = new TypeCollector(BinaryOutputs(contract));
         var hooks = new List<string>();
         var usesCommands = false;
 
@@ -118,6 +160,7 @@ public static class TypeScript
 
             var hook = new StringBuilder();
             var parameter = handle is null ? "" : $"{handle.Name}: {types.Render(handle.Type, handle.Nullability)}";
+            if (Requirements(get, react: true) is { } doc) hook.AppendLine(doc);
             hook.AppendLine($"export function {name}({parameter}) {{");
             if (commands.Count > 0) hook.AppendLine("  const engine = useEngine()");
             hook.AppendLine($"  const {entity.Key} = useQuery({Quote(get.Name)}{(handle is null ? "" : $", {handle.Name}")})");
@@ -137,8 +180,9 @@ public static class TypeScript
             {
                 var bound = handle is not null && command.Parameters.FirstOrDefault() is { IsHandle: true } first && first.Type == handle.Type;
                 var own = command.Parameters.Skip(bound ? 1 : 0).ToList();
-                var parameters = string.Join(", ", own.Select(p => $"{p.Name}: {types.Render(p.Type, p.Nullability)}"));
+                var parameters = Parameters(own, types);
                 var arguments = string.Join(", ", (bound ? [handle!.Name] : Array.Empty<string>()).Concat(own.Select(p => p.Name)));
+                if (Requirements(command, react: true) is { } commandDoc) hook.AppendLine($"      {commandDoc}");
                 hook.AppendLine($"      {command.Verb}: ({parameters}) => engine.{command.Name}({arguments}),");
             }
 
@@ -174,13 +218,49 @@ public static class TypeScript
 
         foreach (var (name, call) in node.Calls)
         {
-            var parameters = string.Join(", ", call.Parameters.Select(p => $"{p.Name}: {types.Render(p.Type, p.Nullability)}"));
+            var parameters = Parameters(call.Parameters, types);
             var arguments = string.Join(", ", call.Parameters.Select(p => p.Name));
-            var result = call.ReturnType == typeof(void) ? "void" : types.Render(call.ReturnType, call.ReturnNullability);
+            var result = call.ReturnType == typeof(void) ? "void" : types.Render(call.ReturnType, call.ReturnNullability, Direction.Output);
 
+            if (Requirements(call, react: false) is { } doc) signatures.AppendLine($"{indent}{doc}");
             signatures.AppendLine($"{indent}{name}({parameters}): Promise<{result}>");
-            implementations.AppendLine($"{indent}  {name}: ({arguments}) => invoke({Quote(call.Name)}, [{arguments}]),");
+            implementations.AppendLine($"{indent}  {name}: {Implementation(call, result, types)},");
         }
+    }
+
+    private static string Implementation(Call call, string result, TypeCollector types)
+    {
+        var arguments = call.Parameters.Select((p, i) => Argument(call, i, types)).ToList();
+        var invoke = $"invoke({Quote(call.Name)}, [{string.Join(", ", arguments)}])";
+        var bytes = types.IsBinaryOutput(call.ReturnType) ? BytesProperties(call.ReturnType).ToList() : [];
+        if (bytes.Count > 0)
+        {
+            types.Helpers.Add("withBytes");
+            invoke = $"withBytes(await invoke<{result}>({Quote(call.Name)}, [{string.Join(", ", arguments)}]), [{string.Join(", ", bytes.Select(Quote))}])";
+        }
+
+        var async = bytes.Count > 0 || arguments.Any(a => a.Contains("await "));
+        return $"{(async ? "async " : "")}({string.Join(", ", call.Parameters.Select(p => p.Name))}) => {invoke}";
+    }
+
+    private static string Argument(Call call, int index, TypeCollector types)
+    {
+        var parameter = call.Parameters[index];
+        if (parameter.Type == typeof(byte[]))
+        {
+            types.Helpers.Add("toBase64");
+            return parameter.Nullability.ReadState == NullabilityState.Nullable
+                ? $"{parameter.Name} == null ? null : await toBase64({parameter.Name})"
+                : $"await toBase64({parameter.Name})";
+        }
+
+        if (parameter is { Name: "fileName" } && parameter.Type == typeof(string) && index > 0 && call.Parameters[index - 1].Type == typeof(byte[]))
+        {
+            types.Helpers.Add("fileNameOf");
+            return $"{parameter.Name} ?? fileNameOf({call.Parameters[index - 1].Name})";
+        }
+
+        return parameter.Name;
     }
 
     private static string Quote(string value) => $"'{value}'";
@@ -201,24 +281,51 @@ public static class TypeScript
         }
     }
 
-    private sealed class TypeCollector
+    private enum Direction
     {
+        Nested,
+        Input,
+        Output,
+    }
+
+    private sealed class TypeCollector(HashSet<Type> binaryOutputs)
+    {
+        private const string Binary = "Binary";
+        private const string Base64 = "Base64";
+
         private readonly NullabilityInfoContext _nullability = new();
         private readonly Dictionary<string, Type> _types = new();
 
         public ICollection<string> Names => _types.Keys;
 
-        public string Render(Type type, NullabilityInfo? info)
+        public HashSet<string> Helpers { get; } = [];
+
+        public bool IsBinaryOutput(Type type) => binaryOutputs.Contains(type);
+
+        public string Render(Type type, NullabilityInfo? info, Direction direction = Direction.Nested)
         {
             if (Nullable.GetUnderlyingType(type) is { } underlying)
-                return $"{Render(underlying, null)} | null";
+                return $"{Render(underlying, null, direction)} | null";
 
             if (!type.IsValueType && info?.ReadState == NullabilityState.Nullable)
-                return $"{Render(type, null)} | null";
+                return $"{Render(type, null, direction)} | null";
 
             if (type.IsEnum) return Register(type);
 
-            if (type == typeof(byte[])) return Register(type);
+            if (type == typeof(byte[]))
+            {
+                switch (direction)
+                {
+                    case Direction.Input:
+                        _types[Binary] = type;
+                        return Binary;
+                    case Direction.Output:
+                        throw new NotSupportedException("A call can't return bytes on their own. Return a record with a byte[] property instead.");
+                    default:
+                        _types[Base64] = type;
+                        return Base64;
+                }
+            }
 
             switch (Type.GetTypeCode(type))
             {
@@ -237,6 +344,9 @@ public static class TypeScript
                 return rendered.Contains('|') ? $"({rendered})[]" : $"{rendered}[]";
             }
 
+            if (binaryOutputs.Contains(type) && direction != Direction.Output)
+                throw new InvalidOperationException($"{type.Name} carries bytes and is returned by a call, so it can only reach JS as that call's result.");
+
             if (Contract.IsBranded(type) || Contract.IsObject(type)) return Register(type);
 
             throw new NotSupportedException($"Type {type.FullName} can't cross the engine boundary.");
@@ -244,12 +354,6 @@ public static class TypeScript
 
         private string Register(Type type)
         {
-            if (type == typeof(byte[]))
-            {
-                _types["Base64"] = type;
-                return "Base64";
-            }
-
             if (_types.TryGetValue(type.Name, out var known) && known != type)
                 throw new InvalidOperationException($"Two engine types are named {type.Name}: {known.FullName} and {type.FullName}.");
 
@@ -261,14 +365,15 @@ public static class TypeScript
         {
             var declarations = new SortedDictionary<string, string>(StringComparer.Ordinal);
             while (_types.Keys.FirstOrDefault(n => !declarations.ContainsKey(n)) is { } name)
-                declarations[name] = Declare(_types[name]);
+                declarations[name] = Declare(name, _types[name]);
 
             return Header + string.Concat(declarations.Values.Select(d => "\n" + d));
         }
 
-        private string Declare(Type type)
+        private string Declare(string name, Type type)
         {
-            if (type == typeof(byte[])) return "export type Base64 = string\n";
+            if (name == Binary) return "export type Binary = Uint8Array | ArrayBuffer | Blob\n";
+            if (name == Base64) return "export type Base64 = string\n";
 
             if (type.IsEnum)
             {
@@ -284,10 +389,11 @@ public static class TypeScript
             if (Contract.IsEvent(type)) sb.AppendLine($"  type: {Quote(JsonNamingPolicy.CamelCase.ConvertName(type.Name))}");
             foreach (var property in Properties(type))
             {
-                var name = JsonNamingPolicy.CamelCase.ConvertName(property.Name);
-                var rendered = Render(property.PropertyType, _nullability.Create(property));
+                var rendered = binaryOutputs.Contains(type) && property.PropertyType == typeof(byte[])
+                    ? "Uint8Array<ArrayBuffer>"
+                    : Render(property.PropertyType, _nullability.Create(property));
                 var mark = optional.Contains(property.Name) && rendered.EndsWith(" | null") ? "?" : "";
-                sb.AppendLine($"  {name}{mark}: {rendered}");
+                sb.AppendLine($"  {JsonNamingPolicy.CamelCase.ConvertName(property.Name)}{mark}: {rendered}");
             }
 
             sb.AppendLine("}");
@@ -303,7 +409,7 @@ public static class TypeScript
             .Select(p => p.Name!)
             .ToHashSet(StringComparer.OrdinalIgnoreCase) ?? [];
 
-        private static IEnumerable<PropertyInfo> Properties(Type type) => type
+        public static IEnumerable<PropertyInfo> Properties(Type type) => type
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => p.GetMethod?.IsPublic == true && p.GetIndexParameters().Length == 0)
             .DistinctBy(p => p.Name);

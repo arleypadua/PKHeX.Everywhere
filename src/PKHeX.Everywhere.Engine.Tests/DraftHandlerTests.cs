@@ -89,8 +89,8 @@ public class DraftHandlerTests
 
         Value(Dispatch(session, "pokemon.commit", "[]"));
 
-        Error(Dispatch(session, "pokemon.details", Args(Draft))).Should().Be("not-found");
-        Error(Dispatch(session, "pokemon.commit", "[]")).Should().Be("not-found");
+        Error(Dispatch(session, "pokemon.details", Args(Draft))).Should().Be(ErrorCodes.NoDraft);
+        Error(Dispatch(session, "pokemon.commit", "[]")).Should().Be(ErrorCodes.NoDraft);
     }
 
     [Fact]
@@ -116,7 +116,7 @@ public class DraftHandlerTests
 
         Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), "emerald.sav")));
 
-        Error(Dispatch(session, "pokemon.details", Args(Draft))).Should().Be("not-found");
+        Error(Dispatch(session, "pokemon.details", Args(Draft))).Should().Be(ErrorCodes.NoDraft);
     }
 
     [Fact]
@@ -142,13 +142,13 @@ public class DraftHandlerTests
     }
 
     [Fact]
-    public void DraftCallsReturnNotFoundWithoutADraft()
+    public void DraftCallsReturnNoDraftWithoutADraft()
     {
         var session = Loaded(SaveFilePath.HgSs);
 
-        Error(Dispatch(session, "pokemon.details", Args(Draft))).Should().Be("not-found");
-        Error(Dispatch(session, "pokemon.update", Args(Draft, new { level = 5 }))).Should().Be("not-found");
-        Error(Dispatch(session, "pokemon.commit", "[]")).Should().Be("not-found");
+        Error(Dispatch(session, "pokemon.details", Args(Draft))).Should().Be(ErrorCodes.NoDraft);
+        Error(Dispatch(session, "pokemon.update", Args(Draft, new { level = 5 }))).Should().Be(ErrorCodes.NoDraft);
+        Error(Dispatch(session, "pokemon.commit", "[]")).Should().Be(ErrorCodes.NoDraft);
     }
 
     [Theory]

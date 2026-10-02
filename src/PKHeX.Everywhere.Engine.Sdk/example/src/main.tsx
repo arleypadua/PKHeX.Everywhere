@@ -17,10 +17,7 @@ function Party() {
   )
 }
 
-const bytes = new Uint8Array(await (await fetch(saveUrl)).arrayBuffer())
-let binary = ''
-for (const byte of bytes) binary += String.fromCharCode(byte)
-await engine.game.load(btoa(binary), 'emerald.sav')
+await engine.game.load(await (await fetch(saveUrl)).blob(), 'emerald.sav')
 
 createRoot(document.getElementById('root')!).render(
   <EngineProvider engine={engine}>

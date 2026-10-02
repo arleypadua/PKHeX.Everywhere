@@ -15,6 +15,8 @@ export interface AddedPokemon {
 
 export type Base64 = string
 
+export type Binary = Uint8Array | ArrayBuffer | Blob
+
 export interface CatalogName {
   id: number
   name: string
@@ -118,12 +120,12 @@ export interface EventWork {
 }
 
 export interface ExportedPokemon {
-  bytes: Base64
+  bytes: Uint8Array<ArrayBuffer>
   fileName: string
 }
 
 export interface ExportedSave {
-  bytes: Base64
+  bytes: Uint8Array<ArrayBuffer>
   fileName: string
 }
 
@@ -192,7 +194,7 @@ export interface Legality {
 }
 
 export interface LoadedSave {
-  bytes: Base64
+  bytes: Uint8Array<ArrayBuffer>
   fileName: string
   version: string
 }

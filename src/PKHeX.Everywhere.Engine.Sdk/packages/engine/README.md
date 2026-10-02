@@ -15,16 +15,13 @@ import { createEngine } from '@pkhex-everywhere/engine'
 
 const engine = createEngine()
 
-const bytes = new Uint8Array(await (await fetch('/emerald.sav')).arrayBuffer())
-let binary = ''
-for (const byte of bytes) binary += String.fromCharCode(byte)
-await engine.game.load(btoa(binary), 'emerald.sav')
+await engine.game.load(await (await fetch('/emerald.sav')).blob(), 'emerald.sav')
 
 const party = await engine.party.get()
 console.log(party.map((pokemon) => `${pokemon.species} Lv. ${pokemon.level}`))
 ```
 
-`game.load` takes the save as base64. Commands that fail reject with an `EngineError`, whose `code` is one of `errorCodes`. Use `engine.subscribe(topics, callback)` to get a callback when a command changes the save.
+Binary inputs take a `Uint8Array`, `ArrayBuffer`, `Blob` or `File`, and binary outputs come back as `Uint8Array`. `game.load` takes the file name from a `File` when you leave it out. Hover a method to see whether it needs a loaded save or an open draft. Commands that fail reject with an `EngineError`, whose `code` is one of `errorCodes`. Use `engine.subscribe(topics, callback)` to get a callback when a command changes the save.
 
 ## Where the runtime loads from
 
