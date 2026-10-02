@@ -10,6 +10,7 @@ export const pages: Record<string, LazyExoticComponent<ComponentType<Record<stri
   items: lazy(() => import('./pages/items/ItemsPage')),
   load: lazy(() => import('./pages/load/LoadPage')),
   party: lazy(() => import('./pages/party/PartyPage')),
+  plugins: lazy(() => import('./pages/plugins/PlugInsPage')),
   'pokemon-clone': lazy(() => import('./pages/pokemon-editor/PokemonClonePage')),
   'pokemon-editor': lazy(() => import('./pages/pokemon-editor/PokemonEditorPage')),
   'privacy-policy': lazy(() => import('./pages/static/PrivacyPolicyPage')),

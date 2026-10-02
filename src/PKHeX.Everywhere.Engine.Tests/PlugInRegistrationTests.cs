@@ -101,6 +101,25 @@ public class PlugInRegistrationTests
     }
 
     [Fact]
+    public void UpdatingKeepsTheStateOfTheRegisteredPlugIn()
+    {
+        var session = Hosted(out var host);
+        Register(session, TestPlugIn, Stored(
+            enabled: false,
+            toggles: [Toggle(Greet, false)],
+            settings: [StringSetting("Greeting", "Hi")],
+            hasNewerVersion: true));
+
+        Register(session, TestPlugIn);
+
+        var plugIn = host.Find(TestPlugInId)!;
+        plugIn.Enabled.Should().BeFalse();
+        plugIn.IsHookEnabled(Greet).Should().BeFalse();
+        plugIn.Settings.GetString("Greeting").Should().Be("Hi");
+        host.HasNewerVersion(TestPlugInId).Should().BeFalse();
+    }
+
+    [Fact]
     public void ListsInstalledPlugIns()
     {
         var session = Hosted();

@@ -4,6 +4,7 @@ export const routes = {
   pokemon: ({ at, id }: Pick<PokemonSummary, 'at' | 'id'>) => `/pokemon/${at.source}/${id}`,
   pokemonEditorPreview: ({ at, id }: Pick<PokemonSummary, 'at' | 'id'>) => `/pokemon-next/${at.source}/${id}`,
   box: '/pokemon-box',
+  plugIn: (id: string) => `/plugins/${id}`,
   searchEncounter: '/pokemon/search-encounter',
   clonePokemon: (id: PokemonId) => `/pokemon/${id}/clone`,
   encounters: ({ version, species }: { version: number; species?: number }) =>
