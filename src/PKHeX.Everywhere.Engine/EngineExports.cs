@@ -17,6 +17,11 @@ public static partial class EngineExports
         {
             if (JSHost.GlobalThis.GetTypeOfProperty("pkhexEngineOnChange") == "function") OnChange(topics);
         };
+        Session.Current.Published += engineEvent =>
+        {
+            if (JSHost.GlobalThis.GetTypeOfProperty("pkhexEngineOnEvent") == "function" && Session.Current.Serialize(engineEvent) is { } json)
+                OnEvent(json);
+        };
 
         JSHost.GlobalThis.SetProperty("pkhexEngineReady", true);
         if (JSHost.GlobalThis.GetTypeOfProperty("pkhexEngineOnReady") == "function") OnReady();
@@ -27,4 +32,7 @@ public static partial class EngineExports
 
     [JSImport("globalThis.pkhexEngineOnChange")]
     private static partial void OnChange([JSMarshalAs<JSType.Array<JSType.String>>] string[] topics);
+
+    [JSImport("globalThis.pkhexEngineOnEvent")]
+    private static partial void OnEvent(string engineEvent);
 }

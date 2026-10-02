@@ -8,6 +8,7 @@ declare global {
   var pkhexEngineReady: boolean | undefined
   var pkhexEngineOnReady: (() => void) | undefined
   var pkhexEngineOnChange: ((topics: string[]) => void) | undefined
+  var pkhexEngineOnEvent: ((event: string) => void) | undefined
   var Blazor: { runtime?: DotnetRuntime } | undefined
   var getDotnetRuntime: ((id: number) => DotnetRuntime | undefined) | undefined
 }
@@ -27,6 +28,9 @@ export function blazorHost(): EngineHost {
           }),
     onChange: (listener) => {
       globalThis.pkhexEngineOnChange = listener
+    },
+    onEvent: (listener) => {
+      globalThis.pkhexEngineOnEvent = listener
     },
     getAssemblyExports: (assemblyName) => {
       const runtime = globalThis.Blazor?.runtime ?? globalThis.getDotnetRuntime?.(0)

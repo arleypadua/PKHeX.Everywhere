@@ -1,3 +1,6 @@
+using System.Buffers;
+using System.Text;
+using System.Text.Json;
 using PKHeX.Facade;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Facade.Repositories;
@@ -9,6 +12,7 @@ public sealed class Session
     public static Session Current { get; } = new();
 
     private readonly List<Invoker> _handlers = [];
+    private readonly List<EventWriter> _eventWriters = [];
     private readonly AsyncLocal<CommandScope?> _command = new();
 
     public Game? Game { get; private set; }
@@ -51,9 +55,29 @@ public sealed class Session
     internal IReadOnlyList<Invoker> Handlers => _handlers;
 
     /// <summary>
-    /// Dispatches calls declared in another assembly. Pass that assembly's generated <c>HandlerRegistry.TryInvoke</c>.
+    /// Dispatches calls and writes events declared in another assembly. Pass that assembly's generated
+    /// <c>HandlerRegistry.TryInvoke</c> and <c>HandlerRegistry.TryWriteEvent</c>.
     /// </summary>
-    public void AddHandlers(Invoker handlers) => _handlers.Add(handlers);
+    public void AddHandlers(Invoker handlers, EventWriter events)
+    {
+        _handlers.Add(handlers);
+        _eventWriters.Add(events);
+    }
+
+    /// <summary>
+    /// The JSON JS receives for an event, or null when no assembly attached to the Session declares it.
+    /// </summary>
+    public string? Serialize(IEngineEvent engineEvent)
+    {
+        var buffer = new ArrayBufferWriter<byte>();
+        using (var writer = new Utf8JsonWriter(buffer))
+        {
+            if (!HandlerRegistry.TryWriteEvent(engineEvent, writer) && !_eventWriters.Any(write => write(engineEvent, writer)))
+                return null;
+        }
+
+        return Encoding.UTF8.GetString(buffer.WrittenSpan);
+    }
 
     public void Invalidate(params string[] topics)
     {
@@ -70,6 +94,11 @@ public sealed class Session
         if (_command.Value is { } command) command.Raised.Add(engineEvent);
         else Published?.Invoke(engineEvent);
     }
+
+    /// <summary>
+    /// Publishes an event at once, even inside a command, for something that happened whether or not the command succeeds.
+    /// </summary>
+    internal void PublishNow(IEngineEvent engineEvent) => Published?.Invoke(engineEvent);
 
     // A command reports only the Topics it declares or passes to AlsoWrote, so the contract test catches declarations that are too narrow
     // instead of a Facade event covering for them.

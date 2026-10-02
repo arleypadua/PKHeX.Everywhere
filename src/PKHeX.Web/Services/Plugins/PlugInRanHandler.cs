@@ -1,34 +1,34 @@
 using AntDesign;
 using Microsoft.AspNetCore.Components;
+using PKHeX.Everywhere.Engine;
 using PKHeX.Everywhere.Engine.PlugIns;
-using PKHeX.Everywhere.PlugIns;
 using PKHeX.Web.Extensions;
 
 namespace PKHeX.Web.Services.Plugins;
 
 public sealed class PlugInRanHandler : IDisposable
 {
+    private readonly Session _session;
     private readonly PlugInHost _host;
     private readonly NavigationManager _navigation;
     private readonly INotificationService _notificationService;
-    private readonly AnalyticsService _analyticsService;
 
     public PlugInRanHandler(
+        Session session,
         PlugInHost host,
         NavigationManager navigation,
-        INotificationService notificationService,
-        AnalyticsService analyticsService)
+        INotificationService notificationService)
     {
+        _session = session;
         _host = host;
         _navigation = navigation;
         _notificationService = notificationService;
-        _analyticsService = analyticsService;
-        _host.Ran += HandleRan;
+        _session.Published += HandlePublished;
     }
 
-    private void HandleRan(PlugInRan ran)
+    private void HandlePublished(IEngineEvent engineEvent)
     {
-        _analyticsService.TrackPlugInHookExecuted(ran.HookId.Split('.', '+').Last(), ran.Failure);
+        if (engineEvent is not PlugInRan ran) return;
 
         if (ran.Failure is not null)
         {
@@ -43,16 +43,16 @@ public sealed class PlugInRanHandler : IDisposable
 
         switch (ran.Outcome)
         {
-            case Outcome.Notification notification:
+            case { Kind: PlugInOutcomeKind.Notify } notification:
                 _ = _notificationService.Open(new NotificationConfig
                 {
                     Message = notification.Message,
                     Description = notification.Description,
-                    NotificationType = (NotificationType)notification.Type,
+                    NotificationType = (NotificationType)(notification.Type ?? PlugInNotificationType.None),
                 });
                 break;
-            case Outcome.PageRequest request:
-                OpenPage(ran.PlugInId, request.Path);
+            case { Kind: PlugInOutcomeKind.OpenPage, Path: { } path }:
+                OpenPage(ran.PlugInId, path);
                 break;
         }
     }
@@ -63,5 +63,5 @@ public sealed class PlugInRanHandler : IDisposable
         if (page is not null) _navigation.NavigateToPlugInPage(plugInId, page.Path, page.Layout.ToString());
     }
 
-    public void Dispose() => _host.Ran -= HandleRan;
+    public void Dispose() => _session.Published -= HandlePublished;
 }

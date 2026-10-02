@@ -30,7 +30,7 @@ public static class GameHandlers
     public static ExportedSave Export(Session session, Game game)
     {
         var bytes = game.ToByteArray();
-        session.Raise(new GameExported());
+        session.Raise(new GameExported(game.ToOverview()));
         return new ExportedSave(bytes, session.FileName ?? string.Empty);
     }
 

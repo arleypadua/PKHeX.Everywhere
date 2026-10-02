@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { App, ConfigProvider, Spin, theme as antdTheme } from 'antd'
 import { blazorHost, createEngine, type EngineError } from '@pkhex-everywhere/engine'
 import { EngineProvider } from '@pkhex-everywhere/react'
+import { startGoogleAnalytics } from './googleAnalytics'
 import { connectHost, useTheme, type HostBridge } from './host'
 import { PageErrorBoundary } from './PageErrorBoundary'
 import { pages } from './pages'
@@ -11,8 +12,11 @@ import { PlugInsProvider } from './plugins/PlugInsContext'
 import { createPlugInStore } from './plugins/store'
 
 export { setTheme } from './host'
+export { track } from './googleAnalytics'
 
 const engine = createEngine({ host: blazorHost() })
+
+startGoogleAnalytics(engine)
 
 const plugIns = createPlugIns(engine, createPlugInStore())
 

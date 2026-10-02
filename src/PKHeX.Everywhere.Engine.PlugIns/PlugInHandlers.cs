@@ -27,10 +27,10 @@ public static class PlugInHandlers
     {
         var slot = target is null ? null : session.Find(target);
         var ran = await PlugInHost.Of(session).RunAction(id, slot?.Pokemon);
-        if (ran.Failure is { } failure) throw new EngineException(ErrorCodes.PlugInFailed, failure.Message, failure);
+        if (ran.Failure is { } failure) throw new EngineException(ErrorCodes.PlugInFailed, failure.Message);
 
         slot?.Save();
-        return PlugInOutcome.From(ran.Outcome!);
+        return ran.Outcome!;
     }
 
     [Query("plugins.pages", Topics.All)]

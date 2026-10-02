@@ -121,9 +121,29 @@ export interface ExportedSave {
   fileName: string
 }
 
+export interface GameExported {
+  type: 'gameExported'
+  game: GameOverview
+}
+
+export interface GameOverview {
+  version: string
+  versionId: number
+  generation: string
+  generationId: number
+  trainerGender: string
+  boxCount: number
+  party: PartyMember[]
+}
+
 export interface HiddenPower {
   type: string
   power: number | null
+}
+
+export interface HookFailure {
+  type: string
+  message: string
 }
 
 export interface HookToggle {
@@ -138,6 +158,12 @@ export interface InstalledPlugIn {
   enabled: boolean
   hasNewerVersion: boolean
   needsReinstall: boolean
+}
+
+export interface ItemChanged {
+  type: 'itemChanged'
+  itemId: number
+  count: number
 }
 
 export interface ItemHandle {
@@ -158,6 +184,12 @@ export interface OwnedItem {
 }
 
 export type PageLayout = 'standard' | 'empty'
+
+export interface PartyMember {
+  speciesId: number
+  species: string
+  level: number
+}
 
 export interface PlugInAction {
   id: string
@@ -196,6 +228,12 @@ export interface PlugInHook {
   enabled: boolean
 }
 
+export interface PlugInInstalled {
+  type: 'plugInInstalled'
+  plugInId: string
+  version: string
+}
+
 export type PlugInNotificationType = 'none' | 'info' | 'success' | 'warning' | 'error'
 
 export interface PlugInOutcome {
@@ -207,6 +245,14 @@ export interface PlugInOutcome {
 }
 
 export type PlugInOutcomeKind = 'void' | 'notify' | 'openPage'
+
+export interface PlugInRan {
+  type: 'plugInRan'
+  plugInId: string
+  hookId: string
+  outcome: PlugInOutcome | null
+  failure: HookFailure | null
+}
 
 export interface PlugInSetting {
   key: string
@@ -223,6 +269,26 @@ export interface PlugInState {
   toggles: HookToggle[]
   settings: PlugInSetting[]
   hasNewerVersion: boolean
+}
+
+export interface PlugInUpdated {
+  type: 'plugInUpdated'
+  plugInId: string
+  version: string
+}
+
+export type PokemonAddSource = 'file' | 'encounter'
+
+export interface PokemonAdded {
+  type: 'pokemonAdded'
+  at: PokemonHandle
+  source: PokemonAddSource
+  pokemon: PokemonOverview
+}
+
+export interface PokemonChanged {
+  type: 'pokemonChanged'
+  at: PokemonHandle
 }
 
 export interface PokemonForm {
@@ -247,6 +313,14 @@ export interface PokemonOptions {
   abilities: Choice[]
   forms: Choice[]
   metLocations: Choice[]
+}
+
+export interface PokemonOverview {
+  speciesId: number
+  species: string
+  gender: string
+  ball: string
+  level: number
 }
 
 export interface PokemonPatch {
@@ -280,6 +354,11 @@ export interface PokemonPatch {
   evs?: StatPatch | null
   avs?: StatPatch | null
   combatPower?: number | null
+}
+
+export interface PokemonSaved {
+  type: 'pokemonSaved'
+  at: PokemonHandle
 }
 
 export interface PokemonSummary {
@@ -373,3 +452,5 @@ export interface WorkOption {
   name: string
   value: number
 }
+
+export type EngineEvent = GameExported | ItemChanged | PlugInInstalled | PlugInRan | PlugInUpdated | PokemonAdded | PokemonChanged | PokemonSaved

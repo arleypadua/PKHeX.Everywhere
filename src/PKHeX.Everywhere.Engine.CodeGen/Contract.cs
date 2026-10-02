@@ -26,7 +26,7 @@ public record Call(
     public string Verb => Name[(Name.IndexOf('.') + 1)..];
 }
 
-public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCodes, IReadOnlyList<string> Topics)
+public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<Type> Events, IReadOnlyList<string> ErrorCodes, IReadOnlyList<string> Topics)
 {
     private const string Namespace = "PKHeX.Everywhere.Engine";
     private static readonly string[] InjectedTypes = ["PKHeX.Facade.Game", $"{Namespace}.Session"];
@@ -37,7 +37,8 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
     {
         var nullability = new NullabilityInfoContext();
 
-        var declared = handlerAssemblies.Prepend(engine)
+        var assemblies = handlerAssemblies.Prepend(engine).ToList();
+        var declared = assemblies
             .SelectMany(a => a.GetTypes())
             .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
             .Select(m => (Method: m, Attribute: m.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName is $"{Namespace}.QueryAttribute" or $"{Namespace}.CommandAttribute")))
@@ -74,7 +75,13 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
                 throw new InvalidOperationException($"Call '{call.Name}' uses '{unknown}', which is not declared in Topics.");
         }
 
-        return new Contract(calls, Constants(engine, "ErrorCodes"), topics);
+        var events = assemblies
+            .SelectMany(a => a.GetTypes())
+            .Where(IsEvent)
+            .OrderBy(t => t.Name, StringComparer.Ordinal)
+            .ToList();
+
+        return new Contract(calls, events, Constants(engine, "ErrorCodes"), topics);
     }
 
     private static Type Awaited(Type type) =>
@@ -106,6 +113,9 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<string> ErrorCod
 
     public static bool IsBranded(Type type) =>
         type.CustomAttributes.Any(a => a.AttributeType.FullName == $"{Namespace}.BrandedAttribute");
+
+    public static bool IsEvent(Type type) =>
+        type is { IsAbstract: false, IsInterface: false } && type.GetInterfaces().Any(i => i.FullName == $"{Namespace}.IEngineEvent");
 
     public static bool IsHandle(Type type) =>
         type.GetInterfaces().Any(i => i.FullName == $"{Namespace}.IHandle");

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Blazor.Analytics;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -32,7 +31,6 @@ builder.Services.AddScoped<NewsService>();
 builder.Services.AddSingleton(sp => new PlugInHost(sp.GetRequiredService<Session>()));
 builder.Services.AddScoped<PlugInStore>();
 builder.Services.AddScoped<PlugInRanHandler>();
-builder.Services.AddScoped<EngineEventAnalytics>();
 
 builder.Services.AddScoped<UserJourneyService>();
 builder.Services.AddScoped<GeneralSettingsService>();
@@ -46,7 +44,6 @@ builder.Services.AddScoped<BlazorAesProvider>();
 builder.Services.AddScoped<BlazorMd5Provider>();
 
 builder.Services.AddAntDesign();
-builder.Services.AddGoogleAnalytics("G-BV586KEZM9");
 
 builder.Services.AddBlazoredLocalStorage(config =>
 {
@@ -101,10 +98,5 @@ var app = builder.Build();
 // During startup we replace PKHeX unsupported cryptography APIs with a javascript-based alternative 
 RuntimeCryptographyProvider.Aes = app.Services.GetRequiredService<BlazorAesProvider>();
 RuntimeCryptographyProvider.Md5 = app.Services.GetRequiredService<BlazorMd5Provider>();
-
-#if DEBUG
-app.Services.GetRequiredService<IAnalytics>()
-    .Disable();
-#endif
 
 await app.RunAsync();

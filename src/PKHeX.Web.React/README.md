@@ -4,6 +4,7 @@ React pages mounted inside PKHeX.Web through the `<ReactPage Name="...">` Blazor
 
 - `npm start` runs `dotnet watch` for PKHeX.Web and the Vite dev server. Open http://localhost:5062. React pages load from Vite with HMR, Razor files hot reload through `dotnet watch`. `./dev.sh stop` stops both, from any terminal.
 - `npm run build` writes ES modules to `../PKHeX.Web/wwwroot/react`, which Release builds load. Run it before `dotnet publish`.
+- Google Analytics runs only when the build sets `VITE_GOOGLE_ANALYTICS=true`. Only the GitHub Pages deploy sets it, so local and PR preview builds send nothing. Blazor sends the events it still raises through `track` in `src/googleAnalytics.ts`.
 
 To add a page, create a folder for it under `src/pages` (such as `src/pages/party/PartyPage.tsx`), register it in `src/pages.ts`, and render `<ReactPage Name="..." />` from a Blazor route.
 

@@ -145,6 +145,8 @@ public record Choice(int Id, string Name);
 
 public record PokemonOptions(Choice[] Species, Choice[] Abilities, Choice[] Forms, Choice[] MetLocations);
 
+public record PokemonOverview(int SpeciesId, string Species, string Gender, string Ball, int Level);
+
 public static class PokemonMapping
 {
     public static PokemonSummary ToSummary(this Pokemon pokemon, PokemonHandle at)
@@ -160,6 +162,9 @@ public static class PokemonMapping
             pokemon.Level,
             pokemon.IsShiny);
     }
+
+    public static PokemonOverview ToOverview(this Pokemon pokemon) =>
+        new(pokemon.Species.Id, pokemon.Species.Name, pokemon.Gender.Name, pokemon.Ball.Name, pokemon.Level);
 
     public static EditablePokemon ToEditable(this PokemonDetails details) => new(
         details.Species,

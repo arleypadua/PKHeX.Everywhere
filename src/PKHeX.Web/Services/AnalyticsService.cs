@@ -1,4 +1,4 @@
-using Blazor.Analytics;
+using Microsoft.JSInterop;
 using PKHeX.Facade;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Web.Components;
@@ -6,17 +6,13 @@ using PKHeX.Web.Extensions;
 
 namespace PKHeX.Web.Services;
 
-public class AnalyticsService(
-    IAnalytics analytics)
+public class AnalyticsService(IJSRuntime js, IConfiguration configuration)
 {
+    private Task<IJSObjectReference>? _module;
+
     public void TrackGameLoaded(Game game)
     {
-        analytics.TrackEvent("game_loaded", GetPayloadFrom(game));
-    }
-    
-    public void TrackGameExported(Game game)
-    {
-        analytics.TrackEvent("game_exported", GetPayloadFrom(game));
+        Track("game_loaded", GetPayloadFrom(game));
     }
 
     private object GetPayloadFrom(Game game)
@@ -53,7 +49,7 @@ public class AnalyticsService(
 
     public void TrackPokemon(string eventType, Pokemon pokemon, PokemonSource? source = null)
     {
-        analytics.TrackEvent(eventType, new
+        Track(eventType, new
         {
             species_id = pokemon.Species.Id,
             species_name = pokemon.Species.Name,
@@ -62,35 +58,6 @@ public class AnalyticsService(
             level = pokemon.Level,
             source = source?.ToString()
         });
-    }
-
-    public void TrackItemModified(int itemId, int count)
-    {
-        analytics.TrackEvent("item_modified", new
-        {
-            item_id = itemId,
-            quantity = count,
-        });
-    }
-
-    public void TrackPlugInHookExecuted(string hookName, Exception? failure)
-    {
-        analytics.TrackEvent("plugin_hook_executed", new
-        {
-            hook_name = hookName,
-            exception_type = failure?.GetType().Name,
-            exception_message = failure?.Message,
-        });
-    }
-
-    public void TrackPlugInInstalled(string id, string version)
-    {
-        analytics.TrackEvent("plug_in_installed", new { id, version });
-    }
-
-    public void TrackPlugInUpdated(string id, string version)
-    {
-        analytics.TrackEvent("plug_in_updated", new { id, version });
     }
 
     public void TrackError(Exception exception, string? currentRoute = null, Game? currentGame = null)
@@ -108,7 +75,7 @@ public class AnalyticsService(
             generation_id = (int?)currentGame?.Generation,
         };
         
-        analytics.TrackEvent("unexpected_error", details);
+        Track("unexpected_error", details);
         
         SentrySdk.CaptureException(exception, scope =>
         {
@@ -122,5 +89,19 @@ public class AnalyticsService(
                 generation_id = (int?)currentGame?.Generation,
             };
         });
+    }
+
+    private void Track(string eventName, object payload) => _ = TrackAsync(eventName, payload);
+
+    private async Task TrackAsync(string eventName, object payload)
+    {
+        try
+        {
+            _module ??= js.InvokeAsync<IJSObjectReference>("import", "./Components/ReactPage.razor.js").AsTask();
+            await (await _module).InvokeVoidAsync("track", configuration["React:DevServerUrl"], eventName, payload);
+        }
+        catch (JSException)
+        {
+        }
     }
 }

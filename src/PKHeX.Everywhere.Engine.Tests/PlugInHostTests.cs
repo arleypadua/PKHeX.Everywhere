@@ -80,8 +80,7 @@ public class PlugInHostTests
     {
         var session = Loaded(SaveFilePath.PathFrom(GameVersion.E));
         var host = new PlugInHost(session);
-        var ran = new List<PlugInRan>();
-        host.Ran += ran.Add;
+        var ran = PlugInRuns(session);
         host.Register(TestPlugIn);
 
         host.SetToggle(TestPlugInId, Fail, false);
@@ -104,8 +103,7 @@ public class PlugInHostTests
     {
         var session = Loaded(SaveFilePath.PathFrom(GameVersion.E));
         var host = new PlugInHost(session);
-        var ran = new List<PlugInRan>();
-        host.Ran += ran.Add;
+        var ran = PlugInRuns(session);
         host.Register(TestPlugIn);
         host.SetToggle(TestPlugInId, Fail, false);
 
@@ -113,8 +111,7 @@ public class PlugInHostTests
         await host.RunAll<IQuickAction>(h => h.OnActionRequested());
 
         host.Find(TestPlugInId)!.Settings.GetString("Greeting").Should().Be("Hi");
-        var notification = ran.Should().ContainSingle().Subject.Outcome.Should().BeOfType<Outcome.Notification>().Subject;
-        notification.Message.Should().Be($"Hi, {session.Game!.Trainer.Name}");
+        ran.Should().ContainSingle().Subject.Outcome!.Message.Should().Be($"Hi, {session.Game!.Trainer.Name}");
     }
 
     [Fact]
@@ -157,9 +154,8 @@ public class PlugInHostTests
     {
         var session = Loaded(SaveFilePath.PathFrom(GameVersion.E));
         var host = new PlugInHost(session);
-        var ran = new List<PlugInRan>();
+        var ran = PlugInRuns(session);
         var invalidated = new List<string[]>();
-        host.Ran += ran.Add;
         host.Register(TestPlugIn);
         host.SetToggle(TestPlugInId, OpenHello, true);
         session.Changed += invalidated.Add;
@@ -167,12 +163,11 @@ public class PlugInHostTests
         await host.RunAll<IQuickAction>(h => h.OnActionRequested());
 
         ran.Should().HaveCount(3).And.OnlyContain(r => r.PlugInId == TestPlugInId);
-        ran.Single(r => r.HookId == Greet).Outcome.Should().BeOfType<Outcome.Notification>();
-        ran.Single(r => r.HookId == OpenHello).Outcome.Should().BeOfType<Outcome.PageRequest>()
-            .Which.Path.Should().Be("hello");
+        ran.Single(r => r.HookId == Greet).Outcome!.Kind.Should().Be(PlugInOutcomeKind.Notify);
+        ran.Single(r => r.HookId == OpenHello).Outcome.Should().Be(new PlugInOutcome(PlugInOutcomeKind.OpenPage, Path: "hello"));
         var failed = ran.Single(r => r.HookId == Fail);
         failed.Outcome.Should().BeNull();
-        failed.Failure.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be("Failed on purpose");
+        failed.Failure.Should().Be(new HookFailure(nameof(InvalidOperationException), "Failed on purpose"));
         invalidated.Should().ContainSingle().Which.Should().Equal(Topics.All);
     }
 

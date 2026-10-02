@@ -1,7 +1,6 @@
 ﻿@implements IDisposable
 @inject AntdThemeService ThemeService
-@* Injected only so they subscribe to Engine and plug-in events for the app's lifetime. *@
-@inject EngineEventAnalytics EngineEventAnalytics
+@* Injected only so they subscribe to plug-in events for the app's lifetime. *@
 @inject PKHeX.Web.Services.Plugins.PlugInRanHandler PlugInRanHandler
 @inject PKHeX.Web.Services.Plugins.PlugInStore PlugInStore
 
@@ -23,7 +22,6 @@
         </NotFound>
     </Router>
 </ConfigProvider>
-<NavigationTracker/>
 
 @code
 {

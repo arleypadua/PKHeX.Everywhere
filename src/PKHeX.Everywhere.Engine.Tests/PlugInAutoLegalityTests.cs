@@ -29,8 +29,7 @@ public class PlugInAutoLegalityTests : IDisposable
     {
         var session = Loaded(SaveFilePath.LetsGoPikachu);
         var host = new PlugInHost(session);
-        var ran = new List<PlugInRan>();
-        host.Ran += ran.Add;
+        var ran = PlugInRuns(session);
         host.Register(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "plugins", $"{AutoLegality}.dll")));
         host.UpdateSetting(AutoLegality, Timeout, new Settings.SettingValue.IntegerValue(15));
         return (session, host, ran);

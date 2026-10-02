@@ -40,6 +40,10 @@ export async function unmount(id) {
     if (element) (await pagesModule)?.unmount(element)
 }
 
+export async function track(devServerUrl, name, params) {
+    (await load(devServerUrl)).track(name, params)
+}
+
 export async function setTheme(theme) {
     (await pagesModule)?.setTheme(theme)
 }

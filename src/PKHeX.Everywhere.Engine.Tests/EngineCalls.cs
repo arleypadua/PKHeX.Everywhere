@@ -14,6 +14,16 @@ internal static class EngineCalls
         return session;
     }
 
+    internal static List<PlugIns.PlugInRan> PlugInRuns(Session session)
+    {
+        var ran = new List<PlugIns.PlugInRan>();
+        session.Published += engineEvent =>
+        {
+            if (engineEvent is PlugIns.PlugInRan run) ran.Add(run);
+        };
+        return ran;
+    }
+
     internal static string Dispatch(Session session, string call, string args) =>
         Dispatcher.Dispatch(session, call, args).GetAwaiter().GetResult();
 
