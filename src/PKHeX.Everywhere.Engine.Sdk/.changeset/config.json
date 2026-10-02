@@ -1,0 +1,7 @@
+{
+  "$schema": "../node_modules/@changesets/config/schema.json",
+  "baseBranch": "main",
+  "access": "public",
+  "fixed": [["@pkhex-everywhere/engine", "@pkhex-everywhere/react"]],
+  "format": false
+}

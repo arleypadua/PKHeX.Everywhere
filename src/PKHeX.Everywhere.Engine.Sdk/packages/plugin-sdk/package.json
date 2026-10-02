@@ -16,8 +16,13 @@
     }
   },
   "files": [
-    "index.d.ts"
+    "index.d.ts",
+    "CHANGELOG.md"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
