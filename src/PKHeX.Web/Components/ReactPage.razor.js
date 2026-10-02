@@ -28,10 +28,10 @@ export async function start(devServerUrl) {
 
 const elements = new Map()
 
-export async function mount(id, element, devServerUrl, name, props, navigator, theme, calculatorUrl, calculators) {
+export async function mount(id, element, devServerUrl, name, props, navigator) {
     elements.set(id, element)
     const module = await load(devServerUrl)
-    await module.mount(element, name, props, { navigator, theme, calculatorUrl, calculators })
+    await module.mount(element, name, props, { navigator })
 }
 
 export async function unmount(id) {
@@ -44,6 +44,18 @@ export async function track(devServerUrl, name, params) {
     (await load(devServerUrl)).track(name, params)
 }
 
-export async function setTheme(theme) {
-    (await pagesModule)?.setTheme(theme)
+export async function getTheme(devServerUrl) {
+    return (await load(devServerUrl)).getTheme()
+}
+
+export async function onThemeChanged(devServerUrl, listener) {
+    (await load(devServerUrl)).onThemeChanged((theme) => listener.invokeMethodAsync('OnThemeChanged', theme))
+}
+
+export async function checkUnseenNews(devServerUrl) {
+    return (await load(devServerUrl)).checkUnseenNews()
+}
+
+export async function markNewsSeen(devServerUrl) {
+    (await load(devServerUrl)).markNewsSeen()
 }

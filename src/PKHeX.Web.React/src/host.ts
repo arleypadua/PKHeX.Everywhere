@@ -1,7 +1,8 @@
 import { useCallback, useSyncExternalStore } from 'react'
 import { toBase64 } from './base64'
+import { createSettings, type Theme } from './settings'
 
-export type Theme = 'light' | 'dark'
+export type { Theme } from './settings'
 
 declare global {
   var showGoogleCmpRevocationMessage: (() => void) | undefined
@@ -10,22 +11,11 @@ declare global {
 export interface DotNetHost {
   invokeMethodAsync(method: 'NavigateTo', url: string, replace: boolean): Promise<void>
   invokeMethodAsync(method: 'NotifySuccess', title: string): Promise<void>
-  invokeMethodAsync(method: 'SetTheme', theme: Theme): Promise<void>
-  invokeMethodAsync(method: 'SetCalculatorUrl', url: string): Promise<string>
   invokeMethodAsync(method: 'GoHome'): Promise<void>
-}
-
-export interface Calculator {
-  name: string
-  description: string
-  url: string
 }
 
 export interface HostBridge {
   navigator: DotNetHost
-  theme: Theme
-  calculatorUrl: string
-  calculators: Calculator[]
 }
 
 function createStore<T>(initial: T) {
@@ -42,45 +32,44 @@ function createStore<T>(initial: T) {
       value = next
       listeners.forEach((listener) => listener())
     },
+    subscribe,
     use: () => useSyncExternalStore(subscribe, () => value),
   }
 }
 
 let dotNetHost: DotNetHost | undefined
-let calculators: Calculator[] = []
-const themeStore = createStore<Theme>('light')
-const calculatorUrlStore = createStore('')
+export const settings = createSettings()
+const themeStore = createStore(settings.readTheme())
+const calculatorUrlStore = createStore(settings.readCalculatorUrl())
 
 export function connectHost(host: HostBridge) {
   dotNetHost = host.navigator
-  calculators = host.calculators
-  calculatorUrlStore.set(host.calculatorUrl)
-  setTheme(host.theme)
 }
 
-export function setTheme(next: Theme) {
-  themeStore.set(next)
+export function getTheme(): Theme {
+  return themeStore.get()
 }
 
 export function useTheme(): Theme {
   return themeStore.use()
 }
 
-export async function changeTheme(next: Theme) {
-  await dotNetHost?.invokeMethodAsync('SetTheme', next)
+export function onThemeChanged(listener: (theme: Theme) => void) {
+  return themeStore.subscribe(() => listener(themeStore.get()))
+}
+
+export function changeTheme(next: Theme) {
+  settings.writeTheme(next)
+  themeStore.set(next)
 }
 
 export function useCalculatorUrl(): string {
   return calculatorUrlStore.use()
 }
 
-export function getCalculators(): Calculator[] {
-  return calculators
-}
-
-export async function changeCalculatorUrl(url: string) {
-  if (!dotNetHost) return
-  calculatorUrlStore.set(await dotNetHost.invokeMethodAsync('SetCalculatorUrl', url))
+export function changeCalculatorUrl(url: string) {
+  settings.writeCalculatorUrl(url)
+  calculatorUrlStore.set(settings.readCalculatorUrl())
 }
 
 export function useNavigate(): (url: string, options?: { replace?: boolean }) => Promise<void> {

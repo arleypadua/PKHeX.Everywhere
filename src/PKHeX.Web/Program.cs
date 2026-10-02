@@ -9,7 +9,6 @@ using PKHeX.Everywhere.Engine.PlugIns;
 using PKHeX.Web;
 using PKHeX.Web.Extensions;
 using PKHeX.Web.Services;
-using PKHeX.Web.Services.GeneralSettings;
 using PKHeX.Web.Services.Plugins;
 using Sentry.Extensions.Logging;
 using Sentry.Protocol;
@@ -26,14 +25,13 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddSingleton(Session.Current);
 builder.Services.AddScoped<GameService>();
-builder.Services.AddScoped<NewsService>();
+builder.Services.AddScoped<ReactApp>();
 
 builder.Services.AddSingleton(sp => new PlugInHost(sp.GetRequiredService<Session>()));
 builder.Services.AddScoped<PlugInStore>();
 builder.Services.AddScoped<PlugInRanHandler>();
 
 builder.Services.AddScoped<UserJourneyService>();
-builder.Services.AddScoped<GeneralSettingsService>();
 builder.Services.AddScoped<AnalyticsService>();
 builder.Services.AddScoped<JsService>();
 builder.Services.AddScoped<AntdThemeService>();

@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { AutoComplete, Descriptions, Flex, Switch } from 'antd'
-import { changeCalculatorUrl, changeTheme, getCalculators, useCalculatorUrl, useTheme } from '../../host'
+import { calculators } from '../../calculators'
+import { changeCalculatorUrl, changeTheme, useCalculatorUrl, useTheme } from '../../host'
 
 function CalculatorInput() {
-  const calculators = getCalculators()
   const calculatorUrl = useCalculatorUrl()
   const [text, setText] = useState(() => calculators.find((c) => c.url === calculatorUrl)?.name ?? calculatorUrl)
 
@@ -11,7 +11,7 @@ function CalculatorInput() {
     const next = value ?? ''
     setText(next)
     const preset = calculators.find((c) => c.name === next)
-    void changeCalculatorUrl(preset?.url ?? next).catch(console.error)
+    changeCalculatorUrl(preset?.url ?? next)
   }
 
   return (
@@ -52,7 +52,7 @@ export default function SettingsPage() {
             children: (
               <Switch
                 checked={theme === 'dark'}
-                onChange={(dark) => void changeTheme(dark ? 'dark' : 'light').catch(console.error)}
+                onChange={(dark) => changeTheme(dark ? 'dark' : 'light')}
                 checkedChildren="Dark"
                 unCheckedChildren="Light"
               />

@@ -12,6 +12,6 @@ Put anything another page could use in its own file: components under `src/compo
 
 Give every antd `Table` `scroll={{ x: 'max-content' }}`. AntBlazor's `Responsive` flag stacked rows into cards on narrow screens. antd for React has no such flag, so a table without `scroll` grows past the window on phones.
 
-Pages get host state from `src/host.ts`: navigation, the theme, and the calculator URL and presets from the user's general settings. `changeTheme` and `changeCalculatorUrl` write them back through the host.
+Pages get navigation, the theme and the calculator URL from `src/host.ts`. `changeTheme` and `changeCalculatorUrl` write them to localStorage through `src/settings.ts`, under the keys Blazor used. The calculator presets live in `src/calculators.ts` and the release notes in `src/news.ts`. Blazor reads the theme and news through `ReactApp`.
 
 When a Blazor page passes its actions to `ButtonOrMenu` or a `DropdownButton`, port them to `ButtonOrMenu` in `src/components`. Do not lay them out as separate buttons, since a row of buttons runs off the screen on phones. `PokemonPage.razor` (Save with Export *.pk and plug-in actions in the menu) is the next page this applies to.

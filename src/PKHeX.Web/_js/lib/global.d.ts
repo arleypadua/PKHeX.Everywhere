@@ -14,7 +14,6 @@ declare global {
         
         // ui
         getWidth: () => number;
-        hasPreferenceForDarkTheme: () => boolean;
         clickElement: (element: HTMLElement | null | undefined) => void;
     }
 }

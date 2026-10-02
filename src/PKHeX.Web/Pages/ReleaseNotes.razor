@@ -1,9 +1,8 @@
 @page "/release-notes"
-@inject NewsService NewsService
 
 <PageTitle>Release Notes</PageTitle>
 
-<ReactPage Name="release-notes" RequiresSave="false" Props="@(new() { ["entries"] = NewsService.AllNews, ["since"] = Since })" />
+<ReactPage Name="release-notes" RequiresSave="false" Props="@(new() { ["since"] = Since })" />
 
 @code {
     [SupplyParameterFromQuery(Name = "since")]

@@ -25,7 +25,5 @@ public static class BrowserWindowService
         public int Width => Js.Invoke<int>("getWidth");
 
         public bool IsTooSmall => Width < 550;
-        
-        public bool HasPreferenceForDarkTheme => Js.Invoke<bool>("hasPreferenceForDarkTheme");
     }
 }
