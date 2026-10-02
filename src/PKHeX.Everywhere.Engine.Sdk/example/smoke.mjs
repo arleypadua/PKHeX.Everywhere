@@ -28,11 +28,12 @@ function serve(root, prefix = '/') {
   return new Promise((done) => server.listen(0, '127.0.0.1', () => done(server)))
 }
 
+const selfHosted = process.argv[2] === 'self-hosted'
 const engineDir = resolve(import.meta.dirname, 'node_modules/@pkhex-everywhere/engine')
 const { version } = JSON.parse(readFileSync(join(engineDir, 'package.json'), 'utf8'))
 const cdnPrefix = `/npm/@pkhex-everywhere/engine@${version}/`
 
-const app = await serve(resolve(import.meta.dirname, 'dist'))
+const app = await serve(resolve(import.meta.dirname, selfHosted ? 'dist-self-hosted' : 'dist'))
 const cdn = await serve(engineDir, cdnPrefix)
 const appUrl = `http://127.0.0.1:${app.address().port}/`
 const cdnOrigin = `http://127.0.0.1:${cdn.address().port}`
@@ -48,8 +49,11 @@ try {
   await page.route('https://cdn.jsdelivr.net/**', async (route) => {
     const url = new URL(route.request().url())
     cdnRequests.push(url.pathname)
+    if (selfHosted) return route.abort()
     await route.fulfill({ response: await route.fetch({ url: cdnOrigin + url.pathname }) })
   })
+  const appRequests = []
+  page.on('request', (request) => request.url().startsWith(appUrl) && appRequests.push(new URL(request.url()).pathname))
 
   await page.goto(appUrl)
   const party = await page
@@ -61,13 +65,16 @@ try {
       throw new Error(`The party never showed up. Browser errors:\n${errors.join('\n')}`, { cause: error })
     })
 
-  if (!cdnRequests.includes(`${cdnPrefix}_framework/dotnet.js`))
+  if (selfHosted) {
+    if (cdnRequests.length) throw new Error(`The self-hosted app requested jsDelivr: ${cdnRequests.join(', ')}`)
+    if (!appRequests.includes('/_framework/dotnet.js')) throw new Error("dotnet.js didn't load from the app's own site.")
+  } else if (!cdnRequests.includes(`${cdnPrefix}_framework/dotnet.js`))
     throw new Error(`dotnet.js didn't load from jsDelivr. CDN requests: ${cdnRequests.join(', ') || 'none'}`)
 
   const expected = ['Torchic', 'Wurmple', 'Wingull']
   if (party.join() !== expected.join()) throw new Error(`Expected the party ${expected.join(', ')} but got ${party.join(', ')}`)
 
-  console.log(`Party: ${party.join(', ')}`)
+  console.log(`${selfHosted ? 'Self-hosted' : 'CDN'} party: ${party.join(', ')}`)
 } finally {
   await browser.close()
   app.close()

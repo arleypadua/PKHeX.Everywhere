@@ -1,5 +1,6 @@
 import { version } from '../package.json'
 import { crypto } from './crypto'
+import { dotnetUrlMeta } from './dotnetUrlMeta'
 import type { AssemblyExports, EngineHost } from './host'
 
 export interface DotnetRuntime {
@@ -24,9 +25,15 @@ export interface WasmHostOptions {
 
 const cdnDotnetUrl = `https://cdn.jsdelivr.net/npm/@pkhex-everywhere/engine@${version}/_framework/dotnet.js`
 
+const pageDotnetUrl = () =>
+  globalThis.document?.querySelector<HTMLMetaElement>(`meta[name="${dotnetUrlMeta}"]`)?.content || undefined
+
 const importModule = (url: string) => import(/* @vite-ignore */ url) as Promise<DotnetModule>
 
-export function wasmHost({ dotnetUrl = cdnDotnetUrl, load = importModule }: WasmHostOptions = {}): EngineHost {
+export function wasmHost({
+  dotnetUrl = pageDotnetUrl() ?? cdnDotnetUrl,
+  load = importModule,
+}: WasmHostOptions = {}): EngineHost {
   let booted: Promise<DotnetRuntime> | undefined
   const boot = () =>
     (booted ??= load(dotnetUrl).then(async ({ dotnet }) => {

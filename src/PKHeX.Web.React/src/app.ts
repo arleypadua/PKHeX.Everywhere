@@ -1,8 +1,8 @@
-import { createEngine, wasmHost } from '@pkhex-everywhere/engine'
+import { createEngine } from '@pkhex-everywhere/engine'
 import { createPlugIns } from './plugins/plugIns'
 import { createPlugInStore } from './plugins/store'
 
-export const engine = createEngine({ host: wasmHost({ dotnetUrl: '/_framework/dotnet.js' }) })
+export const engine = createEngine()
 
 export const plugIns = createPlugIns(engine, createPlugInStore())
 
