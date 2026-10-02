@@ -159,6 +159,15 @@ describe('Sentry', () => {
     expect(subscribed).toBe(false)
   })
 
+  it('tags captured errors', async () => {
+    start()
+
+    captureError(new Error('Boom'), { exception_id: 'b7a9f2c4' })
+    await flush()
+
+    expect(events[0].tags).toMatchObject({ exception_id: 'b7a9f2c4' })
+  })
+
   it('captures .NET exceptions with their tracking id', async () => {
     start()
 
