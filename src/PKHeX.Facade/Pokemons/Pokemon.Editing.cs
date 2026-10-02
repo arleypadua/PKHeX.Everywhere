@@ -37,12 +37,19 @@ public partial class Pokemon
         Pkm.MetLevel,
         Pkm.MetDate,
         Pkm.FatefulEncounter,
+        StatValuesOf(Pkm.GetIV),
+        StatValuesOf(Pkm.GetEV),
+        Pkm is IAwakened awakened ? StatValuesOf(index => awakened.GetAV(index)) : null,
+        ComputedStats(),
+        HiddenPower,
+        Pkm is ICombatPower combatPower ? combatPower.Stat_CP : null,
+        Pkm is PB7 pb7 ? pb7.CalcCP : null,
         this.LegalityReport());
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices());
 
     /// <summary>
-    /// Applies the patch in a fixed order, species before form before ability and origin game before met location, so each field is checked against the ones before it.
+    /// Applies the patch in a fixed order, species before form before ability and origin game before met location and stat inputs before combat power, so each field is checked against the ones before it.
     /// </summary>
     /// <exception cref="InvalidPatchException">A field holds a value the save can't store. Nothing is applied.</exception>
     public void Update(PokemonPatch patch)
@@ -80,6 +87,12 @@ public partial class Pokemon
         if (patch.MetLevel is { } metLevel) ApplyMetLevel(metLevel);
         if (patch.MetDate is { } metDate) ApplyMetDate(metDate);
         if (patch.FatefulEncounter is { } fatefulEncounter) ApplyFatefulEncounter(fatefulEncounter);
+        if (patch.Ivs is { } ivs) ApplyStats(ivs, nameof(PokemonPatch.Ivs), "IV", Pkm.MaxIV, (index, value) => Pkm.SetIV(index, value), Pkm.GetIV);
+        if (patch.Evs is { } evs) ApplyStats(evs, nameof(PokemonPatch.Evs), "EV", Pkm.MaxEV, (index, value) => Pkm.SetEV(index, value), Pkm.GetEV);
+        if (patch.Avs is { } avs) ApplyAvs(avs);
+        var statInputsChanged = patch is { Ivs: not null } or { Evs: not null } or { Avs: not null };
+        if (statInputsChanged && Pkm is ICombatPower combatPower) combatPower.ResetCP();
+        if (patch.CombatPower is { } cp) ApplyCombatPower(cp);
     }
 
     private void ApplySpecies(int id)
@@ -257,6 +270,52 @@ public partial class Pokemon
         Pkm.FatefulEncounter = fatefulEncounter;
         Require(Pkm.FatefulEncounter == fatefulEncounter, nameof(PokemonPatch.FatefulEncounter), "Fateful encounters aren't stored in this game.");
     }
+
+    private void ApplyAvs(StatPatch avs)
+    {
+        Require(Pkm is IAwakened, nameof(PokemonPatch.Avs), "Awakening values aren't in this game.");
+        var awakened = (IAwakened)Pkm;
+        ApplyStats(avs, nameof(PokemonPatch.Avs), "AV", AwakeningUtil.AwakeningMax, (index, value) => awakened.SetAV(index, (byte)value), index => awakened.GetAV(index));
+    }
+
+    private void ApplyCombatPower(int cp)
+    {
+        Require(Pkm is ICombatPower, nameof(PokemonPatch.CombatPower), "Combat Power isn't in this game.");
+        Require(cp is >= 0 and <= ushort.MaxValue, nameof(PokemonPatch.CombatPower), $"Combat Power must be between 0 and {ushort.MaxValue}, got {cp}.");
+        ((ICombatPower)Pkm).Stat_CP = cp;
+    }
+
+    private static void ApplyStats(StatPatch patch, string field, string kind, int max, Action<int, int> set, Func<int, int> get)
+    {
+        var values = StatsIn(patch).ToList();
+        foreach (var (_, name, label, value) in values)
+            Require(value >= 0 && value <= max, $"{field}.{name}", $"{label} {kind} must be between 0 and {max}, got {value}.");
+        foreach (var (index, _, _, value) in values) set(index, value);
+        // Game Boy games derive the HP IV from the others and share one Special IV, so a write can be dropped or overwritten.
+        foreach (var (index, name, label, value) in values)
+            Require(get(index) == value, $"{field}.{name}", $"{label} {kind} {value} can't be stored in this game.");
+    }
+
+    // Indexes follow PKHeX's stat order: HP, Attack, Defense, Speed, Special Attack, Special Defense.
+    private static IEnumerable<PatchedStat> StatsIn(StatPatch patch) => new PatchedStat?[]
+    {
+        patch.Health is { } health ? new(0, nameof(StatPatch.Health), "HP", health) : null,
+        patch.Attack is { } attack ? new(1, nameof(StatPatch.Attack), "Attack", attack) : null,
+        patch.Defense is { } defense ? new(2, nameof(StatPatch.Defense), "Defense", defense) : null,
+        patch.Speed is { } speed ? new(3, nameof(StatPatch.Speed), "Speed", speed) : null,
+        patch.SpecialAttack is { } specialAttack ? new(4, nameof(StatPatch.SpecialAttack), "Special Attack", specialAttack) : null,
+        patch.SpecialDefense is { } specialDefense ? new(5, nameof(StatPatch.SpecialDefense), "Special Defense", specialDefense) : null,
+    }.OfType<PatchedStat>();
+
+    private sealed record PatchedStat(int Index, string Name, string Label, int Value);
+
+    private StatValues ComputedStats()
+    {
+        var stats = Pkm.GetStats(Pkm.PersonalInfo);
+        return StatValuesOf(index => stats[index]);
+    }
+
+    private static StatValues StatValuesOf(Func<int, int> get) => new(get(0), get(1), get(2), get(4), get(5), get(3));
 
     private static void Require(bool condition, string field, string message)
     {

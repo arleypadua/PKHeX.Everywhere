@@ -176,6 +176,13 @@ describe('entity hooks', () => {
       metLevel: 5,
       metDate: '2021-03-04',
       fatefulEncounter: false,
+      ivs: { health: 31, attack: 31, defense: 31, specialAttack: 31, specialDefense: 31, speed: 31 },
+      evs: { health: 0, attack: 0, defense: 0, specialAttack: 0, specialDefense: 0, speed: 0 },
+      avs: null,
+      stats: { health: 40, attack: 25, defense: 20, specialAttack: 22, specialDefense: 22, speed: 30 },
+      hiddenPower: { type: 'Dark', power: 70 },
+      combatPower: null,
+      calculatedCombatPower: null,
       legality: { valid: true, messages: [] },
     }
     const { engine, emitChange } = fakeEngine((name, args) => {

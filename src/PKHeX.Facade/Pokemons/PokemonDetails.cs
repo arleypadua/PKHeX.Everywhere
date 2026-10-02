@@ -31,7 +31,16 @@ public record PokemonDetails(
     int MetLevel,
     DateOnly? MetDate,
     bool FatefulEncounter,
+    StatValues Ivs,
+    StatValues Evs,
+    StatValues? Avs,
+    StatValues Stats,
+    HiddenPowerDefinition? HiddenPower,
+    int? CombatPower,
+    int? CalculatedCombatPower,
     PokemonLegality Legality);
+
+public record StatValues(int Health, int Attack, int Defense, int SpecialAttack, int SpecialDefense, int Speed);
 
 public record PokemonLegality(bool Valid, IReadOnlyList<string> Messages);
 
@@ -64,7 +73,19 @@ public record PokemonPatch(
     int? MetLocation = null,
     int? MetLevel = null,
     DateOnly? MetDate = null,
-    bool? FatefulEncounter = null);
+    bool? FatefulEncounter = null,
+    StatPatch? Ivs = null,
+    StatPatch? Evs = null,
+    StatPatch? Avs = null,
+    int? CombatPower = null);
+
+public record StatPatch(
+    int? Health = null,
+    int? Attack = null,
+    int? Defense = null,
+    int? SpecialAttack = null,
+    int? SpecialDefense = null,
+    int? Speed = null);
 
 /// <summary>
 /// Thrown when a patch holds a value the save can't store. The Pokémon is left unchanged.
