@@ -3,6 +3,7 @@ import { crypto } from './crypto'
 import { dotnetUrlMeta } from './dotnetUrlMeta'
 import type { AssemblyExports, EngineHost } from './host'
 
+/** The parts of the .NET WebAssembly runtime the engine uses. */
 export interface DotnetRuntime {
   setModuleImports(moduleName: string, moduleImports: Record<string, unknown>): void
   getAssemblyExports(assemblyName: string): Promise<AssemblyExports>
@@ -23,8 +24,11 @@ declare global {
   var pkhexEngineOnEvent: ((event: string) => void) | undefined
 }
 
+/** Options for `wasmHost()`. */
 export interface WasmHostOptions {
+  /** URL of `_framework/dotnet.js`. Defaults to the URL the Vite plugin injects, or else jsDelivr pinned to this package's version. */
   dotnetUrl?: string
+  /** Imports `dotnet.js` from a URL. Override it only to load the runtime some other way, for example in tests. */
   load?: (url: string) => Promise<DotnetModule>
 }
 
@@ -41,6 +45,7 @@ const resolveUrl = (url: string) => (globalThis.document ? new URL(url, document
 
 let shared: { dotnetUrl: string; host: EngineHost } | undefined
 
+/** The host that runs the engine on .NET WebAssembly in the page. A page has one runtime, so every call returns the same host. */
 export function wasmHost({ dotnetUrl, load = importModule }: WasmHostOptions = {}): EngineHost {
   if (shared) {
     if (dotnetUrl !== undefined && resolveUrl(dotnetUrl) !== resolveUrl(shared.dotnetUrl))

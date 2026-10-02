@@ -13,7 +13,9 @@ type Lookup<T, Path extends string> = Path extends `${infer Head}.${infer Rest}`
 
 type CallFunction<Name extends CallName> = Extract<Lookup<EngineClient, Name>, (...args: never[]) => Promise<unknown>>
 
+/** The arguments of the call `Name`, such as `[at: PokemonHandle]` for `pokemon.details`. */
 export type CallArgs<Name extends CallName> = Parameters<CallFunction<Name>>
+/** What the call `Name` resolves to. */
 export type CallResult<Name extends CallName> = Awaited<ReturnType<CallFunction<Name>>>
 
 const fixes: Partial<Record<ErrorCode, (name: CallName) => string>> = {
@@ -27,6 +29,10 @@ function explain(name: CallName, error: unknown) {
   return fix ? new EngineError(error.code, fix(name)) : error
 }
 
+/**
+ * Runs a query by name and suspends until it resolves. Refetches when a command changes a topic the query reads,
+ * and keeps showing the previous value while it does.
+ */
 export function useQuery<Name extends QueryName>(name: Name, ...args: CallArgs<Name>): CallResult<Name> {
   const { engine, cache } = useEngineContext()
   const key = JSON.stringify([name, args])

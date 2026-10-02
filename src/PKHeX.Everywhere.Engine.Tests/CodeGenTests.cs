@@ -62,9 +62,8 @@ public class CodeGenTests
     [Fact]
     public void ReturnedBytesAreUint8Arrays()
     {
-        Types.Should().Contain("export interface ExportedSave {\n  bytes: Uint8Array<ArrayBuffer>\n")
-            .And.Contain("export interface ExportedPokemon {\n  bytes: Uint8Array<ArrayBuffer>\n")
-            .And.Contain("export interface LoadedSave {\n  bytes: Uint8Array<ArrayBuffer>\n");
+        foreach (var type in new[] { "ExportedSave", "ExportedPokemon", "LoadedSave" })
+            Types.Should().MatchRegex($@"export interface {type} {{\n(  /\*\*.*\*/\n)?  bytes: Uint8Array<ArrayBuffer>\n");
         Client.Should().Contain("export: async () => withBytes(await invoke<ExportedSave>('game.export', []), ['bytes']),")
             .And.Contain("file: async () => withBytes(await invoke<LoadedSave | null>('game.file', []), ['bytes']),");
     }
@@ -73,5 +72,12 @@ public class CodeGenTests
     public void BytesNestedInAnInputStayBase64()
     {
         Types.Should().Contain("  file?: Base64 | null\n").And.Contain("export type Base64 = string\n");
+    }
+
+    [Fact]
+    public void XmlDocsBecomeTsDoc()
+    {
+        Types.Should().Contain("/** A page an enabled plug-in declares, as listed by `plugins.pages`. */\nexport interface DeclaredPage {")
+            .And.Contain("  /** The plug-in's id, its assembly name. */\n  plugInId: string\n");
     }
 }
