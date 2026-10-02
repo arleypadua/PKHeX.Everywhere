@@ -6,7 +6,7 @@ export type Invoke = <T>(call: CallName, args: unknown[]) => Promise<T>
 
 export const queries = ['box.get', 'box.showdown', 'catalog.names', 'encounters.search', 'encounters.versions', 'events.flag', 'events.get', 'game.balls', 'game.blankVersions', 'game.get', 'game.heldItems', 'game.languages', 'game.natures', 'game.originGames', 'inventory.get', 'party.get', 'party.showdown', 'plugins.actions', 'plugins.failures', 'plugins.installed', 'plugins.isSupported', 'plugins.pageModule', 'plugins.pages', 'plugins.state', 'pokemon.details', 'pokemon.get', 'pokemon.options', 'pokemon.showdown', 'species.list', 'trainer.get'] as const
 
-export const commands = ['box.addEncounter', 'box.addFromFile', 'events.giveTickets', 'events.setFlag', 'events.setWork', 'game.close', 'game.export', 'game.load', 'game.loadBlank', 'inventory.setItem', 'plugins.newestCompatible', 'plugins.register', 'plugins.run', 'plugins.unregister', 'pokemon.commit', 'pokemon.edit', 'pokemon.setLevel', 'pokemon.update', 'trainer.setBattlePoints', 'trainer.setGender', 'trainer.setMoney', 'trainer.setName'] as const
+export const commands = ['box.addEncounter', 'box.addFromFile', 'events.giveTickets', 'events.setFlag', 'events.setWork', 'game.close', 'game.export', 'game.load', 'game.loadBlank', 'inventory.setItem', 'plugins.newestCompatible', 'plugins.register', 'plugins.run', 'plugins.unregister', 'pokemon.addToBox', 'pokemon.clone', 'pokemon.commit', 'pokemon.edit', 'pokemon.setLevel', 'pokemon.update', 'trainer.setBattlePoints', 'trainer.setGender', 'trainer.setMoney', 'trainer.setName'] as const
 
 export type QueryName = (typeof queries)[number]
 
@@ -70,6 +70,8 @@ export interface EngineClient {
     unregister(id: string): Promise<void>
   }
   pokemon: {
+    addToBox(): Promise<AddedPokemon>
+    clone(at: PokemonHandle): Promise<void>
     commit(): Promise<PokemonId>
     details(at: PokemonHandle): Promise<EditablePokemon>
     edit(at: PokemonHandle): Promise<void>
@@ -148,6 +150,8 @@ export function createClient(invoke: Invoke): EngineClient {
       unregister: (id) => invoke('plugins.unregister', [id]),
     },
     pokemon: {
+      addToBox: () => invoke('pokemon.addToBox', []),
+      clone: (at) => invoke('pokemon.clone', [at]),
       commit: () => invoke('pokemon.commit', []),
       details: (at) => invoke('pokemon.details', [at]),
       edit: (at) => invoke('pokemon.edit', [at]),
