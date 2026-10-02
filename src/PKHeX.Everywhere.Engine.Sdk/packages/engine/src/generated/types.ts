@@ -168,12 +168,32 @@ export interface PlugInAction {
   reason: string | null
 }
 
+export interface PlugInDetails {
+  id: string
+  name: string
+  description: string | null
+  projectUrl: string | null
+  information: string | null
+  version: string
+  publicKeyToken: string
+  enabled: boolean
+  hasNewerVersion: boolean
+  hooks: PlugInHook[]
+  settings: PlugInSetting[]
+}
+
 export interface PlugInFailure {
   id: number
   plugInId: string
   hookId: string
   message: string
   stackTrace: string | null
+}
+
+export interface PlugInHook {
+  id: string
+  description: string
+  enabled: boolean
 }
 
 export type PlugInNotificationType = 'none' | 'info' | 'success' | 'warning' | 'error'

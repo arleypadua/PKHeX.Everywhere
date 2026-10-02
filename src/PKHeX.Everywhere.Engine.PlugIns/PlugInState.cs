@@ -50,3 +50,37 @@ public sealed record PlugInSetting(
         : StringValue is not null ? new Settings.SettingValue.StringValue(StringValue, ReadOnly)
         : null;
 }
+
+/// <summary>
+/// What the plug-in page shows. Settings leave out file contents, which only the persistable state carries.
+/// </summary>
+public sealed record PlugInDetails(
+    string Id,
+    string Name,
+    string? Description,
+    string? ProjectUrl,
+    string? Information,
+    string Version,
+    string PublicKeyToken,
+    bool Enabled,
+    bool HasNewerVersion,
+    PlugInHook[] Hooks,
+    PlugInSetting[] Settings)
+{
+    public static PlugInDetails From(RegisteredPlugIn plugIn, bool hasNewerVersion)
+    {
+        var manifest = plugIn.Settings.Manifest;
+        return new(
+            plugIn.Id,
+            manifest.PlugInName,
+            manifest.Description,
+            manifest.ProjectUrl,
+            manifest.Information,
+            plugIn.Version.ToString(),
+            Convert.ToHexStringLower(plugIn.Assembly.GetName().GetPublicKeyToken() ?? []),
+            plugIn.Enabled,
+            hasNewerVersion,
+            plugIn.Hooks.ToArray(),
+            plugIn.Settings.All.Select(s => PlugInSetting.From(s.Key, s.Value) with { File = null }).ToArray());
+    }
+}

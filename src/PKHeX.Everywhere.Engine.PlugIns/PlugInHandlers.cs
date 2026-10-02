@@ -44,13 +44,29 @@ public static class PlugInHandlers
     public static InstalledPlugIn[] Installed(Session session) => PlugInHost.Of(session).Installed().ToArray();
 
     [Query("plugins.state", Topics.PlugIns)]
-    public static PlugInState State(Session session, string id)
-    {
-        var host = PlugInHost.Of(session);
-        if (host.Find(id) is null) throw new EngineException(ErrorCodes.NotFound, $"No plug-in {id}.");
+    public static PlugInState State(Session session, string id) => PlugInState.From(HostOf(session, id).State(id));
 
-        return PlugInState.From(host.State(id));
+    [Query("plugins.details", Topics.PlugIns)]
+    public static PlugInDetails Details(Session session, string id)
+    {
+        var host = HostOf(session, id);
+        return PlugInDetails.From(host.Find(id)!, host.HasNewerVersion(id));
     }
+
+    [Command("plugins.setEnabled", Topics.PlugIns)]
+    public static PlugInState SetEnabled(Session session, string id, bool enabled) =>
+        Write(session, id, host => host.SetEnabled(id, enabled));
+
+    [Command("plugins.setHookEnabled", Topics.PlugIns)]
+    public static PlugInState SetHookEnabled(Session session, string id, string hookId, bool enabled) =>
+        Write(session, id, host => host.SetToggle(id, hookId, enabled));
+
+    [Command("plugins.updateSetting", Topics.PlugIns)]
+    public static PlugInState UpdateSetting(Session session, string id, PlugInSetting setting) =>
+        Write(session, id, host => host.UpdateSetting(
+            id,
+            setting.Key,
+            setting.ToValue() ?? throw new EngineException(ErrorCodes.BadArguments, $"Setting {setting.Key} has no value.")));
 
     [Query("plugins.isSupported")]
     public static bool IsSupported(byte[] assembly) => PlugInHost.IsSupported(assembly);
@@ -74,4 +90,25 @@ public static class PlugInHandlers
 
     [Command("plugins.unregister", Topics.PlugIns)]
     public static void Unregister(Session session, string id) => PlugInHost.Of(session).Unregister(id);
+
+    private static PlugInHost HostOf(Session session, string id)
+    {
+        var host = PlugInHost.Of(session);
+        return host.Find(id) is null ? throw new EngineException(ErrorCodes.NotFound, $"No plug-in {id}.") : host;
+    }
+
+    private static PlugInState Write(Session session, string id, Action<PlugInHost> write)
+    {
+        var host = HostOf(session, id);
+        try
+        {
+            write(host);
+        }
+        catch (Exception e) when (e is KeyNotFoundException or InvalidOperationException)
+        {
+            throw new EngineException(ErrorCodes.BadArguments, e.Message);
+        }
+
+        return PlugInState.From(host.State(id));
+    }
 }
