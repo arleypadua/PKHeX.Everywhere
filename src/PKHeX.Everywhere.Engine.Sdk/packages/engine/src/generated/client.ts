@@ -4,9 +4,9 @@ import type { ActionPlacement, AddedPokemon, Base64, CatalogNames, CatalogNamesR
 
 export type Invoke = <T>(call: CallName, args: unknown[]) => Promise<T>
 
-export const queries = ['box.get', 'box.showdown', 'catalog.names', 'encounters.search', 'encounters.versions', 'events.flag', 'events.get', 'game.balls', 'game.blankVersions', 'game.get', 'game.heldItems', 'game.languages', 'game.natures', 'game.originGames', 'inventory.get', 'party.get', 'party.showdown', 'plugins.actions', 'plugins.failures', 'plugins.installed', 'plugins.isSupported', 'plugins.pageModule', 'plugins.pages', 'plugins.state', 'pokemon.details', 'pokemon.get', 'pokemon.options', 'pokemon.showdown', 'species.list', 'trainer.get'] as const
+export const queries = ['box.get', 'box.showdown', 'catalog.names', 'encounters.search', 'encounters.versions', 'events.flag', 'events.get', 'game.balls', 'game.blankVersions', 'game.get', 'game.heldItems', 'game.languages', 'game.natures', 'game.originGames', 'inventory.get', 'party.get', 'party.showdown', 'plugins.actions', 'plugins.failures', 'plugins.installed', 'plugins.isSupported', 'plugins.pageModule', 'plugins.pages', 'plugins.state', 'pokemon.details', 'pokemon.export', 'pokemon.get', 'pokemon.options', 'pokemon.showdown', 'species.list', 'trainer.get'] as const
 
-export const commands = ['box.addEncounter', 'box.addFromFile', 'events.giveTickets', 'events.setFlag', 'events.setWork', 'game.close', 'game.export', 'game.load', 'game.loadBlank', 'inventory.setItem', 'plugins.newestCompatible', 'plugins.register', 'plugins.run', 'plugins.unregister', 'pokemon.commit', 'pokemon.edit', 'pokemon.export', 'pokemon.setLevel', 'pokemon.update', 'trainer.setBattlePoints', 'trainer.setGender', 'trainer.setMoney', 'trainer.setName'] as const
+export const commands = ['box.addEncounter', 'box.addFromFile', 'events.giveTickets', 'events.setFlag', 'events.setWork', 'game.close', 'game.export', 'game.load', 'game.loadBlank', 'inventory.setItem', 'plugins.newestCompatible', 'plugins.register', 'plugins.run', 'plugins.unregister', 'pokemon.commit', 'pokemon.edit', 'pokemon.setLevel', 'pokemon.update', 'trainer.setBattlePoints', 'trainer.setGender', 'trainer.setMoney', 'trainer.setName'] as const
 
 export type QueryName = (typeof queries)[number]
 

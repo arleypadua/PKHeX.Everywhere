@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using AwesomeAssertions;
+using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Everywhere.Engine.PlugIns;
 using PKHeX.Facade.Tests.Base;
@@ -321,10 +322,13 @@ public class DraftHandlerTests
         host.SetToggle("PKHeX.Everywhere.Engine.Tests.PlugIn", LevelUp, true);
         Edit(session, PokemonHandle.Party(0));
         Value(Dispatch(session, "pokemon.setLevel", Args(Draft, 41)));
+        var changes = new List<string[]>();
+        session.Changed += changes.Add;
 
         var outcome = Value(Dispatch(session, "plugins.run", Args(LevelUp, Draft)))!;
 
         outcome["message"]!.GetValue<string>().Should().EndWith("is level 42");
+        changes.Should().ContainSingle().Which.Should().Contain(Topics.All);
         Details(session, Draft)["level"]!.GetValue<int>().Should().Be(42);
         Get(session, PokemonHandle.Party(0))["level"]!.GetValue<int>().Should().NotBe(42);
     }
@@ -347,24 +351,6 @@ public class DraftHandlerTests
         saved.FileName.Should().Be(saved.Pokemon.FileName);
     }
 
-    [Fact]
-    public void PlugInActionChangesShowInTheDraftAfterTheRun()
-    {
-        var session = Loaded(SaveFilePath.Emerald);
-        var host = new PlugInHost(session);
-        host.Register(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "plugins", "PKHeX.Everywhere.Engine.Tests.PlugIn.dll")));
-        host.SetToggle("PKHeX.Everywhere.Engine.Tests.PlugIn", LevelUp, true);
-        Edit(session, PokemonHandle.Party(0));
-        Value(Dispatch(session, "pokemon.setLevel", Args(Draft, 41)));
-        var changes = new List<string[]>();
-        session.Changed += changes.Add;
-
-        Value(Dispatch(session, "plugins.run", Args(LevelUp, Draft)));
-
-        changes.Should().ContainSingle().Which.Should().Contain(Topics.All);
-        Exported(session, Draft).Pokemon.CurrentLevel.Should().Be(42);
-    }
-
     private static PokemonHandle Slot(Session session, bool inBox) =>
         inBox ? FirstBoxPokemon(session.Game!)!.Value.At : PokemonHandle.Party(0);
 
@@ -376,11 +362,11 @@ public class DraftHandlerTests
 
     private static JsonNode Details(Session session, PokemonHandle at) => Value(Dispatch(session, "pokemon.details", Args(at)))!;
 
-    private static (string FileName, PKHeX.Core.PKM Pokemon) Exported(Session session, PokemonHandle at)
+    private static (string FileName, PKM Pokemon) Exported(Session session, PokemonHandle at)
     {
         var file = Value(Dispatch(session, "pokemon.export", Args(at)))!;
         var bytes = Convert.FromBase64String(file["bytes"]!.GetValue<string>());
-        return (file["fileName"]!.GetValue<string>(), PKHeX.Core.EntityFormat.GetFromBytes(bytes)!);
+        return (file["fileName"]!.GetValue<string>(), EntityFormat.GetFromBytes(bytes)!);
     }
 
     private static JsonNode Get(Session session, PokemonHandle at) => Value(Dispatch(session, "pokemon.get", Args(at)))!;

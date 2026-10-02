@@ -20,7 +20,7 @@ public static class PokemonHandlers
     [Query("pokemon.options", Topics.Party, Topics.Box, Topics.Draft)]
     public static Dtos.PokemonOptions Options(Session session, PokemonHandle at) => session.Find(at).Pokemon.Options().ToDto();
 
-    [Command("pokemon.export")]
+    [Query("pokemon.export", Topics.Party, Topics.Box, Topics.Draft)]
     public static ExportedPokemon Export(Session session, PokemonHandle at)
     {
         var file = session.Find(at).Pokemon.ToFile();
