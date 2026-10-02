@@ -1,12 +1,12 @@
 # PKHeX.Everywhere.Engine
 
-The save-editing API that JavaScript calls. It has no Blazor dependency.
+The save-editing API that JavaScript calls. It has no UI dependency.
 
 Handlers stay thin and call `PKHeX.Facade` for every editing rule. See [ADR 0004](../../docs/adr/0004-domain-logic-lives-in-the-facade.md).
 
 JS calls one `[JSExport]`, `EngineExports.Call(name, argsJson)`, which returns a promise. Arguments are a JSON array, and every response is `{ ok: true, value }` or `{ ok: false, error: { code, message } }`. Error codes are listed in `ErrorCodes.cs`.
 
-The loaded save lives in `Session.Current`. `PKHeX.Everywhere.Engine.Host` boots it in the browser with no UI; PKHeX.Web still boots it through Blazor until its removal.
+The loaded save lives in `Session.Current`. `PKHeX.Everywhere.Engine.Host` boots it in the browser with no UI.
 
 When the save changes, `Session` raises `Changed` with the changed Topics, and JS receives them through `globalThis.pkhexEngineOnChange`. Loading a save changes `*`, which covers every Topic. Topics are listed in `Topics.cs`.
 

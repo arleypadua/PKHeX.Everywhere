@@ -26,7 +26,7 @@ Done when `src/PKHeX.Web.React/.dev.pid` is gone and `lsof -iTCP:5173 -sTCP:LIST
 
 ## E2E tests
 
-`src/PKHeX.Web.E2E` publishes PKHeX.Web in Release and serves it on a random port, so it runs beside any dev server. Run `npm run build:blazor` in `src/PKHeX.Web.React` first; setup is in its README. Each run publishes PKHeX.Web, which is CPU-heavy and slow when other worktrees are building:
+`src/PKHeX.Web.E2E` serves `src/PKHeX.Web.React/dist` on a random port, so it runs beside any dev server. Run `npm run build` in `src/PKHeX.Web.React` first, and again after any change; setup is in its README. The build publishes the Engine host in Release, which is CPU-heavy and slow when other worktrees are building:
 
 - Run one E2E command at a time and wait for it to finish. Send its output to a file you can read while it runs (`> e2e.log 2>&1`).
-- When a run is slow, read its log. A second run only competes with the first for CPU and the publish folder.
+- When a run is slow, read its log. A second run only competes with the first for CPU.

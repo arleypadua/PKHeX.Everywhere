@@ -9,6 +9,8 @@ The PKHeX Web version ([pkhex-web.github.io](https://pkhex-web.github.io)) provi
 
 This version allows you to manage your party, pokemon box, items, and custom actions through plug-ins, like auto-legality mode, helpers for nuzlocking or live running your save file in a browser-based emulator fully integrated with the app. To learn more check the [wiki](https://github.com/arleypadua/PKHeX.Everywhere/wiki).
 
+The app is a React app ([src/PKHeX.Web.React](./src/PKHeX.Web.React)) over a .NET WebAssembly engine ([src/PKHeX.Everywhere.Engine.Host](./src/PKHeX.Everywhere.Engine.Host)). Run `npm run dev` in `src/PKHeX.Web.React` to start it locally, and `npm run build` to write the site to `dist`.
+
 ## PKHeX.CLI
 The PKHeX Command Line Interface (CLI) version allows users to interact with PKHeX via the terminal. It provides a streamlined way to use PKHeX features directly from the command line.
 
