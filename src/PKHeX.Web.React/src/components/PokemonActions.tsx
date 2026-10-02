@@ -3,6 +3,7 @@ import type { PokemonSummary } from '@pkhex-everywhere/engine'
 import { useEngine } from '@pkhex-everywhere/react'
 import { openCalculator, useNavigate } from '../host'
 import { useCopyShowdown } from '../hooks/useCopyShowdown'
+import { useSupports } from '../hooks/useSupports'
 import { routes } from '../routes'
 
 interface PokemonActionsProps {
@@ -13,6 +14,7 @@ export function PokemonActions({ pokemon }: PokemonActionsProps) {
   const engine = useEngine()
   const navigate = useNavigate()
   const copyShowdown = useCopyShowdown()
+  const showdownSupported = useSupports('showdown')
   const showdown = () => engine.pokemon.showdown(pokemon.at)
 
   return (
@@ -23,8 +25,12 @@ export function PokemonActions({ pokemon }: PokemonActionsProps) {
       menu={{
         items: [
           { key: 'clone', label: 'Clone', onClick: () => navigate(routes.clonePokemon(pokemon)) },
-          { key: 'calculator', label: 'Calculator', onClick: async () => openCalculator(await showdown()) },
-          { key: 'showdown', label: 'Showdown', onClick: async () => copyShowdown(await showdown(), pokemon.species) },
+          ...(showdownSupported
+            ? [
+                { key: 'calculator', label: 'Calculator', onClick: async () => openCalculator(await showdown()) },
+                { key: 'showdown', label: 'Showdown', onClick: async () => copyShowdown(await showdown(), pokemon.species) },
+              ]
+            : []),
         ],
       }}
     >

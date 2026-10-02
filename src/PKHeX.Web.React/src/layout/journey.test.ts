@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { GameOverview } from '@pkhex-everywhere/engine'
 import { createJourney, routeAfter } from './journey'
 
-const emerald: GameOverview = { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3, trainerGender: 'Male', boxCount: 420, party: [] }
+const emerald: GameOverview = { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3, trainerGender: 'Male', boxCount: 420, party: [], formatId: null }
 
 describe('journey', () => {
   it('sends Home to the load page when no save is loaded', () => {

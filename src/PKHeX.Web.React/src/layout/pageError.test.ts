@@ -6,7 +6,7 @@ import { captureError } from '../sentry'
 
 vi.mock('../sentry', async (original) => ({ ...(await original<typeof import('../sentry')>()), captureError: vi.fn() }))
 
-const emerald: SaveVersion = { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3 }
+const emerald: SaveVersion = { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3, formatId: null }
 
 function boom() {
   const error = new TypeError('Cannot read properties of undefined')
@@ -100,6 +100,7 @@ describe('page errors', () => {
       version_id: 3,
       generation_name: 'Gen3',
       generation_id: 3,
+      format_id: null,
     })
   })
 

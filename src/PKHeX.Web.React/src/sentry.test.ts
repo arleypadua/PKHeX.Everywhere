@@ -5,7 +5,9 @@ import { captureError, startSentry, watchEngine } from './sentry'
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0))
 
-const emerald: SaveVersion = { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3 }
+const emerald: SaveVersion = { version: 'Emerald', versionId: 3, generation: 'Gen3', generationId: 3, formatId: null }
+
+const unbound: SaveVersion = { version: 'FireRed', versionId: 5, generation: 'Gen9', generationId: 9, formatId: 'unbound' }
 
 function fakeEngine(version: SaveVersion | null = emerald) {
   const failureListeners: ((call: CallName, error: unknown) => void)[] = []
@@ -123,7 +125,19 @@ describe('Sentry', () => {
       version_id: 3,
       generation_name: 'Gen3',
       generation_id: 3,
+      format_id: null,
     })
+  })
+
+  it('adds the save format of the loaded game', async () => {
+    start()
+    watchEngine(fakeEngine(unbound), true)
+    await flush()
+
+    captureError(new Error('Boom'))
+    await flush()
+
+    expect(events[0].contexts?.game_context?.format_id).toBe('unbound')
   })
 
   it('follows the loaded game as it changes', async () => {

@@ -60,6 +60,7 @@ export function reportPageError(error: unknown, pageError: PageError, game: Save
     version_id: game?.versionId ?? null,
     generation_name: game?.generation ?? null,
     generation_id: game?.generationId ?? null,
+    format_id: game?.formatId ?? null,
   })
   if (!(error instanceof EngineError)) captureError(error, { exception_id: pageError.id })
 }

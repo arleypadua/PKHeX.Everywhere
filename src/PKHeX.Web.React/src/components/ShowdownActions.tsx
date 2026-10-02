@@ -1,5 +1,6 @@
 import { CopyOutlined } from '@ant-design/icons'
 import { useCopyShowdown } from '../hooks/useCopyShowdown'
+import { useSupports } from '../hooks/useSupports'
 import { openCalculator } from '../host'
 import { ButtonOrMenu } from './ButtonOrMenu'
 
@@ -10,6 +11,8 @@ interface ShowdownActionsProps {
 
 export function ShowdownActions({ showdown, description }: ShowdownActionsProps) {
   const copyShowdown = useCopyShowdown()
+  const supported = useSupports('showdown')
+  if (!supported) return null
   return (
     <ButtonOrMenu
       actions={[

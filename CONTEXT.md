@@ -16,6 +16,14 @@ _Avoid_: backend, interop
 The TypeScript packages that call the Engine: a client package and its React bindings, partly generated from the Engine.
 _Avoid_: API client
 
+**Save format**:
+A way to read saves PKHeX doesn't know, such as a ROM hack's. The host registers save formats at startup, and loading asks them before PKHeX's own detection. A save loaded through one carries the format's id, name and base game.
+_Avoid_: save type, ROM hack format
+
+**Capability**:
+A feature that needs PKHeX to know the save's game: legality, AutoLegality, encounters, Showdown, events or plug-ins. PKHeX saves have all of them, and a save format turns off the ones it can't support. Calls behind a capability that's off fail with `not-supported`, and the UI hides them.
+_Avoid_: feature flag, support level
+
 **Handle**:
 Where something sits in the save, such as a Pokémon's party or box slot, or a pouch item as `{ pouch, itemId }`. A Pokémon crosses to JavaScript as `{ id, at }`, with its opaque id and its Handle.
 _Avoid_: pointer, reference

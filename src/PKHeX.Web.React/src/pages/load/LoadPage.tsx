@@ -3,6 +3,7 @@ import { EllipsisOutlined, ExportOutlined, FolderOpenOutlined } from '@ant-desig
 import { Button, Descriptions, Dropdown, Flex, Space } from 'antd'
 import type { SaveSummary } from '@pkhex-everywhere/engine'
 import { useEngine, useLoadedGame, useQuery } from '@pkhex-everywhere/react'
+import { gameName } from '../../capabilities'
 import { AdSlot } from '../../components/AdSlot'
 import { downloadFile, useNavigate } from '../../host'
 import { journey } from '../../layout/journey'
@@ -53,7 +54,7 @@ function LoadedGame({ game, onOpen }: { game: SaveSummary; onOpen: () => void })
         style={{ width: '100%' }}
         items={[
           { key: 'file', label: 'File', children: game.fileName },
-          { key: 'version', label: 'Version', children: game.version },
+          { key: 'version', label: 'Version', children: gameName(game) },
         ]}
       />
       <Flex vertical gap={20} style={{ width: '100%', maxWidth: 300 }}>
