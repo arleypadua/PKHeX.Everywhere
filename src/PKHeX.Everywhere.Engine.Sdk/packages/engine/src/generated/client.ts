@@ -4,7 +4,7 @@ import type { ActionPlacement, AddedPokemon, Base64, CatalogNames, CatalogNamesR
 
 export type Invoke = <T>(call: CallName, args: unknown[]) => Promise<T>
 
-export const queries = ['box.get', 'box.showdown', 'catalog.names', 'encounters.search', 'encounters.versions', 'events.flag', 'events.get', 'game.balls', 'game.blankVersions', 'game.get', 'game.heldItems', 'game.languages', 'game.natures', 'game.originGames', 'game.version', 'inventory.get', 'party.get', 'party.showdown', 'plugins.actions', 'plugins.details', 'plugins.failures', 'plugins.installed', 'plugins.isSupported', 'plugins.pageModule', 'plugins.pages', 'plugins.setting', 'plugins.state', 'pokemon.details', 'pokemon.export', 'pokemon.get', 'pokemon.options', 'pokemon.showdown', 'species.list', 'trainer.get'] as const
+export const queries = ['box.get', 'box.showdown', 'catalog.names', 'encounters.search', 'encounters.versions', 'events.flag', 'events.get', 'game.balls', 'game.blankVersions', 'game.get', 'game.heldItems', 'game.languages', 'game.moves', 'game.natures', 'game.originGames', 'game.version', 'inventory.get', 'party.get', 'party.showdown', 'plugins.actions', 'plugins.details', 'plugins.failures', 'plugins.installed', 'plugins.isSupported', 'plugins.pageModule', 'plugins.pages', 'plugins.setting', 'plugins.state', 'pokemon.details', 'pokemon.export', 'pokemon.get', 'pokemon.options', 'pokemon.showdown', 'species.list', 'trainer.get'] as const
 
 export const commands = ['box.addEncounter', 'box.addFromFile', 'events.giveTickets', 'events.setFlag', 'events.setWork', 'game.close', 'game.export', 'game.file', 'game.load', 'game.loadBlank', 'inventory.setItem', 'plugins.dismissFailure', 'plugins.newestCompatible', 'plugins.register', 'plugins.run', 'plugins.setEnabled', 'plugins.setHookEnabled', 'plugins.unregister', 'plugins.updateSetting', 'pokemon.addToBox', 'pokemon.clone', 'pokemon.commit', 'pokemon.edit', 'pokemon.setLevel', 'pokemon.update', 'trainer.setBattlePoints', 'trainer.setGender', 'trainer.setMoney', 'trainer.setName'] as const
 
@@ -46,6 +46,7 @@ export interface EngineClient {
     languages(): Promise<Choice[]>
     load(data: Base64, fileName: string): Promise<void>
     loadBlank(version: number): Promise<void>
+    moves(): Promise<Choice[]>
     natures(): Promise<Choice[]>
     originGames(): Promise<Choice[]>
     version(): Promise<SaveVersion | null>
@@ -135,6 +136,7 @@ export function createClient(invoke: Invoke): EngineClient {
       languages: () => invoke('game.languages', []),
       load: (data, fileName) => invoke('game.load', [data, fileName]),
       loadBlank: (version) => invoke('game.loadBlank', [version]),
+      moves: () => invoke('game.moves', []),
       natures: () => invoke('game.natures', []),
       originGames: () => invoke('game.originGames', []),
       version: () => invoke('game.version', []),

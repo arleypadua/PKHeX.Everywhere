@@ -80,6 +80,7 @@ export interface EditablePokemon {
   hiddenPower: HiddenPower | null
   combatPower: number | null
   calculatedCombatPower: number | null
+  moves: MoveSlot[]
   legality: Legality
 }
 
@@ -185,6 +186,13 @@ export interface LoadedSave {
   bytes: Base64
   fileName: string
   version: string
+}
+
+export interface MoveSlot {
+  id: number
+  name: string
+  pp: number
+  maxPp: number
 }
 
 export interface OwnedItem {
@@ -324,6 +332,7 @@ export interface PokemonOptions {
   abilities: Choice[]
   forms: Choice[]
   metLocations: Choice[]
+  moves: Choice[]
 }
 
 export interface PokemonOverview {
@@ -365,6 +374,7 @@ export interface PokemonPatch {
   evs?: StatPatch | null
   avs?: StatPatch | null
   combatPower?: number | null
+  moves?: number[] | null
 }
 
 export interface PokemonSaved {

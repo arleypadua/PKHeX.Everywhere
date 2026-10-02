@@ -183,6 +183,7 @@ describe('entity hooks', () => {
       hiddenPower: { type: 'Dark', power: 70 },
       combatPower: null,
       calculatedCombatPower: null,
+      moves: [{ id: 85, name: 'Thunderbolt', pp: 15, maxPp: 15 }],
       legality: { valid: true, messages: [] },
     }
     const { engine, emitChange } = fakeEngine((name, args) => {

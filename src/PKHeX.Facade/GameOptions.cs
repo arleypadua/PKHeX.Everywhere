@@ -1,5 +1,6 @@
 using PKHeX.Core;
 using PKHeX.Facade.Pokemons;
+using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade;
 
@@ -9,12 +10,19 @@ namespace PKHeX.Facade;
 public class GameOptions(SaveFile saveFile)
 {
     private readonly Lazy<FilteredGameDataSource> _source = new(() => new FilteredGameDataSource(saveFile, GameInfo.Sources));
+    private Choice[]? _moves;
 
     public IReadOnlyList<Choice> Natures => saveFile.Generation >= 3 ? ToChoices(_source.Value.Natures) : [];
     public IReadOnlyList<Choice> Balls => ToChoices(_source.Value.Balls.Where(ball => ball.Value > 0));
     public IReadOnlyList<Choice> Languages => saveFile.Generation >= 3 ? ToChoices(_source.Value.Languages) : [];
     public IReadOnlyList<Choice> HeldItems => ToChoices(_source.Value.Items);
     public IReadOnlyList<Choice> OriginGames => saveFile.Generation >= 3 ? ToChoices(_source.Value.Games) : [];
+    public IReadOnlyList<Choice> Moves => _moves ??= _source.Value.Moves
+        .Where(move => move.Value != (int)Move.None)
+        .Select(move => MoveRepository.Instance.GetMove((ushort)move.Value))
+        .OrderBy(move => move.Name)
+        .Select(move => new Choice(move.Id, move.Name))
+        .ToArray();
 
     private static Choice[] ToChoices(IEnumerable<ComboItem> items) => items.Select(item => new Choice(item.Value, item.Text)).ToArray();
 }
