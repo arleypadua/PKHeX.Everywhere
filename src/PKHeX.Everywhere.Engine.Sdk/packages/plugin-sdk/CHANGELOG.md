@@ -1,5 +1,11 @@
 # @pkhex-everywhere/plugin-sdk
 
+## 2.0.3
+
+### Patch Changes
+
+- 90d4434: Point the READMEs and npm pages at docs.pkhex-everywhere.fyi.
+
 ## 2.0.2
 
 ### Patch Changes
