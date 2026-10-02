@@ -7,11 +7,20 @@ namespace PKHeX.Facade.Tests;
 public class SaveFormatsTests
 {
     private static readonly byte[] Marked = Enumerable.Repeat((byte)0x5A, 0x1234).ToArray();
+    private static readonly byte[] PossiblyMarked = PossiblyMarkedEmerald();
 
     static SaveFormatsTests()
     {
         SaveFormats.Register(new MarkedFormat());
-        SaveFormats.Register(new PossibleForEverything());
+        SaveFormats.Register(new PossiblyMarkedFormat("possible"));
+        SaveFormats.Register(new PossiblyMarkedFormat("also-possible"));
+    }
+
+    private static byte[] PossiblyMarkedEmerald()
+    {
+        var data = File.ReadAllBytes(SaveFilePath.Emerald);
+        data[^1] ^= 0xFF;
+        return data;
     }
 
     [Fact]
@@ -19,8 +28,31 @@ public class SaveFormatsTests
         Game.LoadFrom(Marked).SaveFile.Version.Should().Be(GameVersion.SL);
 
     [Fact]
-    public void APossibleMatchFallsBackToPKHeX() =>
+    public void PossibleMatchesRequireAChoiceBetweenThem()
+    {
+        var load = () => Game.LoadFrom(PossiblyMarked);
+
+        load.Should().Throw<FormatChoiceRequiredException>()
+            .Which.Candidates.Select(format => format.Id).Should().Equal("possible", "also-possible");
+    }
+
+    [Fact]
+    public void ASaveNoFormatMatchesLoadsWithPKHeX() =>
         Game.LoadFrom(SaveFilePath.Emerald).SaveFile.Should().BeOfType<SAV3E>();
+
+    [Fact]
+    public void ChoosingPKHeXLoadsAPossibleMatchWithPKHeXsDetection()
+    {
+        var game = Game.LoadFrom(PossiblyMarked, "emerald.sav", SaveFormats.Find("pkhex"));
+
+        game.SaveFile.Should().BeOfType<SAV3E>();
+        game.Format.Should().BeNull();
+        game.Capabilities.Should().BeEquivalentTo(Enum.GetValues<Capability>());
+    }
+
+    [Fact]
+    public void PKHeXIsNotARegisteredFormat() =>
+        SaveFormats.All.Should().NotContain(SaveFormats.PKHeX);
 
     [Fact]
     public void RegisteringAFormatTwiceKeepsOne()
@@ -55,6 +87,14 @@ public class SaveFormatsTests
         load.Should().Throw<GameNotLoadedException>();
     }
 
+    [Fact]
+    public void ChoosingPKHeXForASavePKHeXCannotReadFailsToLoad()
+    {
+        var load = () => Game.LoadFrom(Marked, "marked.sav", SaveFormats.PKHeX);
+
+        load.Should().Throw<GameNotLoadedException>();
+    }
+
     private sealed class MarkedFormat : ISaveFormat
     {
         public string Id => "marked";
@@ -65,13 +105,13 @@ public class SaveFormatsTests
         public SaveFile Load(byte[] data) => BlankSaveFile.Get(GameVersion.SL, "Marked");
     }
 
-    private sealed class PossibleForEverything : ISaveFormat
+    private sealed class PossiblyMarkedFormat(string id) : ISaveFormat
     {
-        public string Id => "possible";
-        public string Name => "Possible";
-        public GameVersion BaseGame => GameVersion.FR;
+        public string Id => id;
+        public string Name => id;
+        public GameVersion BaseGame => GameVersion.E;
         public IReadOnlySet<Capability> Capabilities { get; } = new HashSet<Capability>();
-        public SaveFormatMatch Detect(ReadOnlySpan<byte> data) => SaveFormatMatch.Possible;
-        public SaveFile Load(byte[] data) => throw new InvalidOperationException("A possible match must not load.");
+        public SaveFormatMatch Detect(ReadOnlySpan<byte> data) => data.SequenceEqual(PossiblyMarked) ? SaveFormatMatch.Possible : SaveFormatMatch.No;
+        public SaveFile Load(byte[] data) => throw new InvalidOperationException("This format can't read any save.");
     }
 }

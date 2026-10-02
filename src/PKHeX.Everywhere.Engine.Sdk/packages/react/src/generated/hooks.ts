@@ -53,7 +53,7 @@ export function useLoadedGame() {
        *
        * @param data The save file's bytes.
        * @param fileName The file name to export the save with. Defaults to the name of a `File`, or `save.sav`.
-       * @param formatId The id of a save format from `game.formats()` to load the save with, skipping detection. An unknown id fails with `not-found`, and a save the format can't read fails with `invalid-save`.
+       * @param formatId The id of a save format from `game.formats()` to load the save with, skipping detection. Pass `pkhex` to load it with PKHeX's own detection. An unknown id fails with `not-found`, and a save the format can't read fails with `invalid-save`. Without it, a save that might be in one of the formats fails with `format-choice-required`, whose `candidates` list them.
        */
       load: (data: Binary, fileName?: string | null, formatId?: string | null) => engine.game.load(data, fileName, formatId),
       loadBlank: (version: number) => engine.game.loadBlank(version),

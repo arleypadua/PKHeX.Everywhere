@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Text.Json;
+using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 
 namespace PKHeX.Everywhere.Engine;
@@ -40,7 +41,7 @@ public static class Dispatcher
         }
         catch (EngineException e)
         {
-            return Failure(e.Code, e.Message);
+            return Failure(e.Code, e.Message, e.Candidates);
         }
         catch (CapabilityNotSupportedException e)
         {
@@ -68,12 +69,26 @@ public static class Dispatcher
         throw new EngineException(ErrorCodes.BadArguments, "Arguments must be a JSON array.");
     }
 
-    private static string Failure(string code, string message) => Envelope(w =>
+    private static string Failure(string code, string message, FormatEntry[]? candidates = null) => Envelope(w =>
     {
         w.WriteBoolean("ok", false);
         w.WriteStartObject("error");
         w.WriteString("code", code);
         w.WriteString("message", message);
+        if (candidates is not null)
+        {
+            w.WriteStartArray("candidates");
+            foreach (var candidate in candidates)
+            {
+                w.WriteStartObject();
+                w.WriteString("id", candidate.Id);
+                w.WriteString("name", candidate.Name);
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
+        }
+
         w.WriteEndObject();
     });
 

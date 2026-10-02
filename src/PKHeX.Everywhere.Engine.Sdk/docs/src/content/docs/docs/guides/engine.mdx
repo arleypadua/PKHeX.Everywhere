@@ -90,6 +90,15 @@ try {
 }
 ```
 
+A save that might be in a format PKHeX doesn't know, such as a ROM hack, fails with `format-choice-required`. Its `candidates` list those formats. Load the save again with the chosen `formatId`, or with `pkhex` to load it the way PKHeX detects it:
+
+```ts
+if (error instanceof EngineError && error.code === 'format-choice-required') {
+  const formatId = await askUser(error.candidates)
+  await engine.game.load(file, undefined, formatId)
+}
+```
+
 ## Where the runtime loads from
 
 By default the browser loads `_framework/dotnet.js` from jsDelivr, pinned to the installed version of the package.

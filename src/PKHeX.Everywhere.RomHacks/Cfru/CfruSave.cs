@@ -35,11 +35,8 @@ public abstract class CfruSave : SaveFile, IMoveList
     {
         var slot = FindActiveSlot(data, signatures)
             ?? throw new ArgumentException("The data has no valid CFRU save slot.", nameof(data));
-        for (var sector = 0; sector < SectorCount; sector++)
-        {
-            var offset = slot + (sector * SectorSize);
-            _blocks[ReadUInt16LittleEndian(data.AsSpan(offset + 0xFF4))] = offset;
-        }
+        for (var block = 0; block < SectorCount; block++)
+            _blocks[block] = FindBlock(data, slot, block);
 
         CopyBoxStream(toSave: false);
 
@@ -64,6 +61,17 @@ public abstract class CfruSave : SaveFile, IMoveList
         }
 
         return active;
+    }
+
+    public static int FindBlock(ReadOnlySpan<byte> data, int slot, int block)
+    {
+        for (var sector = 0; sector < SectorCount; sector++)
+        {
+            var offset = slot + (sector * SectorSize);
+            if (ReadUInt16LittleEndian(data[(offset + 0xFF4)..]) == block) return offset;
+        }
+
+        throw new ArgumentException($"The save slot has no block {block}.", nameof(data));
     }
 
     // The save counter wraps from uint.MaxValue to 0.

@@ -68,6 +68,19 @@ describe('createEngine', () => {
     expect(error).toMatchObject({ code: 'no-save', message: 'No save is loaded.' })
   })
 
+  it('rejects with the candidate formats when the save needs a format choice', async () => {
+    const candidates = [{ id: 'radicalred', name: 'Pokémon Radical Red' }]
+    const { host, signalReady } = fakeHost(() => ({
+      ok: false,
+      error: { code: 'format-choice-required', message: 'Choose a format.', candidates },
+    }))
+    signalReady()
+
+    const error = await createEngine({ host }).game.load(new Uint8Array([1])).catch((e: unknown) => e)
+
+    expect(error).toMatchObject({ code: 'format-choice-required', candidates })
+  })
+
   it('tells call failure listeners which call failed and why', async () => {
     const { host, signalReady } = fakeHost((name) =>
       name === 'party.get' ? { ok: false, error: { code: 'unexpected', message: 'Boom' } } : { ok: true, value: null },

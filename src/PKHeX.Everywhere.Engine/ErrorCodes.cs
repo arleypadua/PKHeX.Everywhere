@@ -4,6 +4,7 @@ public static class ErrorCodes
 {
     public const string NoSave = "no-save";
     public const string InvalidSave = "invalid-save";
+    public const string FormatChoiceRequired = "format-choice-required";
     public const string NotFound = "not-found";
     public const string OutOfRange = "out-of-range";
     public const string PouchFull = "pouch-full";

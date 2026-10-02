@@ -1,24 +1,32 @@
 import { createClient, type CallName, type EngineClient } from './generated/client'
 import type { ErrorCode } from './generated/errors'
 import type { Topic } from './generated/topics'
-import type { EngineEvent } from './generated/types'
+import type { EngineEvent, FormatEntry } from './generated/types'
 import type { EngineExports, EngineHost } from './host'
 import { affects } from './topics'
 import { wasmHost } from './wasmHost'
 
 export const engineAssembly = 'PKHeX.Everywhere.Engine.dll'
 
-type Envelope<T> = { ok: true; value: T } | { ok: false; error: { code: ErrorCode; message: string } }
+type Envelope<T> =
+  | { ok: true; value: T }
+  | { ok: false; error: { code: ErrorCode; message: string; candidates?: FormatEntry[] } }
 
 /** The error a call rejects with when the engine refuses it, such as `no-save` when no save is loaded. */
 export class EngineError extends Error {
   /** Why the call failed. One of `errorCodes`. */
   readonly code: ErrorCode
+  /**
+   * The save formats the save might be in, when `code` is `format-choice-required`.
+   * Load the save again with one of their ids as `formatId`, or with `pkhex` to load it with PKHeX's own detection.
+   */
+  readonly candidates?: FormatEntry[]
 
-  constructor(code: ErrorCode, message: string) {
+  constructor(code: ErrorCode, message: string, candidates?: FormatEntry[]) {
     super(message)
     this.name = 'EngineError'
     this.code = code
+    if (candidates) this.candidates = candidates
   }
 }
 
@@ -115,7 +123,7 @@ export function createEngine({ host = wasmHost(), lazy = false }: { host?: Engin
     const engine = await boot()
     const envelope = JSON.parse(await engine.Call(name, JSON.stringify(args))) as Envelope<T>
     if (envelope.ok) return envelope.value
-    throw new EngineError(envelope.error.code, envelope.error.message)
+    throw new EngineError(envelope.error.code, envelope.error.message, envelope.error.candidates)
   }
 
   const failureListeners = new Set<(call: CallName, error: unknown) => void>()
