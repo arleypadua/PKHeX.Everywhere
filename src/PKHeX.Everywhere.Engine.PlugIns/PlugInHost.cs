@@ -158,7 +158,7 @@ public sealed class PlugInHost
         if (current.ReadOnly) throw new InvalidOperationException($"Setting {key} is read-only.");
         if (current.GetType() != value.GetType()) throw new InvalidOperationException($"Setting {key} takes a {current.GetType().Name}.");
 
-        settings[key] = value;
+        settings[key] = value with { ReadOnly = false };
         _session.Invalidate(Topics.All);
     }
 

@@ -3,6 +3,8 @@ import { Alert, App, Button, Descriptions, Flex, Result, Space, Switch, Table, T
 import type { PlugInDetails, PlugInHook, PlugInSetting } from '@pkhex-everywhere/engine'
 import { useQuery } from '@pkhex-everywhere/react'
 import { PageHeader } from '../../components/PageHeader'
+import { containsText } from '../../components/filters/containsText'
+import { TextFilter } from '../../components/filters/TextFilter'
 import { usePlugIns } from '../../plugins/PlugInsContext'
 import { routes } from '../../routes'
 import { PlugInSettingInput } from './PlugInSettingInput'
@@ -60,7 +62,13 @@ function InstalledPlugIn({ id }: { id: string }) {
   const changeSetting = (setting: PlugInSetting) => save(() => plugIns.updateSetting(id, setting))
 
   const hookColumns: TableColumnsType<PlugInHook> = [
-    { title: 'Description', dataIndex: 'description', sorter: (a, b) => a.description.localeCompare(b.description) },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      sorter: (a, b) => a.description.localeCompare(b.description),
+      filterDropdown: (props) => <TextFilter {...props} placeholder="Description" />,
+      onFilter: (value, hook) => containsText(hook.description, value),
+    },
     {
       title: 'Enabled',
       key: 'enabled',
