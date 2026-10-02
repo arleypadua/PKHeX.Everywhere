@@ -1,6 +1,6 @@
 import { Divider, Layout, Space } from 'antd'
 import { Link } from 'react-router'
-import { applicationName, gitHubRepository } from '../constants'
+import { applicationName, gitHubRepository, sdkDocs } from '../constants'
 import { routes } from '../routes'
 
 export function Footer() {
@@ -19,6 +19,9 @@ export function Footer() {
         <Link to={routes.credits}>Credits</Link>
         <Link to={routes.releaseNotes()}>Release Notes</Link>
         <a href="/blog">Blog</a>
+        <a href={sdkDocs} target="_blank">
+          SDK
+        </a>
       </Space>
     </Layout.Footer>
   )

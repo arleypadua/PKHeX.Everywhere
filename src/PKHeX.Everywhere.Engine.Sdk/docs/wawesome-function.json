@@ -1,0 +1,6 @@
+{
+  "app": "docs",
+  "function": "root",
+  "assets": "dist",
+  "fallback": { "path": "404.html", "status": 404 }
+}

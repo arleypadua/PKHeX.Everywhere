@@ -1,0 +1,295 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { Code } from '@astrojs/starlight/components'
+
+const example = `import { createEngine } from '@pkhex-everywhere/engine'
+
+const engine = createEngine()
+
+await engine.game.load(file)
+const party = await engine.party.get()
+
+party.map((p) => \`\${p.species} Lv. \${p.level}\`)
+// ['Pikachu Lv. 42', 'Charizard Lv. 50', ...]`
+
+const reactExample = `function Party() {
+  const { party } = useParty()
+  return party.map((p) => <li key={p.id}>{p.species}</li>)
+}
+
+<EngineProvider engine={engine}>
+  <Suspense fallback={<Booting />}>
+    <RequireGame fallback={<OpenSave />}>
+      <Party />
+    </RequireGame>
+  </Suspense>
+</EngineProvider>`
+
+const features = [
+  {
+    title: 'PKHeX.Core, in the browser',
+    body: 'The real PKHeX.Core runs on .NET WebAssembly. There is no server, and saves never leave the page.',
+  },
+  {
+    title: 'Every generation',
+    body: 'Every save PKHeX.Core opens, from Red and Blue to Scarlet and Violet.',
+  },
+  {
+    title: 'Typed end to end',
+    body: 'The client is generated from the engine, so every query, command and error code has a type.',
+  },
+  {
+    title: 'React hooks',
+    body: 'Hooks suspend until their data arrives and refetch when a command changes the save.',
+  },
+]
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'PKHeX.Everywhere SDK',
+    description: 'Load, read, edit and export Pokémon save files from TypeScript, in the browser.',
+    template: 'splash',
+    pagefind: false,
+    editUrl: false,
+    prev: false,
+    next: false,
+  }}
+  hasSidebar={false}
+>
+  <div class="landing not-content">
+    <section class="hero">
+      <div class="glow" aria-hidden="true"></div>
+      <p class="eyebrow">@pkhex-everywhere/engine</p>
+      <h1>PKHeX, <span>everywhere</span>.</h1>
+      <p class="tagline">
+        Load, read, edit and export Pokémon save files from TypeScript. It all runs in the browser.
+      </p>
+      <div class="actions">
+        <a class="btn primary" href="/docs/getting-started/">Get started</a>
+        <a class="btn" href="/docs/">Docs</a>
+      </div>
+      <button class="install" type="button" data-copy="npm install @pkhex-everywhere/engine">
+        <span class="prompt">$</span> npm install @pkhex-everywhere/engine
+        <span class="copied" aria-live="polite"></span>
+      </button>
+    </section>
+
+    <section class="features">
+      {
+        features.map((f) => (
+          <article>
+            <h2>{f.title}</h2>
+            <p>{f.body}</p>
+          </article>
+        ))
+      }
+    </section>
+
+    <section class="samples">
+      <div>
+        <h2>Read a party in a few lines</h2>
+        <p>Create an engine, load a save, read it. Commands change the save; export gives you the bytes back.</p>
+        <Code code={example} lang="ts" title="party.ts" />
+      </div>
+      <div>
+        <h2>Or with React</h2>
+        <p>
+          <code>@pkhex-everywhere/react</code> wraps every query in a hook and refetches it when a command changes the save.
+        </p>
+        <Code code={reactExample} lang="tsx" title="App.tsx" />
+      </div>
+    </section>
+
+    <section class="packages">
+      <a href="/docs/guides/engine/">
+        <strong>engine</strong>
+        <span>The runtime and the typed client.</span>
+      </a>
+      <a href="/docs/guides/react/">
+        <strong>react</strong>
+        <span>Provider, Suspense hooks, <code>RequireGame</code>.</span>
+      </a>
+      <a href="https://pkhex-web.github.io">
+        <strong>PKHeX.Web</strong>
+        <span>A full save editor built on the SDK. Try it live.</span>
+      </a>
+    </section>
+  </div>
+</StarlightPage>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(button.dataset.copy!)
+      const label = button.querySelector('.copied')!
+      label.textContent = 'copied'
+      setTimeout(() => (label.textContent = ''), 1500)
+    })
+  })
+</script>
+
+<style>
+  :global(.content-panel:has(#_top)) {
+    display: none;
+  }
+  :global(.content-panel:has(#_top) + .content-panel) {
+    border-top: none;
+  }
+
+  .landing {
+    max-width: 72rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5rem;
+  }
+
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 4rem 0 1rem;
+  }
+  .glow {
+    position: absolute;
+    inset: -4rem 10% auto;
+    height: 22rem;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--sl-color-accent) 35%, transparent), transparent);
+    filter: blur(40px);
+    z-index: -1;
+  }
+  .eyebrow {
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-accent-high);
+    margin: 0 0 1.25rem;
+  }
+  .hero h1 {
+    font-family: var(--pkx-pixel);
+    font-size: clamp(1.75rem, 6vw, 3.75rem);
+    line-height: 1.2;
+    margin: 0;
+    color: var(--sl-color-white);
+  }
+  .hero h1 span {
+    background: linear-gradient(90deg, var(--sl-color-accent), #ff6fb5);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .tagline {
+    max-width: 36rem;
+    margin: 1.5rem auto 0;
+    font-size: var(--sl-text-xl);
+    color: var(--sl-color-gray-2);
+  }
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2.25rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 0.7rem 1.4rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--sl-color-white);
+    border: 1px solid var(--sl-color-gray-5);
+    transition: transform 0.15s, border-color 0.15s, background-color 0.15s;
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--sl-color-accent);
+  }
+  .btn.primary {
+    background: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+    color: #fff;
+  }
+  .btn.primary:hover {
+    background: color-mix(in srgb, var(--sl-color-accent) 85%, white);
+  }
+  .install {
+    margin-top: 1.75rem;
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-2);
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .install .prompt {
+    color: var(--sl-color-accent);
+    user-select: none;
+  }
+  .install .copied {
+    color: var(--sl-color-accent-high);
+    margin-inline-start: 0.5rem;
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1rem;
+  }
+  .features article {
+    padding: 1.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--sl-color-gray-6) 60%, transparent);
+  }
+  .features h2 {
+    font-size: var(--sl-text-lg);
+    margin: 0 0 0.5rem;
+    color: var(--sl-color-white);
+  }
+  .features p {
+    margin: 0;
+    color: var(--sl-color-gray-3);
+  }
+
+  .samples {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+    gap: 2rem;
+  }
+  .samples h2 {
+    font-size: var(--sl-text-2xl);
+    margin: 0 0 0.5rem;
+    color: var(--sl-color-white);
+  }
+  .samples p {
+    color: var(--sl-color-gray-3);
+    margin: 0 0 1rem;
+  }
+
+  .packages {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1rem;
+  }
+  .packages a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid var(--sl-color-gray-5);
+    text-decoration: none;
+    color: var(--sl-color-gray-3);
+    transition: border-color 0.15s;
+  }
+  .packages a:hover {
+    border-color: var(--sl-color-accent);
+  }
+  .packages strong {
+    font-family: var(--sl-font-mono);
+    color: var(--sl-color-white);
+  }
+</style>
