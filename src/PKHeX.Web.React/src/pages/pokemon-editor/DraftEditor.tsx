@@ -3,7 +3,7 @@ import { Flex, Tabs } from 'antd'
 import { draftHandle } from '@pkhex-everywhere/engine'
 import { usePokemon, usePokemonDetails } from '@pkhex-everywhere/react'
 import { PageHeader } from '../../components/PageHeader'
-import { PokemonSprite } from '../../components/PokemonSprite'
+import { PokemonImage } from '../../components/PokemonImage'
 import { DescriptionTab } from './DescriptionTab'
 import { LegalityBanner } from './LegalityBanner'
 import { MovesTab } from './MovesTab'
@@ -21,7 +21,7 @@ export function DraftEditor({ actions }: DraftEditorProps) {
 
   return (
     <Flex vertical gap={20}>
-      <PageHeader title="Pokemon" extra={<PokemonSprite pokemon={pokemon} />} />
+      <PageHeader title="Pokemon" extra={<PokemonImage pokemon={pokemon} />} />
       <LegalityBanner legality={details.legality} />
       <Tabs
         items={[
