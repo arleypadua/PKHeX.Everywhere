@@ -20,7 +20,7 @@ const typeDocOptions = {
 }
 
 export default defineConfig({
-  site: 'https://arley-space--docs.wawesome.app',
+  site: 'https://docs.pkhex-everywhere.fyi',
   integrations: [
     starlight({
       title: 'PKHeX.Everywhere SDK',

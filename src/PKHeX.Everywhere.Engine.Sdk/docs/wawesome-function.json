@@ -2,5 +2,9 @@
   "app": "docs",
   "function": "root",
   "assets": "dist",
-  "fallback": { "path": "404.html", "status": 404 }
+  "fallback": {
+    "path": "404.html",
+    "status": 404
+  },
+  "domain": "docs.pkhex-everywhere.fyi"
 }
