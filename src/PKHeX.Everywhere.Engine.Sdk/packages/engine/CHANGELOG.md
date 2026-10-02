@@ -1,5 +1,11 @@
 # @pkhex-everywhere/engine
 
+## 0.2.3
+
+### Patch Changes
+
+- 90d4434: Point the READMEs and npm pages at docs.pkhex-everywhere.fyi.
+
 ## 0.2.2
 
 ### Patch Changes
