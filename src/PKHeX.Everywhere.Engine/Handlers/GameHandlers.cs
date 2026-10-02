@@ -15,8 +15,8 @@ public static class GameHandlers
     [Query("game.version", Topics.Game)]
     public static SaveVersion? Version(Session session) => session.Game?.ToVersion();
 
-    // Serialising commits pending edits and can rewrite slots, as LGPE does when its storage is compacted.
-    [Command("game.file", Topics.All)]
+    // Serialising compacts LGPE storage, which moves box slots.
+    [Command("game.file", Topics.Party, Topics.Box)]
     public static LoadedSave? File(Session session) => session.Game?.ToFile(session.FileName);
 
     [Command("game.load", Topics.All)]

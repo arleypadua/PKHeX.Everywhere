@@ -30,12 +30,12 @@ public class PokemonBox : IMutablePokemonCollection
 
     public void Commit()
     {
-        _game.SaveFile.BoxData = _pokemonList
-            .Select(p => p.Pkm)
-            .ToList();
+        for (var index = 0; index < _pokemonList.Count; index++)
+            if (!_game.SaveFile.IsBoxSlotOverwriteProtected(index))
+                _game.SaveFile.SetBoxSlotAtIndex(_pokemonList[index].Pkm, index, EntityImportSettings.None);
 
         foreach (var (index, pkm) in _party.BoxedMembers())
-            _game.SaveFile.SetBoxSlotAtIndex(pkm, index);
+            _game.SaveFile.SetBoxSlotAtIndex(pkm, index, EntityImportSettings.None);
     }
 
     public bool AddOnEmptySlot(Pokemon pokemon) => AddOnEmptySlot(pokemon, out _);

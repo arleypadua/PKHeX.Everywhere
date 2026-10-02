@@ -6,6 +6,7 @@ namespace PKHeX.Facade;
 
 public class PokemonParty(Game game) : IMutablePokemonCollection
 {
+    private const int MaxPartySize = 6;
     private readonly IList<PKM> _partyData = game.SaveFile.PartyData;
     public IList<Pokemon> Pokemons => _partyData
         .Select(pkm => new Pokemon(pkm, game))
@@ -13,15 +14,17 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
 
     public void Commit()
     {
-        // SAV7b empty party slots point to a non-existent box slot, so the PartyData setter throws when blanking them
+        // SAV7b empty party slots point to a non-existent box slot, so they can't be blanked
         if (game.SaveFile is SAV7b)
         {
             for (var i = 0; i < _partyData.Count; i++)
-                game.SaveFile.SetPartySlotAtIndex(_partyData[i], i);
+                game.SaveFile.SetPartySlotAtIndex(_partyData[i], i, EntityImportSettings.None);
             return;
         }
 
-        game.SaveFile.PartyData = _partyData;
+        var members = _partyData.Where(pkm => pkm.Species != 0).ToList();
+        for (var i = 0; i < MaxPartySize; i++)
+            game.SaveFile.SetPartySlotAtIndex(i < members.Count ? members[i] : game.SaveFile.BlankPKM, i, EntityImportSettings.None);
     }
 
     // Let's Go keeps party members in box storage, so each one also sits at a box index.
