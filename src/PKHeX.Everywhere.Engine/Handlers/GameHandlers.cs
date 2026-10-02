@@ -10,6 +10,10 @@ public static class GameHandlers
     [Query("game.get", Topics.Game)]
     public static SaveSummary? Get(Session session) => session.Game?.ToSummary(session.FileName);
 
+    // Serialising commits pending edits and can rewrite slots, as LGPE does when its storage is compacted.
+    [Command("game.file", Topics.All)]
+    public static LoadedSave? File(Session session) => session.Game?.ToFile(session.FileName);
+
     [Command("game.load", Topics.All)]
     public static void Load(Session session, byte[] data, string fileName)
     {

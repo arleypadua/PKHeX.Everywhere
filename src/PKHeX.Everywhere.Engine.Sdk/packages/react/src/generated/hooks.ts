@@ -39,6 +39,7 @@ export function useLoadedGame() {
     () => ({
       close: () => engine.game.close(),
       export: () => engine.game.export(),
+      file: () => engine.game.file(),
       load: (data: Base64, fileName: string) => engine.game.load(data, fileName),
       loadBlank: (version: number) => engine.game.loadBlank(version),
     }),

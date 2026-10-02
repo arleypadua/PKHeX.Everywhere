@@ -9,7 +9,7 @@
 
 @if (_declared is not null)
 {
-    <PlugInModulePage @key="_declared" Page="_declared"/>
+    <ReactPage @key="_declared" Name="plugin-page" Props="@(new() { ["plugInId"] = Id, ["path"] = Path })" RequiresSave="false" />
 }
 
 @code {
