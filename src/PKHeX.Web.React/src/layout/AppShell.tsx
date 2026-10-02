@@ -147,6 +147,15 @@ function AppRoutes({ autoLoad }: { autoLoad: boolean }) {
   )
 }
 
+function PageBackground() {
+  const { token } = antdTheme.useToken()
+  useEffect(() => {
+    document.documentElement.style.background = token.colorBgLayout
+    document.body.style.background = token.colorBgLayout
+  }, [token.colorBgLayout])
+  return null
+}
+
 function NotifyingEngineProvider({ children }: { children: ReactNode }) {
   const { notification } = App.useApp()
   const onUnhandledError = useCallback(
@@ -170,6 +179,7 @@ export function AppShell({ autoLoad }: { autoLoad: boolean }) {
         token: { fontFamily },
       }}
     >
+      <PageBackground />
       <App component={false}>
         <NotifyingEngineProvider>
           <PlugInsProvider value={plugIns}>
