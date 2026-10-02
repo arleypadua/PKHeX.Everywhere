@@ -30,6 +30,31 @@ public class SaveFormatsTests
         SaveFormats.All.Count(format => format.Id == "marked").Should().Be(1);
     }
 
+    [Fact]
+    public void FindsARegisteredFormatById() =>
+        SaveFormats.Find("marked").Should().BeOfType<MarkedFormat>();
+
+    [Fact]
+    public void FindsNoFormatForAnUnknownId() =>
+        SaveFormats.Find("nope").Should().BeNull();
+
+    [Fact]
+    public void AChosenFormatLoadsTheSaveEvenWhenPKHeXKnowsIt()
+    {
+        var game = Game.LoadFrom(File.ReadAllBytes(SaveFilePath.Emerald), "emerald.sav", SaveFormats.Find("marked")!);
+
+        game.SaveFile.Version.Should().Be(GameVersion.SL);
+        game.Format!.Id.Should().Be("marked");
+    }
+
+    [Fact]
+    public void AChosenFormatThatCannotReadTheSaveFailsToLoad()
+    {
+        var load = () => Game.LoadFrom(Marked, "marked.sav", SaveFormats.Find("possible")!);
+
+        load.Should().Throw<GameNotLoadedException>();
+    }
+
     private sealed class MarkedFormat : ISaveFormat
     {
         public string Id => "marked";

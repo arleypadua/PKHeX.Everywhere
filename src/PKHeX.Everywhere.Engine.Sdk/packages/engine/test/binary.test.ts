@@ -53,7 +53,7 @@ describe('game.load', () => {
 
     await engine.game.load(new File([bytes], 'emerald.sav'))
 
-    expect(argsOf(calls)).toEqual([base64, 'emerald.sav'])
+    expect(argsOf(calls)).toEqual([base64, 'emerald.sav', null])
   })
 
   it('prefers the file name it is given', async () => {
@@ -61,7 +61,7 @@ describe('game.load', () => {
 
     await engine.game.load(new File([bytes], 'emerald.sav'), 'renamed.sav')
 
-    expect(argsOf(calls)).toEqual([base64, 'renamed.sav'])
+    expect(argsOf(calls)).toEqual([base64, 'renamed.sav', null])
   })
 
   it('leaves the default name to the engine for bytes without a name', async () => {
@@ -69,7 +69,15 @@ describe('game.load', () => {
 
     await engine.game.load(bytes)
 
-    expect(argsOf(calls)).toEqual([base64, null])
+    expect(argsOf(calls)).toEqual([base64, null, null])
+  })
+
+  it('passes the save format to load with', async () => {
+    const { engine, calls } = engineReturning(null)
+
+    await engine.game.load(new File([bytes], 'unbound.sav'), undefined, 'unbound')
+
+    expect(argsOf(calls)).toEqual([base64, 'unbound.sav', 'unbound'])
   })
 })
 

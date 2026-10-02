@@ -139,7 +139,7 @@ public class EncounterHandlerTests
         var session = Loaded(SaveFilePath.Emerald);
         Search(session, Species.Abra);
 
-        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.HgSs)), "other.sav")));
+        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.HgSs)), "other.sav", null!)));
 
         AddEncounterFailsWith(session, 0, "not-found");
     }

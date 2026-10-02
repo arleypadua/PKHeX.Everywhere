@@ -23,9 +23,24 @@ public sealed partial class Docs
         return Format(text, indent);
     }
 
+    public string? Summary(MethodInfo method) => Escape(Text(Member(method)?.Element("summary")));
+
+    public string? Param(MethodInfo method, string name) =>
+        Escape(Text(Member(method)?.Elements("param").FirstOrDefault(p => (string?)p.Attribute("name") == name)));
+
     private string? Summary(Type type) => Text(Member(type.Assembly, $"T:{Id(type)}")?.Element("summary"));
 
-    private XElement? Member(Assembly assembly, string id)
+    private XElement? Member(Assembly assembly, string id) => Members(assembly).GetValueOrDefault(id);
+
+    // Handlers aren't overloaded, so the name finds a method without spelling out its parameter types.
+    private XElement? Member(MethodInfo method)
+    {
+        var name = $"M:{Id(method.DeclaringType!)}.{method.Name}";
+        return Members(method.DeclaringType!.Assembly)
+            .FirstOrDefault(m => m.Key == name || m.Key.StartsWith(name + "(", StringComparison.Ordinal)).Value;
+    }
+
+    private Dictionary<string, XElement> Members(Assembly assembly)
     {
         if (!_members.TryGetValue(assembly, out var members))
         {
@@ -36,7 +51,7 @@ public sealed partial class Docs
             _members[assembly] = members;
         }
 
-        return members.GetValueOrDefault(id);
+        return members;
     }
 
     private static string Id(Type type) => type.FullName!.Replace('+', '.');
@@ -68,7 +83,9 @@ public sealed partial class Docs
     }
 
     private static string? Format(string? text, string indent) =>
-        text is null ? null : $"{indent}/** {text.Replace("*/", "*\\/")} */\n";
+        text is null ? null : $"{indent}/** {Escape(text)} */\n";
+
+    private static string? Escape(string? text) => text?.Replace("*/", "*\\/");
 
     [GeneratedRegex(@"\s+")]
     private static partial Regex Whitespace();

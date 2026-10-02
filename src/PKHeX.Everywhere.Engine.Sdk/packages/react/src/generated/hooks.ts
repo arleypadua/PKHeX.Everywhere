@@ -48,7 +48,14 @@ export function useLoadedGame() {
       /** Requires a loaded save; throws `no-save` otherwise. Wrap in `<RequireGame>`. */
       export: () => engine.game.export(),
       file: () => engine.game.file(),
-      load: (data: Binary, fileName?: string | null) => engine.game.load(data, fileName),
+      /**
+       * Loads a save file, replacing the one loaded before.
+       *
+       * @param data The save file's bytes.
+       * @param fileName The file name to export the save with. Defaults to the name of a `File`, or `save.sav`.
+       * @param formatId The id of a save format from `game.formats()` to load the save with, skipping detection. An unknown id fails with `not-found`, and a save the format can't read fails with `invalid-save`.
+       */
+      load: (data: Binary, fileName?: string | null, formatId?: string | null) => engine.game.load(data, fileName, formatId),
       loadBlank: (version: number) => engine.game.loadBlank(version),
     }),
     [engine],

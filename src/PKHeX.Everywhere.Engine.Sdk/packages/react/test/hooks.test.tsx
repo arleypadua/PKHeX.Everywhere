@@ -81,7 +81,7 @@ describe('entity hooks', () => {
 
     expect(result.current.game).toBeNull()
     expect(calls.slice(1)).toEqual([
-      { name: 'game.load', args: ['AAAA', 'save.sav'] },
+      { name: 'game.load', args: ['AAAA', 'save.sav', null] },
       { name: 'game.close', args: [] },
     ])
   })

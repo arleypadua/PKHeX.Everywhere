@@ -1,13 +1,14 @@
-import { useRef, type ChangeEvent } from 'react'
+import { Suspense, useRef, useState, type ChangeEvent, type CSSProperties } from 'react'
 import { EllipsisOutlined, ExportOutlined, FolderOpenOutlined } from '@ant-design/icons'
-import { Button, Descriptions, Dropdown, Flex, Space } from 'antd'
+import { Button, Descriptions, Dropdown, Flex, Space, type ButtonProps } from 'antd'
 import type { SaveSummary } from '@pkhex-everywhere/engine'
 import { useEngine, useLoadedGame, useQuery } from '@pkhex-everywhere/react'
 import { gameName } from '../../capabilities'
 import { AdSlot } from '../../components/AdSlot'
-import { downloadFile, useNavigate } from '../../host'
+import { downloadFile, romHacksEnabled, useNavigate } from '../../host'
 import { journey } from '../../layout/journey'
 import { routes } from '../../routes'
+import { LoadRomHackModal } from './LoadRomHackModal'
 import { useLoadSave } from './useLoadSave'
 
 const topAdSlot = '5784199745'
@@ -61,9 +62,7 @@ function LoadedGame({ game, onOpen }: { game: SaveSummary; onOpen: () => void })
         <Button type="primary" icon={<ExportOutlined aria-hidden />} onClick={exportSave}>
           Export
         </Button>
-        <Button icon={<FolderOpenOutlined aria-hidden />} onClick={onOpen}>
-          Open new...
-        </Button>
+        <OpenButton label="Open new..." onOpen={onOpen} />
       </Flex>
     </>
   )
@@ -83,9 +82,7 @@ function NoGame({ onOpen, onDemo }: { onOpen: () => void; onDemo: () => void }) 
       <Button style={{ minWidth: 150 }} onClick={goHome}>
         Home
       </Button>
-      <Button type="primary" icon={<FolderOpenOutlined aria-hidden />} style={{ minWidth: 150 }} onClick={onOpen}>
-        Open
-      </Button>
+      <OpenButton label="Open" type="primary" style={{ minWidth: 150 }} onOpen={onOpen} />
       <Space.Compact style={{ minWidth: 150 }}>
         <Button style={{ flexGrow: 1 }} onClick={() => engine.game.loadBlank(swordVersionId)}>
           Empty
@@ -105,5 +102,52 @@ function NoGame({ onOpen, onDemo }: { onOpen: () => void; onDemo: () => void }) 
         Demo
       </Button>
     </Flex>
+  )
+}
+
+interface OpenButtonProps {
+  label: string
+  type?: ButtonProps['type']
+  style?: CSSProperties
+  onOpen: () => void
+}
+
+function OpenButton({ label, type, style, onOpen }: OpenButtonProps) {
+  const [loadingRomHack, setLoadingRomHack] = useState(false)
+  const icon = <FolderOpenOutlined aria-hidden />
+
+  if (!romHacksEnabled) {
+    return (
+      <Button type={type} icon={icon} style={style} onClick={onOpen}>
+        {label}
+      </Button>
+    )
+  }
+
+  return (
+    <>
+      <Space.Compact style={style}>
+        <Button type={type} icon={icon} style={{ flexGrow: 1 }} onClick={onOpen}>
+          {label}
+        </Button>
+        <Dropdown
+          trigger={['click']}
+          menu={{
+            items: [
+              { key: 'open', label: 'Open save file' },
+              { key: 'romHack', label: 'Load ROM Hack' },
+            ],
+            onClick: ({ key }) => (key === 'romHack' ? setLoadingRomHack(true) : onOpen()),
+          }}
+        >
+          <Button type={type} icon={<EllipsisOutlined />} aria-label="More ways to open" />
+        </Dropdown>
+      </Space.Compact>
+      {loadingRomHack && (
+        <Suspense fallback={null}>
+          <LoadRomHackModal onClose={() => setLoadingRomHack(false)} />
+        </Suspense>
+      )}
+    </>
   )
 }

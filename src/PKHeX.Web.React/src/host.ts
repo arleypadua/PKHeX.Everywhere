@@ -1,6 +1,7 @@
 import { useCallback, useSyncExternalStore } from 'react'
 import { useNavigate as useRouterNavigate } from 'react-router'
 import { toBase64 } from './base64'
+import { readRomHacksFlag } from './romHacks'
 import { createSettings, type Theme } from './settings'
 
 export type { Theme } from './settings'
@@ -29,6 +30,7 @@ function createStore<T>(initial: T) {
 }
 
 export const settings = createSettings()
+export const romHacksEnabled = readRomHacksFlag(location.search, () => localStorage)
 const themeStore = createStore(settings.readTheme())
 const calculatorUrlStore = createStore(settings.readCalculatorUrl())
 

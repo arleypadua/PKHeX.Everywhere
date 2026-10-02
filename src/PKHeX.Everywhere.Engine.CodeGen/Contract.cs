@@ -22,7 +22,8 @@ public record Call(
     Type ReturnType,
     NullabilityInfo ReturnNullability,
     bool RequiresSave,
-    bool RequiresDraft)
+    bool RequiresDraft,
+    MethodInfo Method)
 {
     public string Entity => Name[..Name.IndexOf('.')];
     public string Verb => Name[(Name.IndexOf('.') + 1)..];
@@ -65,7 +66,8 @@ public record Contract(IReadOnlyList<Call> Calls, IReadOnlyList<Type> Events, IR
                 Awaited(m.Method.ReturnType),
                 Awaited(nullability.Create(m.Method.ReturnParameter)),
                 m.Method.GetParameters().Any(p => p.ParameterType.FullName == GameType) || m.Requires.Contains("Save"),
-                m.Requires.Contains("Draft")))
+                m.Requires.Contains("Draft"),
+                m.Method))
             .OrderBy(c => c.Name, StringComparer.Ordinal)
             .ToList();
 

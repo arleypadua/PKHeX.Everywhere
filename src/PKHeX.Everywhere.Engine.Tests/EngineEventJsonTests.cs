@@ -42,7 +42,7 @@ public class EngineEventJsonTests
         var session = new Session();
         var sent = Sent(session);
 
-        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), "emerald.sav")));
+        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), "emerald.sav", null!)));
 
         var loaded = sent.Should().ContainSingle().Which;
         loaded["type"]!.GetValue<string>().Should().Be("gameLoaded");

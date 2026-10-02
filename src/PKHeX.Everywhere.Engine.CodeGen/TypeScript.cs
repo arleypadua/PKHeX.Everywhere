@@ -16,8 +16,9 @@ public static class TypeScript
     /// </summary>
     public static IEnumerable<(string File, string Content)> Write(Contract contract)
     {
-        var types = new TypeCollector(BinaryOutputs(contract), new Docs());
-        var client = Client(contract, types);
+        var docs = new Docs();
+        var types = new TypeCollector(BinaryOutputs(contract), docs);
+        var client = Client(contract, types, docs);
         foreach (var engineEvent in contract.Events) types.Render(engineEvent, null);
 
         yield return ("engine/src/generated/types.ts", types.Declarations() + Events(contract));
@@ -60,7 +61,21 @@ public static class TypeScript
         if (needs.Count == 0) return null;
 
         var wrap = react && call.RequiresSave ? " Wrap in `<RequireGame>`." : "";
-        return $"/** Requires {string.Join(" and ", needs)}; throws {string.Join(" or ", codes)} otherwise.{wrap} */";
+        return $"Requires {string.Join(" and ", needs)}; throws {string.Join(" or ", codes)} otherwise.{wrap}";
+    }
+
+    private static string? Doc(Call call, IEnumerable<Parameter> parameters, Docs docs, bool react, string indent)
+    {
+        var summary = string.Join(" ", new[] { docs.Summary(call.Method), Requirements(call, react) }.OfType<string>());
+        var tags = parameters
+            .Select(p => docs.Param(call.Method, p.Name) is { } text ? $"@param {p.Name} {text}" : null)
+            .OfType<string>()
+            .ToList();
+
+        if (tags.Count == 0) return summary == "" ? null : $"{indent}/** {summary} */";
+
+        var lines = (summary == "" ? tags : [summary, "", .. tags]).Select(line => line == "" ? $"{indent} *" : $"{indent} * {line}");
+        return $"{indent}/**\n{string.Join("\n", lines)}\n{indent} */";
     }
 
     private static string Parameters(IEnumerable<Parameter> parameters, TypeCollector types) =>
@@ -90,7 +105,7 @@ public static class TypeScript
 
         """;
 
-    private static string Client(Contract contract, TypeCollector types)
+    private static string Client(Contract contract, TypeCollector types, Docs docs)
     {
         var root = new Node();
         foreach (var call in contract.Calls)
@@ -101,7 +116,7 @@ public static class TypeScript
 
         var signatures = new StringBuilder();
         var implementations = new StringBuilder();
-        WriteNode(root, types, signatures, implementations, 1);
+        WriteNode(root, types, docs, signatures, implementations, 1);
 
         var imports = types.Names.Count == 0
             ? ""
@@ -140,7 +155,8 @@ public static class TypeScript
 
     private static string Hooks(Contract contract)
     {
-        var types = new TypeCollector(BinaryOutputs(contract), new Docs());
+        var docs = new Docs();
+        var types = new TypeCollector(BinaryOutputs(contract), docs);
         var hooks = new List<string>();
         var usesCommands = false;
 
@@ -160,7 +176,7 @@ public static class TypeScript
 
             var hook = new StringBuilder();
             var parameter = handle is null ? "" : $"{handle.Name}: {types.Render(handle.Type, handle.Nullability)}";
-            if (Requirements(get, react: true) is { } doc) hook.AppendLine(doc);
+            if (Requirements(get, react: true) is { } doc) hook.AppendLine($"/** {doc} */");
             hook.AppendLine($"export function {name}({parameter}) {{");
             if (commands.Count > 0) hook.AppendLine("  const engine = useEngine()");
             hook.AppendLine($"  const {entity.Key} = useQuery({Quote(get.Name)}{(handle is null ? "" : $", {handle.Name}")})");
@@ -182,7 +198,7 @@ public static class TypeScript
                 var own = command.Parameters.Skip(bound ? 1 : 0).ToList();
                 var parameters = Parameters(own, types);
                 var arguments = string.Join(", ", (bound ? [handle!.Name] : Array.Empty<string>()).Concat(own.Select(p => p.Name)));
-                if (Requirements(command, react: true) is { } commandDoc) hook.AppendLine($"      {commandDoc}");
+                if (Doc(command, own, docs, react: true, "      ") is { } commandDoc) hook.AppendLine(commandDoc);
                 hook.AppendLine($"      {command.Verb}: ({parameters}) => engine.{command.Name}({arguments}),");
             }
 
@@ -204,14 +220,14 @@ public static class TypeScript
         return $"{Header}\n{imports}\n{string.Join("\n", hooks)}";
     }
 
-    private static void WriteNode(Node node, TypeCollector types, StringBuilder signatures, StringBuilder implementations, int depth)
+    private static void WriteNode(Node node, TypeCollector types, Docs docs, StringBuilder signatures, StringBuilder implementations, int depth)
     {
         var indent = new string(' ', depth * 2);
         foreach (var (name, child) in node.Children)
         {
             signatures.AppendLine($"{indent}{name}: {{");
             implementations.AppendLine($"{indent}  {name}: {{");
-            WriteNode(child, types, signatures, implementations, depth + 1);
+            WriteNode(child, types, docs, signatures, implementations, depth + 1);
             signatures.AppendLine($"{indent}}}");
             implementations.AppendLine($"{indent}  }},");
         }
@@ -222,7 +238,7 @@ public static class TypeScript
             var arguments = string.Join(", ", call.Parameters.Select(p => p.Name));
             var result = call.ReturnType == typeof(void) ? "void" : types.Render(call.ReturnType, call.ReturnNullability, Direction.Output);
 
-            if (Requirements(call, react: false) is { } doc) signatures.AppendLine($"{indent}{doc}");
+            if (Doc(call, call.Parameters, docs, react: false, indent) is { } doc) signatures.AppendLine(doc);
             signatures.AppendLine($"{indent}{name}({parameters}): Promise<{result}>");
             implementations.AppendLine($"{indent}  {name}: {Implementation(call, result, types)},");
         }

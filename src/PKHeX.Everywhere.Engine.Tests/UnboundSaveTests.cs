@@ -20,7 +20,7 @@ public class UnboundSaveTests
     private static Session LoadedUnbound(byte[]? bytes = null)
     {
         var session = new Session();
-        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(bytes ?? Fixture), "unbound.sav")));
+        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(bytes ?? Fixture), "unbound.sav", null!)));
         return session;
     }
 
@@ -157,6 +157,38 @@ public class UnboundSaveTests
     }
 
     [Fact]
+    public void FormatsListTheRegisteredSaveFormats() =>
+        Value(Dispatch(new Session(), "game.formats", "[]"))!.AsArray()
+            .Select(format => (format!["id"]!.GetValue<string>(), format["name"]!.GetValue<string>()))
+            .Should().Contain(("unbound", "Pokémon Unbound"));
+
+    [Fact]
+    public void LoadsWithTheChosenFormat()
+    {
+        var session = new Session();
+
+        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(Fixture), "unbound.sav", "unbound")));
+
+        session.Game!.SaveFile.Should().BeOfType<UnboundSave>();
+        session.FileName.Should().Be("unbound.sav");
+    }
+
+    [Fact]
+    public void LoadingWithAnUnknownFormatFailsWithNotFound()
+    {
+        var session = new Session();
+
+        Error(Dispatch(session, "game.load", Args(Convert.ToBase64String(Fixture), "unbound.sav", "nope"))).Should().Be("not-found");
+
+        session.Game.Should().BeNull();
+    }
+
+    [Fact]
+    public void LoadingASaveTheChosenFormatCannotReadFailsWithInvalidSave() =>
+        Error(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), "emerald.sav", "unbound")))
+            .Should().Be("invalid-save");
+
+    [Fact]
     public void TheSummaryNamesTheFormatAndListsNoCapabilities()
     {
         var summary = Value(Dispatch(LoadedUnbound(), "game.get", "[]"))!;
@@ -251,7 +283,7 @@ public class UnboundSaveTests
     {
         var session = new Session();
 
-        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.FireRed)), "firered.sav")));
+        Value(Dispatch(session, "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.FireRed)), "firered.sav", null!)));
 
         session.Game!.SaveFile.Should().BeOfType<Core.SAV3FRLG>();
         Value(Dispatch(session, "game.version", "[]"))!["generation"]!.GetValue<string>().Should().Be("Gen3");
