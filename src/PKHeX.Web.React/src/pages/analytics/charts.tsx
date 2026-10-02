@@ -29,5 +29,5 @@ export function PieChart({ data }: { data: Slice[] }) {
 
 export function TreemapChart({ data }: { data: TreemapData }) {
   const theme = useChartTheme()
-  return <Treemap data={{ value: data }} autoFit theme={theme} />
+  return <Treemap data={{ value: data }} valueField="value" autoFit theme={theme} />
 }
