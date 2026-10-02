@@ -25,7 +25,7 @@ public class PokemonBox : IMutablePokemonCollection
 
     public IEnumerable<(int Index, Pokemon Pokemon)> Boxed() => _pokemonList
         .Select((pokemon, index) => (index, pokemon))
-        .Where(p => p.pokemon.Pkm.Species != 0 && !IsPartyMember(p.index));
+        .Where(p => !p.pokemon.IsEmpty && !IsPartyMember(p.index));
 
     public string Showdown()
     {

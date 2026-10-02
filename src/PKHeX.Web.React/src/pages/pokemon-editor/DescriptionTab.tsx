@@ -124,7 +124,13 @@ export function DescriptionTab() {
             key: 'heldItem',
             label: 'Held Item',
             children: (
-              <ItemSelect items={heldItems} label="Held Item" value={details.heldItem} onChange={(item) => submit({ heldItem: item.id })} />
+              <ItemSelect
+                items={heldItems}
+                label="Held Item"
+                value={details.unknownHeldItem ? undefined : details.heldItem}
+                placeholder={details.unknownHeldItem ?? undefined}
+                onChange={(item) => submit({ heldItem: item.id })}
+              />
             ),
           },
         ]),

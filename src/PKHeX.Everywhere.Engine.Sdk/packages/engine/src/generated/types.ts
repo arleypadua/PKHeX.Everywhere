@@ -77,6 +77,8 @@ export interface EditablePokemon {
   ability: number
   /** PKHeX item id. 0 means no item. See `game.heldItems()`. */
   heldItem: number
+  /** Set when the Pokémon holds an item PKHeX has no id for, such as a ROM hack's own item, to a name like `Unknown item #640`. `heldItem` is 0 then, and the item stays until `heldItem` is set to another item. */
+  unknownHeldItem: string | null
   /** PKHeX ball id. See `game.balls()`. */
   ball: number
   /** Friendship with the current handler, 0 to 255. */
@@ -627,7 +629,7 @@ export interface PokemonSummary {
   id: PokemonId
   /** Where the Pokémon is. */
   at: PokemonHandle
-  /** PKHeX species id, which is the National Pokédex number. */
+  /** PKHeX species id, which is the National Pokédex number. 0 when the save stores a species PKHeX has no id for, such as a ROM hack's own species. `species` is then `Unknown (#n)`, and editing the Pokémon fails with `unknown-species`. */
   speciesId: number
   species: string
   form: PokemonForm

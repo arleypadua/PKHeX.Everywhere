@@ -1,4 +1,5 @@
 using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 using static System.Buffers.Binary.BinaryPrimitives;
 
 namespace PKHeX.Everywhere.RomHacks.Cfru;
@@ -7,7 +8,7 @@ namespace PKHeX.Everywhere.RomHacks.Cfru;
 /// A save from a hack built on the Complete FireRed Upgrade. It copies the box stream into one buffer when loading,
 /// writes it back on export, and leaves every other byte as it was.
 /// </summary>
-public abstract class CfruSave : SaveFile
+public abstract class CfruSave : SaveFile, IMoveList
 {
     private const int SectorSize = 0x1000;
     private const int SectorCount = 14;
@@ -138,6 +139,7 @@ public abstract class CfruSave : SaveFile
 
     public override IPersonalTable Personal => SpeciesMap.Personal;
     protected abstract CfruSpeciesMap SpeciesMap { get; }
+    protected abstract CfruItemMap ItemMap { get; }
 
     public override int MaxStringLengthTrainer => 7;
     public override int MaxStringLengthNickname => 10;
@@ -149,8 +151,8 @@ public abstract class CfruSave : SaveFile
     public override GameVersion MaxGameID => BlankPKM.MaxGameID;
     public override int MaxEV => EffortValues.Max255;
     public override int MaxMoney => 999999;
-    public override ReadOnlySpan<ushort> HeldItems => HeldItemIds;
-    private static readonly ushort[] HeldItemIds = ItemStorage9SV.GetAllHeld();
+    public override ReadOnlySpan<ushort> HeldItems => ItemMap.HeldItems;
+    public IReadOnlySet<ushort> Moves => CfruMoves.All;
 
     public override string GetString(ReadOnlySpan<byte> data) => StringConverter3.GetString(data, false);
     public override int LoadString(ReadOnlySpan<byte> data, Span<char> text) => StringConverter3.LoadString(data, text, false);
@@ -187,9 +189,17 @@ public abstract class CfruSave : SaveFile
     protected override void DecryptPKM(Span<byte> data) { }
 
     // Party stats computed for a blank would land in the empty slot, which the game leaves zeroed.
+    // An unmapped species keeps the stats it has, since they can't be computed without its base stats.
     protected override void SetPartyValues(PKM pk, bool isParty)
     {
         if (pk.Species != 0) base.SetPartyValues(pk, isParty);
+    }
+
+    // PKHeX counts the party by species, which reads as 0 for an unmapped one.
+    public override void SetPartySlotAtIndex(PKM pk, int index, EntityImportSettings settings = default)
+    {
+        base.SetPartySlotAtIndex(pk, index, settings);
+        if (((CfruPokemon)pk).SpeciesIndex != 0 && PartyCount <= index) PartyCount = index + 1;
     }
 
     protected override PKM GetBoxSlot(int offset)

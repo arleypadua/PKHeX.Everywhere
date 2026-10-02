@@ -1,4 +1,5 @@
 using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Facade.Repositories;
 
@@ -17,12 +18,16 @@ public class GameOptions(SaveFile saveFile)
     public IReadOnlyList<Choice> Languages => saveFile.Generation >= 3 ? ToChoices(_source.Value.Languages) : [];
     public IReadOnlyList<Choice> HeldItems => ToChoices(_source.Value.Items);
     public IReadOnlyList<Choice> OriginGames => saveFile.Generation >= 3 ? ToChoices(_source.Value.Games) : [];
-    public IReadOnlyList<Choice> Moves => _moves ??= _source.Value.Moves
-        .Where(move => move.Value != (int)Move.None)
-        .Select(move => MoveRepository.Instance.GetMove((ushort)move.Value))
+    public IReadOnlyList<Choice> Moves => _moves ??= MoveIds()
+        .Where(move => move != (int)Move.None)
+        .Select(move => MoveRepository.Instance.GetMove((ushort)move))
         .OrderBy(move => move.Name)
         .Select(move => new Choice(move.Id, move.Name))
         .ToArray();
+
+    private IEnumerable<int> MoveIds() => saveFile is IMoveList list
+        ? list.Moves.Select(move => (int)move)
+        : _source.Value.Moves.Select(move => move.Value);
 
     private static Choice[] ToChoices(IEnumerable<ComboItem> items) => items.Select(item => new Choice(item.Value, item.Text)).ToArray();
 }

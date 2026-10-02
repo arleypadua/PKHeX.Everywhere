@@ -132,6 +132,7 @@ describe('entity hooks', () => {
       nature: 3,
       ability: 9,
       heldItem: 0,
+      unknownHeldItem: null,
       ball: 4,
       friendship: 70,
       language: 2,

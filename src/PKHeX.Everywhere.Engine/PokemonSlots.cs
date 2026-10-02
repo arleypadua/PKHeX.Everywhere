@@ -1,6 +1,7 @@
 using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
+using PKHeX.Facade.Pokemons;
 using Pokemon = PKHeX.Facade.Pokemons.Pokemon;
 
 namespace PKHeX.Everywhere.Engine;
@@ -24,6 +25,23 @@ internal static class PokemonSlots
         return new PokemonSlot(session.RequireDraft().Pokemon, () => { }, [Topics.Draft]);
     }
 
+    public static PokemonSlot FindEditable(this Session session, PokemonHandle at) => RequireEditable(session.Find(at));
+
+    public static PokemonSlot FindEditableSaved(this Game game, PokemonHandle at) => RequireEditable(game.FindSaved(at));
+
+    private static PokemonSlot RequireEditable(PokemonSlot slot)
+    {
+        try
+        {
+            slot.Pokemon.RequireEditable();
+            return slot;
+        }
+        catch (UnknownSpeciesException e)
+        {
+            throw new EngineException(ErrorCodes.UnknownSpecies, e.Message, e);
+        }
+    }
+
     public static Draft RequireDraft(this Session session) =>
         session.Draft ?? throw new EngineException(ErrorCodes.NoDraft, "No Pokémon is open for editing.");
 
@@ -39,7 +57,7 @@ internal static class PokemonSlots
     {
         var party = game.Trainer.Party;
         var pokemons = party.Pokemons;
-        if (slot < 0 || slot >= pokemons.Count || pokemons[slot].Pkm.Species == 0) return null;
+        if (slot < 0 || slot >= pokemons.Count || pokemons[slot].IsEmpty) return null;
 
         var pokemon = pokemons[slot];
         string[] topics = party.BoxIndexOf(slot) is { } index
@@ -59,7 +77,7 @@ internal static class PokemonSlots
 
         var index = box * save.BoxSlotCount + at.Slot;
         var pokemons = game.Trainer.PokemonBox;
-        if (index >= pokemons.All.Count || pokemons.All[index].Pkm.Species == 0) throw NotFound(at);
+        if (index >= pokemons.All.Count || pokemons.All[index].IsEmpty) throw NotFound(at);
 
         var pokemon = pokemons.All[index];
         if (game.Trainer.Party.SlotOf(index) is null) return new PokemonSlot(pokemon, pokemons.Commit, [at.Topic()]);

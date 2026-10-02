@@ -12,9 +12,11 @@ public class SpeciesRepository
     {
         _game = game;
         var saveSpecificDataSource = new FilteredGameDataSource(game.SaveFile, GameInfo.Sources);
-        _species = saveSpecificDataSource.Species.ToImmutableDictionary(
-            k => (Species)k.Value,
-            v => new SpeciesDefinition((Species)v.Value, v.Text));
+        _species = saveSpecificDataSource.Species
+            .Where(species => game.SaveFile.Personal.IsSpeciesInGame((ushort)species.Value))
+            .ToImmutableDictionary(
+                k => (Species)k.Value,
+                v => new SpeciesDefinition((Species)v.Value, v.Text));
     }
 
     public IEnumerable<SpeciesDefinition> AllGameSpecies => _species.Values;
@@ -63,4 +65,6 @@ public record SpeciesDefinition(Species Species, string Name)
     public static implicit operator Species(SpeciesDefinition d) => d.Species;
     
     public static SpeciesDefinition None => new(Species.None, "None");
+
+    public static SpeciesDefinition Unknown(ushort stored) => new(Species.None, $"Unknown (#{stored})");
 }

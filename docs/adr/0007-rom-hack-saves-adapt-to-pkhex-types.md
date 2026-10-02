@@ -23,7 +23,7 @@ The Engine tests in `UnboundSaveTests` cover the gate:
 ## Features that don't apply to a hack
 
 - **Legality** runs and reports "Internal error" as invalid. The save doesn't change.
-- **Showdown** works. Item names are wrong until the item tables land (#148).
+- **Showdown** works.
 - **Encounters** list Scarlet and Violet only. Searching FireRed fails with `bad-arguments`, and adding a Scarlet or Violet encounter fails because the Pokémon type doesn't match. The save doesn't change.
 - **AutoLegality** has side effects. It reports success and writes back a Pokémon with a zero PID, a blank OT and a garbage nickname. ALM builds a Pokémon from PKHeX's encounter data, which no hack has, so no `PKM` override can fix it. #147 must turn it off, plug-in actions included, before #150 registers the format in the host.
 
@@ -31,19 +31,20 @@ The Engine tests in `UnboundSaveTests` cover the gate:
 
 These are rules of the format, not workarounds for the Facade:
 
-- Species, form and moves translate between hack indices and national IDs. Writing back the value a getter returned keeps the raw index, so duplicate indices (Unbound has four Gourgeist) and unmapped values survive edits to other fields.
+- Species, form, moves and the held item translate between hack indices and national or modern IDs. Writing back the value a getter returned keeps the raw index, so duplicate indices (Unbound has four Gourgeist) and unmapped values survive edits to other fields.
+- An unmapped species or held item reads as 0. The Pokémon reports the raw value through the Facade's `IUnmappedValues`, so the Facade shows it as "Unknown (#n)" or "Unknown item #n", keeps it in the party and boxes, and refuses to edit a Pokémon with an unknown species.
+- PKHeX counts the party by species, so the save overrides `SetPartySlotAtIndex` to count an unmapped member.
+- The save lists its held items through `HeldItems` and its moves through the Facade's `IMoveList`. Species come from the personal table's `IsSpeciesInGame`, which the Facade checks for every save.
 - The party checksum is always written as 0.
 - An empty party slot keeps "no mail" (`0xFF`), and the save doesn't compute party stats for a blank. Without this, export changed bytes in empty party slots.
 - Box Pokémon expand from 58 bytes to the party layout and compress back without loss. PP isn't stored in boxes, so it is refilled with Gen 9 values on load.
 
 ## Known gaps for later slices
 
-- An unmapped species reads as species 0, so its box slot shows as empty. The fixture has two such Pokémon. In the party, `PokemonParty.Commit` drops members with species 0, so an unmapped party member would be lost on export. #148 has to handle this when it adds "Unknown (#n)".
-- Held items are raw hack IDs shown with modern item names (#148).
 - Max PP and base stats come from national data, not the hack.
 - The save summary still reports FireRed and generation 9. Since #147 it also names the save format, which the UI shows instead.
 
 ## Rejected alternatives
 
-- **Facade interfaces for saves and Pokémon.** Every Facade class would need a second path. The gate showed PKHeX's types are enough.
+- **Facade interfaces for saves and Pokémon.** Every Facade class would need a second path. The gate showed PKHeX's types are enough. #148 added two narrow ones, `IUnmappedValues` and `IMoveList`, for what PKHeX's types can't say.
 - **PKHeX's `CustomSaveReaders`.** It can't express a `Possible` match or a user's choice of format, which Radical Red needs.

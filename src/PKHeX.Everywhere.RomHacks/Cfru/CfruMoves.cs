@@ -8,6 +8,8 @@ internal static class CfruMoves
         .DistinctBy(entry => entry.Move)
         .ToDictionary(entry => entry.Move, entry => entry.Index);
 
+    public static readonly IReadOnlySet<ushort> All = IndexByNational.Keys.ToHashSet();
+
     public static ushort ToNational(ushort index) =>
         index < CfruMoveTable.NationalByIndex.Length ? CfruMoveTable.NationalByIndex[index] : (ushort)0;
 

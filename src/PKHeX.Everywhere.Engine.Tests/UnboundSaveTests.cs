@@ -54,7 +54,7 @@ public class UnboundSaveTests
     }
 
     [Fact]
-    public void ListsEveryKnownPokemonInAll25Boxes()
+    public void ListsEveryPokemonInAll25Boxes()
     {
         var session = LoadedUnbound();
 
@@ -67,7 +67,7 @@ public class UnboundSaveTests
             {
                 [1] = 30, [2] = 30, [3] = 30, [4] = 30, [5] = 30, [6] = 30, [7] = 30, [8] = 26, [9] = 30, [10] = 30,
                 [11] = 25, [12] = 30, [13] = 25, [14] = 30, [15] = 30, [16] = 30, [17] = 29, [18] = 30, [19] = 30,
-                [20] = 30, [21] = 30, [22] = 27, [23] = 28, [24] = 20,
+                [20] = 30, [21] = 30, [22] = 27, [23] = 30, [24] = 20,
             });
     }
 
@@ -241,6 +241,168 @@ public class UnboundSaveTests
     }
 
     private static byte[] PlugIn(string id) => File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "plugins", $"{id}.dll"));
+
+    private static readonly PokemonHandle UnknownSpecies = PokemonHandle.InBox(22, 18);
+    private static readonly PokemonHandle HoldsUnknownItem = PokemonHandle.InBox(19, 27);
+
+    private static int Item(string name) => Facade.Repositories.ItemRepository.GetItemByName(name)!.Id;
+
+    private static int[] Ids(JsonNode? choices) => choices!.AsArray().Select(choice => choice!["id"]!.GetValue<int>()).ToArray();
+
+    private static string Update(Session session, PokemonHandle at, object patch) =>
+        Dispatch(session, "pokemon.update", JsonSerializer.Serialize(new object[] { Arg(at), patch }));
+
+    [Fact]
+    public void TheSpeciesCatalogListsOnlyUnboundSpecies()
+    {
+        var species = Ids(Value(Dispatch(LoadedUnbound(), "species.list", "[]")));
+
+        species.Should().HaveCount(905).And.OnlyContain(id => id >= 1 && id <= (int)Core.Species.Enamorus);
+    }
+
+    [Fact]
+    public void TheMoveCatalogListsOnlyCfruMoves()
+    {
+        var moves = Ids(Value(Dispatch(LoadedUnbound(), "game.moves", "[]")));
+
+        moves.Should().HaveCount(815)
+            .And.Contain((int)Core.Move.HiddenPower)
+            .And.NotContain([(int)Core.Move.Fissure, (int)Core.Move.TeraBlast]);
+    }
+
+    [Fact]
+    public void TheHeldItemCatalogListsOnlyUnboundItems()
+    {
+        var items = Ids(Value(Dispatch(LoadedUnbound(), "game.heldItems", "[]")));
+
+        items.Should().Contain([0, Item("Leftovers"), Item("Light Clay"), Item("Latiasite")])
+            .And.NotContain([Item("Ability Patch"), Item("Booster Energy")]);
+    }
+
+    [Theory]
+    [MemberData(nameof(EditedPokemon))]
+    public void PokemonOptionsListOnlyUnboundValues(PokemonHandle at)
+    {
+        var session = LoadedUnbound();
+        var options = Value(Dispatch(session, "pokemon.options", Args(at)))!;
+
+        Ids(options["moves"]).Should().BeSubsetOf(Ids(Value(Dispatch(session, "game.moves", "[]"))));
+        Ids(options["species"]).Should().BeSubsetOf(Ids(Value(Dispatch(session, "species.list", "[]"))));
+    }
+
+    [Fact]
+    public void HeldItemsTranslateToModernIds() =>
+        Details(LoadedUnbound(), PokemonHandle.Party(0))["heldItem"]!.GetValue<int>().Should().Be(Item("Light Clay"));
+
+    [Theory]
+    [InlineData("species", (int)Core.Species.Sprigatito)]
+    [InlineData("heldItem", 1606)] // Ability Patch
+    public void SettingAValueOutsideUnboundsTablesIsRejected(string field, int value)
+    {
+        var session = LoadedUnbound();
+
+        Error(Update(session, PokemonHandle.Party(0), new Dictionary<string, object> { [field] = value })).Should().Be("invalid-patch");
+
+        Exported(session).Should().Equal(Fixture);
+    }
+
+    [Fact]
+    public void SettingAMoveOutsideCfrusTableIsRejected()
+    {
+        var session = LoadedUnbound();
+
+        Error(Update(session, PokemonHandle.Party(0), new { moves = new[] { (int)Core.Move.Fissure, 0, 0, 0 } })).Should().Be("invalid-patch");
+
+        Exported(session).Should().Equal(Fixture);
+    }
+
+    [Fact]
+    public void AnUnmappedSpeciesIsListedAsUnknown()
+    {
+        var boxed = Value(Dispatch(LoadedUnbound(), "box.get", "[]"))!.AsArray();
+
+        boxed.Where(p => p!["at"]!["box"]!.GetValue<int>() == 22)
+            .Select(p => (p!["at"]!["slot"]!.GetValue<int>(), p["species"]!.GetValue<string>()))
+            .Should().Contain([(18, "Unknown (#1199)"), (25, "Unknown (#1203)")]);
+    }
+
+    [Fact]
+    public void AnUnmappedSpeciesCantBeEdited()
+    {
+        var session = LoadedUnbound();
+
+        Error(Update(session, UnknownSpecies, new { nickname = "Renamed" })).Should().Be("unknown-species");
+        Error(Dispatch(session, "pokemon.setLevel", Args(UnknownSpecies, 60))).Should().Be("unknown-species");
+        Error(Dispatch(session, "pokemon.edit", Args(UnknownSpecies))).Should().Be("unknown-species");
+        Error(Dispatch(session, "pokemon.clone", Args(UnknownSpecies))).Should().Be("unknown-species");
+        Value(Dispatch(session, "pokemon.details", Args(UnknownSpecies)))!["species"]!.GetValue<int>().Should().Be(0);
+
+        Exported(session).Should().Equal(Fixture);
+    }
+
+    private static byte[] FixtureWith(Action<UnboundSave> change)
+    {
+        var save = new UnboundSave(Fixture.ToArray());
+        change(save);
+        return save.Write().ToArray();
+    }
+
+    [Fact]
+    public void AnUnmappedSpeciesMovedToAnotherBoxSlotSurvivesExport()
+    {
+        const int from = (22 * 30) + 18;
+        var to = new UnboundSave(Fixture.ToArray()).NextOpenBoxSlot();
+        byte[]? moved = null;
+        var session = LoadedUnbound(FixtureWith(save =>
+        {
+            moved = save.GetBoxSlotAtIndex(from).Data.ToArray();
+            save.SetBoxSlotAtIndex(save.GetBoxSlotAtIndex(from), to);
+            save.SetBoxSlotAtIndex(save.BlankPKM, from);
+        }));
+
+        var reloaded = LoadedUnbound(Exported(session));
+
+        reloaded.Game!.SaveFile.GetBoxSlotAtIndex(to).Data.ToArray().Should().Equal(moved);
+        Value(Dispatch(reloaded, "box.get", "[]"))!.AsArray()
+            .Where(p => p!["species"]!.GetValue<string>() == "Unknown (#1199)")
+            .Select(p => (p!["at"]!["box"]!.GetValue<int>() * 30) + p["at"]!["slot"]!.GetValue<int>())
+            .Should().Equal(to);
+    }
+
+    [Fact]
+    public void AnUnmappedSpeciesInThePartySurvivesAnEditToAnotherMember()
+    {
+        var session = LoadedUnbound(FixtureWith(save => save.SetPartySlotAtIndex(save.GetBoxSlotAtIndex((22 * 30) + 18), 1)));
+        var before = session.Game!.SaveFile.GetPartySlotAtIndex(1).Data.ToArray();
+
+        Value(Dispatch(session, "pokemon.setLevel", Args(PokemonHandle.Party(0), 60)));
+
+        var reloaded = LoadedUnbound(Exported(session));
+        Value(Dispatch(reloaded, "party.get", "[]"))!.AsArray().Select(p => p!["species"]!.GetValue<string>())
+            .Should().Equal("Latias", "Unknown (#1199)");
+        reloaded.Game!.SaveFile.GetPartySlotAtIndex(1).Data.ToArray().Should().Equal(before);
+    }
+
+    [Fact]
+    public void AnUnmappedHeldItemShowsAsUnknown()
+    {
+        var details = Details(LoadedUnbound(), HoldsUnknownItem);
+
+        details["heldItem"]!.GetValue<int>().Should().Be(0);
+        details["unknownHeldItem"]!.GetValue<string>().Should().Be("Unknown item #640");
+    }
+
+    [Fact]
+    public void AnUnmappedHeldItemSurvivesAnEditToAnotherField()
+    {
+        var session = LoadedUnbound();
+
+        Value(Update(session, HoldsUnknownItem, new { ivs = new { attack = 0 } }));
+
+        var reloaded = Details(LoadedUnbound(Exported(session)), HoldsUnknownItem);
+        reloaded["ivs"]!["attack"]!.GetValue<int>().Should().Be(0);
+        reloaded["unknownHeldItem"]!.GetValue<string>().Should().Be("Unknown item #640");
+    }
 
     private static object Arg(PokemonHandle at) =>
         new { source = at.Source.ToString().ToLowerInvariant(), slot = at.Slot, box = at.Box };

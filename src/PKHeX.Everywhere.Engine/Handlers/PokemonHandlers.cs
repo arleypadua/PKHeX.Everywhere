@@ -39,7 +39,7 @@ public static class PokemonHandlers
         if (level is < 1 or > 100)
             throw new EngineException(ErrorCodes.OutOfRange, $"Level must be between 1 and 100, got {level}.");
 
-        var slot = session.Find(at);
+        var slot = session.FindEditable(at);
         slot.Pokemon.ChangeLevel(level);
         slot.Commit(session);
         session.Raise(new PokemonChanged(at));
@@ -49,7 +49,7 @@ public static class PokemonHandlers
     [Command("pokemon.update")]
     public static void Update(Session session, PokemonHandle at, PokemonPatch patch)
     {
-        var slot = session.Find(at);
+        var slot = session.FindEditable(at);
         try
         {
             slot.Pokemon.Update(patch.ToFacade());
@@ -65,11 +65,11 @@ public static class PokemonHandlers
 
     [Command("pokemon.edit", Topics.Draft)]
     public static void Edit(Session session, Game game, PokemonHandle at) =>
-        session.Draft = new Draft(game.FindSaved(at).Pokemon.Clone(), at);
+        session.Draft = new Draft(game.FindEditableSaved(at).Pokemon.Clone(), at);
 
     [Command("pokemon.clone", Topics.Draft)]
     public static void Clone(Session session, Game game, PokemonHandle at) =>
-        session.Draft = new Draft(game.FindSaved(at).Pokemon.MakeCopy(), null);
+        session.Draft = new Draft(game.FindEditableSaved(at).Pokemon.MakeCopy(), null);
 
     [Requires(Requirement.Draft)]
     [Command("pokemon.commit", Topics.Draft)]

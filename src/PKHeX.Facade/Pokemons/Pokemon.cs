@@ -1,4 +1,5 @@
 using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Extensions;
 using PKHeX.Facade.Repositories;
 
@@ -28,9 +29,25 @@ public partial class Pokemon(PKM pokemon, Game game)
     
     public GameVersionDefinition Version => GameVersionRepository.Instance.Get(Pkm.Version);
 
+    public bool IsEmpty => IsBlank(pokemon);
+
+    public bool IsUnknown => IsUnmapped(pokemon);
+
+    internal static bool IsBlank(PKM pkm) => pkm.Species == 0 && !IsUnmapped(pkm);
+
+    private static bool IsUnmapped(PKM pkm) => pkm is IUnmappedValues { UnmappedSpecies: not null };
+
+    /// <exception cref="UnknownSpeciesException">The species has no PKHeX id, so the Pokémon can't be edited or copied.</exception>
+    public void RequireEditable()
+    {
+        if (IsUnknown) throw new UnknownSpeciesException($"{Species.Name} can't be edited, as its species is unknown.");
+    }
+
     public SpeciesDefinition Species
     {
-        get => Game.SpeciesRepository.Get((Species)Pkm.Species);
+        get => pokemon is IUnmappedValues { UnmappedSpecies: { } unmapped }
+            ? SpeciesDefinition.Unknown(unmapped)
+            : Game.SpeciesRepository.Get((Species)Pkm.Species);
         set
         {
             if (Pkm.Species == value.ShortId) return;
@@ -126,6 +143,7 @@ public partial class Pokemon(PKM pokemon, Game game)
 
     public void ChangeLevel(int level)
     {
+        RequireEditable();
         var clamped = Math.Clamp(level, 1, 100);
         pokemon.CurrentLevel = Convert.ToByte(clamped);
     }
@@ -153,6 +171,7 @@ public partial class Pokemon(PKM pokemon, Game game)
 
     public Pokemon MakeCopy()
     {
+        RequireEditable();
         var underlyingPkm = Pkm.Clone();
         underlyingPkm.ClearNickname();
 
@@ -236,5 +255,7 @@ public partial class Pokemon(PKM pokemon, Game game)
         public required byte[] Bytes { get; init; }
     }
 }
+
+public class UnknownSpeciesException(string message) : Exception(message);
 
 public record HiddenPowerDefinition(string Type, int? Power);

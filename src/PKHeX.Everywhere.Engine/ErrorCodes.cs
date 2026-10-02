@@ -11,6 +11,7 @@ public static class ErrorCodes
     public const string Unparseable = "unparseable";
     public const string ConversionFailed = "conversion-failed";
     public const string NotInGame = "not-in-game";
+    public const string UnknownSpecies = "unknown-species";
     public const string InvalidPatch = "invalid-patch";
     public const string DraftNotAllowed = "draft-not-allowed";
     public const string NoSlot = "no-slot";

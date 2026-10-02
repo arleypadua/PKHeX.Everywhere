@@ -1,4 +1,5 @@
 using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Extensions;
 using PKHeX.Facade.Repositories;
 
@@ -13,6 +14,7 @@ public partial class Pokemon
         (int)Pkm.Nature,
         Math.Max(Pkm.Ability, 0),
         Pkm.HeldItem,
+        Pkm is IUnmappedValues { UnmappedHeldItem: { } unmappedItem } ? $"Unknown item #{unmappedItem}" : null,
         Pkm.Ball,
         Pkm.CurrentFriendship,
         Pkm.Language,
@@ -53,8 +55,10 @@ public partial class Pokemon
     /// Applies the patch in a fixed order, species before form before ability and origin game before met location and stat inputs before combat power, so each field is checked against the ones before it.
     /// </summary>
     /// <exception cref="InvalidPatchException">A field holds a value the save can't store. Nothing is applied.</exception>
+    /// <exception cref="UnknownSpeciesException">The species has no PKHeX id.</exception>
     public void Update(PokemonPatch patch)
     {
+        RequireEditable();
         Clone().Apply(patch);
         Apply(patch);
     }
@@ -102,6 +106,7 @@ public partial class Pokemon
         var species = Game.SpeciesRepository.AllGameSpecies.FirstOrDefault(s => s.Id == id && SpeciesDefinition.IsSome(s));
         Require(species is not null, nameof(PokemonPatch.Species), $"Species {id} isn't in this game.");
         Species = species!;
+        Require(Pkm.Species == id, nameof(PokemonPatch.Species), $"Species {id} can't be stored in this game.");
     }
 
     private void ApplyForm(int id)
@@ -361,6 +366,7 @@ public partial class Pokemon
     }
 
     private Choice[] MoveChoices() => MoveRepository.Instance.PossibleMovesFor(this)
+        .Where(move => Game.SaveFile is not IMoveList list || list.Moves.Contains(move.Id))
         .Select(move => new Choice(move.Id, move.Name))
         .ToArray();
 
