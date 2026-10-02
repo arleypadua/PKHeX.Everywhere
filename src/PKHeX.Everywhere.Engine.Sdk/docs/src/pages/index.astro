@@ -249,6 +249,17 @@ const features = [
     opacity: 0;
     animation: drift var(--life) cubic-bezier(0.2, 0.6, 0.35, 1) forwards;
   }
+  :global(:root[data-theme='light']) .glow {
+    opacity: 0.45;
+  }
+  :global(:root[data-theme='light']) .everywhere .word {
+    background-image: linear-gradient(90deg, #512bd4, #8a2bc4 25%, #c2297f 50%, #d9541f 65%, #c2297f 80%, #512bd4);
+    animation: shimmer 16s ease-in-out infinite alternate, pulse-light 7s ease-in-out infinite;
+  }
+  @keyframes pulse-light {
+    0%, 100% { filter: drop-shadow(0 0 0.3em rgba(81, 43, 212, 0.55)); }
+    50% { filter: drop-shadow(0 0 0.45em rgba(194, 41, 127, 0.5)); }
+  }
   :global(:root[data-theme='light']) .everywhere :global(.spark) {
     --ball-top: #e3350d;
     --ball-bottom: #fff;
