@@ -4,15 +4,19 @@ import { App, ConfigProvider, Spin, theme as antdTheme } from 'antd'
 import { blazorHost, createEngine, type EngineError } from '@pkhex-everywhere/engine'
 import { EngineProvider } from '@pkhex-everywhere/react'
 import { startGoogleAnalytics } from './googleAnalytics'
-import { connectHost, useTheme, type HostBridge } from './host'
+import { connectHost, settings, useTheme, type HostBridge } from './host'
+import { checkUnseenNews as checkUnseenNewsIn, markNewsSeen as markNewsSeenIn } from './news'
 import { PageErrorBoundary } from './PageErrorBoundary'
 import { pages } from './pages'
 import { createPlugIns } from './plugins/plugIns'
 import { PlugInsProvider } from './plugins/PlugInsContext'
 import { createPlugInStore } from './plugins/store'
 
-export { setTheme } from './host'
+export { getTheme, onThemeChanged } from './host'
 export { track } from './googleAnalytics'
+
+export const checkUnseenNews = () => checkUnseenNewsIn(settings, new Date())
+export const markNewsSeen = () => markNewsSeenIn(settings)
 
 const engine = createEngine({ host: blazorHost() })
 

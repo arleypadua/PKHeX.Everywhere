@@ -1,6 +1,3 @@
-@using PKHeX.Web.Services.GeneralSettings
-@inject GeneralSettingsService SettingsService
-
 <Footer Style="text-align: center;">
    <p>
       @ApplicationName - edit pokemon save files.
@@ -23,7 +20,7 @@
             <a href="/credits">Credits</a>
          </SpaceItem>
          <SpaceItem>
-            <a href="/release-notes?since=@SettingsService.LastDateNewsSeen?.ToString("yyyy-MM-dd")">Release Notes</a>
+            <a href="/release-notes">Release Notes</a>
          </SpaceItem>
          <SpaceItem>
             <a href="/blog">Blog</a>

@@ -6,10 +6,8 @@ using PKHeX.Web.Extensions;
 
 namespace PKHeX.Web.Services;
 
-public class AnalyticsService(IJSRuntime js, IConfiguration configuration)
+public class AnalyticsService(ReactApp reactApp)
 {
-    private Task<IJSObjectReference>? _module;
-
     public void TrackGameLoaded(Game game)
     {
         Track("game_loaded", GetPayloadFrom(game));
@@ -97,8 +95,7 @@ public class AnalyticsService(IJSRuntime js, IConfiguration configuration)
     {
         try
         {
-            _module ??= js.InvokeAsync<IJSObjectReference>("import", "./Components/ReactPage.razor.js").AsTask();
-            await (await _module).InvokeVoidAsync("track", configuration["React:DevServerUrl"], eventName, payload);
+            await reactApp.InvokeVoidAsync("track", eventName, payload);
         }
         catch (JSException)
         {
