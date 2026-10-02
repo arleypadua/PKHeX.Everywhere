@@ -64,6 +64,8 @@ jobs:
       - run: npm test
 
   engine_sdk_packages:
+    needs: changes
+    if: always() && (needs.changes.outputs.sdk == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -95,6 +97,7 @@ jobs:
       pull-requests: read
     outputs:
       web: ${{ steps.filter.outputs.web }}
+      sdk: ${{ steps.filter.outputs.sdk }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -107,6 +110,12 @@ jobs:
               - 'src/PKHeX.Everywhere.Engine*/**'
               - 'src/PKHeX.Web.E2E/**'
               - 'external/**'
+            sdk:
+              - 'src/PKHeX.Everywhere.Engine*/**'
+              - 'src/PKHeX.Facade/**'
+              - 'src/PKHeX.Web.React/public/data/**'
+              - 'external/**'
+              - '.github/workflows/dotnet.yml'
 
   e2e:
     needs: changes

@@ -1,6 +1,6 @@
 # @pkhex-everywhere/engine
 
-PKHeX in the browser. Load a Pokémon save file, read and edit it, and export it. The package contains the .NET runtime with PKHeX.Core.
+Runs PKHeX in the browser. Load a Pokémon save file, read and edit it, and export it. The package contains the .NET runtime with PKHeX.Core.
 
 ## Install
 
@@ -24,7 +24,7 @@ const party = await engine.party.get()
 console.log(party.map((pokemon) => `${pokemon.species} Lv. ${pokemon.level}`))
 ```
 
-Saves travel as base64. Commands that fail reject with an `EngineError`, whose `code` is one of `errorCodes`. Use `engine.subscribe(topics, callback)` to hear when a command changes the save.
+`game.load` takes the save as base64. Commands that fail reject with an `EngineError`, whose `code` is one of `errorCodes`. Use `engine.subscribe(topics, callback)` to get a callback when a command changes the save.
 
 ## Where the runtime loads from
 
