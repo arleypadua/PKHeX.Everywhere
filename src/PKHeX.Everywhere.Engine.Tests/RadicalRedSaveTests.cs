@@ -92,6 +92,41 @@ public class RadicalRedSaveTests
     }
 
     [Fact]
+    public void ReadsTheTrainer()
+    {
+        var trainer = Value(Dispatch(LoadedRadicalRed(), "trainer.get", "[]"))!;
+
+        trainer["name"]!.GetValue<string>().Should().Be("Radical");
+        trainer["money"]!.GetValue<uint>().Should().Be(1003293);
+    }
+
+    private static int Item(string name) => Facade.Repositories.ItemRepository.GetItemByName(name)!.Id;
+
+    [Fact]
+    public void HeldItemsTranslateWithRadicalRedsTable()
+    {
+        var session = LoadedRadicalRed();
+
+        Enumerable.Range(0, 5).Select(slot => Details(session, PokemonHandle.Party(slot))["heldItem"]!.GetValue<int>())
+            .Should().Equal(Item("Smooth Rock"), Item("Choice Band"), Item("Leftovers"), Item("Leftovers"), Item("Leftovers"));
+    }
+
+    [Theory]
+    [InlineData("Dream Ball", 50)]
+    [InlineData("Beast Ball", 100)]
+    [InlineData("Quick Ball", 17)]
+    public void TheBagTranslatesItemsWithRadicalRedsTable(string item, int count) =>
+        Value(Dispatch(LoadedRadicalRed(), "inventory.get", "[]"))!.AsArray()
+            .Single(pouch => pouch!["name"]!.GetValue<string>() == "Balls")!["items"]!.AsArray()
+            .Should().ContainSingle(owned => owned!["id"]!.GetValue<int>() == Item(item) && owned["count"]!.GetValue<int>() == count);
+
+    [Fact]
+    public void TheShinyGarchompInThePartyIsShiny() =>
+        Value(Dispatch(LoadedRadicalRed(), "party.get", "[]"))!.AsArray()
+            .Select(p => (p!["species"]!.GetValue<string>(), p["isShiny"]!.GetValue<bool>()))
+            .Should().Equal(("Tyranitar", false), ("Excadrill", false), ("Dragonite", false), ("Slowbro", false), ("Garchomp", true));
+
+    [Fact]
     public void ChoosingPKHeXLoadsItAsFireRed()
     {
         var session = new Session();
