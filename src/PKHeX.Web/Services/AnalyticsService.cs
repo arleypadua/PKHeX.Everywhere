@@ -74,32 +74,28 @@ public class AnalyticsService(ReactApp reactApp)
         };
         
         Track("unexpected_error", details);
-        
-        SentrySdk.CaptureException(exception, scope =>
-        {
-            scope.Contexts["game_context"] = new
-            {
-                current_route = currentRoute,
-                exception_id = exception.GetExceptionTrackingId(),
-                version_name = currentGame?.GameVersionApproximation.Name,
-                version_id = currentGame?.GameVersionApproximation.Id,
-                generation_name = currentGame?.Generation.ToString(),
-                generation_id = (int?)currentGame?.Generation,
-            };
-        });
+        CaptureError(exception);
     }
 
-    private void Track(string eventName, object payload) => _ = TrackAsync(eventName, payload);
+    public void CaptureError(Exception exception) => _ = InvokeAsync("captureBlazorError", new
+    {
+        type = exception.GetType().Name,
+        message = exception.Message,
+        details = exception.ToString(),
+        id = exception.GetExceptionTrackingId(),
+    });
 
-    private async Task TrackAsync(string eventName, object payload)
+    private void Track(string eventName, object payload) => _ = InvokeAsync("track", eventName, payload);
+
+    private async Task InvokeAsync(string identifier, params object[] args)
     {
         try
         {
-            await reactApp.InvokeVoidAsync("track", eventName, payload);
+            await reactApp.InvokeVoidAsync(identifier, args);
         }
         catch (JSException)
         {
-            // A failed analytics call must not surface as an unobserved task exception.
+            // A failed analytics or error report must not surface as an unobserved task exception.
         }
     }
 }

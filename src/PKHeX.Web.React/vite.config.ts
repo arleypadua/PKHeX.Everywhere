@@ -12,10 +12,10 @@ export default defineConfig({
     outDir: '../PKHeX.Web/wwwroot/react',
     emptyOutDir: true,
     rolldownOptions: {
-      input: 'src/main.tsx',
+      input: { pages: 'src/main.tsx', sentry: 'src/startSentry.ts' },
       preserveEntrySignatures: 'exports-only',
       output: {
-        entryFileNames: 'pages.js',
+        entryFileNames: '[name].js',
         chunkFileNames: 'chunks/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
       },

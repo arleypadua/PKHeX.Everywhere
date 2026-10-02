@@ -405,6 +405,13 @@ export interface SaveSummary {
   generation: number
 }
 
+export interface SaveVersion {
+  version: string
+  versionId: number
+  generation: string
+  generationId: number
+}
+
 export type SlotSource = 'party' | 'box' | 'draft'
 
 export interface SpeciesEntry {

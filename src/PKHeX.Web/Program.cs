@@ -10,8 +10,6 @@ using PKHeX.Web;
 using PKHeX.Web.Extensions;
 using PKHeX.Web.Services;
 using PKHeX.Web.Services.Plugins;
-using Sentry.Extensions.Logging;
-using Sentry.Protocol;
 using App = PKHeX.Web.App;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -25,14 +23,14 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddSingleton(Session.Current);
 builder.Services.AddScoped<GameService>();
-builder.Services.AddScoped<ReactApp>();
+builder.Services.AddSingleton<ReactApp>();
 
 builder.Services.AddSingleton(sp => new PlugInHost(sp.GetRequiredService<Session>()));
 builder.Services.AddScoped<PlugInStore>();
 builder.Services.AddScoped<PlugInRanHandler>();
 
 builder.Services.AddScoped<UserJourneyService>();
-builder.Services.AddScoped<AnalyticsService>();
+builder.Services.AddSingleton<AnalyticsService>();
 builder.Services.AddScoped<JsService>();
 builder.Services.AddScoped<AntdThemeService>();
 builder.Services.AddScoped<ClipboardService>();
@@ -53,41 +51,7 @@ builder.Services.AddBlazoredLocalStorage(config =>
     config.JsonSerializerOptions.WriteIndented = false;
 });
 
-#if !DEBUG
-builder.UseSentry(options =>
-{
-    options.Dsn = "https://48a86c94313f2f1c2066dee9be6add57@o4507742210949120.ingest.de.sentry.io/4507742217175120";
-    options.TracesSampleRate = 0.1;
-
-    options.SetBeforeSend((e, _) =>
-    {
-        // it has been observed that very often ant is not yet ready and throws a lot of exceptions during the render time
-        // but eventually the UI just works
-        // so we simply skip these issues
-        var exception = e.Exception;
-        var innerException = e.Exception?.InnerException;
-        var data = exception?.Data ?? new Dictionary<string, object>();
-        if (innerException is not null)
-        {
-            var mechanism = innerException.Data[Mechanism.MechanismKey];
-            if (mechanism is not null) data.Add(Mechanism.MechanismKey, mechanism);
-        }
-        
-        var skipException = e.Exception is not null
-                            && data[Mechanism.MechanismKey]?.Equals("UnobservedTaskException") == true
-                            && (
-                                e.Exception.StackTrace?.Contains("ant-design-blazor.js") == true
-                                || e.Exception.ToString().Contains("ant-design-blazor.js")
-                            );
-
-        return skipException
-            ? null
-            : e;
-    });
-});
-
-builder.Logging.AddSentry(o => o.InitializeSdk = false);
-#endif
+builder.Services.AddSingleton<ILoggerProvider, ErrorReportingLoggerProvider>();
 
 var app = builder.Build();
 

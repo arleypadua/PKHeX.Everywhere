@@ -49,6 +49,7 @@ jobs:
       - name: Install NPM dependencies and build PKHeX.Web.React
         env:
           VITE_GOOGLE_ANALYTICS: 'true'
+          VITE_SENTRY: 'true'
         run: |
           cd src/PKHeX.Web.React
 

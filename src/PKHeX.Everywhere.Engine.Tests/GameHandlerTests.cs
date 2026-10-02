@@ -25,6 +25,20 @@ public class GameHandlerTests
     }
 
     [Fact]
+    public void VersionReturnsNullWithoutALoadedSave() =>
+        Value(Dispatch(new Session(), "game.version", "[]")).Should().BeNull();
+
+    [Fact]
+    public void VersionNamesTheVersionAndGenerationOfTheLoadedSave()
+    {
+        var session = EngineCalls.Loaded(SaveFilePath.HgSs);
+        var version = session.Game!.GameVersionApproximation;
+
+        Value(Dispatch(session, "game.version", "[]"))!.ToJsonString()
+            .Should().Be($$"""{"version":"{{version.Name}}","versionId":{{version.Id}},"generation":"Gen4","generationId":4}""");
+    }
+
+    [Fact]
     public void LoadLoadsTheSaveAndChangesEverything()
     {
         var session = new Session();

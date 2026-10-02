@@ -65,6 +65,38 @@ describe('createEngine', () => {
     expect(error).toMatchObject({ code: 'no-save', message: 'No save is loaded.' })
   })
 
+  it('tells call failure listeners which call failed and why', async () => {
+    const { host, signalReady } = fakeHost((name) =>
+      name === 'party.get' ? { ok: false, error: { code: 'unexpected', message: 'Boom' } } : { ok: true, value: null },
+    )
+    signalReady()
+    const engine = createEngine({ host })
+    const failures: [string, unknown][] = []
+    const stop = engine.onCallFailed((call, error) => failures.push([call, error]))
+
+    await engine.party.get().catch(() => {})
+    await engine.game.get()
+    stop()
+    await engine.party.get().catch(() => {})
+
+    expect(failures).toEqual([['party.get', new EngineError('unexpected', 'Boom')]])
+    expect(failures[0][1]).toMatchObject({ code: 'unexpected' })
+  })
+
+  it('tells call failure listeners about failures outside the envelope', async () => {
+    const { host, signalReady } = fakeHost(() => {
+      throw new Error('The runtime crashed.')
+    })
+    signalReady()
+    const engine = createEngine({ host })
+    const failures: [string, unknown][] = []
+    engine.onCallFailed((call, error) => failures.push([call, error]))
+
+    await engine.party.get().catch(() => {})
+
+    expect(failures).toEqual([['party.get', new Error('The runtime crashed.')]])
+  })
+
   it('notifies subscribers of changes to the topics they read', async () => {
     const { host, emitChange } = fakeHost(() => ({ ok: true, value: null }))
     const engine = createEngine({ host })

@@ -1,6 +1,7 @@
 import { Component, type ReactNode } from 'react'
 import { Result } from 'antd'
-import type { Engine } from '@pkhex-everywhere/engine'
+import { EngineError, type Engine } from '@pkhex-everywhere/engine'
+import { captureError } from './sentry'
 
 interface Props {
   engine: Engine
@@ -13,6 +14,10 @@ export class PageErrorBoundary extends Component<Props, { error?: unknown }> {
 
   static getDerivedStateFromError(error: unknown) {
     return { error }
+  }
+
+  componentDidCatch(error: unknown) {
+    if (!(error instanceof EngineError)) captureError(error)
   }
 
   componentDidMount() {

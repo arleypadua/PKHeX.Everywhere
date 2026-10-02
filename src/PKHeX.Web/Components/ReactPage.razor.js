@@ -44,6 +44,10 @@ export async function track(devServerUrl, name, params) {
     (await load(devServerUrl)).track(name, params)
 }
 
+export async function captureBlazorError(devServerUrl, exception) {
+    (await load(devServerUrl)).captureBlazorError(exception)
+}
+
 export async function getTheme(devServerUrl) {
     return (await load(devServerUrl)).getTheme()
 }
