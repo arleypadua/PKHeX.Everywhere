@@ -1,5 +1,17 @@
 # @pkhex-everywhere/react
 
+## 0.2.1
+
+### Patch Changes
+
+- 92c350e: Document the public types, so editors and the API reference describe each type and field.
+- 4fe8568: Require `@pkhex-everywhere/engine` from the matching minor as a peer, instead of any version.
+- 92c350e: Link the READMEs and npm pages to the new documentation site.
+- Updated dependencies [92c350e]
+- Updated dependencies [55b1b68]
+- Updated dependencies [92c350e]
+  - @pkhex-everywhere/engine@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

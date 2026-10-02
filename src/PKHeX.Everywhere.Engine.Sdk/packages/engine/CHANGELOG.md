@@ -1,5 +1,13 @@
 # @pkhex-everywhere/engine
 
+## 0.2.1
+
+### Patch Changes
+
+- 92c350e: Document the public types, so editors and the API reference describe each type and field.
+- 55b1b68: Engines release their host listeners when nothing subscribes to them and once boot settles, so engines dropped by StrictMode or HMR no longer stay registered.
+- 92c350e: Link the READMEs and npm pages to the new documentation site.
+
 ## 0.2.0
 
 ### Minor Changes
