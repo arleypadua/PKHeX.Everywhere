@@ -61,12 +61,14 @@ public class PokemonMovesPatchTests
         pokemon.Details().Moves.Should().Equal(before);
     }
 
-    [Fact]
-    public void RejectsMoreThanFourMoves()
+    [Theory]
+    [InlineData(new[] { 1 })]
+    [InlineData(new[] { 1, 2, 3, 4, 5 })]
+    public void RejectsAMovesetThatIsntFourSlots(int[] moves)
     {
         var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons[0];
 
-        var update = () => pokemon.Update(new PokemonPatch(Moves: [1, 2, 3, 4, 5]));
+        var update = () => pokemon.Update(new PokemonPatch(Moves: moves));
 
         update.Should().Throw<InvalidPatchException>().Which.Field.Should().Be(nameof(PokemonPatch.Moves));
     }

@@ -140,20 +140,14 @@ public partial class Pokemon(PKM pokemon, Game game)
         pokemon.SetIsShiny(shiny);
     }
 
-    public void ChangeMove(PokemonMove.MoveIndex moveIndex, MoveDefinition newMove)
+    public void ChangeMove(PokemonMove.MoveIndex moveIndex, MoveDefinition newMove) =>
+        ChangeMoves(Moves.Select(m => m.Key == moveIndex ? newMove.Id : m.Value.Move.Id).ToArray());
+
+    private void ChangeMoves(ushort[] moves)
     {
-        var newMoveSet = new Moveset(
-            moveIndex == PokemonMove.MoveIndex.Move1 ? newMove.Id : Move1.Move.Id,
-            moveIndex == PokemonMove.MoveIndex.Move2 ? newMove.Id : Move2.Move.Id,
-            moveIndex == PokemonMove.MoveIndex.Move3 ? newMove.Id : Move3.Move.Id,
-            moveIndex == PokemonMove.MoveIndex.Move4 ? newMove.Id : Move4.Move.Id);
+        if (moves.All(move => move == MoveDefinition.None.Id)) return;
 
-        if (newMoveSet.Move1 == MoveDefinition.None.Id && newMoveSet.Move2 == MoveDefinition.None.Id && newMoveSet.Move3 == MoveDefinition.None.Id && newMoveSet.Move4 == MoveDefinition.None.Id)
-        {
-            return;
-        }
-
-        pokemon.SetMoves(newMoveSet);
+        pokemon.SetMoves(moves);
         pokemon.FixMoves();
     }
 

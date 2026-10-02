@@ -190,17 +190,14 @@ public partial class Pokemon
 
     private void ApplyMoves(IReadOnlyList<int> moves)
     {
-        Require(moves.Count <= 4, nameof(PokemonPatch.Moves), $"A Pokémon knows at most 4 moves, got {moves.Count}.");
+        Require(moves.Count == 4, nameof(PokemonPatch.Moves), $"Moves must list all 4 slots, got {moves.Count}.");
         foreach (var move in moves)
         {
             var known = move == (int)Move.None || Moves.Values.Any(m => m.Move.Id == move) || Game.Options.Moves.Any(m => m.Id == move);
             Require(known, nameof(PokemonPatch.Moves), $"Move {move} isn't in this game.");
         }
 
-        if (moves.All(move => move == (int)Move.None)) return;
-
-        Pkm.SetMoves(moves.Select(move => (ushort)move).ToArray());
-        Pkm.FixMoves();
+        ChangeMoves(moves.Select(move => (ushort)move).ToArray());
     }
 
     private void ApplyIsShiny(bool isShiny)
