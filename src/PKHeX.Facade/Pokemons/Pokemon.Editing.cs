@@ -37,12 +37,19 @@ public partial class Pokemon
         Pkm.MetLevel,
         Pkm.MetDate,
         Pkm.FatefulEncounter,
+        StatValuesOf(Pkm.GetIV),
+        StatValuesOf(Pkm.GetEV),
+        Pkm is IAwakened awakened ? StatValuesOf(index => awakened.GetAV(index)) : null,
+        ComputedStats(),
+        HiddenPower,
+        Pkm is ICombatPower combatPower ? combatPower.Stat_CP : null,
+        Pkm is PB7 pb7 ? pb7.CalcCP : null,
         this.LegalityReport());
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices());
 
     /// <summary>
-    /// Applies the patch in a fixed order, species before form before ability and origin game before met location, so each field is checked against the ones before it.
+    /// Applies the patch in a fixed order, species before form before ability and origin game before met location and stat inputs before combat power, so each field is checked against the ones before it.
     /// </summary>
     /// <exception cref="InvalidPatchException">A field holds a value the save can't store. Nothing is applied.</exception>
     public void Update(PokemonPatch patch)
@@ -80,6 +87,11 @@ public partial class Pokemon
         if (patch.MetLevel is { } metLevel) ApplyMetLevel(metLevel);
         if (patch.MetDate is { } metDate) ApplyMetDate(metDate);
         if (patch.FatefulEncounter is { } fatefulEncounter) ApplyFatefulEncounter(fatefulEncounter);
+        if (patch.Ivs is { } ivs) ApplyStats(ivs, nameof(PokemonPatch.Ivs), "IV", Pkm.MaxIV, SetIv, Pkm.GetIV);
+        if (patch.Evs is { } evs) ApplyStats(evs, nameof(PokemonPatch.Evs), "EV", Pkm.MaxEV, SetEv, Pkm.GetEV);
+        if (patch.Avs is { } avs) ApplyAvs(avs);
+        if (patch is { Ivs: not null } or { Evs: not null } or { Avs: not null } && Pkm is ICombatPower combatPower) combatPower.ResetCP();
+        if (patch.CombatPower is { } cp) ApplyCombatPower(cp);
     }
 
     private void ApplySpecies(int id)
@@ -257,6 +269,80 @@ public partial class Pokemon
         Pkm.FatefulEncounter = fatefulEncounter;
         Require(Pkm.FatefulEncounter == fatefulEncounter, nameof(PokemonPatch.FatefulEncounter), "Fateful encounters aren't stored in this game.");
     }
+
+    private void ApplyAvs(StatPatch avs)
+    {
+        Require(Pkm is IAwakened, nameof(PokemonPatch.Avs), "Awakening values aren't in this game.");
+        var awakened = (IAwakened)Pkm;
+        ApplyStats(avs, nameof(PokemonPatch.Avs), "AV", AwakeningUtil.AwakeningMax, (index, value) => awakened.SetAV(index, (byte)value), index => awakened.GetAV(index));
+    }
+
+    private void ApplyCombatPower(int cp)
+    {
+        Require(Pkm is ICombatPower, nameof(PokemonPatch.CombatPower), "Combat Power isn't in this game.");
+        Require(cp is >= 0 and <= ushort.MaxValue, nameof(PokemonPatch.CombatPower), $"Combat Power must be between 0 and {ushort.MaxValue}, got {cp}.");
+        ((ICombatPower)Pkm).Stat_CP = cp;
+    }
+
+    private static void ApplyStats(StatPatch patch, string field, string kind, int max, Action<int, int> set, Func<int, int> get)
+    {
+        var values = StatsIn(patch).ToList();
+        foreach (var (index, name, label, value) in values)
+            Require(value >= 0 && value <= max, $"{field}.{name}", $"{label} {kind} must be between 0 and {max}, got {value}.");
+        foreach (var (index, _, _, value) in values) set(index, value);
+        // Game Boy games derive the HP IV from the others and share one Special IV, so a write can be dropped or overwritten.
+        foreach (var (index, name, label, value) in values)
+            Require(get(index) == value, $"{field}.{name}", $"{label} {kind} {value} can't be stored in this game.");
+    }
+
+    private void SetIv(int index, int value)
+    {
+        switch (index)
+        {
+            case 0: Pkm.IV_HP = value; break;
+            case 1: Pkm.IV_ATK = value; break;
+            case 2: Pkm.IV_DEF = value; break;
+            case 3: Pkm.IV_SPE = value; break;
+            case 4: Pkm.IV_SPA = value; break;
+            default: Pkm.IV_SPD = value; break;
+        }
+    }
+
+    private void SetEv(int index, int value)
+    {
+        switch (index)
+        {
+            case 0: Pkm.EV_HP = value; break;
+            case 1: Pkm.EV_ATK = value; break;
+            case 2: Pkm.EV_DEF = value; break;
+            case 3: Pkm.EV_SPE = value; break;
+            case 4: Pkm.EV_SPA = value; break;
+            default: Pkm.EV_SPD = value; break;
+        }
+    }
+
+    // Indexes follow PKHeX's stat order: HP, Attack, Defense, Speed, Special Attack, Special Defense.
+    private static IEnumerable<(int Index, string Name, string Label, int Value)> StatsIn(StatPatch patch)
+    {
+        (int, string, string, int?)[] stats =
+        [
+            (0, nameof(StatPatch.Health), "HP", patch.Health),
+            (1, nameof(StatPatch.Attack), "Attack", patch.Attack),
+            (2, nameof(StatPatch.Defense), "Defense", patch.Defense),
+            (3, nameof(StatPatch.Speed), "Speed", patch.Speed),
+            (4, nameof(StatPatch.SpecialAttack), "Special Attack", patch.SpecialAttack),
+            (5, nameof(StatPatch.SpecialDefense), "Special Defense", patch.SpecialDefense),
+        ];
+        return stats.Where(s => s.Item4 is not null).Select(s => (s.Item1, s.Item2, s.Item3, s.Item4!.Value));
+    }
+
+    private StatValues ComputedStats()
+    {
+        var stats = Pkm.GetStats(Pkm.PersonalInfo);
+        return StatValuesOf(index => stats[index]);
+    }
+
+    private static StatValues StatValuesOf(Func<int, int> get) => new(get(0), get(1), get(2), get(4), get(5), get(3));
 
     private static void Require(bool condition, string field, string message)
     {

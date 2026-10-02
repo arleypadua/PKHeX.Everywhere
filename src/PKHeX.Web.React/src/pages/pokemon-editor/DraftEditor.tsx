@@ -7,6 +7,7 @@ import { DescriptionTab } from './DescriptionTab'
 import { LegalityBanner } from './LegalityBanner'
 import { TrainerTab } from './TrainerTab'
 import { MetConditionsTab } from './MetConditionsTab'
+import { StatsTab } from './StatsTab'
 
 interface DraftEditorProps {
   onSave: () => void
@@ -25,6 +26,7 @@ export function DraftEditor({ onSave }: DraftEditorProps) {
           { key: 'description', label: 'Description', children: <DescriptionTab /> },
           { key: 'trainer', label: 'Trainer', children: <TrainerTab /> },
           { key: 'metConditions', label: 'Met Conditions', children: <MetConditionsTab /> },
+          { key: 'stats', label: 'Stats', children: <StatsTab /> },
         ]}
       />
       <Flex justify="end">

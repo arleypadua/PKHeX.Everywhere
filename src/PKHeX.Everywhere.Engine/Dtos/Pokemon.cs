@@ -88,7 +88,18 @@ public record EditablePokemon(
     int MetLevel,
     string? MetDate,
     bool FatefulEncounter,
+    StatValues Ivs,
+    StatValues Evs,
+    StatValues? Avs,
+    StatValues Stats,
+    HiddenPower? HiddenPower,
+    int? CombatPower,
+    int? CalculatedCombatPower,
     Legality Legality);
+
+public record StatValues(int Health, int Attack, int Defense, int SpecialAttack, int SpecialDefense, int Speed);
+
+public record HiddenPower(string Type, int? Power);
 
 public record PokemonPatch(
     int? Species = null,
@@ -116,7 +127,19 @@ public record PokemonPatch(
     int? MetLocation = null,
     int? MetLevel = null,
     string? MetDate = null,
-    bool? FatefulEncounter = null);
+    bool? FatefulEncounter = null,
+    StatPatch? Ivs = null,
+    StatPatch? Evs = null,
+    StatPatch? Avs = null,
+    int? CombatPower = null);
+
+public record StatPatch(
+    int? Health = null,
+    int? Attack = null,
+    int? Defense = null,
+    int? SpecialAttack = null,
+    int? SpecialDefense = null,
+    int? Speed = null);
 
 public record Choice(int Id, string Name);
 
@@ -169,6 +192,13 @@ public static class PokemonMapping
         details.MetLevel,
         details.MetDate?.ToString(DateFormat, CultureInfo.InvariantCulture),
         details.FatefulEncounter,
+        details.Ivs.ToDto(),
+        details.Evs.ToDto(),
+        details.Avs?.ToDto(),
+        details.Stats.ToDto(),
+        details.HiddenPower is { } hiddenPower ? new HiddenPower(hiddenPower.Type, hiddenPower.Power) : null,
+        details.CombatPower,
+        details.CalculatedCombatPower,
         new Legality(details.Legality.Valid, details.Legality.Messages.ToArray()));
 
     public static Facade.Pokemons.PokemonPatch ToFacade(this PokemonPatch patch) => new(
@@ -197,7 +227,17 @@ public static class PokemonMapping
         patch.MetLocation,
         patch.MetLevel,
         patch.MetDate is { } metDate ? ParseMetDate(metDate) : null,
-        patch.FatefulEncounter);
+        patch.FatefulEncounter,
+        patch.Ivs?.ToFacade(),
+        patch.Evs?.ToFacade(),
+        patch.Avs?.ToFacade(),
+        patch.CombatPower);
+
+    private static StatValues ToDto(this Facade.Pokemons.StatValues stats) =>
+        new(stats.Health, stats.Attack, stats.Defense, stats.SpecialAttack, stats.SpecialDefense, stats.Speed);
+
+    private static Facade.Pokemons.StatPatch ToFacade(this StatPatch patch) =>
+        new(patch.Health, patch.Attack, patch.Defense, patch.SpecialAttack, patch.SpecialDefense, patch.Speed);
 
     private const string DateFormat = "yyyy-MM-dd";
 

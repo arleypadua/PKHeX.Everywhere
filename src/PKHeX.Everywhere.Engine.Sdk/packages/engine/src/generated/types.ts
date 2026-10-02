@@ -73,6 +73,13 @@ export interface EditablePokemon {
   metLevel: number
   metDate: string | null
   fatefulEncounter: boolean
+  ivs: StatValues
+  evs: StatValues
+  avs: StatValues | null
+  stats: StatValues
+  hiddenPower: HiddenPower | null
+  combatPower: number | null
+  calculatedCombatPower: number | null
   legality: Legality
 }
 
@@ -112,6 +119,11 @@ export interface EventWork {
 export interface ExportedSave {
   bytes: Base64
   fileName: string
+}
+
+export interface HiddenPower {
+  type: string
+  power: number | null
 }
 
 export interface HookToggle {
@@ -243,6 +255,10 @@ export interface PokemonPatch {
   metLevel?: number | null
   metDate?: string | null
   fatefulEncounter?: boolean | null
+  ivs?: StatPatch | null
+  evs?: StatPatch | null
+  avs?: StatPatch | null
+  combatPower?: number | null
 }
 
 export interface PokemonSummary {
@@ -288,6 +304,24 @@ export type SlotSource = 'party' | 'box' | 'draft'
 export interface SpeciesEntry {
   id: number
   name: string
+}
+
+export interface StatPatch {
+  health?: number | null
+  attack?: number | null
+  defense?: number | null
+  specialAttack?: number | null
+  specialDefense?: number | null
+  speed?: number | null
+}
+
+export interface StatValues {
+  health: number
+  attack: number
+  defense: number
+  specialAttack: number
+  specialDefense: number
+  speed: number
 }
 
 export interface TicketsAndIslands {
