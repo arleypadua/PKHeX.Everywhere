@@ -68,9 +68,6 @@ public class Inventory : IEnumerable<Inventory.Item>
     public bool Supports(ItemDefinition item) =>
         AllSupportedItems.Any(i => i.Id == item.Id);
 
-    /// <summary>
-    /// Whether <see cref="TrySet"/> accepts the item: one the pouch supports, or an unknown item already in it.
-    /// </summary>
     public bool CanSet(ushort itemId) =>
         AllSupportedItems.Any(i => i.Id == itemId) || Items.Any(i => i.Id == itemId && i.IsUnknown);
 

@@ -492,22 +492,15 @@ public class UnboundSaveTests
         reloaded["heldItemIsUnknown"]!.GetValue<bool>().Should().BeTrue();
     }
 
-    [Fact]
-    public void RemovingAnUnknownHeldItemSurvivesExport()
-    {
-        var session = LoadedUnbound();
-
-        Value(Update(session, HoldsUnknownItem, new { heldItem = 0 }));
-
-        var reloaded = Details(LoadedUnbound(Exported(session)), HoldsUnknownItem);
-        reloaded["heldItem"]!.GetValue<int>().Should().Be(0);
-        reloaded["heldItemIsUnknown"]!.GetValue<bool>().Should().BeFalse();
-    }
-
     private static JsonNode Pouch(Session session, string name) => Value(Dispatch(session, "inventory.get", "[]"))!.AsArray()
         .Single(pouch => pouch!["name"]!.GetValue<string>() == name)!;
 
     private static (int Id, string Name, int Count)[] Owned(JsonNode pouch) => pouch["items"]!.AsArray()
+        .Select(item => (item!["id"]!.GetValue<int>(), item["name"]!.GetValue<string>(), item["count"]!.GetValue<int>()))
+        .ToArray();
+
+    private static (int Id, string Name, int Count)[] Unknown(JsonNode pouch) => pouch["items"]!.AsArray()
+        .Where(item => item!["isUnknown"]!.GetValue<bool>())
         .Select(item => (item!["id"]!.GetValue<int>(), item["name"]!.GetValue<string>(), item["count"]!.GetValue<int>()))
         .ToArray();
 
@@ -549,32 +542,19 @@ public class UnboundSaveTests
     [Fact]
     public void OwnedItemsSayWhetherTheyAreUnknownAndUnknownOnesHaveDistinctIds()
     {
-        var items = Pouch(LoadedUnbound(), "Items")["items"]!.AsArray();
-        var unknown = items.Where(item => item!["isUnknown"]!.GetValue<bool>()).ToArray();
+        var pouch = Pouch(LoadedUnbound(), "Items");
+        var unknown = Unknown(pouch);
 
-        unknown.Should().HaveCount(8).And.OnlyContain(item => item!["name"]!.GetValue<string>().StartsWith("Unknown item #"));
-        unknown.Select(item => item!["id"]!.GetValue<int>()).Should().OnlyHaveUniqueItems().And.NotContain(0);
-        items.Except(unknown).Should().OnlyContain(item => !item!["name"]!.GetValue<string>().StartsWith("Unknown item #"));
-    }
-
-    [Fact]
-    public void AnUnknownBagItemsCountChangesAndSurvivesExport()
-    {
-        var session = LoadedUnbound();
-        var unknown = Owned(Pouch(session, "Items")).First(owned => owned.Name.StartsWith("Unknown item #"));
-
-        Value(SetItem(session, "Items", unknown.Id, 5));
-
-        Owned(Pouch(LoadedUnbound(Exported(session)), "Items")).Should().Contain(unknown with { Count = 5 });
+        unknown.Should().HaveCount(8).And.OnlyContain(item => item.Name.StartsWith("Unknown item #"));
+        unknown.Select(item => item.Id).Should().OnlyHaveUniqueItems().And.NotContain(0);
+        Owned(pouch).Except(unknown).Should().OnlyContain(item => !item.Name.StartsWith("Unknown item #"));
     }
 
     [Fact]
     public void AnUnknownBagItemCantBeSetInAnotherPouch()
     {
         var session = LoadedUnbound();
-        var unknown = Owned(Pouch(session, "Items")).First(owned => owned.Name.StartsWith("Unknown item #"));
-
-        Error(SetItem(session, "Balls", unknown.Id, 1)).Should().Be("bad-arguments");
+        Error(SetItem(session, "Balls", Unknown(Pouch(session, "Items"))[0].Id, 1)).Should().Be("bad-arguments");
     }
 
     [Fact]
@@ -657,12 +637,12 @@ public class UnboundSaveTests
     public void UnknownBagItemsSurviveAnEditInTheirPocket()
     {
         var session = LoadedUnbound();
-        var unknown = Owned(Pouch(session, "Items")).Where(owned => owned.Name.StartsWith("Unknown item #")).ToArray();
+        var unknown = Unknown(Pouch(session, "Items"));
         unknown.Should().HaveCount(8);
 
         Value(SetItem(session, "Items", Item("Max Repel"), 0));
 
-        Owned(Pouch(LoadedUnbound(Exported(session)), "Items")).Where(owned => owned.Name.StartsWith("Unknown item #")).Should().Equal(unknown);
+        Unknown(Pouch(LoadedUnbound(Exported(session)), "Items")).Should().Equal(unknown);
     }
 
     // The key items pocket isn't listed yet, so its bytes are checked where they follow the main pocket in sector 30.

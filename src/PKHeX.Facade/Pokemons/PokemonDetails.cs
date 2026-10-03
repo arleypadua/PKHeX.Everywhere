@@ -116,9 +116,6 @@ public record Choice(int Id, string Name);
 /// </summary>
 public record PokemonOptions(IReadOnlyList<Choice> Species, IReadOnlyList<Choice> Abilities, IReadOnlyList<Choice> Forms, IReadOnlyList<Choice> MetLocations, IReadOnlyList<Choice> Moves)
 {
-    /// <summary>
-    /// The items the save can store as held items, plus the unknown item the Pokémon already holds.
-    /// </summary>
     public IReadOnlyList<ItemDefinition> HeldItems { get; init; } = [];
 
     public IReadOnlySet<PokemonField> Locked { get; init; } = FrozenSet<PokemonField>.Empty;
