@@ -8,7 +8,7 @@ namespace PKHeX.Everywhere.RomHacks.Cfru;
 /// A Pokémon from a CFRU save, held in the vanilla Gen 3 party layout with hack indices for species, moves and items.
 /// It reports the Gen 9 context, so species, moves and forms resolve through PKHeX's national data.
 /// </summary>
-public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgument
+public abstract class CfruPokemon : PKM, IGigantamax, IFormArgument
 {
     public const int SizeParty = 100;
     public const int SizeStored = 80;
@@ -167,8 +167,6 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
     public byte FormArgumentElapsed { get => 0; set { } }
     public byte FormArgumentMaximum { get => 0; set { } }
 
-    public ushort? UnmappedSpecies => SpeciesIndex != 0 && National.Species == 0 ? SpeciesIndex : null;
-
     public ushort HeldItemIndex { get => ReadUInt16LittleEndian(Data[0x22..]); set => WriteUInt16LittleEndian(Data[0x22..], value); }
 
     // Like the species, writing back the item already shown keeps an index outside the hack's table.
@@ -180,8 +178,6 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
             if (value != HeldItem && (uint)value <= ushort.MaxValue && ItemMap.ToIndex((ushort)value) is { } index) HeldItemIndex = index;
         }
     }
-
-    public ushort? UnmappedHeldItem => null;
 
     public override uint EXP { get => ReadUInt32LittleEndian(Data[0x24..]); set => WriteUInt32LittleEndian(Data[0x24..], value); }
 

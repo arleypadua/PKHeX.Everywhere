@@ -36,7 +36,7 @@ public sealed class PlugInHost
         ? host
         : throw new EngineException(ErrorCodes.Unexpected, "No plug-in host is attached to the session.");
 
-    public static IReadOnlySet<int> SupportedSdks { get; } = new HashSet<int> { (int)PlugInSdk.V2 };
+    public static IReadOnlySet<int> SupportedSdks { get; } = new HashSet<int> { (int)PlugInSdk.V3 };
 
     public static PlugInSdk DetectSdk(byte[] assembly) => PlugInSdkDetector.Detect(assembly);
 

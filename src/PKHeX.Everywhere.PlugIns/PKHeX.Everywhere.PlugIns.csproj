@@ -7,6 +7,9 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
 
+        <!-- The major is the plug-in SDK version. Bump it when the Facade's API breaks (docs/adr/0009). -->
+        <AssemblyVersion>3.0.0.0</AssemblyVersion>
+
         <PackageId>PKHeX.Everywhere.PlugIns</PackageId>
         <Description>The SDK to build plug-ins for https://pkhex-web.github.io.</Description>
         <Authors>Arley Pádua</Authors>

@@ -44,33 +44,33 @@ public class PlugInVersionTests
     public void PicksTheNewestVersionComparingVersionNumbers()
     {
         var newest = PlugInHost.NewestCompatible(Versions("""
-            [{ "Version": "2.0.9", "Sdk": 2 }, { "Version": "2.0.10", "Sdk": 2 }, { "Version": "2.0.0", "Sdk": 2 }]
+            [{ "Version": "2.0.9", "Sdk": 3 }, { "Version": "2.0.10", "Sdk": 3 }, { "Version": "2.0.0", "Sdk": 3 }]
             """));
 
-        newest.Should().Be(new PublishedVersion("2.0.10", 2));
+        newest.Should().Be(new PublishedVersion("2.0.10", 3));
     }
 
     [Fact]
     public void PicksTheNewestVersionWithASupportedSdk()
     {
         var newest = PlugInHost.NewestCompatible(Versions("""
-            ["1.1.2", { "Version": "2.0.0", "Sdk": 2 }, "1.1.3", { "Version": "3.0.0", "Sdk": 3 }]
+            ["1.1.2", { "Version": "3.0.0", "Sdk": 2 }, "1.1.3", { "Version": "4.0.0", "Sdk": 3 }, { "Version": "5.0.0", "Sdk": 4 }]
             """));
 
-        newest.Should().Be(new PublishedVersion("2.0.0", 2));
+        newest.Should().Be(new PublishedVersion("4.0.0", 3));
     }
 
     [Fact]
     public void PicksNothingWhenNoVersionHasASupportedSdk()
     {
-        PlugInHost.NewestCompatible(Versions("""[{ "Version": "3.0.0", "Sdk": 3 }]""")).Should().BeNull();
+        PlugInHost.NewestCompatible(Versions("""[{ "Version": "3.0.0", "Sdk": 2 }]""")).Should().BeNull();
         PlugInHost.NewestCompatible([]).Should().BeNull();
     }
 
     [Fact]
     public void SkipsVersionsThatArentVersionNumbers()
     {
-        PlugInHost.NewestCompatible(Versions("""[{ "Version": "2.0.0", "Sdk": 2 }, { "Version": "latest", "Sdk": 2 }]"""))
-            .Should().Be(new PublishedVersion("2.0.0", 2));
+        PlugInHost.NewestCompatible(Versions("""[{ "Version": "2.0.0", "Sdk": 3 }, { "Version": "latest", "Sdk": 3 }]"""))
+            .Should().Be(new PublishedVersion("2.0.0", 3));
     }
 }

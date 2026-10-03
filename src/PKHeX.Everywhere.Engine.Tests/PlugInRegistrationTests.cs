@@ -175,11 +175,11 @@ public class PlugInRegistrationTests
     public void NewestCompatiblePicksTheHighestVersionWithASupportedSdk()
     {
         var session = Hosted();
-        var versions = Versions("1.1.3", new { version = "2.0.10", sdk = 2 }, new { version = "2.0.9", sdk = 2 }, new { version = "3.0.0", sdk = 3 });
+        var versions = Versions("1.1.3", new { version = "2.0.10", sdk = 3 }, new { version = "2.0.9", sdk = 3 }, new { version = "3.0.0", sdk = 2 });
 
         var newest = Value(Dispatch(session, "plugins.newestCompatible", $"[{versions}, null]"))!;
 
-        newest.ToJsonString().Should().Be(new JsonObject { ["version"] = "2.0.10", ["sdk"] = 2 }.ToJsonString());
+        newest.ToJsonString().Should().Be(new JsonObject { ["version"] = "2.0.10", ["sdk"] = 3 }.ToJsonString());
         Value(Dispatch(session, "plugins.newestCompatible", $"[{Versions("1.0.0")}, null]")).Should().BeNull();
     }
 
@@ -191,11 +191,11 @@ public class PlugInRegistrationTests
         var changed = new List<string>();
         session.Changed += changed.AddRange;
 
-        Dispatch(session, "plugins.newestCompatible", $"[{Versions(new { version = "1.2.3", sdk = 2 })}, \"{TestPlugInId}\"]");
+        Dispatch(session, "plugins.newestCompatible", $"[{Versions(new { version = "1.2.3", sdk = 3 })}, \"{TestPlugInId}\"]");
         Installed(session)[0]!["hasNewerVersion"]!.GetValue<bool>().Should().BeFalse();
         changed.Should().BeEmpty();
 
-        Dispatch(session, "plugins.newestCompatible", $"[{Versions(new { version = "1.3.0", sdk = 2 })}, \"{TestPlugInId}\"]");
+        Dispatch(session, "plugins.newestCompatible", $"[{Versions(new { version = "1.3.0", sdk = 3 })}, \"{TestPlugInId}\"]");
 
         Installed(session)[0]!["hasNewerVersion"]!.GetValue<bool>().Should().BeTrue();
         State(session)!["hasNewerVersion"]!.GetValue<bool>().Should().BeTrue();

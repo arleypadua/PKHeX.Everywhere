@@ -191,9 +191,9 @@ public class PlugInHostTests
     [Fact]
     public void DetectsTheSdkAnAssemblyIsBuiltAgainst()
     {
-        PlugInHost.DetectSdk(TestPlugIn).Should().Be(PlugInSdk.V2);
+        PlugInHost.DetectSdk(TestPlugIn).Should().Be(PlugInSdk.V3);
         PlugInHost.DetectSdk(ReferencingSdkVersion(TestPlugIn, 1)).Should().Be(PlugInSdk.V2);
-        PlugInHost.DetectSdk(ReferencingSdkVersion(TestPlugIn, 3)).Should().Be(PlugInSdk.V3);
+        PlugInHost.DetectSdk(ReferencingSdkVersion(TestPlugIn, 4)).Should().Be((PlugInSdk)4);
         PlugInHost.DetectSdk(V1PlugIn).Should().Be(PlugInSdk.V1);
         PlugInHost.DetectSdk(File.ReadAllBytes(typeof(Session).Assembly.Location)).Should().Be(PlugInSdk.None);
         PlugInHost.DetectSdk([1, 2, 3]).Should().Be(PlugInSdk.None);
@@ -210,6 +210,21 @@ public class PlugInHostTests
         host.List().Should().BeEmpty();
         AppDomain.CurrentDomain.GetAssemblies()
             .Should().NotContain(a => a.GetName().Name == "PKHeX.Web.Plugins.Demo");
+    }
+
+    [Fact]
+    public void ReportsAnSdk2PlugInAsUnsupportedAndLoadsAnSdk3One()
+    {
+        var host = new PlugInHost(new Session());
+        var sdk2 = ReferencingSdkVersion(TestPlugIn, 1);
+
+        PlugInHost.IsSupported(sdk2).Should().BeFalse();
+        host.Install(sdk2).NeedsReinstall.Should().BeTrue();
+        host.List().Should().BeEmpty();
+
+        PlugInHost.IsSupported(TestPlugIn).Should().BeTrue();
+        host.Install(TestPlugIn).NeedsReinstall.Should().BeFalse();
+        host.List().Should().ContainSingle().Which.Id.Should().Be(TestPlugInId);
     }
 
     // Patches the major version of the plug-in SDK reference in place, as if the plug-in were built against a newer SDK.

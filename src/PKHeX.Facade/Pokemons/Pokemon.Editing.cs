@@ -14,7 +14,6 @@ public partial class Pokemon
         (int)Pkm.Nature,
         Math.Max(Pkm.Ability, 0),
         Pkm.HeldItem,
-        Pkm is IUnmappedValues { UnmappedHeldItem: { } unmappedItem } ? ItemDefinition.Unmapped(unmappedItem).Name : null,
         Pkm.Ball,
         Pkm.CurrentFriendship,
         Pkm.Language,

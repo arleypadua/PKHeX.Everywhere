@@ -4,6 +4,7 @@ json_url="https://raw.githubusercontent.com/pkhex-web/plugins-source-assets/main
 json_file="plugins/pkhexwebplugins.json"
 
 mkdir -p plugins
+everywhere_sdk=$(xmllint --xpath "string(//Project/PropertyGroup/AssemblyVersion)" src/PKHeX.Everywhere.PlugIns/PKHeX.Everywhere.PlugIns.csproj | cut -d. -f1)
 curl -s -o "$json_file" "$json_url"
 
 for project in src/PKHeX.Web.Plugins.*/*.csproj; do
@@ -11,7 +12,7 @@ for project in src/PKHeX.Web.Plugins.*/*.csproj; do
         # Get the project name and version
         project_name=$(basename "$(dirname "$project")")
         version=$(xmllint --xpath "string(//Project/PropertyGroup/Version)" "$project")
-        if grep -q 'PKHeX\.Everywhere\.PlugIns' "$project"; then sdk=2; else sdk=1; fi
+        if grep -q 'PKHeX\.Everywhere\.PlugIns' "$project"; then sdk=$everywhere_sdk; else sdk=1; fi
         
         # Check if the plugin already exists in the JSON file
         plugin_exists=$(jq --arg id "$project_name" '.PlugIns[] | select(.Id == $id)' "$json_file")
