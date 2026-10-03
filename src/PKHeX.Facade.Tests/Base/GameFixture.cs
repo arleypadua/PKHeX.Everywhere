@@ -49,6 +49,7 @@ public static class SaveFilePath
     public const string FireRed = "./data/save/firered.sav";
     public const string Unbound = "./data/save/unbound.sav"; // Unbound 2.0
     public const string RadicalRed = "./data/save/radicalred.sav";
+    public const string UnboundUnknownSpecies = "./data/save/unbound-unknown-species.sav"; // Shadow Warrior in box 23, slot 19
 
     public static IReadOnlyList<string> All { get; } =
         [Yellow, Crystal, Emerald, FireRed, HgSs, LetsGoPikachu, LetsGoEevee, Unbound, RadicalRed];

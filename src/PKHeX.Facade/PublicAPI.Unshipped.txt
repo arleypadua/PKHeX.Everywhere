@@ -57,3 +57,8 @@ PKHeX.Facade.Pokemons.MoveSlot.IsUnknown.get -> bool
 PKHeX.Facade.Pokemons.MoveSlot.IsUnknown.init -> void
 PKHeX.Facade.Repositories.MoveDefinition.IsUnknown.get -> bool
 PKHeX.Facade.Repositories.MoveDefinition.IsUnknown.init -> void
+PKHeX.Facade.Pokemons.Pokemon.IsEditable.get -> bool
+PKHeX.Facade.Pokemons.PokemonDetails.IsEditable.get -> bool
+PKHeX.Facade.Pokemons.PokemonDetails.IsEditable.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.IsUnknown.get -> bool
+PKHeX.Facade.Pokemons.PokemonDetails.IsUnknown.init -> void

@@ -46,6 +46,8 @@ public record PokemonDetails(
     PokemonLegality? Legality)
 {
     public bool HeldItemIsUnknown { get; init; }
+    public bool IsUnknown { get; init; }
+    public bool IsEditable { get; init; }
 }
 
 public record StatValues(int Health, int Attack, int Defense, int SpecialAttack, int SpecialDefense, int Speed);

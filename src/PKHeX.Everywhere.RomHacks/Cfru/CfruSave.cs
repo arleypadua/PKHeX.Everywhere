@@ -196,13 +196,13 @@ public abstract class CfruSave : SaveFile
     protected override void DecryptPKM(Span<byte> data) { }
 
     // Party stats computed for a blank would land in the empty slot, which the game leaves zeroed.
-    // An unmapped species keeps the stats it has, since they can't be computed without its base stats.
+    // An unknown species keeps the stats it has, since they can't be computed without its base stats.
     protected override void SetPartyValues(PKM pk, bool isParty)
     {
-        if (pk.Species != 0) base.SetPartyValues(pk, isParty);
+        if (SpeciesMap.Contains(pk.Species)) base.SetPartyValues(pk, isParty);
     }
 
-    // PKHeX counts the party by species, which reads as 0 for an unmapped one.
+    // PKHeX counts the party by species, which reads as 0 for an index outside the species table.
     public override void SetPartySlotAtIndex(PKM pk, int index, EntityImportSettings settings = default)
     {
         base.SetPartySlotAtIndex(pk, index, settings);

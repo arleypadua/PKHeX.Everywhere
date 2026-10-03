@@ -50,13 +50,18 @@ public record PokemonForm(int Id, string Name);
 /// The basics of a Pokémon, as listed in the party and the boxes.
 /// </summary>
 /// <param name="At">Where the Pokémon is.</param>
-/// <param name="SpeciesId">PKHeX species id, which is the National Pokédex number. 0 when the save stores a species PKHeX has no id for, such as a ROM hack's own species. <c>species</c> is then <c>Unknown (#n)</c>, and editing the Pokémon fails with <c>unknown-species</c>.</param>
+/// <param name="SpeciesId">PKHeX species id, which is the National Pokédex number. Null when <c>isUnknown</c> is true.</param>
+/// <param name="Species">Species name, or a name like <c>Unknown (#706)</c> when <c>isUnknown</c> is true.</param>
+/// <param name="IsUnknown">The save stores a species PKHeX has no id for, such as a ROM hack's own species. Show a placeholder instead of a sprite.</param>
+/// <param name="Editable">The Pokémon can be opened with <c>pokemon.edit()</c> and copied with <c>pokemon.clone()</c>. When false, show it read-only with <c>pokemon.details()</c>: editing it fails with <c>unknown-species</c>.</param>
 /// <param name="Nickname">The species name when the Pokémon has no nickname.</param>
 public record PokemonSummary(
     PokemonId Id,
     PokemonHandle At,
-    int SpeciesId,
+    int? SpeciesId,
     string Species,
+    bool IsUnknown,
+    bool Editable,
     PokemonForm Form,
     string Nickname,
     int Level,
@@ -104,7 +109,9 @@ public enum PokemonHandler
 /// <summary>
 /// The editable fields of a Pokémon. Send changes back with <c>pokemon.update()</c> as a <see cref="PokemonPatch"/>.
 /// </summary>
-/// <param name="Species">PKHeX species id, which is the National Pokédex number.</param>
+/// <param name="Species">PKHeX species id, which is the National Pokédex number. Null when <c>isUnknown</c> is true.</param>
+/// <param name="IsUnknown">The save stores a species PKHeX has no id for, such as a ROM hack's own species.</param>
+/// <param name="Editable">When false, show the fields read-only: <c>pokemon.update()</c> fails with <c>unknown-species</c>.</param>
 /// <param name="Form">Form index within the species' forms. 0 is the default form.</param>
 /// <param name="Nature">PKHeX nature id. See <c>game.natures()</c>.</param>
 /// <param name="Ability">PKHeX ability id, or 0 in games without abilities.</param>
@@ -136,7 +143,9 @@ public enum PokemonHandler
 /// <param name="Moves">Always four slots. An empty slot has id 0.</param>
 /// <param name="Legality">PKHeX's legality check of the Pokémon as it is now, or null when the save doesn't support <c>legality</c>.</param>
 public record EditablePokemon(
-    int Species,
+    int? Species,
+    bool IsUnknown,
+    bool Editable,
     int Form,
     PokemonGender Gender,
     int Nature,
@@ -317,8 +326,10 @@ public static class PokemonMapping
         return new PokemonSummary(
             new PokemonId(pokemon.UniqueId.Value),
             at,
-            pokemon.Species.Id,
+            pokemon.IsUnknown ? null : pokemon.Species.Id,
             pokemon.Species.Name,
+            pokemon.IsUnknown,
+            pokemon.IsEditable,
             new PokemonForm(form.Id, form.Name),
             pokemon.Nickname,
             pokemon.Level,
@@ -329,7 +340,9 @@ public static class PokemonMapping
         new(pokemon.Species.Id, pokemon.Species.Name, pokemon.Gender.Name, pokemon.Ball.Name, pokemon.Level);
 
     public static EditablePokemon ToEditable(this PokemonDetails details) => new(
-        details.Species,
+        details.IsUnknown ? null : details.Species,
+        details.IsUnknown,
+        details.IsEditable,
         details.Form,
         details.Gender.ToDto(),
         details.Nature,

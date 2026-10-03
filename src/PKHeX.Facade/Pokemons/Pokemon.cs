@@ -31,23 +31,21 @@ public partial class Pokemon(PKM pokemon, Game game)
 
     public bool IsEmpty => IsBlank(pokemon);
 
-    public bool IsUnknown => IsUnmapped(pokemon);
+    public bool IsUnknown => !IsBlank(pokemon) && SpeciesRepository.Find(pokemon.Species) is null;
 
-    internal static bool IsBlank(PKM pkm) => pkm.Species == 0 && !IsUnmapped(pkm);
+    public bool IsEditable => !IsUnknown;
 
-    private static bool IsUnmapped(PKM pkm) => pkm is IUnmappedValues { UnmappedSpecies: not null };
+    internal static bool IsBlank(PKM pkm) => pkm.Species == 0;
 
     /// <exception cref="UnknownSpeciesException">The species has no PKHeX id, so the Pokémon can't be edited or copied.</exception>
     public void RequireEditable()
     {
-        if (IsUnknown) throw new UnknownSpeciesException($"{Species.Name} can't be edited, as its species is unknown.");
+        if (!IsEditable) throw new UnknownSpeciesException($"{Species.Name} can't be edited, as its species is unknown.");
     }
 
     public SpeciesDefinition Species
     {
-        get => pokemon is IUnmappedValues { UnmappedSpecies: { } unmapped }
-            ? SpeciesDefinition.Unknown(unmapped)
-            : Game.SpeciesRepository.Get((Species)Pkm.Species);
+        get => Game.SpeciesRepository.Get((Species)Pkm.Species);
         set
         {
             if (Pkm.Species == value.ShortId) return;
