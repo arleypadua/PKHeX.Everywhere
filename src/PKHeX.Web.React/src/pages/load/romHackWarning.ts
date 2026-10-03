@@ -1,6 +1,6 @@
 import type { SaveSummary } from '@pkhex-everywhere/engine'
 
-export function romHackWarning(game: SaveSummary | null) {
+export function romHackWarning(game: SaveSummary | null): { title: string; content: string } | undefined {
   if (!game?.format) return undefined
   return {
     title: `${game.format.name} support is experimental`,

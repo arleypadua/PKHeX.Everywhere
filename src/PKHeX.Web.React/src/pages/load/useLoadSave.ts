@@ -25,9 +25,6 @@ export function useLoadSave() {
       }
       try {
         await engine.game.load(file, undefined, formatId)
-        const warning = romHackWarning(await engine.game.get())
-        if (warning) modal.warning({ ...warning, okText: 'I understand' })
-        return true
       } catch (error) {
         const failure = loadFailure(error)
         if (!failure) throw error
@@ -35,6 +32,9 @@ export function useLoadSave() {
         else notification.error({ title: `'${file.name}' is not a supported save file.`, description: 'The file is not a valid save file.' })
         return false
       }
+      const warning = romHackWarning(await engine.game.get())
+      if (warning) modal.warning({ ...warning, okText: 'I understand' })
+      return true
     },
     [engine, notification, modal],
   )
