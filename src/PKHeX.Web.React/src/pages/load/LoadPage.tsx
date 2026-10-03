@@ -145,6 +145,7 @@ function OpenButton({ label, type, style, onOpen }: OpenButtonProps) {
           count="New"
           size="small"
           color="yellow"
+          // antd sets the badge to width: fit-content, and Space.Compact items to z-index 2-4.
           styles={{
             root: { display: 'flex', flexDirection: 'column', width: 'auto' },
             indicator: { zIndex: 5, color: 'rgba(0, 0, 0, 0.88)' },
