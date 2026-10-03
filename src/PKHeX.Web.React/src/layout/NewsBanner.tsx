@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Alert } from 'antd'
 import { Link } from 'react-router'
 import { settings } from '../host'
-import { checkUnseenNews, markNewsSeen } from '../news'
+import { checkUnseenNews, markNewsSeen, news as newsEntries, newsHeadline } from '../news'
 import { routes } from '../routes'
 
 export function NewsBanner() {
@@ -42,7 +42,7 @@ export function NewsBanner() {
         title={
           <span style={{ fontSize: '0.7em', display: 'flex', justifyContent: 'center' }}>
             <div>
-              PKHeX.Web just got updated
+              {newsHeadline(newsEntries[0])}
               <br />
               See <Link to={routes.releaseNotes(news.since)}>what's new</Link>.
             </div>

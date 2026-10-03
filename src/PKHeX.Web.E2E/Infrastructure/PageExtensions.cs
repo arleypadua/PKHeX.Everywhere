@@ -13,7 +13,7 @@ public static class PageExtensions
 
     public static async Task UploadSaveAsync(this IPage page, string saveFile)
     {
-        await page.GetByRole(AriaRole.Button, new() { Name = "Open" }).WaitForAsync();
+        await page.GetByRole(AriaRole.Button, new() { Name = "Open", Exact = true }).WaitForAsync();
         await page.Locator("input[type=file]").SetInputFilesAsync(saveFile);
     }
 
