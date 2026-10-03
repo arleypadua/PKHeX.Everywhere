@@ -8,7 +8,7 @@ namespace PKHeX.Everywhere.RomHacks.Cfru;
 /// A Pokémon from a CFRU save, held in the vanilla Gen 3 party layout with hack indices for species, moves and items.
 /// It reports the Gen 9 context, so species, moves and forms resolve through PKHeX's national data.
 /// </summary>
-public abstract class CfruPokemon : PKM, IUnmappedValues
+public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgument
 {
     public const int SizeParty = 100;
     public const int SizeStored = 80;
@@ -118,24 +118,50 @@ public abstract class CfruPokemon : PKM, IUnmappedValues
 
     public ushort SpeciesIndex { get => ReadUInt16LittleEndian(Data[0x20..]); set => WriteUInt16LittleEndian(Data[0x20..], value); }
 
+    private CfruSpecies National => SpeciesMap.ToNational(SpeciesIndex);
+
     // Writing back the species already shown keeps the raw index, so unmapped and duplicate indices survive an edit elsewhere.
     public override ushort Species
     {
-        get => SpeciesMap.ToNational(SpeciesIndex).Species;
+        get => National.Species;
         set
         {
-            if (value != Species && SpeciesMap.ToIndex(value) is { } index) SpeciesIndex = index;
+            if (value != Species && (SpeciesMap.ToIndex(National with { Species = value, Form = 0 }) ?? SpeciesMap.ToIndex(value)) is { } index)
+                SpeciesIndex = index;
         }
     }
 
     public override byte Form
     {
-        get => SpeciesMap.ToNational(SpeciesIndex).Form;
+        get => National.Form;
         set
         {
-            if (value != Form && SpeciesMap.ToIndex(Species, value) is { } index) SpeciesIndex = index;
+            if (value != Form && (SpeciesMap.ToIndex(National with { Form = value }) ?? SpeciesMap.ToIndex(new CfruSpecies(Species, value))) is { } index)
+                SpeciesIndex = index;
         }
     }
+
+    public bool CanGigantamax
+    {
+        get => National.IsGigantamax;
+        set
+        {
+            if (value != CanGigantamax && SpeciesMap.ToIndex(National with { IsGigantamax = value }) is { } index) SpeciesIndex = index;
+        }
+    }
+
+    public uint FormArgument
+    {
+        get => National.FormArgument;
+        set
+        {
+            if (value != FormArgument && SpeciesMap.ToIndex(National with { FormArgument = value }) is { } index) SpeciesIndex = index;
+        }
+    }
+
+    public byte FormArgumentRemain { get => 0; set { } }
+    public byte FormArgumentElapsed { get => 0; set { } }
+    public byte FormArgumentMaximum { get => 0; set { } }
 
     public ushort? UnmappedSpecies => SpeciesIndex != 0 && Species == 0 ? SpeciesIndex : null;
 
@@ -224,11 +250,12 @@ public abstract class CfruPokemon : PKM, IUnmappedValues
 
     public override bool IsEgg
     {
-        get => ((IV32 >> 30) & 1) == 1;
+        get => ((IV32 >> 30) & 1) == 1 || National.IsEgg;
         set
         {
             IV32 = (IV32 & ~(1u << 30)) | (value ? 1u << 30 : 0);
             Data[0x13] = (byte)((Data[0x13] & ~4) | (value ? 4 : 0));
+            if (value != National.IsEgg && SpeciesMap.ToIndex(National with { IsEgg = value }) is { } index) SpeciesIndex = index;
         }
     }
 

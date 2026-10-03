@@ -41,13 +41,11 @@ public class SaveScenarioTests
 
     [Theory]
     [EverySave]
-    [KnownGap(SaveFilePath.Unbound, "Two species have no PKHeX id and list as Unknown (#1199) and Unknown (#1203).")]
     public void EveryListedPokemonHasASpecies(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
         Listed(LoadSession(saveFile)).Should().OnlyContain(p => p["speciesId"]!.GetValue<int>() != 0));
 
     [Theory]
     [EverySave]
-    [KnownGap(SaveFilePath.Unbound, "A Pokémon of an unknown species can't be opened.")]
     public void EveryListedPokemonOpensInTheEditor(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
         var session = LoadSession(saveFile);

@@ -1,9 +1,10 @@
 namespace PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 
 // Ported from OpenHome's RR_TO_NATIONAL_DEX_MAP: https://github.com/andrewbenington/OpenHome (GPL-3.0), commit 9f1f1f623a8da9c02caaceefbcb4340623741596.
+// The Gigantamax flags come from the sprite names in OpenHome's RadicalRedSprites.ts at the same commit.
 internal static class RadicalRedSpeciesTable
 {
-    public static readonly (ushort Species, byte Form)[] NationalByIndex =
+    public static readonly CfruSpecies[] NationalByIndex =
     [
         (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0),
         (12, 0), (13, 0), (14, 0), (15, 0), (16, 0), (17, 0), (18, 0), (19, 0), (20, 0), (21, 0), (22, 0), (23, 0),
@@ -107,10 +108,16 @@ internal static class RadicalRedSpeciesTable
         (894, 0), (895, 0), (845, 1), (845, 2), (849, 1), (1007, 0), (1008, 0), (996, 0), (997, 0), (998, 0), (948, 0), (949, 0),
         (919, 0), (875, 1), (0, 0), (877, 1), (888, 1), (889, 1), (890, 1), (892, 1), (52, 2), (77, 1), (78, 1), (79, 1),
         (80, 2), (0, 0), (109, 0), (110, 1), (0, 0), (144, 1), (145, 1), (146, 1), (199, 1), (222, 1), (263, 1), (264, 1),
-        (0, 0), (554, 1), (555, 2), (555, 3), (562, 1), (618, 1), (995, 0), (991, 0), (1006, 0), (12, 0), (128, 0), (128, 0),
-        (68, 0), (984, 0), (99, 0), (131, 0), (128, 0), (143, 0), (569, 0), (986, 0), (989, 0), (985, 0), (987, 0), (994, 0),
-        (826, 0), (834, 0), (839, 0), (841, 0), (842, 0), (844, 0), (849, 0), (988, 0), (851, 0), (1005, 0), (990, 0), (869, 0),
-        (879, 0), (884, 0), (992, 0), (993, 0), (898, 0), (898, 0), (897, 0), (896, 0), (902, 0), (628, 1), (899, 0), (58, 1),
+        (0, 0), (554, 1), (555, 2), (555, 3), (562, 1), (618, 1), (995, 0), (991, 0), (1006, 0), new(12, 0, IsGigantamax: true),
+        (128, 0), (128, 0),
+        new(68, 0, IsGigantamax: true), (984, 0), new(99, 0, IsGigantamax: true), new(131, 0, IsGigantamax: true), (128, 0),
+        new(143, 0, IsGigantamax: true), new(569, 0, IsGigantamax: true), (986, 0), (989, 0), (985, 0), (987, 0), (994, 0),
+        new(826, 0, IsGigantamax: true), new(834, 0, IsGigantamax: true), new(839, 0, IsGigantamax: true),
+        new(841, 0, IsGigantamax: true), new(842, 0, IsGigantamax: true), new(844, 0, IsGigantamax: true),
+        new(849, 0, IsGigantamax: true), (988, 0), new(851, 0, IsGigantamax: true), (1005, 0), (990, 0),
+        new(869, 0, IsGigantamax: true),
+        new(879, 0, IsGigantamax: true), new(884, 0, IsGigantamax: true), (992, 0), (993, 0), (898, 0), (898, 0), (897, 0),
+        (896, 0), (902, 0), (628, 1), (899, 0), (58, 1),
         (59, 1), (900, 0), (522, 0), (523, 0), (84, 0), (85, 0), (216, 0), (217, 0), (570, 1), (571, 1), (455, 0), (458, 0),
         (226, 0), (349, 0), (350, 0), (692, 0), (693, 0), (850, 0), (851, 0), (851, 0), (746, 0), (746, 0), (781, 0), (100, 1),
         (101, 1), (705, 1), (706, 1), (157, 1), (503, 1), (724, 1), (901, 0), (549, 1), (215, 1), (903, 0), (0, 0), (211, 1),

@@ -1,9 +1,10 @@
 namespace PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 
 // Ported from OpenHome's UB_TO_NATIONAL_DEX_MAP: https://github.com/andrewbenington/OpenHome (GPL-3.0), commit 9f1f1f623a8da9c02caaceefbcb4340623741596.
+// The forms, Gigantamax indexes and Manaphy Egg it leaves unmapped come from its comments.
 internal static class UnboundSpeciesTable
 {
-    public static readonly (ushort Species, byte Form)[] NationalByIndex =
+    public static readonly CfruSpecies[] NationalByIndex =
     [
         (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0),
         (12, 0), (13, 0), (14, 0), (15, 0), (16, 0), (17, 0), (18, 0), (19, 0), (20, 0), (21, 0), (22, 0), (23, 0),
@@ -26,7 +27,7 @@ internal static class UnboundSpeciesTable
         (216, 0), (217, 0), (218, 0), (219, 0), (220, 0), (221, 0), (222, 0), (223, 0), (224, 0), (225, 0), (226, 0), (227, 0),
         (228, 0), (229, 0), (230, 0), (231, 0), (232, 0), (233, 0), (234, 0), (235, 0), (236, 0), (237, 0), (238, 0), (239, 0),
         (240, 0), (241, 0), (242, 0), (243, 0), (244, 0), (245, 0), (246, 0), (247, 0), (248, 0), (249, 0), (250, 0), (251, 0),
-        (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0),
+        new(490, 0, IsEgg: true), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0),
         (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0),
         (0, 0), (252, 0), (253, 0), (254, 0), (255, 0), (256, 0), (257, 0), (258, 0), (259, 0), (260, 0), (261, 0), (262, 0),
         (263, 0), (264, 0), (265, 0), (266, 0), (267, 0), (268, 0), (269, 0), (270, 0), (271, 0), (272, 0), (273, 0), (274, 0),
@@ -104,14 +105,25 @@ internal static class UnboundSpeciesTable
         (860, 0), (861, 0), (862, 0), (863, 0), (864, 0), (865, 0), (866, 0), (867, 0), (868, 0), (869, 0), (870, 0), (871, 0),
         (872, 0), (873, 0), (874, 0), (875, 0), (876, 0), (877, 0), (878, 0), (879, 0), (880, 0), (881, 0), (882, 0), (883, 0),
         (884, 0), (885, 0), (886, 0), (887, 0), (888, 0), (889, 0), (890, 0), (891, 0), (892, 0), (893, 0), (894, 0), (895, 0),
-        (896, 0), (897, 0), (898, 0), (845, 1), (845, 2), (849, 1), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0),
-        (0, 0), (0, 0), (875, 1), (0, 0), (877, 1), (888, 1), (889, 1), (890, 1), (892, 1), (893, 1), (898, 1), (898, 2),
+        (896, 0), (897, 0), (898, 0), (845, 1), (845, 2), (849, 1), (854, 1), (855, 1), new(869, 0, FormArgument: 1),
+        new(869, 0, FormArgument: 4), new(869, 0, FormArgument: 5), new(869, 0, FormArgument: 2),
+        new(869, 0, FormArgument: 6), new(869, 0, FormArgument: 3), (875, 1), (876, 1), (877, 1), (888, 1), (889, 1), (890, 1),
+        (892, 1), (893, 1), (898, 1), (898, 2),
         (52, 2), (77, 1), (78, 1), (79, 1), (80, 2), (83, 1), (109, 0), (110, 1), (122, 1), (144, 1), (145, 1), (146, 1),
         (199, 1), (222, 1), (263, 1), (264, 1), (439, 0), (554, 1), (555, 2), (555, 3), (562, 1), (618, 1), (58, 1), (59, 1),
         (100, 1), (101, 1), (157, 1), (211, 1), (215, 1), (503, 1), (549, 1), (550, 2), (570, 1), (571, 1), (628, 1), (705, 1),
         (706, 1), (713, 1), (724, 1), (899, 0), (900, 0), (901, 0), (902, 0), (902, 1), (903, 0), (904, 0), (905, 0), (905, 1),
-        (0, 0), (0, 0), (0, 0), (12, 0), (0, 0), (0, 0), (68, 0), (0, 0), (99, 0), (131, 0), (0, 0), (143, 0),
-        (569, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (826, 0), (834, 0), (839, 0), (841, 0), (842, 0), (844, 0),
-        (849, 0), (0, 0), (851, 0), (0, 0), (0, 0), (869, 0), (879, 0), (884, 0),
+        new(3, 0, IsGigantamax: true), new(6, 0, IsGigantamax: true), new(9, 0, IsGigantamax: true),
+        new(12, 0, IsGigantamax: true), new(25, 0, IsGigantamax: true), new(52, 0, IsGigantamax: true),
+        new(68, 0, IsGigantamax: true), new(94, 0, IsGigantamax: true), new(99, 0, IsGigantamax: true),
+        new(131, 0, IsGigantamax: true), new(133, 0, IsGigantamax: true), new(143, 0, IsGigantamax: true),
+        new(569, 0, IsGigantamax: true), new(809, 0, IsGigantamax: true), new(812, 0, IsGigantamax: true),
+        new(815, 0, IsGigantamax: true), new(818, 0, IsGigantamax: true), new(823, 0, IsGigantamax: true),
+        new(826, 0, IsGigantamax: true), new(834, 0, IsGigantamax: true), new(839, 0, IsGigantamax: true),
+        new(841, 0, IsGigantamax: true), new(842, 0, IsGigantamax: true), new(844, 0, IsGigantamax: true),
+        new(849, 0, IsGigantamax: true), new(849, 1, IsGigantamax: true), new(851, 0, IsGigantamax: true),
+        new(858, 0, IsGigantamax: true), new(861, 0, IsGigantamax: true), new(869, 0, IsGigantamax: true),
+        new(879, 0, IsGigantamax: true), new(884, 0, IsGigantamax: true), new(892, 0, IsGigantamax: true),
+        new(892, 1, IsGigantamax: true),
     ];
 }
