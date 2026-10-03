@@ -78,7 +78,7 @@ export default function PlugInsPage() {
       key: 'version',
       render: (_, plugIn) =>
         plugIn.needsReinstall ? (
-          <Tooltip title="This plug-in doesn't work with this version of the app. Uninstall it and install it again.">
+          <Tooltip title="This plug-in can't run in this version of the app. Uninstall it and install it again.">
             <Tag color="warning">Needs reinstall</Tag>
           </Tooltip>
         ) : (

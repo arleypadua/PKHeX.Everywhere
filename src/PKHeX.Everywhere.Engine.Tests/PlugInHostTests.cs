@@ -192,6 +192,7 @@ public class PlugInHostTests
     public void DetectsTheSdkAnAssemblyIsBuiltAgainst()
     {
         PlugInHost.DetectSdk(TestPlugIn).Should().Be(PlugInSdk.V2);
+        PlugInHost.DetectSdk(ReferencingSdkVersion(TestPlugIn, 1)).Should().Be(PlugInSdk.V2);
         PlugInHost.DetectSdk(ReferencingSdkVersion(TestPlugIn, 3)).Should().Be(PlugInSdk.V3);
         PlugInHost.DetectSdk(V1PlugIn).Should().Be(PlugInSdk.V1);
         PlugInHost.DetectSdk(File.ReadAllBytes(typeof(Session).Assembly.Location)).Should().Be(PlugInSdk.None);

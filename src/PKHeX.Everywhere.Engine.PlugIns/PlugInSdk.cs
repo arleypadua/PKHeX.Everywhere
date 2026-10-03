@@ -14,7 +14,7 @@ public enum PlugInSdk
 internal static class PlugInSdkDetector
 {
     private const string V1 = "PKHeX.Web.Plugins";
-    private const string Everywhere = "PKHeX.Everywhere.PlugIns";
+    private const string V2AndLater = "PKHeX.Everywhere.PlugIns";
 
     // SDK 2 shipped without an assembly version, so it's 1.0.0.0. From SDK 3 on the assembly's major is the SDK's.
     private const int FirstVersionedSdk = 3;
@@ -47,12 +47,11 @@ internal static class PlugInSdkDetector
             var metadata = pe.GetMetadataReader();
             var references = metadata.AssemblyReferences
                 .Select(metadata.GetAssemblyReference)
-                .Select(r => (Name: metadata.GetString(r.Name), r.Version))
-                .ToList();
+                .ToLookup(r => metadata.GetString(r.Name), r => r.Version);
 
-            if (references.Find(r => r.Name == Everywhere) is { Name: not null } sdk)
-                return sdk.Version.Major >= FirstVersionedSdk ? PlugInSdk.V3 : PlugInSdk.V2;
-            if (references.Exists(r => r.Name == V1)) return PlugInSdk.V1;
+            if (references[V2AndLater].FirstOrDefault() is { } version)
+                return version.Major >= FirstVersionedSdk ? (PlugInSdk)version.Major : PlugInSdk.V2;
+            if (references.Contains(V1)) return PlugInSdk.V1;
             return PlugInSdk.None;
         }
         catch (BadImageFormatException)

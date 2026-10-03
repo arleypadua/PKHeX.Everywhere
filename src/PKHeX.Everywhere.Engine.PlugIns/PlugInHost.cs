@@ -105,7 +105,7 @@ public sealed class PlugInHost
     public RegisteredPlugIn Register(byte[] assembly, StoredPlugIn? stored = null)
     {
         var sdk = DetectSdk(assembly);
-        if (sdk != PlugInSdk.V2) throw new IncompatiblePlugInException(sdk);
+        if (!SupportedSdks.Contains((int)sdk)) throw new IncompatiblePlugInException(sdk);
 
         var loaded = Assembly.Load(assembly);
         var plugIn = new RegisteredPlugIn(loaded, CreateSettings(loaded), _game);

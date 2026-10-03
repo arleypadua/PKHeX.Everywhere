@@ -1,5 +1,6 @@
 import type { Engine, InstalledPlugIn, PlugInSetting, PlugInState } from '@pkhex-everywhere/engine'
 import { fromBase64, toBase64 } from '../base64'
+import { createStore } from '../externalStore'
 import {
   defaultSourceUrl,
   downloadUrl,
@@ -40,19 +41,14 @@ export function withFailedToLoad(installed: InstalledPlugIn[], failed: Installed
 }
 
 export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUrl: typeof fetch = fetch) {
-  let failed: InstalledPlugIn[] = []
-  const listeners = new Set<() => void>()
-
-  function setFailed(next: InstalledPlugIn[]) {
-    failed = next
-    listeners.forEach((listener) => listener())
-  }
+  const failed = createStore<InstalledPlugIn[]>([])
+  const withoutFailed = (id: string) => failed.get().filter((p) => p.id !== id)
 
   function forgetFailed(id: string) {
-    if (failed.some((p) => p.id === id)) setFailed(failed.filter((p) => p.id !== id))
+    if (failed.get().some((p) => p.id === id)) failed.set(withoutFailed(id))
   }
 
-  const listInstalled = async () => withFailedToLoad(await engine.plugins.installed(), failed)
+  const listInstalled = async () => withFailedToLoad(await engine.plugins.installed(), failed.get())
 
   async function get(url: string) {
     const response = await fetchUrl(url)
@@ -144,17 +140,14 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
           await engine.plugins.register(fromBase64(plugIn.assembly), plugIn.state)
         } catch (error) {
           console.error(`Couldn't load plug-in ${plugIn.id}, so it needs reinstall.`, error)
-          setFailed([...failed.filter((p) => p.id !== plugIn.id), failedPlugIn(plugIn.id)])
+          failed.set([...withoutFailed(plugIn.id), failedPlugIn(plugIn.id)])
         }
       }
     },
 
-    failedToLoad: () => failed,
+    failedToLoad: failed.get,
 
-    subscribe(listener: () => void) {
-      listeners.add(listener)
-      return () => void listeners.delete(listener)
-    },
+    subscribe: failed.subscribe,
 
     async refresh() {
       const sources = await refreshSources()
