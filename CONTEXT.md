@@ -25,6 +25,18 @@ _Avoid_: save type, ROM hack format
 A feature that needs PKHeX to know the save's game: legality, AutoLegality, encounters, Showdown, events or plug-ins. PKHeX saves have all of them, and a save format turns off the ones it can't support. Calls behind a capability that's off fail with `not-supported`, and the UI hides them.
 _Avoid_: feature flag, support level
 
+**Game data source**:
+What a save can store for each kind of value, with names: species, items, held items, moves, met locations, balls, natures, languages and origin games. It also names the save's Unknown ids, declares its Locked fields and says whether stats are approximate. The Save format provides it next to the Capabilities, and official saves get a default built from PKHeX's data. See [ADR 0008](docs/adr/0008-rom-hacks-are-converted-at-the-save-boundary.md).
+_Avoid_: game data, option source
+
+**Unknown**:
+A species, item or move the save stores that PKHeX has no id or name for, such as an Unbound-only item. An unknown item or move can be changed or cleared where it is. A Pokémon of an unknown species is read-only.
+_Avoid_: unmapped, invalid
+
+**Locked field**:
+A Pokémon field the save can't change, such as nature on a Gen 3 save. The Game data source declares them, and the editor shows them disabled.
+_Avoid_: read-only field, frozen field
+
 **Handle**:
 Where something sits in the save, such as a Pokémon's party or box slot, or a pouch item as `{ pouch, itemId }`. A Pokémon crosses to JavaScript as `{ id, at }`, with its opaque id and its Handle.
 _Avoid_: pointer, reference

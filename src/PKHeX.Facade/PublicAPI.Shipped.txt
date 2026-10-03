@@ -1,0 +1,1039 @@
+#nullable enable
+PKHeX.Facade.Abstractions.IMoveList
+PKHeX.Facade.Abstractions.IMoveList.Moves.get -> System.Collections.Generic.IReadOnlySet<ushort>!
+PKHeX.Facade.Abstractions.IMutablePokemonCollection
+PKHeX.Facade.Abstractions.IMutablePokemonCollection.AddOrUpdate(PKHeX.Facade.Pokemons.UniqueId! id, PKHeX.Facade.Pokemons.Pokemon! pokemon) -> void
+PKHeX.Facade.Abstractions.ISaveFormat
+PKHeX.Facade.Abstractions.ISaveFormat.BaseGame.get -> PKHeX.Core.GameVersion
+PKHeX.Facade.Abstractions.ISaveFormat.Capabilities.get -> System.Collections.Generic.IReadOnlySet<PKHeX.Facade.Capability>!
+PKHeX.Facade.Abstractions.ISaveFormat.Detect(System.ReadOnlySpan<byte> data) -> PKHeX.Facade.Abstractions.SaveFormatMatch
+PKHeX.Facade.Abstractions.ISaveFormat.Id.get -> string!
+PKHeX.Facade.Abstractions.ISaveFormat.Load(byte[]! data) -> PKHeX.Core.SaveFile!
+PKHeX.Facade.Abstractions.ISaveFormat.Name.get -> string!
+PKHeX.Facade.Abstractions.IUnmappedItems
+PKHeX.Facade.Abstractions.IUnmappedItems.UnmappedItems.get -> System.Collections.Generic.IReadOnlyList<(ushort Id, int Count)>!
+PKHeX.Facade.Abstractions.IUnmappedValues
+PKHeX.Facade.Abstractions.IUnmappedValues.UnmappedHeldItem.get -> ushort?
+PKHeX.Facade.Abstractions.IUnmappedValues.UnmappedSpecies.get -> ushort?
+PKHeX.Facade.Abstractions.SaveFormatDescription
+PKHeX.Facade.Abstractions.SaveFormatDescription.BaseGame.get -> PKHeX.Core.GameVersion
+PKHeX.Facade.Abstractions.SaveFormatDescription.BaseGame.init -> void
+PKHeX.Facade.Abstractions.SaveFormatDescription.Deconstruct(out string! Id, out string! Name, out PKHeX.Core.GameVersion BaseGame) -> void
+PKHeX.Facade.Abstractions.SaveFormatDescription.Id.get -> string!
+PKHeX.Facade.Abstractions.SaveFormatDescription.Id.init -> void
+PKHeX.Facade.Abstractions.SaveFormatDescription.Name.get -> string!
+PKHeX.Facade.Abstractions.SaveFormatDescription.Name.init -> void
+PKHeX.Facade.Abstractions.SaveFormatDescription.SaveFormatDescription(PKHeX.Facade.Abstractions.SaveFormatDescription! original) -> void
+PKHeX.Facade.Abstractions.SaveFormatDescription.SaveFormatDescription(string! Id, string! Name, PKHeX.Core.GameVersion BaseGame) -> void
+PKHeX.Facade.Abstractions.SaveFormatMatch
+PKHeX.Facade.Abstractions.SaveFormatMatch.Certain = 2 -> PKHeX.Facade.Abstractions.SaveFormatMatch
+PKHeX.Facade.Abstractions.SaveFormatMatch.No = 0 -> PKHeX.Facade.Abstractions.SaveFormatMatch
+PKHeX.Facade.Abstractions.SaveFormatMatch.Possible = 1 -> PKHeX.Facade.Abstractions.SaveFormatMatch
+PKHeX.Facade.AutoLegality
+PKHeX.Facade.Base.Enumeration
+PKHeX.Facade.Base.Enumeration.CompareTo(object? other) -> int
+PKHeX.Facade.Base.Enumeration.Enumeration(int id, string! name) -> void
+PKHeX.Facade.Base.Enumeration.Id.get -> int
+PKHeX.Facade.Base.Enumeration.Name.get -> string!
+PKHeX.Facade.BattlePoints
+PKHeX.Facade.BattlePoints.IsSupported(out PKHeX.Facade.BattlePoints.Supported! supported) -> bool
+PKHeX.Facade.BattlePoints.NotSupported
+PKHeX.Facade.BattlePoints.NotSupported.NotSupported() -> void
+PKHeX.Facade.BattlePoints.Supported
+PKHeX.Facade.BattlePoints.Supported.BattlePoints.get -> int
+PKHeX.Facade.BattlePoints.Supported.BattlePoints.set -> void
+PKHeX.Facade.BattlePoints.Supported.Supported(PKHeX.Core.SaveFile! saveFile) -> void
+PKHeX.Facade.Capability
+PKHeX.Facade.Capability.AutoLegality = 1 -> PKHeX.Facade.Capability
+PKHeX.Facade.Capability.Encounters = 2 -> PKHeX.Facade.Capability
+PKHeX.Facade.Capability.Events = 4 -> PKHeX.Facade.Capability
+PKHeX.Facade.Capability.Legality = 0 -> PKHeX.Facade.Capability
+PKHeX.Facade.Capability.PlugIns = 5 -> PKHeX.Facade.Capability
+PKHeX.Facade.Capability.Showdown = 3 -> PKHeX.Facade.Capability
+PKHeX.Facade.CapabilityNotSupportedException
+PKHeX.Facade.CapabilityNotSupportedException.Capability.get -> PKHeX.Facade.Capability
+PKHeX.Facade.CapabilityNotSupportedException.CapabilityNotSupportedException(PKHeX.Facade.Capability capability) -> void
+PKHeX.Facade.EntityId
+PKHeX.Facade.EntityId.Deconstruct(out uint TID, out uint SID) -> void
+PKHeX.Facade.EntityId.EntityId(PKHeX.Facade.EntityId! original) -> void
+PKHeX.Facade.EntityId.EntityId(uint TID, uint SID) -> void
+PKHeX.Facade.EntityId.SID.get -> uint
+PKHeX.Facade.EntityId.SID.init -> void
+PKHeX.Facade.EntityId.TID.get -> uint
+PKHeX.Facade.EntityId.TID.init -> void
+PKHeX.Facade.Events.EventFlagEntry
+PKHeX.Facade.Events.EventFlagEntry.Category.get -> string!
+PKHeX.Facade.Events.EventFlagEntry.EventFlagEntry(int index, string! name, string! category, System.Func<bool>! get, System.Action<bool>! set) -> void
+PKHeX.Facade.Events.EventFlagEntry.Index.get -> int
+PKHeX.Facade.Events.EventFlagEntry.Name.get -> string!
+PKHeX.Facade.Events.EventFlagEntry.Value.get -> bool
+PKHeX.Facade.Events.EventFlagEntry.Value.set -> void
+PKHeX.Facade.Events.EventTickets
+PKHeX.Facade.Events.EventTickets.All.get -> System.Collections.Immutable.ImmutableList<PKHeX.Facade.Repositories.ItemDefinition!>!
+PKHeX.Facade.Events.EventTickets.Give(bool includeOldSeaMap) -> System.Collections.Immutable.ImmutableList<PKHeX.Facade.Repositories.ItemDefinition!>!
+PKHeX.Facade.Events.EventTickets.Missing.get -> System.Collections.Immutable.ImmutableList<PKHeX.Facade.Repositories.ItemDefinition!>!
+PKHeX.Facade.Events.EventTickets.OldSeaMapNeedsConfirmation.get -> bool
+PKHeX.Facade.Events.EventWorkEntry
+PKHeX.Facade.Events.EventWorkEntry.Category.get -> string!
+PKHeX.Facade.Events.EventWorkEntry.EventWorkEntry(int index, string! name, string! category, System.Collections.Immutable.ImmutableList<PKHeX.Facade.Events.EventWorkOption!>! options, System.Func<int>! get, System.Action<int>! set) -> void
+PKHeX.Facade.Events.EventWorkEntry.Index.get -> int
+PKHeX.Facade.Events.EventWorkEntry.Name.get -> string!
+PKHeX.Facade.Events.EventWorkEntry.Options.get -> System.Collections.Immutable.ImmutableList<PKHeX.Facade.Events.EventWorkOption!>!
+PKHeX.Facade.Events.EventWorkEntry.Value.get -> int
+PKHeX.Facade.Events.EventWorkEntry.Value.set -> void
+PKHeX.Facade.Events.EventWorkOption
+PKHeX.Facade.Events.EventWorkOption.<Clone>$() -> PKHeX.Facade.Events.EventWorkOption!
+PKHeX.Facade.Events.EventWorkOption.Deconstruct(out string! Name, out int Value) -> void
+PKHeX.Facade.Events.EventWorkOption.Equals(PKHeX.Facade.Events.EventWorkOption? other) -> bool
+PKHeX.Facade.Events.EventWorkOption.EventWorkOption(string! Name, int Value) -> void
+PKHeX.Facade.Events.EventWorkOption.Name.get -> string!
+PKHeX.Facade.Events.EventWorkOption.Name.init -> void
+PKHeX.Facade.Events.EventWorkOption.Value.get -> int
+PKHeX.Facade.Events.EventWorkOption.Value.init -> void
+PKHeX.Facade.Events.GameEvents
+PKHeX.Facade.Events.GameEvents.FlagCount.get -> int
+PKHeX.Facade.Events.GameEvents.Flags.get -> System.Collections.Immutable.ImmutableList<PKHeX.Facade.Events.EventFlagEntry!>!
+PKHeX.Facade.Events.GameEvents.Gen3.get -> PKHeX.Facade.Events.Gen3Events?
+PKHeX.Facade.Events.GameEvents.GetFlag(int index) -> bool
+PKHeX.Facade.Events.GameEvents.GetWork(int index) -> int
+PKHeX.Facade.Events.GameEvents.SetFlag(int index, bool value) -> void
+PKHeX.Facade.Events.GameEvents.SetWork(int index, int value) -> void
+PKHeX.Facade.Events.GameEvents.Work.get -> System.Collections.Immutable.ImmutableList<PKHeX.Facade.Events.EventWorkEntry!>!
+PKHeX.Facade.Events.GameEvents.WorkCount.get -> int
+PKHeX.Facade.Events.GameEvents.WorkMax.get -> int
+PKHeX.Facade.Events.GameEvents.WorkMin.get -> int
+PKHeX.Facade.Events.Gen3Events
+PKHeX.Facade.Events.Gen3Events.Islands.get -> System.Collections.Immutable.ImmutableList<PKHeX.Facade.Events.EventFlagEntry!>!
+PKHeX.Facade.Events.Gen3Events.Tickets.get -> PKHeX.Facade.Events.EventTickets!
+PKHeX.Facade.Extensions.GameExtensions
+PKHeX.Facade.Extensions.IdiomaticFunctions
+PKHeX.Facade.Extensions.PokemonExtensions
+PKHeX.Facade.Extensions.SpeciesExtensions
+PKHeX.Facade.FormatChoiceRequiredException
+PKHeX.Facade.FormatChoiceRequiredException.Candidates.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Abstractions.ISaveFormat!>!
+PKHeX.Facade.FormatChoiceRequiredException.FormatChoiceRequiredException(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Abstractions.ISaveFormat!>! candidates) -> void
+PKHeX.Facade.Game
+PKHeX.Facade.Game.AvailableVersions.get -> System.Collections.Immutable.IImmutableList<PKHeX.Facade.Repositories.GameVersionDefinition!>!
+PKHeX.Facade.Game.BattlePoints.get -> PKHeX.Facade.BattlePoints!
+PKHeX.Facade.Game.Capabilities.get -> System.Collections.Generic.IReadOnlySet<PKHeX.Facade.Capability>!
+PKHeX.Facade.Game.Events.get -> PKHeX.Facade.Events.GameEvents?
+PKHeX.Facade.Game.Format.get -> PKHeX.Facade.Abstractions.SaveFormatDescription?
+PKHeX.Facade.Game.Game(PKHeX.Core.SaveFile! saveFile, PKHeX.Facade.Abstractions.ISaveFormat? format = null) -> void
+PKHeX.Facade.Game.GameVersionApproximation.get -> PKHeX.Facade.Repositories.GameVersionDefinition!
+PKHeX.Facade.Game.Generation.get -> PKHeX.Core.EntityContext
+PKHeX.Facade.Game.IsAwareOf(PKHeX.Core.Species species, byte form = 0) -> bool
+PKHeX.Facade.Game.IsAwareOf(PKHeX.Facade.Pokemons.Pokemon! pokemon) -> bool
+PKHeX.Facade.Game.ItemRepository.get -> PKHeX.Facade.Repositories.ItemRepository!
+PKHeX.Facade.Game.LocationRepository.get -> PKHeX.Facade.Repositories.LocationRepository!
+PKHeX.Facade.Game.Options.get -> PKHeX.Facade.GameOptions!
+PKHeX.Facade.Game.PokemonRepository.get -> PKHeX.Facade.Repositories.PokemonRepository!
+PKHeX.Facade.Game.Require(PKHeX.Facade.Capability capability) -> void
+PKHeX.Facade.Game.SaveVersion.get -> PKHeX.Facade.Repositories.GameVersionDefinition!
+PKHeX.Facade.Game.SpeciesRepository.get -> PKHeX.Facade.Repositories.SpeciesRepository!
+PKHeX.Facade.Game.Supports(PKHeX.Facade.Capability capability) -> bool
+PKHeX.Facade.Game.ToByteArray() -> byte[]!
+PKHeX.Facade.Game.Trainer.get -> PKHeX.Facade.Trainer!
+PKHeX.Facade.GameNotLoadedException
+PKHeX.Facade.GameNotLoadedException.GameNotLoadedException(string? path = null, System.Exception? innerException = null) -> void
+PKHeX.Facade.GameOptions
+PKHeX.Facade.GameOptions.Balls.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.GameOptions.GameOptions(PKHeX.Core.SaveFile! saveFile) -> void
+PKHeX.Facade.GameOptions.HeldItems.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.GameOptions.Languages.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.GameOptions.Moves.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.GameOptions.Natures.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.GameOptions.OriginGames.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Gender
+PKHeX.Facade.Gender.Symbol.get -> string!
+PKHeX.Facade.Gender.ToByte() -> byte
+PKHeX.Facade.Inventories
+PKHeX.Facade.Inventories.Inventories(PKHeX.Facade.Game! game) -> void
+PKHeX.Facade.Inventories.InventoryItems.get -> System.Collections.Immutable.ImmutableDictionary<string!, PKHeX.Facade.Inventory!>!
+PKHeX.Facade.Inventories.InventoryItems.init -> void
+PKHeX.Facade.Inventories.InventoryTypes.get -> System.Collections.Immutable.ImmutableHashSet<string!>!
+PKHeX.Facade.Inventories.InventoryTypes.init -> void
+PKHeX.Facade.Inventories.this[string! key].get -> PKHeX.Facade.Inventory!
+PKHeX.Facade.InventoriesExtensions
+PKHeX.Facade.Inventory
+PKHeX.Facade.Inventory.AllSupportedItems.get -> System.Collections.Immutable.ImmutableList<PKHeX.Facade.Repositories.ItemDefinition!>!
+PKHeX.Facade.Inventory.CurrentSupportedItems.get -> System.Collections.Immutable.ImmutableList<PKHeX.Facade.Repositories.ItemDefinition!>!
+PKHeX.Facade.Inventory.GetEnumerator() -> System.Collections.Generic.IEnumerator<PKHeX.Facade.Inventory.Item!>!
+PKHeX.Facade.Inventory.Inventory(string! type, PKHeX.Facade.Game! game) -> void
+PKHeX.Facade.Inventory.Item
+PKHeX.Facade.Inventory.Item.Count.get -> int
+PKHeX.Facade.Inventory.Item.Definition.get -> PKHeX.Facade.Repositories.ItemDefinition!
+PKHeX.Facade.Inventory.Item.Id.get -> ushort
+PKHeX.Facade.Inventory.Item.IsNone.get -> bool
+PKHeX.Facade.Inventory.Item.Item() -> void
+PKHeX.Facade.Inventory.Item.Item(PKHeX.Core.InventoryItem! item, System.Func<ushort, PKHeX.Facade.Repositories.ItemDefinition!>! itemFetcher) -> void
+PKHeX.Facade.Inventory.Item.Name.get -> string!
+PKHeX.Facade.Inventory.Items.get -> System.Collections.Immutable.ImmutableList<PKHeX.Facade.Inventory.Item!>!
+PKHeX.Facade.Inventory.MaxCountOf(ushort itemId) -> int
+PKHeX.Facade.Inventory.MaxItemCountAllowed.get -> int
+PKHeX.Facade.Inventory.Remove(ushort itemId) -> void
+PKHeX.Facade.Inventory.Set(ushort itemId, uint count) -> void
+PKHeX.Facade.Inventory.Supports(PKHeX.Facade.Repositories.ItemDefinition! item) -> bool
+PKHeX.Facade.Inventory.TrySet(ushort itemId, uint count) -> bool
+PKHeX.Facade.Inventory.Type.get -> string!
+PKHeX.Facade.Inventory.Type.init -> void
+PKHeX.Facade.Inventory.UnknownItems.get -> System.Collections.Immutable.ImmutableList<PKHeX.Facade.Inventory.Item!>!
+PKHeX.Facade.Location
+PKHeX.Facade.Location.Deconstruct(out ushort Id, out string! Name) -> void
+PKHeX.Facade.Location.Id.get -> ushort
+PKHeX.Facade.Location.Id.init -> void
+PKHeX.Facade.Location.Location(PKHeX.Facade.Location! original) -> void
+PKHeX.Facade.Location.Location(ushort Id, string! Name) -> void
+PKHeX.Facade.Location.Name.get -> string!
+PKHeX.Facade.Location.Name.init -> void
+PKHeX.Facade.Money
+PKHeX.Facade.Money.Amount.get -> uint
+PKHeX.Facade.Money.IsSupported.get -> bool
+PKHeX.Facade.Money.Money(PKHeX.Facade.Game! game) -> void
+PKHeX.Facade.Money.Set(uint amount) -> void
+PKHeX.Facade.Money.SetMax() -> void
+PKHeX.Facade.PokemonBox
+PKHeX.Facade.PokemonBox.AddOnEmptySlot(PKHeX.Facade.Pokemons.Pokemon! pokemon) -> bool
+PKHeX.Facade.PokemonBox.AddOnEmptySlot(PKHeX.Facade.Pokemons.Pokemon! pokemon, out int index) -> bool
+PKHeX.Facade.PokemonBox.AddOrUpdate(PKHeX.Facade.Pokemons.UniqueId! id, PKHeX.Facade.Pokemons.Pokemon! pokemon) -> void
+PKHeX.Facade.PokemonBox.All.get -> System.Collections.Generic.IList<PKHeX.Facade.Pokemons.Pokemon!>!
+PKHeX.Facade.PokemonBox.Boxed() -> System.Collections.Generic.IEnumerable<(int Index, PKHeX.Facade.Pokemons.Pokemon! Pokemon)>!
+PKHeX.Facade.PokemonBox.BySpecies.get -> System.Collections.Generic.IDictionary<PKHeX.Core.Species, System.Collections.Generic.List<PKHeX.Facade.Pokemons.Pokemon!>!>!
+PKHeX.Facade.PokemonBox.Commit() -> void
+PKHeX.Facade.PokemonBox.PokemonBox(PKHeX.Facade.Game! game, PKHeX.Facade.PokemonParty! party) -> void
+PKHeX.Facade.PokemonBox.Showdown() -> string!
+PKHeX.Facade.PokemonParty
+PKHeX.Facade.PokemonParty.AddOrUpdate(PKHeX.Facade.Pokemons.UniqueId! id, PKHeX.Facade.Pokemons.Pokemon! pokemon) -> void
+PKHeX.Facade.PokemonParty.BoxIndexOf(int slot) -> int?
+PKHeX.Facade.PokemonParty.Commit() -> void
+PKHeX.Facade.PokemonParty.PokemonParty(PKHeX.Facade.Game! game) -> void
+PKHeX.Facade.PokemonParty.Pokemons.get -> System.Collections.Generic.IList<PKHeX.Facade.Pokemons.Pokemon!>!
+PKHeX.Facade.PokemonParty.Showdown() -> string!
+PKHeX.Facade.PokemonParty.SlotOf(int boxIndex) -> int?
+PKHeX.Facade.Pokemons.Choice
+PKHeX.Facade.Pokemons.Choice.Choice(PKHeX.Facade.Pokemons.Choice! original) -> void
+PKHeX.Facade.Pokemons.Choice.Choice(int Id, string! Name) -> void
+PKHeX.Facade.Pokemons.Choice.Deconstruct(out int Id, out string! Name) -> void
+PKHeX.Facade.Pokemons.Choice.Id.get -> int
+PKHeX.Facade.Pokemons.Choice.Id.init -> void
+PKHeX.Facade.Pokemons.Choice.Name.get -> string!
+PKHeX.Facade.Pokemons.Choice.Name.init -> void
+PKHeX.Facade.Pokemons.Egg
+PKHeX.Facade.Pokemons.Egg.Egg(PKHeX.Core.PKM! pokemon) -> void
+PKHeX.Facade.Pokemons.Egg.HatchCounter.get -> int?
+PKHeX.Facade.Pokemons.Egg.HatchCounter.set -> void
+PKHeX.Facade.Pokemons.Egg.IsEgg.get -> bool
+PKHeX.Facade.Pokemons.Egg.IsEgg.set -> void
+PKHeX.Facade.Pokemons.Egg.MaxCounter.get -> int
+PKHeX.Facade.Pokemons.Egg.MetConditions.get -> PKHeX.Facade.Pokemons.EggMetConditions!
+PKHeX.Facade.Pokemons.Egg.MinCounter.get -> int
+PKHeX.Facade.Pokemons.EggMetConditions
+PKHeX.Facade.Pokemons.EggMetConditions.Date.get -> System.DateOnly?
+PKHeX.Facade.Pokemons.EggMetConditions.Date.set -> void
+PKHeX.Facade.Pokemons.EggMetConditions.EggMetConditions(PKHeX.Core.PKM! pokemon) -> void
+PKHeX.Facade.Pokemons.EggMetConditions.Location.get -> PKHeX.Facade.Location!
+PKHeX.Facade.Pokemons.EggMetConditions.Version.get -> PKHeX.Facade.Repositories.GameVersionDefinition!
+PKHeX.Facade.Pokemons.HiddenPowerDefinition
+PKHeX.Facade.Pokemons.HiddenPowerDefinition.Deconstruct(out string! Type, out int? Power) -> void
+PKHeX.Facade.Pokemons.HiddenPowerDefinition.HiddenPowerDefinition(PKHeX.Facade.Pokemons.HiddenPowerDefinition! original) -> void
+PKHeX.Facade.Pokemons.HiddenPowerDefinition.HiddenPowerDefinition(string! Type, int? Power) -> void
+PKHeX.Facade.Pokemons.HiddenPowerDefinition.Power.get -> int?
+PKHeX.Facade.Pokemons.HiddenPowerDefinition.Power.init -> void
+PKHeX.Facade.Pokemons.HiddenPowerDefinition.Type.get -> string!
+PKHeX.Facade.Pokemons.HiddenPowerDefinition.Type.init -> void
+PKHeX.Facade.Pokemons.InvalidPatchException
+PKHeX.Facade.Pokemons.InvalidPatchException.Field.get -> string!
+PKHeX.Facade.Pokemons.InvalidPatchException.InvalidPatchException(string! field, string! message) -> void
+PKHeX.Facade.Pokemons.MetConditions
+PKHeX.Facade.Pokemons.MetConditions.Date.get -> System.DateOnly?
+PKHeX.Facade.Pokemons.MetConditions.Date.set -> void
+PKHeX.Facade.Pokemons.MetConditions.FatefulEncounter.get -> bool
+PKHeX.Facade.Pokemons.MetConditions.FatefulEncounter.set -> void
+PKHeX.Facade.Pokemons.MetConditions.Level.get -> int
+PKHeX.Facade.Pokemons.MetConditions.Level.set -> void
+PKHeX.Facade.Pokemons.MetConditions.Location.get -> PKHeX.Facade.Location!
+PKHeX.Facade.Pokemons.MetConditions.Location.set -> void
+PKHeX.Facade.Pokemons.MetConditions.MetConditions(PKHeX.Core.PKM! pokemon) -> void
+PKHeX.Facade.Pokemons.MetConditions.Version.get -> PKHeX.Facade.Repositories.GameVersionDefinition!
+PKHeX.Facade.Pokemons.MoveSlot
+PKHeX.Facade.Pokemons.MoveSlot.Deconstruct(out int Id, out string! Name, out int Pp, out int MaxPp) -> void
+PKHeX.Facade.Pokemons.MoveSlot.Id.get -> int
+PKHeX.Facade.Pokemons.MoveSlot.Id.init -> void
+PKHeX.Facade.Pokemons.MoveSlot.MaxPp.get -> int
+PKHeX.Facade.Pokemons.MoveSlot.MaxPp.init -> void
+PKHeX.Facade.Pokemons.MoveSlot.MoveSlot(PKHeX.Facade.Pokemons.MoveSlot! original) -> void
+PKHeX.Facade.Pokemons.MoveSlot.MoveSlot(int Id, string! Name, int Pp, int MaxPp) -> void
+PKHeX.Facade.Pokemons.MoveSlot.Name.get -> string!
+PKHeX.Facade.Pokemons.MoveSlot.Name.init -> void
+PKHeX.Facade.Pokemons.MoveSlot.Pp.get -> int
+PKHeX.Facade.Pokemons.MoveSlot.Pp.init -> void
+PKHeX.Facade.Pokemons.Owner
+PKHeX.Facade.Pokemons.Owner.CurrentHandler.get -> PKHeX.Facade.Pokemons.Owner.Handler
+PKHeX.Facade.Pokemons.Owner.CurrentHandler.set -> void
+PKHeX.Facade.Pokemons.Owner.Gender.get -> PKHeX.Facade.Gender!
+PKHeX.Facade.Pokemons.Owner.Gender.set -> void
+PKHeX.Facade.Pokemons.Owner.GetName() -> string!
+PKHeX.Facade.Pokemons.Owner.Handler
+PKHeX.Facade.Pokemons.Owner.Handler.OriginalTrainer = 0 -> PKHeX.Facade.Pokemons.Owner.Handler
+PKHeX.Facade.Pokemons.Owner.Handler.SomeoneElse = 1 -> PKHeX.Facade.Pokemons.Owner.Handler
+PKHeX.Facade.Pokemons.Owner.HandlingTrainerGender.get -> PKHeX.Facade.Gender!
+PKHeX.Facade.Pokemons.Owner.HandlingTrainerGender.set -> void
+PKHeX.Facade.Pokemons.Owner.HandlingTrainerName.get -> string!
+PKHeX.Facade.Pokemons.Owner.HandlingTrainerName.set -> void
+PKHeX.Facade.Pokemons.Owner.Name.get -> string!
+PKHeX.Facade.Pokemons.Owner.Name.set -> void
+PKHeX.Facade.Pokemons.Owner.Owner(PKHeX.Core.PKM! pokemon) -> void
+PKHeX.Facade.Pokemons.Owner.SID.get -> uint
+PKHeX.Facade.Pokemons.Owner.SID.set -> void
+PKHeX.Facade.Pokemons.Owner.TID.get -> uint
+PKHeX.Facade.Pokemons.Owner.TID.set -> void
+PKHeX.Facade.Pokemons.Pokemon
+PKHeX.Facade.Pokemons.Pokemon.AVs.get -> PKHeX.Facade.Pokemons.Stats?
+PKHeX.Facade.Pokemons.Pokemon.Ability.get -> PKHeX.Facade.Repositories.AbilityDefinition!
+PKHeX.Facade.Pokemons.Pokemon.Ability.set -> void
+PKHeX.Facade.Pokemons.Pokemon.ApplyChangesFrom(PKHeX.Facade.Pokemons.Pokemon! template, bool keepPid = true) -> void
+PKHeX.Facade.Pokemons.Pokemon.Ball.get -> PKHeX.Facade.Repositories.ItemDefinition!
+PKHeX.Facade.Pokemons.Pokemon.Ball.set -> void
+PKHeX.Facade.Pokemons.Pokemon.BaseStats.get -> PKHeX.Facade.Pokemons.Stats!
+PKHeX.Facade.Pokemons.Pokemon.ChangeLevel(int level) -> void
+PKHeX.Facade.Pokemons.Pokemon.ChangeMove(PKHeX.Facade.Pokemons.PokemonMove.MoveIndex moveIndex, PKHeX.Facade.Repositories.MoveDefinition! newMove) -> void
+PKHeX.Facade.Pokemons.Pokemon.ChangeNickname(string! nickname) -> void
+PKHeX.Facade.Pokemons.Pokemon.Clone() -> PKHeX.Facade.Pokemons.Pokemon!
+PKHeX.Facade.Pokemons.Pokemon.ConvertTo(PKHeX.Facade.Game! target, out PKHeX.Core.EntityConverterResult result) -> PKHeX.Facade.Pokemons.Pokemon?
+PKHeX.Facade.Pokemons.Pokemon.Details() -> PKHeX.Facade.Pokemons.PokemonDetails!
+PKHeX.Facade.Pokemons.Pokemon.EVs.get -> PKHeX.Facade.Pokemons.Stats!
+PKHeX.Facade.Pokemons.Pokemon.Egg.get -> PKHeX.Facade.Pokemons.Egg!
+PKHeX.Facade.Pokemons.Pokemon.Experience.get -> uint
+PKHeX.Facade.Pokemons.Pokemon.Experience.set -> void
+PKHeX.Facade.Pokemons.Pokemon.File
+PKHeX.Facade.Pokemons.Pokemon.File.Bytes.get -> byte[]!
+PKHeX.Facade.Pokemons.Pokemon.File.Bytes.init -> void
+PKHeX.Facade.Pokemons.Pokemon.File.File() -> void
+PKHeX.Facade.Pokemons.Pokemon.File.Name.get -> string!
+PKHeX.Facade.Pokemons.Pokemon.File.Name.init -> void
+PKHeX.Facade.Pokemons.Pokemon.Flags.get -> PKHeX.Facade.Pokemons.PokemonFlags!
+PKHeX.Facade.Pokemons.Pokemon.Form.get -> PKHeX.Facade.Pokemons.PokemonForm!
+PKHeX.Facade.Pokemons.Pokemon.Friendship.get -> int
+PKHeX.Facade.Pokemons.Pokemon.Friendship.set -> void
+PKHeX.Facade.Pokemons.Pokemon.Game.get -> PKHeX.Facade.Game!
+PKHeX.Facade.Pokemons.Pokemon.Gender.get -> PKHeX.Facade.Gender!
+PKHeX.Facade.Pokemons.Pokemon.Gender.set -> void
+PKHeX.Facade.Pokemons.Pokemon.HeldItem.get -> PKHeX.Facade.Repositories.ItemDefinition!
+PKHeX.Facade.Pokemons.Pokemon.HeldItem.set -> void
+PKHeX.Facade.Pokemons.Pokemon.HiddenPower.get -> PKHeX.Facade.Pokemons.HiddenPowerDefinition?
+PKHeX.Facade.Pokemons.Pokemon.IVs.get -> PKHeX.Facade.Pokemons.Stats!
+PKHeX.Facade.Pokemons.Pokemon.Id.get -> PKHeX.Facade.EntityId!
+PKHeX.Facade.Pokemons.Pokemon.IsAlpha.get -> bool
+PKHeX.Facade.Pokemons.Pokemon.IsAlpha.set -> void
+PKHeX.Facade.Pokemons.Pokemon.IsEmpty.get -> bool
+PKHeX.Facade.Pokemons.Pokemon.IsShiny.get -> bool
+PKHeX.Facade.Pokemons.Pokemon.IsUnknown.get -> bool
+PKHeX.Facade.Pokemons.Pokemon.Level.get -> int
+PKHeX.Facade.Pokemons.Pokemon.MakeCopy() -> PKHeX.Facade.Pokemons.Pokemon!
+PKHeX.Facade.Pokemons.Pokemon.MetConditions.get -> PKHeX.Facade.Pokemons.MetConditions!
+PKHeX.Facade.Pokemons.Pokemon.Move1.get -> PKHeX.Facade.Pokemons.PokemonMove!
+PKHeX.Facade.Pokemons.Pokemon.Move2.get -> PKHeX.Facade.Pokemons.PokemonMove!
+PKHeX.Facade.Pokemons.Pokemon.Move3.get -> PKHeX.Facade.Pokemons.PokemonMove!
+PKHeX.Facade.Pokemons.Pokemon.Move4.get -> PKHeX.Facade.Pokemons.PokemonMove!
+PKHeX.Facade.Pokemons.Pokemon.Moves.get -> System.Collections.Generic.Dictionary<PKHeX.Facade.Pokemons.PokemonMove.MoveIndex, PKHeX.Facade.Pokemons.PokemonMove!>!
+PKHeX.Facade.Pokemons.Pokemon.Natures.get -> PKHeX.Facade.Pokemons.PokemonNature!
+PKHeX.Facade.Pokemons.Pokemon.Nickname.get -> string!
+PKHeX.Facade.Pokemons.Pokemon.NicknameSet.get -> bool
+PKHeX.Facade.Pokemons.Pokemon.Options() -> PKHeX.Facade.Pokemons.PokemonOptions!
+PKHeX.Facade.Pokemons.Pokemon.Owner.get -> PKHeX.Facade.Pokemons.Owner!
+PKHeX.Facade.Pokemons.Pokemon.PID.get -> uint
+PKHeX.Facade.Pokemons.Pokemon.Pkm.get -> PKHeX.Core.PKM!
+PKHeX.Facade.Pokemons.Pokemon.Pokemon() -> void
+PKHeX.Facade.Pokemons.Pokemon.Pokemon(PKHeX.Core.PKM! pokemon, PKHeX.Facade.Game! game) -> void
+PKHeX.Facade.Pokemons.Pokemon.RequireEditable() -> void
+PKHeX.Facade.Pokemons.Pokemon.SetShiny(bool shiny) -> void
+PKHeX.Facade.Pokemons.Pokemon.Species.get -> PKHeX.Facade.Repositories.SpeciesDefinition!
+PKHeX.Facade.Pokemons.Pokemon.Species.set -> void
+PKHeX.Facade.Pokemons.Pokemon.SupportsAlpha.get -> bool
+PKHeX.Facade.Pokemons.Pokemon.ToFile(bool encrypted = false) -> PKHeX.Facade.Pokemons.Pokemon.File!
+PKHeX.Facade.Pokemons.Pokemon.Types.get -> PKHeX.Facade.Pokemons.PokemonTypes!
+PKHeX.Facade.Pokemons.Pokemon.UniqueId.get -> PKHeX.Facade.Pokemons.UniqueId!
+PKHeX.Facade.Pokemons.Pokemon.Update(PKHeX.Facade.Pokemons.PokemonPatch! patch) -> void
+PKHeX.Facade.Pokemons.Pokemon.Version.get -> PKHeX.Facade.Repositories.GameVersionDefinition!
+PKHeX.Facade.Pokemons.PokemonDetails
+PKHeX.Facade.Pokemons.PokemonDetails.Ability.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.Ability.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Avs.get -> PKHeX.Facade.Pokemons.StatValues?
+PKHeX.Facade.Pokemons.PokemonDetails.Avs.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Ball.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.Ball.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.CalculatedCombatPower.get -> int?
+PKHeX.Facade.Pokemons.PokemonDetails.CalculatedCombatPower.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.CombatPower.get -> int?
+PKHeX.Facade.Pokemons.PokemonDetails.CombatPower.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.CurrentHandler.get -> PKHeX.Facade.Pokemons.Owner.Handler
+PKHeX.Facade.Pokemons.PokemonDetails.CurrentHandler.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Deconstruct(out int Species, out int Form, out PKHeX.Facade.Gender! Gender, out int Nature, out int Ability, out int HeldItem, out string? UnknownHeldItem, out int Ball, out int Friendship, out int Language, out bool IsShiny, out bool? IsAlpha, out bool IsEgg, out string! Nickname, out int Level, out uint Pid, out System.Collections.Generic.IReadOnlyList<int>! Types, out bool IsInfected, out bool IsCured, out uint TrainerId, out uint SecretId, out string! OriginalTrainerName, out PKHeX.Facade.Gender! OriginalTrainerGender, out string! HandlingTrainerName, out PKHeX.Facade.Gender! HandlingTrainerGender, out PKHeX.Facade.Pokemons.Owner.Handler CurrentHandler, out int Version, out int MetLocation, out int MetLevel, out System.DateOnly? MetDate, out bool FatefulEncounter, out PKHeX.Facade.Pokemons.StatValues! Ivs, out PKHeX.Facade.Pokemons.StatValues! Evs, out PKHeX.Facade.Pokemons.StatValues? Avs, out PKHeX.Facade.Pokemons.StatValues! Stats, out PKHeX.Facade.Pokemons.HiddenPowerDefinition? HiddenPower, out int? CombatPower, out int? CalculatedCombatPower, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.MoveSlot!>! Moves, out PKHeX.Facade.Pokemons.PokemonLegality? Legality) -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Evs.get -> PKHeX.Facade.Pokemons.StatValues!
+PKHeX.Facade.Pokemons.PokemonDetails.Evs.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.FatefulEncounter.get -> bool
+PKHeX.Facade.Pokemons.PokemonDetails.FatefulEncounter.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Form.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.Form.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Friendship.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.Friendship.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Gender.get -> PKHeX.Facade.Gender!
+PKHeX.Facade.Pokemons.PokemonDetails.Gender.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.HandlingTrainerGender.get -> PKHeX.Facade.Gender!
+PKHeX.Facade.Pokemons.PokemonDetails.HandlingTrainerGender.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.HandlingTrainerName.get -> string!
+PKHeX.Facade.Pokemons.PokemonDetails.HandlingTrainerName.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.HeldItem.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.HeldItem.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.HiddenPower.get -> PKHeX.Facade.Pokemons.HiddenPowerDefinition?
+PKHeX.Facade.Pokemons.PokemonDetails.HiddenPower.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.IsAlpha.get -> bool?
+PKHeX.Facade.Pokemons.PokemonDetails.IsAlpha.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.IsCured.get -> bool
+PKHeX.Facade.Pokemons.PokemonDetails.IsCured.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.IsEgg.get -> bool
+PKHeX.Facade.Pokemons.PokemonDetails.IsEgg.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.IsInfected.get -> bool
+PKHeX.Facade.Pokemons.PokemonDetails.IsInfected.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.IsShiny.get -> bool
+PKHeX.Facade.Pokemons.PokemonDetails.IsShiny.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Ivs.get -> PKHeX.Facade.Pokemons.StatValues!
+PKHeX.Facade.Pokemons.PokemonDetails.Ivs.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Language.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.Language.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Legality.get -> PKHeX.Facade.Pokemons.PokemonLegality?
+PKHeX.Facade.Pokemons.PokemonDetails.Legality.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Level.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.Level.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.MetDate.get -> System.DateOnly?
+PKHeX.Facade.Pokemons.PokemonDetails.MetDate.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.MetLevel.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.MetLevel.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.MetLocation.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.MetLocation.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Moves.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.MoveSlot!>!
+PKHeX.Facade.Pokemons.PokemonDetails.Moves.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Nature.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.Nature.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Nickname.get -> string!
+PKHeX.Facade.Pokemons.PokemonDetails.Nickname.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.OriginalTrainerGender.get -> PKHeX.Facade.Gender!
+PKHeX.Facade.Pokemons.PokemonDetails.OriginalTrainerGender.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.OriginalTrainerName.get -> string!
+PKHeX.Facade.Pokemons.PokemonDetails.OriginalTrainerName.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Pid.get -> uint
+PKHeX.Facade.Pokemons.PokemonDetails.Pid.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.PokemonDetails(PKHeX.Facade.Pokemons.PokemonDetails! original) -> void
+PKHeX.Facade.Pokemons.PokemonDetails.PokemonDetails(int Species, int Form, PKHeX.Facade.Gender! Gender, int Nature, int Ability, int HeldItem, string? UnknownHeldItem, int Ball, int Friendship, int Language, bool IsShiny, bool? IsAlpha, bool IsEgg, string! Nickname, int Level, uint Pid, System.Collections.Generic.IReadOnlyList<int>! Types, bool IsInfected, bool IsCured, uint TrainerId, uint SecretId, string! OriginalTrainerName, PKHeX.Facade.Gender! OriginalTrainerGender, string! HandlingTrainerName, PKHeX.Facade.Gender! HandlingTrainerGender, PKHeX.Facade.Pokemons.Owner.Handler CurrentHandler, int Version, int MetLocation, int MetLevel, System.DateOnly? MetDate, bool FatefulEncounter, PKHeX.Facade.Pokemons.StatValues! Ivs, PKHeX.Facade.Pokemons.StatValues! Evs, PKHeX.Facade.Pokemons.StatValues? Avs, PKHeX.Facade.Pokemons.StatValues! Stats, PKHeX.Facade.Pokemons.HiddenPowerDefinition? HiddenPower, int? CombatPower, int? CalculatedCombatPower, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.MoveSlot!>! Moves, PKHeX.Facade.Pokemons.PokemonLegality? Legality) -> void
+PKHeX.Facade.Pokemons.PokemonDetails.SecretId.get -> uint
+PKHeX.Facade.Pokemons.PokemonDetails.SecretId.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Species.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.Species.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Stats.get -> PKHeX.Facade.Pokemons.StatValues!
+PKHeX.Facade.Pokemons.PokemonDetails.Stats.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.TrainerId.get -> uint
+PKHeX.Facade.Pokemons.PokemonDetails.TrainerId.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Types.get -> System.Collections.Generic.IReadOnlyList<int>!
+PKHeX.Facade.Pokemons.PokemonDetails.Types.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.UnknownHeldItem.get -> string?
+PKHeX.Facade.Pokemons.PokemonDetails.UnknownHeldItem.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Version.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.Version.init -> void
+PKHeX.Facade.Pokemons.PokemonFlags
+PKHeX.Facade.Pokemons.PokemonFlags.IsCured.get -> bool
+PKHeX.Facade.Pokemons.PokemonFlags.IsCured.set -> void
+PKHeX.Facade.Pokemons.PokemonFlags.IsInfected.get -> bool
+PKHeX.Facade.Pokemons.PokemonFlags.IsInfected.set -> void
+PKHeX.Facade.Pokemons.PokemonFlags.PokemonFlags(PKHeX.Core.PKM! pokemon) -> void
+PKHeX.Facade.Pokemons.PokemonForm
+PKHeX.Facade.Pokemons.PokemonForm.Form.get -> PKHeX.Facade.Repositories.FormDefinition!
+PKHeX.Facade.Pokemons.PokemonForm.Form.set -> void
+PKHeX.Facade.Pokemons.PokemonForm.HasForm.get -> bool
+PKHeX.Facade.Pokemons.PokemonForm.PokemonForm(PKHeX.Core.PKM! pokemon) -> void
+PKHeX.Facade.Pokemons.PokemonLegality
+PKHeX.Facade.Pokemons.PokemonLegality.Deconstruct(out bool Valid, out System.Collections.Generic.IReadOnlyList<string!>! Messages) -> void
+PKHeX.Facade.Pokemons.PokemonLegality.Messages.get -> System.Collections.Generic.IReadOnlyList<string!>!
+PKHeX.Facade.Pokemons.PokemonLegality.Messages.init -> void
+PKHeX.Facade.Pokemons.PokemonLegality.PokemonLegality(PKHeX.Facade.Pokemons.PokemonLegality! original) -> void
+PKHeX.Facade.Pokemons.PokemonLegality.PokemonLegality(bool Valid, System.Collections.Generic.IReadOnlyList<string!>! Messages) -> void
+PKHeX.Facade.Pokemons.PokemonLegality.Valid.get -> bool
+PKHeX.Facade.Pokemons.PokemonLegality.Valid.init -> void
+PKHeX.Facade.Pokemons.PokemonMove
+PKHeX.Facade.Pokemons.PokemonMove.Move.get -> PKHeX.Facade.Repositories.MoveDefinition!
+PKHeX.Facade.Pokemons.PokemonMove.MoveIndex
+PKHeX.Facade.Pokemons.PokemonMove.MoveIndex.Move1 = 0 -> PKHeX.Facade.Pokemons.PokemonMove.MoveIndex
+PKHeX.Facade.Pokemons.PokemonMove.MoveIndex.Move2 = 1 -> PKHeX.Facade.Pokemons.PokemonMove.MoveIndex
+PKHeX.Facade.Pokemons.PokemonMove.MoveIndex.Move3 = 2 -> PKHeX.Facade.Pokemons.PokemonMove.MoveIndex
+PKHeX.Facade.Pokemons.PokemonMove.MoveIndex.Move4 = 3 -> PKHeX.Facade.Pokemons.PokemonMove.MoveIndex
+PKHeX.Facade.Pokemons.PokemonMove.PP.get -> PKHeX.Facade.Pokemons.PokemonMove.PowerPoints!
+PKHeX.Facade.Pokemons.PokemonMove.PokemonMove(PKHeX.Core.PKM! pokemon, PKHeX.Facade.Pokemons.PokemonMove.MoveIndex moveIndex) -> void
+PKHeX.Facade.Pokemons.PokemonMove.PowerPoints
+PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.Current.get -> int
+PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.Current.init -> void
+PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.Deconstruct(out int Current, out int Max) -> void
+PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.Max.get -> int
+PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.Max.init -> void
+PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.PowerPoints(PKHeX.Facade.Pokemons.PokemonMove.PowerPoints! original) -> void
+PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.PowerPoints(int Current, int Max) -> void
+PKHeX.Facade.Pokemons.PokemonNature
+PKHeX.Facade.Pokemons.PokemonNature.ChangeAll(PKHeX.Core.Nature newNature) -> bool
+PKHeX.Facade.Pokemons.PokemonNature.Deconstruct(out PKHeX.Core.PKM! Pokemon) -> void
+PKHeX.Facade.Pokemons.PokemonNature.Nature.get -> PKHeX.Core.Nature
+PKHeX.Facade.Pokemons.PokemonNature.Pokemon.get -> PKHeX.Core.PKM!
+PKHeX.Facade.Pokemons.PokemonNature.Pokemon.init -> void
+PKHeX.Facade.Pokemons.PokemonNature.PokemonNature(PKHeX.Core.PKM! Pokemon) -> void
+PKHeX.Facade.Pokemons.PokemonNature.PokemonNature(PKHeX.Facade.Pokemons.PokemonNature! original) -> void
+PKHeX.Facade.Pokemons.PokemonNature.StatNature.get -> PKHeX.Core.Nature
+PKHeX.Facade.Pokemons.PokemonOptions
+PKHeX.Facade.Pokemons.PokemonOptions.Abilities.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Pokemons.PokemonOptions.Abilities.init -> void
+PKHeX.Facade.Pokemons.PokemonOptions.Deconstruct(out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>! Species, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>! Abilities, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>! Forms, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>! MetLocations, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>! Moves) -> void
+PKHeX.Facade.Pokemons.PokemonOptions.Forms.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Pokemons.PokemonOptions.Forms.init -> void
+PKHeX.Facade.Pokemons.PokemonOptions.MetLocations.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Pokemons.PokemonOptions.MetLocations.init -> void
+PKHeX.Facade.Pokemons.PokemonOptions.Moves.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Pokemons.PokemonOptions.Moves.init -> void
+PKHeX.Facade.Pokemons.PokemonOptions.PokemonOptions(PKHeX.Facade.Pokemons.PokemonOptions! original) -> void
+PKHeX.Facade.Pokemons.PokemonOptions.PokemonOptions(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>! Species, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>! Abilities, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>! Forms, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>! MetLocations, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>! Moves) -> void
+PKHeX.Facade.Pokemons.PokemonOptions.Species.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Pokemons.PokemonOptions.Species.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch
+PKHeX.Facade.Pokemons.PokemonPatch.Ability.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.Ability.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Avs.get -> PKHeX.Facade.Pokemons.StatPatch?
+PKHeX.Facade.Pokemons.PokemonPatch.Avs.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Ball.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.Ball.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.CombatPower.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.CombatPower.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.CurrentHandler.get -> PKHeX.Facade.Pokemons.Owner.Handler?
+PKHeX.Facade.Pokemons.PokemonPatch.CurrentHandler.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Deconstruct(out int? Species, out int? Form, out PKHeX.Facade.Gender? Gender, out int? Nature, out int? Ability, out int? HeldItem, out int? Ball, out int? Friendship, out int? Language, out bool? IsShiny, out bool? IsAlpha, out bool? IsEgg, out string? Nickname, out int? Level, out uint? TrainerId, out uint? SecretId, out string? OriginalTrainerName, out PKHeX.Facade.Gender? OriginalTrainerGender, out string? HandlingTrainerName, out PKHeX.Facade.Gender? HandlingTrainerGender, out PKHeX.Facade.Pokemons.Owner.Handler? CurrentHandler, out int? Version, out int? MetLocation, out int? MetLevel, out System.DateOnly? MetDate, out bool? FatefulEncounter, out PKHeX.Facade.Pokemons.StatPatch? Ivs, out PKHeX.Facade.Pokemons.StatPatch? Evs, out PKHeX.Facade.Pokemons.StatPatch? Avs, out int? CombatPower, out System.Collections.Generic.IReadOnlyList<int>? Moves) -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Evs.get -> PKHeX.Facade.Pokemons.StatPatch?
+PKHeX.Facade.Pokemons.PokemonPatch.Evs.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.FatefulEncounter.get -> bool?
+PKHeX.Facade.Pokemons.PokemonPatch.FatefulEncounter.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Form.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.Form.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Friendship.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.Friendship.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Gender.get -> PKHeX.Facade.Gender?
+PKHeX.Facade.Pokemons.PokemonPatch.Gender.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.HandlingTrainerGender.get -> PKHeX.Facade.Gender?
+PKHeX.Facade.Pokemons.PokemonPatch.HandlingTrainerGender.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.HandlingTrainerName.get -> string?
+PKHeX.Facade.Pokemons.PokemonPatch.HandlingTrainerName.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.HeldItem.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.HeldItem.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.IsAlpha.get -> bool?
+PKHeX.Facade.Pokemons.PokemonPatch.IsAlpha.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.IsEgg.get -> bool?
+PKHeX.Facade.Pokemons.PokemonPatch.IsEgg.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.IsShiny.get -> bool?
+PKHeX.Facade.Pokemons.PokemonPatch.IsShiny.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Ivs.get -> PKHeX.Facade.Pokemons.StatPatch?
+PKHeX.Facade.Pokemons.PokemonPatch.Ivs.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Language.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.Language.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Level.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.Level.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.MetDate.get -> System.DateOnly?
+PKHeX.Facade.Pokemons.PokemonPatch.MetDate.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.MetLevel.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.MetLevel.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.MetLocation.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.MetLocation.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Moves.get -> System.Collections.Generic.IReadOnlyList<int>?
+PKHeX.Facade.Pokemons.PokemonPatch.Moves.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Nature.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.Nature.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Nickname.get -> string?
+PKHeX.Facade.Pokemons.PokemonPatch.Nickname.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.OriginalTrainerGender.get -> PKHeX.Facade.Gender?
+PKHeX.Facade.Pokemons.PokemonPatch.OriginalTrainerGender.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.OriginalTrainerName.get -> string?
+PKHeX.Facade.Pokemons.PokemonPatch.OriginalTrainerName.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.PokemonPatch(PKHeX.Facade.Pokemons.PokemonPatch! original) -> void
+PKHeX.Facade.Pokemons.PokemonPatch.PokemonPatch(int? Species = null, int? Form = null, PKHeX.Facade.Gender? Gender = null, int? Nature = null, int? Ability = null, int? HeldItem = null, int? Ball = null, int? Friendship = null, int? Language = null, bool? IsShiny = null, bool? IsAlpha = null, bool? IsEgg = null, string? Nickname = null, int? Level = null, uint? TrainerId = null, uint? SecretId = null, string? OriginalTrainerName = null, PKHeX.Facade.Gender? OriginalTrainerGender = null, string? HandlingTrainerName = null, PKHeX.Facade.Gender? HandlingTrainerGender = null, PKHeX.Facade.Pokemons.Owner.Handler? CurrentHandler = null, int? Version = null, int? MetLocation = null, int? MetLevel = null, System.DateOnly? MetDate = null, bool? FatefulEncounter = null, PKHeX.Facade.Pokemons.StatPatch? Ivs = null, PKHeX.Facade.Pokemons.StatPatch? Evs = null, PKHeX.Facade.Pokemons.StatPatch? Avs = null, int? CombatPower = null, System.Collections.Generic.IReadOnlyList<int>? Moves = null) -> void
+PKHeX.Facade.Pokemons.PokemonPatch.SecretId.get -> uint?
+PKHeX.Facade.Pokemons.PokemonPatch.SecretId.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Species.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.Species.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.TrainerId.get -> uint?
+PKHeX.Facade.Pokemons.PokemonPatch.TrainerId.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Version.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.Version.init -> void
+PKHeX.Facade.Pokemons.PokemonSource
+PKHeX.Facade.Pokemons.PokemonSource.Box = 1 -> PKHeX.Facade.Pokemons.PokemonSource
+PKHeX.Facade.Pokemons.PokemonSource.Party = 0 -> PKHeX.Facade.Pokemons.PokemonSource
+PKHeX.Facade.Pokemons.PokemonTypes
+PKHeX.Facade.Pokemons.PokemonTypes.HasSecondary.get -> bool
+PKHeX.Facade.Pokemons.PokemonTypes.PokemonTypes(PKHeX.Core.PKM! pokemon) -> void
+PKHeX.Facade.Pokemons.PokemonTypes.Tuple.get -> (int Type1, int Type2)
+PKHeX.Facade.Pokemons.PokemonTypes.Type1.get -> int
+PKHeX.Facade.Pokemons.PokemonTypes.Type2.get -> int
+PKHeX.Facade.Pokemons.StatPatch
+PKHeX.Facade.Pokemons.StatPatch.Attack.get -> int?
+PKHeX.Facade.Pokemons.StatPatch.Attack.init -> void
+PKHeX.Facade.Pokemons.StatPatch.Deconstruct(out int? Health, out int? Attack, out int? Defense, out int? SpecialAttack, out int? SpecialDefense, out int? Speed) -> void
+PKHeX.Facade.Pokemons.StatPatch.Defense.get -> int?
+PKHeX.Facade.Pokemons.StatPatch.Defense.init -> void
+PKHeX.Facade.Pokemons.StatPatch.Health.get -> int?
+PKHeX.Facade.Pokemons.StatPatch.Health.init -> void
+PKHeX.Facade.Pokemons.StatPatch.SpecialAttack.get -> int?
+PKHeX.Facade.Pokemons.StatPatch.SpecialAttack.init -> void
+PKHeX.Facade.Pokemons.StatPatch.SpecialDefense.get -> int?
+PKHeX.Facade.Pokemons.StatPatch.SpecialDefense.init -> void
+PKHeX.Facade.Pokemons.StatPatch.Speed.get -> int?
+PKHeX.Facade.Pokemons.StatPatch.Speed.init -> void
+PKHeX.Facade.Pokemons.StatPatch.StatPatch(PKHeX.Facade.Pokemons.StatPatch! original) -> void
+PKHeX.Facade.Pokemons.StatPatch.StatPatch(int? Health = null, int? Attack = null, int? Defense = null, int? SpecialAttack = null, int? SpecialDefense = null, int? Speed = null) -> void
+PKHeX.Facade.Pokemons.StatValues
+PKHeX.Facade.Pokemons.StatValues.Attack.get -> int
+PKHeX.Facade.Pokemons.StatValues.Attack.init -> void
+PKHeX.Facade.Pokemons.StatValues.Deconstruct(out int Health, out int Attack, out int Defense, out int SpecialAttack, out int SpecialDefense, out int Speed) -> void
+PKHeX.Facade.Pokemons.StatValues.Defense.get -> int
+PKHeX.Facade.Pokemons.StatValues.Defense.init -> void
+PKHeX.Facade.Pokemons.StatValues.Health.get -> int
+PKHeX.Facade.Pokemons.StatValues.Health.init -> void
+PKHeX.Facade.Pokemons.StatValues.SpecialAttack.get -> int
+PKHeX.Facade.Pokemons.StatValues.SpecialAttack.init -> void
+PKHeX.Facade.Pokemons.StatValues.SpecialDefense.get -> int
+PKHeX.Facade.Pokemons.StatValues.SpecialDefense.init -> void
+PKHeX.Facade.Pokemons.StatValues.Speed.get -> int
+PKHeX.Facade.Pokemons.StatValues.Speed.init -> void
+PKHeX.Facade.Pokemons.StatValues.StatValues(PKHeX.Facade.Pokemons.StatValues! original) -> void
+PKHeX.Facade.Pokemons.StatValues.StatValues(int Health, int Attack, int Defense, int SpecialAttack, int SpecialDefense, int Speed) -> void
+PKHeX.Facade.Pokemons.Stats
+PKHeX.Facade.Pokemons.Stats.Attack.get -> int
+PKHeX.Facade.Pokemons.Stats.Attack.set -> void
+PKHeX.Facade.Pokemons.Stats.CombatPower.get -> int?
+PKHeX.Facade.Pokemons.Stats.CombatPower.set -> void
+PKHeX.Facade.Pokemons.Stats.Deconstruct(out PKHeX.Core.PKM! Pokemon, out PKHeX.Facade.Pokemons.Stats.StatsType Type, out bool VirtualStats) -> void
+PKHeX.Facade.Pokemons.Stats.Defense.get -> int
+PKHeX.Facade.Pokemons.Stats.Defense.set -> void
+PKHeX.Facade.Pokemons.Stats.Health.get -> int
+PKHeX.Facade.Pokemons.Stats.Health.set -> void
+PKHeX.Facade.Pokemons.Stats.Pokemon.get -> PKHeX.Core.PKM!
+PKHeX.Facade.Pokemons.Stats.Pokemon.init -> void
+PKHeX.Facade.Pokemons.Stats.SpecialAttack.get -> int
+PKHeX.Facade.Pokemons.Stats.SpecialAttack.set -> void
+PKHeX.Facade.Pokemons.Stats.SpecialDefense.get -> int
+PKHeX.Facade.Pokemons.Stats.SpecialDefense.set -> void
+PKHeX.Facade.Pokemons.Stats.Speed.get -> int
+PKHeX.Facade.Pokemons.Stats.Speed.set -> void
+PKHeX.Facade.Pokemons.Stats.Stats(PKHeX.Core.PKM! Pokemon, PKHeX.Facade.Pokemons.Stats.StatsType Type, bool VirtualStats = false) -> void
+PKHeX.Facade.Pokemons.Stats.Stats(PKHeX.Facade.Pokemons.Stats! original) -> void
+PKHeX.Facade.Pokemons.Stats.StatsType
+PKHeX.Facade.Pokemons.Stats.StatsType.AV = 3 -> PKHeX.Facade.Pokemons.Stats.StatsType
+PKHeX.Facade.Pokemons.Stats.StatsType.Base = 0 -> PKHeX.Facade.Pokemons.Stats.StatsType
+PKHeX.Facade.Pokemons.Stats.StatsType.EV = 1 -> PKHeX.Facade.Pokemons.Stats.StatsType
+PKHeX.Facade.Pokemons.Stats.StatsType.IV = 2 -> PKHeX.Facade.Pokemons.Stats.StatsType
+PKHeX.Facade.Pokemons.Stats.Total.get -> int
+PKHeX.Facade.Pokemons.Stats.Type.get -> PKHeX.Facade.Pokemons.Stats.StatsType
+PKHeX.Facade.Pokemons.Stats.Type.init -> void
+PKHeX.Facade.Pokemons.Stats.VirtualStats.get -> bool
+PKHeX.Facade.Pokemons.Stats.VirtualStats.init -> void
+PKHeX.Facade.Pokemons.UniqueId
+PKHeX.Facade.Pokemons.UniqueId.UniqueId() -> void
+PKHeX.Facade.Pokemons.UniqueId.Value.get -> string!
+PKHeX.Facade.Pokemons.UniqueId._pid -> uint
+PKHeX.Facade.Pokemons.UniqueId._species -> PKHeX.Core.Species
+PKHeX.Facade.Pokemons.UnknownSpeciesException
+PKHeX.Facade.Pokemons.UnknownSpeciesException.UnknownSpeciesException(string! message) -> void
+PKHeX.Facade.Repositories.AbilityDefinition
+PKHeX.Facade.Repositories.AbilityDefinition.Ability.get -> PKHeX.Core.Ability
+PKHeX.Facade.Repositories.AbilityDefinition.AbilityDefinition(PKHeX.Facade.Repositories.AbilityDefinition! original) -> void
+PKHeX.Facade.Repositories.AbilityDefinition.AbilityDefinition(int Id, string! Name) -> void
+PKHeX.Facade.Repositories.AbilityDefinition.Deconstruct(out int Id, out string! Name) -> void
+PKHeX.Facade.Repositories.AbilityDefinition.Id.get -> int
+PKHeX.Facade.Repositories.AbilityDefinition.Id.init -> void
+PKHeX.Facade.Repositories.AbilityDefinition.Name.get -> string!
+PKHeX.Facade.Repositories.AbilityDefinition.Name.init -> void
+PKHeX.Facade.Repositories.AbilityRepository
+PKHeX.Facade.Repositories.AbilityRepository.All.get -> System.Collections.Generic.List<PKHeX.Facade.Repositories.AbilityDefinition!>!
+PKHeX.Facade.Repositories.AbilityRepository.Get(int id) -> PKHeX.Facade.Repositories.AbilityDefinition!
+PKHeX.Facade.Repositories.Encounter
+PKHeX.Facade.Repositories.Encounter.Ball.get -> PKHeX.Facade.Repositories.ItemDefinition!
+PKHeX.Facade.Repositories.Encounter.ConvertToPokemon() -> PKHeX.Facade.Pokemons.Pokemon!
+PKHeX.Facade.Repositories.Encounter.Data.get -> PKHeX.Core.IEncounterable!
+PKHeX.Facade.Repositories.Encounter.Encounter() -> void
+PKHeX.Facade.Repositories.Encounter.Form.get -> PKHeX.Facade.Repositories.FormDefinition?
+PKHeX.Facade.Repositories.Encounter.LevelRange.get -> PKHeX.Facade.Repositories.Encounter.Range!
+PKHeX.Facade.Repositories.Encounter.Location.get -> PKHeX.Facade.Repositories.LocationDefinition!
+PKHeX.Facade.Repositories.Encounter.Range
+PKHeX.Facade.Repositories.Encounter.Range.Format.get -> string!
+PKHeX.Facade.Repositories.Encounter.Range.Range(int min, int max) -> void
+PKHeX.Facade.Repositories.Encounter.Species.get -> PKHeX.Core.Species
+PKHeX.Facade.Repositories.Encounter.Version.get -> PKHeX.Facade.Repositories.GameVersionDefinition!
+PKHeX.Facade.Repositories.FormDefinition
+PKHeX.Facade.Repositories.FormDefinition.ByteId.get -> byte
+PKHeX.Facade.Repositories.FormDefinition.Deconstruct(out ushort Id, out string! Name) -> void
+PKHeX.Facade.Repositories.FormDefinition.FormDefinition(PKHeX.Facade.Repositories.FormDefinition! original) -> void
+PKHeX.Facade.Repositories.FormDefinition.FormDefinition(ushort Id, string! Name) -> void
+PKHeX.Facade.Repositories.FormDefinition.Id.get -> ushort
+PKHeX.Facade.Repositories.FormDefinition.Id.init -> void
+PKHeX.Facade.Repositories.FormDefinition.IsAlolan.get -> bool
+PKHeX.Facade.Repositories.FormDefinition.IsGalarian.get -> bool
+PKHeX.Facade.Repositories.FormDefinition.Name.get -> string!
+PKHeX.Facade.Repositories.FormDefinition.Name.init -> void
+PKHeX.Facade.Repositories.FormRepository
+PKHeX.Facade.Repositories.GameVersionDefinition
+PKHeX.Facade.Repositories.GameVersionDefinition.Aggregated.get -> bool
+PKHeX.Facade.Repositories.GameVersionDefinition.Deconstruct(out PKHeX.Core.GameVersion Version, out string! Name) -> void
+PKHeX.Facade.Repositories.GameVersionDefinition.GameVersionDefinition(PKHeX.Core.GameVersion Version, string! Name) -> void
+PKHeX.Facade.Repositories.GameVersionDefinition.GameVersionDefinition(PKHeX.Facade.Repositories.GameVersionDefinition! original) -> void
+PKHeX.Facade.Repositories.GameVersionDefinition.Id.get -> int
+PKHeX.Facade.Repositories.GameVersionDefinition.Name.get -> string!
+PKHeX.Facade.Repositories.GameVersionDefinition.Name.init -> void
+PKHeX.Facade.Repositories.GameVersionDefinition.Version.get -> PKHeX.Core.GameVersion
+PKHeX.Facade.Repositories.GameVersionDefinition.Version.init -> void
+PKHeX.Facade.Repositories.GameVersionRepository
+PKHeX.Facade.Repositories.GameVersionRepository.All.get -> System.Collections.Immutable.IImmutableList<PKHeX.Facade.Repositories.GameVersionDefinition!>!
+PKHeX.Facade.Repositories.GameVersionRepository.Blank.get -> System.Collections.Immutable.IImmutableList<PKHeX.Facade.Repositories.GameVersionDefinition!>!
+PKHeX.Facade.Repositories.GameVersionRepository.FindBlank(int id) -> PKHeX.Facade.Repositories.GameVersionDefinition?
+PKHeX.Facade.Repositories.GameVersionRepository.Get(PKHeX.Core.GameVersion version) -> PKHeX.Facade.Repositories.GameVersionDefinition!
+PKHeX.Facade.Repositories.GameVersionRepository.Get(int id) -> PKHeX.Facade.Repositories.GameVersionDefinition!
+PKHeX.Facade.Repositories.GameVersionRepository.GetAvailableFor(PKHeX.Core.EntityContext generation, PKHeX.Core.GameVersion version) -> System.Collections.Immutable.IImmutableList<PKHeX.Facade.Repositories.GameVersionDefinition!>!
+PKHeX.Facade.Repositories.ItemDefinition
+PKHeX.Facade.Repositories.ItemDefinition.Deconstruct(out ushort Id, out string! Name) -> void
+PKHeX.Facade.Repositories.ItemDefinition.Id.get -> ushort
+PKHeX.Facade.Repositories.ItemDefinition.Id.init -> void
+PKHeX.Facade.Repositories.ItemDefinition.IsNone.get -> bool
+PKHeX.Facade.Repositories.ItemDefinition.ItemDefinition(PKHeX.Facade.Repositories.ItemDefinition! original) -> void
+PKHeX.Facade.Repositories.ItemDefinition.ItemDefinition(ushort Id, string! Name) -> void
+PKHeX.Facade.Repositories.ItemDefinition.Name.get -> string!
+PKHeX.Facade.Repositories.ItemDefinition.Name.init -> void
+PKHeX.Facade.Repositories.ItemRepository
+PKHeX.Facade.Repositories.ItemRepository.GameItems.get -> System.Collections.Generic.ISet<PKHeX.Facade.Repositories.ItemDefinition!>!
+PKHeX.Facade.Repositories.ItemRepository.GetGameItem(ushort id) -> PKHeX.Facade.Repositories.ItemDefinition!
+PKHeX.Facade.Repositories.ItemRepository.GetGameItemByName(string! name) -> PKHeX.Facade.Repositories.ItemDefinition?
+PKHeX.Facade.Repositories.ItemRepository.ItemRepository(PKHeX.Core.SaveFile! saveFile) -> void
+PKHeX.Facade.Repositories.LocationDefinition
+PKHeX.Facade.Repositories.LocationDefinition.Deconstruct(out ushort Id, out string! Name) -> void
+PKHeX.Facade.Repositories.LocationDefinition.Id.get -> ushort
+PKHeX.Facade.Repositories.LocationDefinition.Id.init -> void
+PKHeX.Facade.Repositories.LocationDefinition.LocationDefinition(PKHeX.Facade.Repositories.LocationDefinition! original) -> void
+PKHeX.Facade.Repositories.LocationDefinition.LocationDefinition(ushort Id, string! Name) -> void
+PKHeX.Facade.Repositories.LocationDefinition.Name.get -> string!
+PKHeX.Facade.Repositories.LocationDefinition.Name.init -> void
+PKHeX.Facade.Repositories.LocationRepository
+PKHeX.Facade.Repositories.LocationRepository.EggLocations.get -> System.Collections.Generic.IEnumerable<PKHeX.Facade.Repositories.LocationDefinition!>!
+PKHeX.Facade.Repositories.LocationRepository.GetBy(ushort id, bool egg = false) -> PKHeX.Facade.Repositories.LocationDefinition!
+PKHeX.Facade.Repositories.LocationRepository.Locations.get -> System.Collections.Generic.IEnumerable<PKHeX.Facade.Repositories.LocationDefinition!>!
+PKHeX.Facade.Repositories.MoveDefinition
+PKHeX.Facade.Repositories.MoveDefinition.Deconstruct(out ushort Id, out string! Name) -> void
+PKHeX.Facade.Repositories.MoveDefinition.Id.get -> ushort
+PKHeX.Facade.Repositories.MoveDefinition.Id.init -> void
+PKHeX.Facade.Repositories.MoveDefinition.MoveDefinition(PKHeX.Facade.Repositories.MoveDefinition! original) -> void
+PKHeX.Facade.Repositories.MoveDefinition.MoveDefinition(ushort Id, string! Name) -> void
+PKHeX.Facade.Repositories.MoveDefinition.Name.get -> string!
+PKHeX.Facade.Repositories.MoveDefinition.Name.init -> void
+PKHeX.Facade.Repositories.MoveRepository
+PKHeX.Facade.Repositories.MoveRepository.AllMovesFor(PKHeX.Facade.Game! game) -> System.Collections.Generic.List<PKHeX.Facade.Repositories.MoveDefinition!>!
+PKHeX.Facade.Repositories.MoveRepository.GetMove(ushort id) -> PKHeX.Facade.Repositories.MoveDefinition!
+PKHeX.Facade.Repositories.MoveRepository.PossibleMovesFor(PKHeX.Facade.Pokemons.Pokemon! pokemon) -> System.Collections.Generic.List<PKHeX.Facade.Repositories.MoveDefinition!>!
+PKHeX.Facade.Repositories.PokemonRepository
+PKHeX.Facade.Repositories.PokemonRepository.EncounterVersions() -> System.Collections.Immutable.IImmutableList<PKHeX.Facade.Repositories.GameVersionDefinition!>!
+PKHeX.Facade.Repositories.PokemonRepository.FindEncounter(PKHeX.Core.GameVersion version, PKHeX.Core.Species species, bool? shiny = null, bool? egg = null) -> System.Collections.Generic.IEnumerable<PKHeX.Facade.Repositories.Encounter!>!
+PKHeX.Facade.Repositories.SpeciesDefinition
+PKHeX.Facade.Repositories.SpeciesDefinition.Deconstruct(out PKHeX.Core.Species Species, out string! Name) -> void
+PKHeX.Facade.Repositories.SpeciesDefinition.Id.get -> int
+PKHeX.Facade.Repositories.SpeciesDefinition.Name.get -> string!
+PKHeX.Facade.Repositories.SpeciesDefinition.Name.init -> void
+PKHeX.Facade.Repositories.SpeciesDefinition.Species.get -> PKHeX.Core.Species
+PKHeX.Facade.Repositories.SpeciesDefinition.Species.init -> void
+PKHeX.Facade.Repositories.SpeciesDefinition.SpeciesDefinition(PKHeX.Core.Species Species, string! Name) -> void
+PKHeX.Facade.Repositories.SpeciesDefinition.SpeciesDefinition(PKHeX.Facade.Repositories.SpeciesDefinition! original) -> void
+PKHeX.Facade.Repositories.SpeciesRepository
+PKHeX.Facade.Repositories.SpeciesRepository.AllGameSpecies.get -> System.Collections.Generic.IEnumerable<PKHeX.Facade.Repositories.SpeciesDefinition!>!
+PKHeX.Facade.Repositories.SpeciesRepository.Get(PKHeX.Core.Species species) -> PKHeX.Facade.Repositories.SpeciesDefinition!
+PKHeX.Facade.Repositories.SpeciesRepository.GetEvolutionsFrom(PKHeX.Facade.Repositories.SpeciesDefinition! definition, byte form = 0) -> System.Collections.Immutable.IImmutableList<PKHeX.Facade.Repositories.SpeciesDefinition!>!
+PKHeX.Facade.SaveFormats
+PKHeX.Facade.Trainer
+PKHeX.Facade.Trainer.AddOrUpdate(PKHeX.Facade.Pokemons.UniqueId! id, PKHeX.Facade.Pokemons.Pokemon! pokemon, PKHeX.Facade.Pokemons.PokemonSource source) -> void
+PKHeX.Facade.Trainer.Gender.get -> PKHeX.Facade.Gender!
+PKHeX.Facade.Trainer.Gender.set -> void
+PKHeX.Facade.Trainer.Id.get -> PKHeX.Facade.EntityId!
+PKHeX.Facade.Trainer.Inventories.get -> PKHeX.Facade.Inventories!
+PKHeX.Facade.Trainer.Money.get -> PKHeX.Facade.Money!
+PKHeX.Facade.Trainer.Name.get -> string!
+PKHeX.Facade.Trainer.Name.set -> void
+PKHeX.Facade.Trainer.Party.get -> PKHeX.Facade.PokemonParty!
+PKHeX.Facade.Trainer.PokemonBox.get -> PKHeX.Facade.PokemonBox!
+PKHeX.Facade.Trainer.PokemonsChanged -> System.Action<PKHeX.Facade.Pokemons.PokemonSource>?
+PKHeX.Facade.Trainer.RivalName.get -> string?
+PKHeX.Facade.Trainer.Trainer(PKHeX.Facade.Game! game) -> void
+override PKHeX.Facade.Abstractions.SaveFormatDescription.Equals(object? obj) -> bool
+override PKHeX.Facade.Abstractions.SaveFormatDescription.GetHashCode() -> int
+override PKHeX.Facade.Abstractions.SaveFormatDescription.ToString() -> string!
+override PKHeX.Facade.Base.Enumeration.Equals(object? obj) -> bool
+override PKHeX.Facade.Base.Enumeration.GetHashCode() -> int
+override PKHeX.Facade.Base.Enumeration.ToString() -> string!
+override PKHeX.Facade.EntityId.Equals(object? obj) -> bool
+override PKHeX.Facade.EntityId.GetHashCode() -> int
+override PKHeX.Facade.EntityId.ToString() -> string!
+override PKHeX.Facade.Events.EventWorkOption.Equals(object? obj) -> bool
+override PKHeX.Facade.Events.EventWorkOption.GetHashCode() -> int
+override PKHeX.Facade.Events.EventWorkOption.ToString() -> string!
+override PKHeX.Facade.Inventory.Item.ToString() -> string!
+override PKHeX.Facade.Location.Equals(object? obj) -> bool
+override PKHeX.Facade.Location.GetHashCode() -> int
+override PKHeX.Facade.Location.ToString() -> string!
+override PKHeX.Facade.Money.ToString() -> string!
+override PKHeX.Facade.Pokemons.Choice.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.Choice.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.Choice.ToString() -> string!
+override PKHeX.Facade.Pokemons.HiddenPowerDefinition.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.HiddenPowerDefinition.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.HiddenPowerDefinition.ToString() -> string!
+override PKHeX.Facade.Pokemons.MoveSlot.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.MoveSlot.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.MoveSlot.ToString() -> string!
+override PKHeX.Facade.Pokemons.PokemonDetails.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.PokemonDetails.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.PokemonDetails.ToString() -> string!
+override PKHeX.Facade.Pokemons.PokemonLegality.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.PokemonLegality.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.PokemonLegality.ToString() -> string!
+override PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.ToString() -> string!
+override PKHeX.Facade.Pokemons.PokemonNature.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.PokemonNature.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.PokemonNature.ToString() -> string!
+override PKHeX.Facade.Pokemons.PokemonOptions.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.PokemonOptions.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.PokemonOptions.ToString() -> string!
+override PKHeX.Facade.Pokemons.PokemonPatch.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.PokemonPatch.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.PokemonPatch.ToString() -> string!
+override PKHeX.Facade.Pokemons.StatPatch.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.StatPatch.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.StatPatch.ToString() -> string!
+override PKHeX.Facade.Pokemons.StatValues.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.StatValues.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.StatValues.ToString() -> string!
+override PKHeX.Facade.Pokemons.Stats.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.Stats.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.Stats.ToString() -> string!
+override PKHeX.Facade.Pokemons.UniqueId.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.UniqueId.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.UniqueId.ToString() -> string!
+override PKHeX.Facade.Repositories.AbilityDefinition.Equals(object? obj) -> bool
+override PKHeX.Facade.Repositories.AbilityDefinition.GetHashCode() -> int
+override PKHeX.Facade.Repositories.AbilityDefinition.ToString() -> string!
+override PKHeX.Facade.Repositories.FormDefinition.Equals(object? obj) -> bool
+override PKHeX.Facade.Repositories.FormDefinition.GetHashCode() -> int
+override PKHeX.Facade.Repositories.FormDefinition.ToString() -> string!
+override PKHeX.Facade.Repositories.GameVersionDefinition.Equals(object? obj) -> bool
+override PKHeX.Facade.Repositories.GameVersionDefinition.GetHashCode() -> int
+override PKHeX.Facade.Repositories.GameVersionDefinition.ToString() -> string!
+override PKHeX.Facade.Repositories.ItemDefinition.Equals(object? obj) -> bool
+override PKHeX.Facade.Repositories.ItemDefinition.GetHashCode() -> int
+override PKHeX.Facade.Repositories.ItemDefinition.ToString() -> string!
+override PKHeX.Facade.Repositories.LocationDefinition.Equals(object? obj) -> bool
+override PKHeX.Facade.Repositories.LocationDefinition.GetHashCode() -> int
+override PKHeX.Facade.Repositories.LocationDefinition.ToString() -> string!
+override PKHeX.Facade.Repositories.MoveDefinition.Equals(object? obj) -> bool
+override PKHeX.Facade.Repositories.MoveDefinition.GetHashCode() -> int
+override PKHeX.Facade.Repositories.MoveDefinition.ToString() -> string!
+override PKHeX.Facade.Repositories.SpeciesDefinition.Equals(object? obj) -> bool
+override PKHeX.Facade.Repositories.SpeciesDefinition.GetHashCode() -> int
+override PKHeX.Facade.Repositories.SpeciesDefinition.ToString() -> string!
+readonly PKHeX.Facade.Game.SaveFile -> PKHeX.Core.SaveFile!
+static PKHeX.Facade.Abstractions.SaveFormatDescription.operator !=(PKHeX.Facade.Abstractions.SaveFormatDescription? left, PKHeX.Facade.Abstractions.SaveFormatDescription? right) -> bool
+static PKHeX.Facade.Abstractions.SaveFormatDescription.operator ==(PKHeX.Facade.Abstractions.SaveFormatDescription? left, PKHeX.Facade.Abstractions.SaveFormatDescription? right) -> bool
+static PKHeX.Facade.AutoLegality.ApplyDefaultConfiguration(System.TimeSpan? timeout = null) -> void
+static PKHeX.Facade.BattlePoints.GetInstance(PKHeX.Core.SaveFile! saveFile) -> PKHeX.Facade.BattlePoints!
+static PKHeX.Facade.BattlePoints.NotSupported.Instance.get -> PKHeX.Facade.BattlePoints.NotSupported!
+static PKHeX.Facade.EntityId.operator !=(PKHeX.Facade.EntityId? left, PKHeX.Facade.EntityId? right) -> bool
+static PKHeX.Facade.EntityId.operator ==(PKHeX.Facade.EntityId? left, PKHeX.Facade.EntityId? right) -> bool
+static PKHeX.Facade.Events.EventWorkOption.operator !=(PKHeX.Facade.Events.EventWorkOption? left, PKHeX.Facade.Events.EventWorkOption? right) -> bool
+static PKHeX.Facade.Events.EventWorkOption.operator ==(PKHeX.Facade.Events.EventWorkOption? left, PKHeX.Facade.Events.EventWorkOption? right) -> bool
+static PKHeX.Facade.Extensions.GameExtensions.FindPokemon(this PKHeX.Facade.Game! game, PKHeX.Facade.Pokemons.UniqueId! uniqueId) -> PKHeX.Facade.Pokemons.Pokemon?
+static PKHeX.Facade.Extensions.IdiomaticFunctions.ListOfNotNull<T>(params T?[]! items) -> System.Collections.Generic.IList<T>!
+static PKHeX.Facade.Extensions.PokemonExtensions.ApplyLegalAsync(this PKHeX.Facade.Pokemons.Pokemon! pokemon) -> System.Threading.Tasks.Task!
+static PKHeX.Facade.Extensions.PokemonExtensions.Legality(this PKHeX.Facade.Pokemons.Pokemon! pokemon) -> PKHeX.Core.LegalityAnalysis!
+static PKHeX.Facade.Extensions.PokemonExtensions.LegalityReport(this PKHeX.Facade.Pokemons.Pokemon! pokemon) -> PKHeX.Facade.Pokemons.PokemonLegality!
+static PKHeX.Facade.Extensions.PokemonExtensions.NameDisplay(this PKHeX.Facade.Pokemons.Pokemon! pokemon) -> string!
+static PKHeX.Facade.Extensions.PokemonExtensions.PidDisplay(this PKHeX.Facade.Pokemons.Pokemon! pokemon) -> string!
+static PKHeX.Facade.Extensions.PokemonExtensions.Showdown(this PKHeX.Facade.Pokemons.Pokemon! pokemon) -> string!
+static PKHeX.Facade.Extensions.PokemonExtensions.Showdown(this System.Collections.Generic.IEnumerable<PKHeX.Facade.Pokemons.Pokemon!>! pokemonList) -> string!
+static PKHeX.Facade.Extensions.PokemonExtensions.ToLegalAsync(this PKHeX.Facade.Pokemons.Pokemon! pokemon) -> System.Threading.Tasks.Task<PKHeX.Facade.Pokemons.Pokemon!>!
+static PKHeX.Facade.Extensions.SpeciesExtensions.Id(this PKHeX.Core.Species species) -> int
+static PKHeX.Facade.Extensions.SpeciesExtensions.Name(this PKHeX.Core.Species species) -> string!
+static PKHeX.Facade.Game.EmptyOf(PKHeX.Facade.Repositories.GameVersionDefinition! version, string? trainerName = null) -> PKHeX.Facade.Game!
+static PKHeX.Facade.Game.LoadFrom(byte[]! bytes, string? path = null, PKHeX.Facade.Abstractions.ISaveFormat? format = null) -> PKHeX.Facade.Game!
+static PKHeX.Facade.Game.LoadFrom(string! path) -> PKHeX.Facade.Game!
+static PKHeX.Facade.Gender.FromByte(byte value) -> PKHeX.Facade.Gender!
+static PKHeX.Facade.InventoriesExtensions.AllExceptNone(this PKHeX.Facade.Inventory! inventory) -> System.Collections.Generic.IEnumerable<PKHeX.Facade.Inventory.Item!>!
+static PKHeX.Facade.Location.operator !=(PKHeX.Facade.Location? left, PKHeX.Facade.Location? right) -> bool
+static PKHeX.Facade.Location.operator ==(PKHeX.Facade.Location? left, PKHeX.Facade.Location? right) -> bool
+static PKHeX.Facade.Pokemons.Choice.operator !=(PKHeX.Facade.Pokemons.Choice? left, PKHeX.Facade.Pokemons.Choice? right) -> bool
+static PKHeX.Facade.Pokemons.Choice.operator ==(PKHeX.Facade.Pokemons.Choice? left, PKHeX.Facade.Pokemons.Choice? right) -> bool
+static PKHeX.Facade.Pokemons.HiddenPowerDefinition.operator !=(PKHeX.Facade.Pokemons.HiddenPowerDefinition? left, PKHeX.Facade.Pokemons.HiddenPowerDefinition? right) -> bool
+static PKHeX.Facade.Pokemons.HiddenPowerDefinition.operator ==(PKHeX.Facade.Pokemons.HiddenPowerDefinition? left, PKHeX.Facade.Pokemons.HiddenPowerDefinition? right) -> bool
+static PKHeX.Facade.Pokemons.MoveSlot.operator !=(PKHeX.Facade.Pokemons.MoveSlot? left, PKHeX.Facade.Pokemons.MoveSlot? right) -> bool
+static PKHeX.Facade.Pokemons.MoveSlot.operator ==(PKHeX.Facade.Pokemons.MoveSlot? left, PKHeX.Facade.Pokemons.MoveSlot? right) -> bool
+static PKHeX.Facade.Pokemons.Pokemon.LoadFrom(byte[]! bytes, PKHeX.Facade.Game? game = null) -> PKHeX.Facade.Pokemons.Pokemon!
+static PKHeX.Facade.Pokemons.PokemonDetails.operator !=(PKHeX.Facade.Pokemons.PokemonDetails? left, PKHeX.Facade.Pokemons.PokemonDetails? right) -> bool
+static PKHeX.Facade.Pokemons.PokemonDetails.operator ==(PKHeX.Facade.Pokemons.PokemonDetails? left, PKHeX.Facade.Pokemons.PokemonDetails? right) -> bool
+static PKHeX.Facade.Pokemons.PokemonLegality.operator !=(PKHeX.Facade.Pokemons.PokemonLegality? left, PKHeX.Facade.Pokemons.PokemonLegality? right) -> bool
+static PKHeX.Facade.Pokemons.PokemonLegality.operator ==(PKHeX.Facade.Pokemons.PokemonLegality? left, PKHeX.Facade.Pokemons.PokemonLegality? right) -> bool
+static PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.From(PKHeX.Core.PKM! pokemon, PKHeX.Facade.Pokemons.PokemonMove.MoveIndex moveIndex) -> PKHeX.Facade.Pokemons.PokemonMove.PowerPoints!
+static PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.operator !=(PKHeX.Facade.Pokemons.PokemonMove.PowerPoints? left, PKHeX.Facade.Pokemons.PokemonMove.PowerPoints? right) -> bool
+static PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.operator ==(PKHeX.Facade.Pokemons.PokemonMove.PowerPoints? left, PKHeX.Facade.Pokemons.PokemonMove.PowerPoints? right) -> bool
+static PKHeX.Facade.Pokemons.PokemonNature.operator !=(PKHeX.Facade.Pokemons.PokemonNature? left, PKHeX.Facade.Pokemons.PokemonNature? right) -> bool
+static PKHeX.Facade.Pokemons.PokemonNature.operator ==(PKHeX.Facade.Pokemons.PokemonNature? left, PKHeX.Facade.Pokemons.PokemonNature? right) -> bool
+static PKHeX.Facade.Pokemons.PokemonOptions.operator !=(PKHeX.Facade.Pokemons.PokemonOptions? left, PKHeX.Facade.Pokemons.PokemonOptions? right) -> bool
+static PKHeX.Facade.Pokemons.PokemonOptions.operator ==(PKHeX.Facade.Pokemons.PokemonOptions? left, PKHeX.Facade.Pokemons.PokemonOptions? right) -> bool
+static PKHeX.Facade.Pokemons.PokemonPatch.operator !=(PKHeX.Facade.Pokemons.PokemonPatch? left, PKHeX.Facade.Pokemons.PokemonPatch? right) -> bool
+static PKHeX.Facade.Pokemons.PokemonPatch.operator ==(PKHeX.Facade.Pokemons.PokemonPatch? left, PKHeX.Facade.Pokemons.PokemonPatch? right) -> bool
+static PKHeX.Facade.Pokemons.StatPatch.operator !=(PKHeX.Facade.Pokemons.StatPatch? left, PKHeX.Facade.Pokemons.StatPatch? right) -> bool
+static PKHeX.Facade.Pokemons.StatPatch.operator ==(PKHeX.Facade.Pokemons.StatPatch? left, PKHeX.Facade.Pokemons.StatPatch? right) -> bool
+static PKHeX.Facade.Pokemons.StatValues.operator !=(PKHeX.Facade.Pokemons.StatValues? left, PKHeX.Facade.Pokemons.StatValues? right) -> bool
+static PKHeX.Facade.Pokemons.StatValues.operator ==(PKHeX.Facade.Pokemons.StatValues? left, PKHeX.Facade.Pokemons.StatValues? right) -> bool
+static PKHeX.Facade.Pokemons.Stats.AvFrom(PKHeX.Core.PKM! pokemon) -> PKHeX.Facade.Pokemons.Stats!
+static PKHeX.Facade.Pokemons.Stats.BaseFrom(PKHeX.Core.PKM! pokemon) -> PKHeX.Facade.Pokemons.Stats!
+static PKHeX.Facade.Pokemons.Stats.EvFrom(PKHeX.Core.PKM! pokemon) -> PKHeX.Facade.Pokemons.Stats!
+static PKHeX.Facade.Pokemons.Stats.IvFrom(PKHeX.Core.PKM! pokemon) -> PKHeX.Facade.Pokemons.Stats!
+static PKHeX.Facade.Pokemons.Stats.operator !=(PKHeX.Facade.Pokemons.Stats? left, PKHeX.Facade.Pokemons.Stats? right) -> bool
+static PKHeX.Facade.Pokemons.Stats.operator ==(PKHeX.Facade.Pokemons.Stats? left, PKHeX.Facade.Pokemons.Stats? right) -> bool
+static PKHeX.Facade.Pokemons.UniqueId.From(PKHeX.Core.PKM! pokemon) -> PKHeX.Facade.Pokemons.UniqueId!
+static PKHeX.Facade.Pokemons.UniqueId.From(PKHeX.Facade.Pokemons.Pokemon! pokemon) -> PKHeX.Facade.Pokemons.UniqueId!
+static PKHeX.Facade.Pokemons.UniqueId.From(string! value) -> PKHeX.Facade.Pokemons.UniqueId!
+static PKHeX.Facade.Repositories.AbilityDefinition.operator !=(PKHeX.Facade.Repositories.AbilityDefinition? left, PKHeX.Facade.Repositories.AbilityDefinition? right) -> bool
+static PKHeX.Facade.Repositories.AbilityDefinition.operator ==(PKHeX.Facade.Repositories.AbilityDefinition? left, PKHeX.Facade.Repositories.AbilityDefinition? right) -> bool
+static PKHeX.Facade.Repositories.FormDefinition.operator !=(PKHeX.Facade.Repositories.FormDefinition? left, PKHeX.Facade.Repositories.FormDefinition? right) -> bool
+static PKHeX.Facade.Repositories.FormDefinition.operator ==(PKHeX.Facade.Repositories.FormDefinition? left, PKHeX.Facade.Repositories.FormDefinition? right) -> bool
+static PKHeX.Facade.Repositories.FormRepository.GetFor(PKHeX.Core.PKM! pokemon) -> System.Collections.Generic.IEnumerable<PKHeX.Facade.Repositories.FormDefinition!>!
+static PKHeX.Facade.Repositories.FormRepository.GetFor(PKHeX.Core.Species species, PKHeX.Core.EntityContext context) -> System.Collections.Generic.IEnumerable<PKHeX.Facade.Repositories.FormDefinition!>!
+static PKHeX.Facade.Repositories.FormRepository.GetFor(PKHeX.Facade.Pokemons.Pokemon! pokemon) -> System.Collections.Generic.IEnumerable<PKHeX.Facade.Repositories.FormDefinition!>!
+static PKHeX.Facade.Repositories.GameVersionDefinition.operator !=(PKHeX.Facade.Repositories.GameVersionDefinition? left, PKHeX.Facade.Repositories.GameVersionDefinition? right) -> bool
+static PKHeX.Facade.Repositories.GameVersionDefinition.operator ==(PKHeX.Facade.Repositories.GameVersionDefinition? left, PKHeX.Facade.Repositories.GameVersionDefinition? right) -> bool
+static PKHeX.Facade.Repositories.ItemDefinition.Unknown(ushort id) -> PKHeX.Facade.Repositories.ItemDefinition!
+static PKHeX.Facade.Repositories.ItemDefinition.Unmapped(ushort stored) -> PKHeX.Facade.Repositories.ItemDefinition!
+static PKHeX.Facade.Repositories.ItemDefinition.operator !=(PKHeX.Facade.Repositories.ItemDefinition? left, PKHeX.Facade.Repositories.ItemDefinition? right) -> bool
+static PKHeX.Facade.Repositories.ItemDefinition.operator ==(PKHeX.Facade.Repositories.ItemDefinition? left, PKHeX.Facade.Repositories.ItemDefinition? right) -> bool
+static PKHeX.Facade.Repositories.ItemRepository.AllBalls() -> System.Collections.Generic.ISet<PKHeX.Facade.Repositories.ItemDefinition!>!
+static PKHeX.Facade.Repositories.ItemRepository.GetBall(PKHeX.Core.Ball ball) -> PKHeX.Facade.Repositories.ItemDefinition?
+static PKHeX.Facade.Repositories.ItemRepository.GetItem(ushort id) -> PKHeX.Facade.Repositories.ItemDefinition!
+static PKHeX.Facade.Repositories.ItemRepository.GetItemByName(string! name) -> PKHeX.Facade.Repositories.ItemDefinition?
+static PKHeX.Facade.Repositories.LocationDefinition.Unknown -> PKHeX.Facade.Repositories.LocationDefinition!
+static PKHeX.Facade.Repositories.LocationDefinition.operator !=(PKHeX.Facade.Repositories.LocationDefinition? left, PKHeX.Facade.Repositories.LocationDefinition? right) -> bool
+static PKHeX.Facade.Repositories.LocationDefinition.operator ==(PKHeX.Facade.Repositories.LocationDefinition? left, PKHeX.Facade.Repositories.LocationDefinition? right) -> bool
+static PKHeX.Facade.Repositories.MoveDefinition.operator !=(PKHeX.Facade.Repositories.MoveDefinition? left, PKHeX.Facade.Repositories.MoveDefinition? right) -> bool
+static PKHeX.Facade.Repositories.MoveDefinition.operator ==(PKHeX.Facade.Repositories.MoveDefinition? left, PKHeX.Facade.Repositories.MoveDefinition? right) -> bool
+static PKHeX.Facade.Repositories.SpeciesDefinition.IsSome(PKHeX.Facade.Repositories.SpeciesDefinition! species) -> bool
+static PKHeX.Facade.Repositories.SpeciesDefinition.None.get -> PKHeX.Facade.Repositories.SpeciesDefinition!
+static PKHeX.Facade.Repositories.SpeciesDefinition.Unknown(ushort stored) -> PKHeX.Facade.Repositories.SpeciesDefinition!
+static PKHeX.Facade.Repositories.SpeciesDefinition.implicit operator PKHeX.Core.Species(PKHeX.Facade.Repositories.SpeciesDefinition! d) -> PKHeX.Core.Species
+static PKHeX.Facade.Repositories.SpeciesDefinition.operator !=(PKHeX.Facade.Repositories.SpeciesDefinition? left, PKHeX.Facade.Repositories.SpeciesDefinition? right) -> bool
+static PKHeX.Facade.Repositories.SpeciesDefinition.operator ==(PKHeX.Facade.Repositories.SpeciesDefinition? left, PKHeX.Facade.Repositories.SpeciesDefinition? right) -> bool
+static PKHeX.Facade.Repositories.SpeciesRepository.All -> System.Collections.Immutable.IImmutableDictionary<PKHeX.Core.Species, PKHeX.Facade.Repositories.SpeciesDefinition!>!
+static PKHeX.Facade.Repositories.SpeciesRepository.Find(ushort id) -> PKHeX.Facade.Repositories.SpeciesDefinition?
+static PKHeX.Facade.Repositories.SpeciesRepository.GetEvolutionsFrom(PKHeX.Core.Species species, PKHeX.Core.EntityContext generation, byte form = 0) -> System.Collections.Immutable.IImmutableList<PKHeX.Facade.Repositories.SpeciesDefinition!>!
+static PKHeX.Facade.SaveFormats.All.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Abstractions.ISaveFormat!>!
+static PKHeX.Facade.SaveFormats.Find(string! id) -> PKHeX.Facade.Abstractions.ISaveFormat?
+static PKHeX.Facade.SaveFormats.PKHeX.get -> PKHeX.Facade.Abstractions.ISaveFormat!
+static PKHeX.Facade.SaveFormats.Register(PKHeX.Facade.Abstractions.ISaveFormat! format) -> void
+static readonly PKHeX.Facade.Gender.Female -> PKHeX.Facade.Gender!
+static readonly PKHeX.Facade.Gender.Genderless -> PKHeX.Facade.Gender!
+static readonly PKHeX.Facade.Gender.Male -> PKHeX.Facade.Gender!
+static readonly PKHeX.Facade.Gender.Unknown -> PKHeX.Facade.Gender!
+static readonly PKHeX.Facade.Repositories.AbilityDefinition.None -> PKHeX.Facade.Repositories.AbilityDefinition!
+static readonly PKHeX.Facade.Repositories.AbilityRepository.Instance -> PKHeX.Facade.Repositories.AbilityRepository!
+static readonly PKHeX.Facade.Repositories.FormDefinition.Default -> PKHeX.Facade.Repositories.FormDefinition!
+static readonly PKHeX.Facade.Repositories.GameVersionRepository.Instance -> PKHeX.Facade.Repositories.GameVersionRepository!
+static readonly PKHeX.Facade.Repositories.ItemDefinition.None -> int
+static readonly PKHeX.Facade.Repositories.MoveDefinition.None -> PKHeX.Facade.Repositories.MoveDefinition!
+static readonly PKHeX.Facade.Repositories.MoveRepository.Instance -> PKHeX.Facade.Repositories.MoveRepository!
+virtual PKHeX.Facade.Abstractions.SaveFormatDescription.<Clone>$() -> PKHeX.Facade.Abstractions.SaveFormatDescription!
+virtual PKHeX.Facade.Abstractions.SaveFormatDescription.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Abstractions.SaveFormatDescription.Equals(PKHeX.Facade.Abstractions.SaveFormatDescription? other) -> bool
+virtual PKHeX.Facade.Abstractions.SaveFormatDescription.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.EntityId.<Clone>$() -> PKHeX.Facade.EntityId!
+virtual PKHeX.Facade.EntityId.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.EntityId.Equals(PKHeX.Facade.EntityId? other) -> bool
+virtual PKHeX.Facade.EntityId.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Location.<Clone>$() -> PKHeX.Facade.Location!
+virtual PKHeX.Facade.Location.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Location.Equals(PKHeX.Facade.Location? other) -> bool
+virtual PKHeX.Facade.Location.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Pokemons.Choice.<Clone>$() -> PKHeX.Facade.Pokemons.Choice!
+virtual PKHeX.Facade.Pokemons.Choice.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.Choice.Equals(PKHeX.Facade.Pokemons.Choice? other) -> bool
+virtual PKHeX.Facade.Pokemons.Choice.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Pokemons.HiddenPowerDefinition.<Clone>$() -> PKHeX.Facade.Pokemons.HiddenPowerDefinition!
+virtual PKHeX.Facade.Pokemons.HiddenPowerDefinition.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.HiddenPowerDefinition.Equals(PKHeX.Facade.Pokemons.HiddenPowerDefinition? other) -> bool
+virtual PKHeX.Facade.Pokemons.HiddenPowerDefinition.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Pokemons.MoveSlot.<Clone>$() -> PKHeX.Facade.Pokemons.MoveSlot!
+virtual PKHeX.Facade.Pokemons.MoveSlot.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.MoveSlot.Equals(PKHeX.Facade.Pokemons.MoveSlot? other) -> bool
+virtual PKHeX.Facade.Pokemons.MoveSlot.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Pokemons.PokemonDetails.<Clone>$() -> PKHeX.Facade.Pokemons.PokemonDetails!
+virtual PKHeX.Facade.Pokemons.PokemonDetails.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.PokemonDetails.Equals(PKHeX.Facade.Pokemons.PokemonDetails? other) -> bool
+virtual PKHeX.Facade.Pokemons.PokemonDetails.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Pokemons.PokemonLegality.<Clone>$() -> PKHeX.Facade.Pokemons.PokemonLegality!
+virtual PKHeX.Facade.Pokemons.PokemonLegality.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.PokemonLegality.Equals(PKHeX.Facade.Pokemons.PokemonLegality? other) -> bool
+virtual PKHeX.Facade.Pokemons.PokemonLegality.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.<Clone>$() -> PKHeX.Facade.Pokemons.PokemonMove.PowerPoints!
+virtual PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.Equals(PKHeX.Facade.Pokemons.PokemonMove.PowerPoints? other) -> bool
+virtual PKHeX.Facade.Pokemons.PokemonMove.PowerPoints.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Pokemons.PokemonNature.<Clone>$() -> PKHeX.Facade.Pokemons.PokemonNature!
+virtual PKHeX.Facade.Pokemons.PokemonNature.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.PokemonNature.Equals(PKHeX.Facade.Pokemons.PokemonNature? other) -> bool
+virtual PKHeX.Facade.Pokemons.PokemonNature.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Pokemons.PokemonOptions.<Clone>$() -> PKHeX.Facade.Pokemons.PokemonOptions!
+virtual PKHeX.Facade.Pokemons.PokemonOptions.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.PokemonOptions.Equals(PKHeX.Facade.Pokemons.PokemonOptions? other) -> bool
+virtual PKHeX.Facade.Pokemons.PokemonOptions.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Pokemons.PokemonPatch.<Clone>$() -> PKHeX.Facade.Pokemons.PokemonPatch!
+virtual PKHeX.Facade.Pokemons.PokemonPatch.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.PokemonPatch.Equals(PKHeX.Facade.Pokemons.PokemonPatch? other) -> bool
+virtual PKHeX.Facade.Pokemons.PokemonPatch.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Pokemons.StatPatch.<Clone>$() -> PKHeX.Facade.Pokemons.StatPatch!
+virtual PKHeX.Facade.Pokemons.StatPatch.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.StatPatch.Equals(PKHeX.Facade.Pokemons.StatPatch? other) -> bool
+virtual PKHeX.Facade.Pokemons.StatPatch.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Pokemons.StatValues.<Clone>$() -> PKHeX.Facade.Pokemons.StatValues!
+virtual PKHeX.Facade.Pokemons.StatValues.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.StatValues.Equals(PKHeX.Facade.Pokemons.StatValues? other) -> bool
+virtual PKHeX.Facade.Pokemons.StatValues.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Pokemons.Stats.<Clone>$() -> PKHeX.Facade.Pokemons.Stats!
+virtual PKHeX.Facade.Pokemons.Stats.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.Stats.Equals(PKHeX.Facade.Pokemons.Stats? other) -> bool
+virtual PKHeX.Facade.Pokemons.Stats.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Repositories.AbilityDefinition.<Clone>$() -> PKHeX.Facade.Repositories.AbilityDefinition!
+virtual PKHeX.Facade.Repositories.AbilityDefinition.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Repositories.AbilityDefinition.Equals(PKHeX.Facade.Repositories.AbilityDefinition? other) -> bool
+virtual PKHeX.Facade.Repositories.AbilityDefinition.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Repositories.FormDefinition.<Clone>$() -> PKHeX.Facade.Repositories.FormDefinition!
+virtual PKHeX.Facade.Repositories.FormDefinition.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Repositories.FormDefinition.Equals(PKHeX.Facade.Repositories.FormDefinition? other) -> bool
+virtual PKHeX.Facade.Repositories.FormDefinition.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Repositories.GameVersionDefinition.<Clone>$() -> PKHeX.Facade.Repositories.GameVersionDefinition!
+virtual PKHeX.Facade.Repositories.GameVersionDefinition.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Repositories.GameVersionDefinition.Equals(PKHeX.Facade.Repositories.GameVersionDefinition? other) -> bool
+virtual PKHeX.Facade.Repositories.GameVersionDefinition.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Repositories.ItemDefinition.<Clone>$() -> PKHeX.Facade.Repositories.ItemDefinition!
+virtual PKHeX.Facade.Repositories.ItemDefinition.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Repositories.ItemDefinition.Equals(PKHeX.Facade.Repositories.ItemDefinition? other) -> bool
+virtual PKHeX.Facade.Repositories.ItemDefinition.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Repositories.LocationDefinition.<Clone>$() -> PKHeX.Facade.Repositories.LocationDefinition!
+virtual PKHeX.Facade.Repositories.LocationDefinition.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Repositories.LocationDefinition.Equals(PKHeX.Facade.Repositories.LocationDefinition? other) -> bool
+virtual PKHeX.Facade.Repositories.LocationDefinition.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Repositories.MoveDefinition.<Clone>$() -> PKHeX.Facade.Repositories.MoveDefinition!
+virtual PKHeX.Facade.Repositories.MoveDefinition.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Repositories.MoveDefinition.Equals(PKHeX.Facade.Repositories.MoveDefinition? other) -> bool
+virtual PKHeX.Facade.Repositories.MoveDefinition.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Repositories.SpeciesDefinition.<Clone>$() -> PKHeX.Facade.Repositories.SpeciesDefinition!
+virtual PKHeX.Facade.Repositories.SpeciesDefinition.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Repositories.SpeciesDefinition.Equals(PKHeX.Facade.Repositories.SpeciesDefinition? other) -> bool
+virtual PKHeX.Facade.Repositories.SpeciesDefinition.PrintMembers(System.Text.StringBuilder! builder) -> bool
