@@ -10,14 +10,14 @@ using static PKHeX.Everywhere.Engine.Tests.EngineResults;
 
 namespace PKHeX.Everywhere.Engine.Tests;
 
-// Every fixture, official or ROM hack, runs these scenarios. A save skips one only through a Capability.
+// Every fixture, official or ROM hack, runs these scenarios through command dispatch.
 public class SaveScenarioTests
 {
     [Theory]
     [EverySave]
-    public void Loads(string saveFile, string? knownGap) => Expect(knownGap, () =>
+    public void Loads(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
-        var session = Load(saveFile);
+        var session = LoadSession(saveFile);
 
         Value(Dispatch(session, "game.get", "[]"))!["fileName"]!.GetValue<string>().Should().Be(Path.GetFileName(saveFile));
         Value(Dispatch(session, "trainer.get", "[]"))!["name"]!.GetValue<string>().Should().NotBeNullOrEmpty();
@@ -25,9 +25,9 @@ public class SaveScenarioTests
 
     [Theory]
     [EverySave]
-    public void ListsThePartyAndTheBoxes(string saveFile, string? knownGap) => Expect(knownGap, () =>
+    public void ListsThePartyAndTheBoxes(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
-        var session = Load(saveFile);
+        var session = LoadSession(saveFile);
 
         var party = Value(Dispatch(session, "party.get", "[]"))!.AsArray();
         var boxed = Value(Dispatch(session, "box.get", "[]"))!.AsArray();
@@ -42,15 +42,15 @@ public class SaveScenarioTests
     [Theory]
     [EverySave]
     [KnownGap(SaveFilePath.Unbound, "Two species have no PKHeX id and list as Unknown (#1199) and Unknown (#1203).")]
-    public void EveryListedPokemonHasASpecies(string saveFile, string? knownGap) => Expect(knownGap, () =>
-        Listed(Load(saveFile)).Should().OnlyContain(p => p["speciesId"]!.GetValue<int>() != 0));
+    public void EveryListedPokemonHasASpecies(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
+        Listed(LoadSession(saveFile)).Should().OnlyContain(p => p["speciesId"]!.GetValue<int>() != 0));
 
     [Theory]
     [EverySave]
     [KnownGap(SaveFilePath.Unbound, "A Pokémon of an unknown species can't be opened.")]
-    public void EveryListedPokemonOpensInTheEditor(string saveFile, string? knownGap) => Expect(knownGap, () =>
+    public void EveryListedPokemonOpensInTheEditor(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
-        var session = Load(saveFile);
+        var session = LoadSession(saveFile);
 
         foreach (var pokemon in Listed(session))
         {
@@ -62,9 +62,9 @@ public class SaveScenarioTests
     [Theory]
     [EverySave]
     [KnownGap(SaveFilePath.Yellow, "A box Pokémon's id hashes its party level, which the box doesn't store, so the id changes on export.")]
-    public void AnEditedPokemonIsCommittedAndSurvivesExport(string saveFile, string? knownGap) => Expect(knownGap, () =>
+    public void AnEditedPokemonIsCommittedAndSurvivesExport(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
-        var session = Load(saveFile);
+        var session = LoadSession(saveFile);
         var edited = new[] { PokemonHandle.Party(0), FirstBoxPokemon(session.Game!)!.Value.At };
 
         foreach (var at in edited)
@@ -78,7 +78,7 @@ public class SaveScenarioTests
             Details(session, at)["level"]!.GetValue<int>().Should().Be(level);
         }
 
-        var reloaded = Load(saveFile, Exported(session));
+        var reloaded = LoadSession(saveFile, Exported(session));
         foreach (var at in edited) Details(reloaded, at).ToJsonString().Should().Be(Details(session, at).ToJsonString());
         ListedJson(reloaded).Should().Equal(ListedJson(session));
     });
@@ -87,18 +87,18 @@ public class SaveScenarioTests
     // Let's Go Eevee has no Pokémon outside its party, so it swaps two party members.
     [Theory]
     [EverySave]
-    public void APokemonMovedToAnotherSlotSurvivesExport(string saveFile, string? knownGap) => Expect(knownGap, () =>
+    public void APokemonMovedToAnotherSlotSurvivesExport(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
         var game = SaveFilePath.Load(saveFile);
         var boxed = BoxedPokemon(game).Take(2).Select(p => p.At).ToArray();
         var (first, second) = boxed.Length == 2 ? (boxed[0], boxed[1]) : (PokemonHandle.Party(0), PokemonHandle.Party(1));
-        var before = Load(saveFile);
+        var before = LoadSession(saveFile);
         var (pokemonA, pokemonB) = (Slot(game, first), Slot(game, second));
         SetSlot(game, first, pokemonB);
         SetSlot(game, second, pokemonA);
 
-        var moved = Load(saveFile, game.SaveFile.Write().ToArray());
-        var reloaded = Load(saveFile, Exported(moved));
+        var moved = LoadSession(saveFile, game.SaveFile.Write().ToArray());
+        var reloaded = LoadSession(saveFile, Exported(moved));
 
         foreach (var session in new[] { moved, reloaded })
         {
@@ -109,16 +109,16 @@ public class SaveScenarioTests
 
     [Theory]
     [EverySave]
-    public void SettingAndRemovingBagItemsSurvivesExport(string saveFile, string? knownGap) => Expect(knownGap, () =>
+    public void SettingAndRemovingBagItemsSurvivesExport(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
-        var session = Load(saveFile);
+        var session = LoadSession(saveFile);
         var (added, maxCount) = AddableItem(session.Game!)!.Value;
         var removed = OwnedItem(session.Game!)!;
 
         Value(Dispatch(session, "inventory.setItem", Args(added, maxCount)));
         Value(Dispatch(session, "inventory.setItem", Args(removed, 0)));
 
-        var reloaded = Load(saveFile, Exported(session));
+        var reloaded = LoadSession(saveFile, Exported(session));
         Owned(reloaded, added.Pouch).Should().Contain((added.ItemId, maxCount));
         Owned(reloaded, removed.Pouch).Select(item => item.Id).Should().NotContain(removed.ItemId);
         Value(Dispatch(reloaded, "inventory.get", "[]"))!.ToJsonString()
@@ -131,9 +131,9 @@ public class SaveScenarioTests
     [KnownGap(SaveFilePath.HgSs, "The Berries pocket lists a Max Repel with a count of 0, which it can't set.")]
     [KnownGap(SaveFilePath.Unbound, "Unknown items are listed with id 0 and can't be changed or removed.")]
     [KnownGap(SaveFilePath.RadicalRed, "Unknown items are listed with id 0 and can't be changed or removed.")]
-    public void EveryListedBagItemCanBeChangedAndRemoved(string saveFile, string? knownGap) => Expect(knownGap, () =>
+    public void EveryListedBagItemCanBeChangedAndRemoved(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
-        var session = Load(saveFile);
+        var session = LoadSession(saveFile);
 
         foreach (var pouch in Value(Dispatch(session, "inventory.get", "[]"))!.AsArray())
         foreach (var item in pouch!["items"]!.AsArray())
@@ -143,7 +143,7 @@ public class SaveScenarioTests
             Value(Dispatch(session, "inventory.setItem", Args(at, 0)));
         }
 
-        Value(Dispatch(Load(saveFile, Exported(session)), "inventory.get", "[]"))!.AsArray()
+        Value(Dispatch(LoadSession(saveFile, Exported(session)), "inventory.get", "[]"))!.AsArray()
             .Should().OnlyContain(pouch => pouch!["items"]!.AsArray().Count == 0);
     });
 
@@ -155,57 +155,60 @@ public class SaveScenarioTests
     [KnownGap(SaveFilePath.Unbound, NatureFromPid)]
     [KnownGap(SaveFilePath.RadicalRed, NatureFromPid)]
     public void EveryOfferedNatureCanBeStored(string saveFile, string? knownGap) =>
-        Expect(knownGap, () => EveryChoiceIsStored(saveFile, "nature", session => Value(Dispatch(session, "game.natures", "[]"))));
+        PassesUnlessKnownGap(knownGap, () => EveryChoiceIsStored(saveFile, "nature", session => Value(Dispatch(session, "game.natures", "[]"))));
 
     [Theory]
     [EverySave]
     public void EveryOfferedBallCanBeStored(string saveFile, string? knownGap) =>
-        Expect(knownGap, () => EveryChoiceIsStored(saveFile, "ball", session => Value(Dispatch(session, "game.balls", "[]"))));
+        PassesUnlessKnownGap(knownGap, () => EveryChoiceIsStored(saveFile, "ball", session => Value(Dispatch(session, "game.balls", "[]"))));
 
     [Theory]
     [EverySave]
     public void EveryOfferedLanguageCanBeStored(string saveFile, string? knownGap) =>
-        Expect(knownGap, () => EveryChoiceIsStored(saveFile, "language", session => Value(Dispatch(session, "game.languages", "[]"))));
+        PassesUnlessKnownGap(knownGap, () => EveryChoiceIsStored(saveFile, "language", session => Value(Dispatch(session, "game.languages", "[]"))));
 
     [Theory]
     [EverySave]
     public void EveryOfferedOriginGameCanBeStored(string saveFile, string? knownGap) =>
-        Expect(knownGap, () => EveryChoiceIsStored(saveFile, "version", session => Value(Dispatch(session, "game.originGames", "[]"))));
+        PassesUnlessKnownGap(knownGap, () => EveryChoiceIsStored(saveFile, "version", session => Value(Dispatch(session, "game.originGames", "[]"))));
 
     [Theory]
     [EverySave]
     [KnownGap(SaveFilePath.Unbound, "Abilities the save can't store are offered.")]
     [KnownGap(SaveFilePath.RadicalRed, "Abilities the save can't store are offered.")]
     public void EveryOfferedAbilityCanBeStored(string saveFile, string? knownGap) =>
-        Expect(knownGap, () => EveryChoiceIsStored(saveFile, "ability", session => Options(session)["abilities"]));
+        PassesUnlessKnownGap(knownGap, () => EveryChoiceIsStored(saveFile, "ability", session => Options(session)["abilities"]));
 
     [Theory]
     [EverySave]
     [KnownGap(SaveFilePath.Unbound, "Met locations the save can't store, such as Gen 5 transfer locations, are offered.")]
     [KnownGap(SaveFilePath.RadicalRed, "Met locations the save can't store, such as Gen 5 transfer locations, are offered.")]
     public void EveryOfferedMetLocationCanBeStored(string saveFile, string? knownGap) =>
-        Expect(knownGap, () => EveryChoiceIsStored(saveFile, "metLocation", session => Options(session)["metLocations"]));
+        PassesUnlessKnownGap(knownGap, () => EveryChoiceIsStored(saveFile, "metLocation", session => Options(session)["metLocations"]));
 
-    // PKHeX rewrites the checksums and backups of some saves on any write, so the bytes to keep are the ones the save's own
-    // writer gives. For Emerald and the hacks, those are the file's bytes.
+    // PKHeX rewrites the checksums and backups of some saves on any write, so for those the bytes to keep are the ones its writer gives.
     [Theory]
     [EverySave]
     [KnownGap(SaveFilePath.Yellow, ExportRewritesUneditedPokemon)]
     [KnownGap(SaveFilePath.FireRed, ExportRewritesUneditedPokemon)]
     [KnownGap(SaveFilePath.LetsGoPikachu, ExportRewritesUneditedPokemon)]
     [KnownGap(SaveFilePath.LetsGoEevee, ExportRewritesUneditedPokemon)]
-    public void ExportingWithoutEditsReturnsTheSameBytes(string saveFile, string? knownGap) => Expect(knownGap, () =>
+    public void ExportingWithoutEditsReturnsTheSameBytes(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
         var save = SaveFilePath.Load(saveFile).SaveFile;
-        var written = save.Write(save.Metadata.GetSuggestedFlags(Path.GetExtension(saveFile))).ToArray();
+        var expected = RewrittenByPKHeX.Contains(saveFile)
+            ? save.Write(save.Metadata.GetSuggestedFlags(Path.GetExtension(saveFile))).ToArray()
+            : File.ReadAllBytes(saveFile);
 
-        Exported(Load(saveFile)).Should().Equal(written);
+        Exported(LoadSession(saveFile)).Should().Equal(expected);
     });
 
-    private const string NatureFromPid = "Natures are offered, but the nature comes from the PID and can't change.";
+    private static readonly string[] RewrittenByPKHeX = [SaveFilePath.Yellow, SaveFilePath.Crystal, SaveFilePath.FireRed, SaveFilePath.HgSs];
+
+    private const string NatureFromPid = "Natures are offered, but the nature comes from the PID and can't change. It should be a Locked field.";
     private const string ExportRewritesUneditedPokemon = "Export rewrites Pokémon nobody edited.";
 
-    private static void Expect(string? knownGap, Action scenario)
+    private static void PassesUnlessKnownGap(string? knownGap, Action scenario)
     {
         if (knownGap is null)
         {
@@ -216,7 +219,7 @@ public class SaveScenarioTests
         scenario.Should().Throw<XunitException>($"the save has a known gap: {knownGap} If it now passes, remove the [KnownGap]");
     }
 
-    private static Session Load(string saveFile, byte[]? bytes = null)
+    private static Session LoadSession(string saveFile, byte[]? bytes = null)
     {
         var session = new Session();
         var args = Args(Convert.ToBase64String(bytes ?? File.ReadAllBytes(saveFile)), Path.GetFileName(saveFile), SaveFilePath.FormatOf(saveFile)?.Id!);
@@ -267,7 +270,7 @@ public class SaveScenarioTests
 
     private static void EveryChoiceIsStored(string saveFile, string field, Func<Session, JsonNode?> choices)
     {
-        var session = Load(saveFile);
+        var session = LoadSession(saveFile);
 
         var unstorable = choices(session)!.AsArray()
             .Select(choice => choice!["id"]!.GetValue<int>())

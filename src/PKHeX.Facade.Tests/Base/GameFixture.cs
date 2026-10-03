@@ -25,17 +25,9 @@ public class SupportedSaveFilesAttribute : DataAttribute
 {
     public string[] Except { get; set; } = [];
 
-    public override IEnumerable<object[]> GetData(MethodInfo testMethod) => TestedFiles
-        .Except(Except)
+    public override IEnumerable<object[]> GetData(MethodInfo testMethod) => SaveFilePath.All
+        .Except([SaveFilePath.Yellow, .. Except])
         .Select(p => new object[] { p });
-
-    private static readonly string[] TestedFiles =
-    [
-        SaveFilePath.HgSs,
-        SaveFilePath.LetsGoPikachu, SaveFilePath.LetsGoEevee,
-        SaveFilePath.Emerald, SaveFilePath.Crystal, SaveFilePath.FireRed,
-        SaveFilePath.Unbound, SaveFilePath.RadicalRed,
-    ];
 }
 
 public class GamesAttribute(params GameVersion[] versions) : DataAttribute
