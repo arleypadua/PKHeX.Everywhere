@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using AwesomeAssertions;
 using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 using PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 using Xunit.Sdk;
@@ -60,9 +61,10 @@ public static class SaveFilePath
     public static IReadOnlyList<string> All { get; } =
         [Yellow, Crystal, Emerald, FireRed, HgSs, LetsGoPikachu, LetsGoEevee, Unbound, RadicalRed];
 
+    public static Game Load(string path) => Game.LoadFrom(File.ReadAllBytes(path), path, FormatOf(path));
+
     // Radical Red only possibly matches its format, so loading it without a choice asks for one.
-    public static Game Load(string path) =>
-        Game.LoadFrom(File.ReadAllBytes(path), path, path == RadicalRed ? new RadicalRedFormat() : null);
+    public static ISaveFormat? FormatOf(string path) => path == RadicalRed ? new RadicalRedFormat() : null;
 
     public static string PathFrom(GameVersion version) => version switch
     {

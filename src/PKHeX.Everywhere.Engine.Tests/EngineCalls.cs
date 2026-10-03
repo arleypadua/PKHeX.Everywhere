@@ -57,7 +57,10 @@ internal static class EngineCalls
         .FirstOrDefault();
 
     internal static ItemHandle? OwnedItem(Game game) => game.Trainer.Inventories.InventoryItems.Values
-        .SelectMany(inventory => inventory.AllExceptNone().Select(item => new ItemHandle(inventory.Type, item.Id)))
+        .OrderBy(inventory => inventory.Type, StringComparer.Ordinal)
+        .SelectMany(inventory => inventory.AllExceptNone()
+            .Where(item => inventory.Supports(item.Definition))
+            .Select(item => new ItemHandle(inventory.Type, item.Id)))
         .FirstOrDefault();
 
     internal static string Args(params object[] args) => JsonSerializer.Serialize(args.Select(Arg));
