@@ -2,13 +2,12 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { Alert, App, Button, Flex, Space, Table, Tag, Tooltip, Typography, type TableColumnsType } from 'antd'
 import { Link } from 'react-router'
 import type { InstalledPlugIn } from '@pkhex-everywhere/engine'
-import { useQuery } from '@pkhex-everywhere/react'
 import { PageHeader } from '../../components/PageHeader'
 import { containsText } from '../../components/filters/containsText'
 import { TextFilter } from '../../components/filters/TextFilter'
 import { useNavigate } from '../../host'
 import type { AvailablePlugIn } from '../../plugins/plugIns'
-import { usePlugIns } from '../../plugins/PlugInsContext'
+import { useInstalledPlugIns, usePlugIns } from '../../plugins/PlugInsContext'
 import { routes } from '../../routes'
 
 function nameColumn<T extends { name: string }>(render: (plugIn: T) => ReactNode): TableColumnsType<T>[number] {
@@ -24,7 +23,7 @@ function nameColumn<T extends { name: string }>(render: (plugIn: T) => ReactNode
 
 export default function PlugInsPage() {
   const plugIns = usePlugIns()
-  const installed = useQuery('plugins.installed')
+  const installed = useInstalledPlugIns()
   const navigate = useNavigate()
   const { notification } = App.useApp()
   const [available, setAvailable] = useState<AvailablePlugIn[] | 'failed'>([])
@@ -79,7 +78,7 @@ export default function PlugInsPage() {
       key: 'version',
       render: (_, plugIn) =>
         plugIn.needsReinstall ? (
-          <Tooltip title="This plug-in doesn't work with this version of the app. Uninstall it and install it again.">
+          <Tooltip title="This plug-in can't run in this version of the app. Uninstall it and install it again.">
             <Tag color="warning">Needs reinstall</Tag>
           </Tooltip>
         ) : (

@@ -1,5 +1,6 @@
-import type { Engine, PlugInSetting, PlugInState } from '@pkhex-everywhere/engine'
+import type { Engine, InstalledPlugIn, PlugInSetting, PlugInState } from '@pkhex-everywhere/engine'
 import { fromBase64, toBase64 } from '../base64'
+import { createStore } from '../externalStore'
 import {
   defaultSourceUrl,
   downloadUrl,
@@ -25,7 +26,30 @@ export interface AvailablePlugIn {
 
 export type PlugIns = ReturnType<typeof createPlugIns>
 
+const failedPlugIn = (id: string): InstalledPlugIn => ({
+  id,
+  name: id,
+  version: '',
+  enabled: false,
+  hasNewerVersion: false,
+  needsReinstall: true,
+})
+
+export function withFailedToLoad(installed: InstalledPlugIn[], failed: InstalledPlugIn[]) {
+  const ids = new Set(installed.map((p) => p.id))
+  return [...installed, ...failed.filter((p) => !ids.has(p.id))]
+}
+
 export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUrl: typeof fetch = fetch) {
+  const failed = createStore<InstalledPlugIn[]>([])
+  const withoutFailed = (id: string) => failed.get().filter((p) => p.id !== id)
+
+  function forgetFailed(id: string) {
+    if (failed.get().some((p) => p.id === id)) failed.set(withoutFailed(id))
+  }
+
+  const listInstalled = async () => withFailedToLoad(await engine.plugins.installed(), failed.get())
+
   async function get(url: string) {
     const response = await fetchUrl(url)
     if (!response.ok) throw new Error(`${url} answered ${response.status}.`)
@@ -63,6 +87,7 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
     if (!(await engine.plugins.isSupported(assembly))) return false
 
     await engine.plugins.register(assembly, state && { ...state, hasNewerVersion: false })
+    forgetFailed(stored.id)
     await store.writePlugIn({ ...stored, fileUrl, assembly: toBase64(assembly), state: await engine.plugins.state(stored.id) })
     return true
   }
@@ -80,7 +105,7 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
   }
 
   async function updateIncompatible(sources: PlugInSource[]) {
-    for (const installed of await engine.plugins.installed()) {
+    for (const installed of await listInstalled()) {
       if (!installed.needsReinstall) continue
       try {
         const found = await storedWithSource(installed.id, sources)
@@ -114,10 +139,15 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
         try {
           await engine.plugins.register(fromBase64(plugIn.assembly), plugIn.state)
         } catch (error) {
-          console.error(`Couldn't load plug-in ${plugIn.id}.`, error)
+          console.error(`Couldn't load plug-in ${plugIn.id}, so it needs reinstall.`, error)
+          failed.set([...withoutFailed(plugIn.id), failedPlugIn(plugIn.id)])
         }
       }
     },
+
+    failedToLoad: failed.get,
+
+    subscribe: failed.subscribe,
 
     async refresh() {
       const sources = await refreshSources()
@@ -129,11 +159,11 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
     async available(): Promise<AvailablePlugIn[]> {
       const stored = store.readSources()
       const sources = stored.length ? stored : await refreshSources()
-      const installed = new Set((await engine.plugins.installed()).map((p) => p.id))
+      const installedIds = new Set((await listInstalled()).map((p) => p.id))
       const available: AvailablePlugIn[] = []
       for (const source of sources)
         for (const plugIn of source.plugIns) {
-          if (installed.has(plugIn.id)) continue
+          if (installedIds.has(plugIn.id)) continue
           const version = await engine.plugins.newestCompatible(plugIn.publishedVersions, null)
           if (!version) continue
           available.push({
@@ -176,6 +206,7 @@ export function createPlugIns(engine: PlugInsEngine, store: PlugInStore, fetchUr
     async uninstall(id: string) {
       await engine.plugins.unregister(id)
       await store.removePlugIn(id)
+      forgetFailed(id)
     },
 
     setEnabled: async (id: string, enabled: boolean) => save(id, await engine.plugins.setEnabled(id, enabled)),

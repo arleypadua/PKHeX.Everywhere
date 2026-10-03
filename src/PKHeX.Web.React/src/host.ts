@@ -1,31 +1,13 @@
-import { useCallback, useSyncExternalStore } from 'react'
+import { useCallback } from 'react'
 import { useNavigate as useRouterNavigate } from 'react-router'
 import { toBase64 } from './base64'
+import { createStore } from './externalStore'
 import { createSettings, type Theme } from './settings'
 
 export type { Theme } from './settings'
 
 declare global {
   var showGoogleCmpRevocationMessage: (() => void) | undefined
-}
-
-function createStore<T>(initial: T) {
-  let value = initial
-  const listeners = new Set<() => void>()
-  const subscribe = (listener: () => void) => {
-    listeners.add(listener)
-    return () => void listeners.delete(listener)
-  }
-  return {
-    get: () => value,
-    set(next: T) {
-      if (next === value) return
-      value = next
-      listeners.forEach((listener) => listener())
-    },
-    subscribe,
-    use: () => useSyncExternalStore(subscribe, () => value),
-  }
 }
 
 export const settings = createSettings()
