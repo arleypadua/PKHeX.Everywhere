@@ -10,7 +10,7 @@ public class PokemonBoxTests
     [SupportedSaveFiles]
     public void BoxShouldContainPokemon(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var allValid = game.Trainer.PokemonBox.All
             .Where(p => p.Species != SpeciesDefinition.None)
             .ToList();
@@ -32,7 +32,7 @@ public class PokemonBoxTests
     [SupportedSaveFiles]
     public void BoxedListsTheNonEmptySlotsInOrder(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var partyMembers = Enumerable.Range(0, game.Trainer.Party.Pokemons.Count).Select(game.Trainer.Party.BoxIndexOf).ToHashSet();
         var expected = game.Trainer.PokemonBox.All
             .Select((pokemon, index) => (index, pokemon))
@@ -47,7 +47,7 @@ public class PokemonBoxTests
     [InlineData(SaveFilePath.LetsGoEevee)]
     public void BoxedLeavesOutLetsGoPartyMembers(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var partyMembers = Enumerable.Range(0, game.Trainer.Party.Pokemons.Count)
             .Select(slot => game.Trainer.Party.BoxIndexOf(slot)!.Value)
             .ToList();

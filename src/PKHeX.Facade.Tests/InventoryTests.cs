@@ -19,7 +19,7 @@ public class InventoryTests
     [InlineData(SaveFilePath.Emerald, 339)]
     public void MaxCountOf_HM_ShouldBeOne(string saveFile, ushort hm01)
     {
-        var tmhms = Game.LoadFrom(saveFile).Trainer.Inventories["TMHMs"];
+        var tmhms = SaveFilePath.Load(saveFile).Trainer.Inventories["TMHMs"];
 
         tmhms.MaxCountOf(hm01).Should().Be(1);
         tmhms.MaxCountOf((ushort)(hm01 - 1)).Should().Be(tmhms.MaxItemCountAllowed);
@@ -40,7 +40,7 @@ public class InventoryTests
     [SupportedSaveFiles]
     public void InventoryRepository_ShouldReturnExpectedItem(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var masterball = ItemRepository.GetItem(1);
         masterball.Should().Be(MasterBall);
     }
@@ -49,7 +49,7 @@ public class InventoryTests
     [SupportedSaveFiles]
     public void Inventories_ShouldContainBallsInventory(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         game.Trainer.Inventories.InventoryTypes.Should().Contain("Balls");
         
         var ballInventory = game.Trainer.Inventories.InventoryItems["Balls"];
@@ -60,7 +60,7 @@ public class InventoryTests
     [SupportedSaveFiles]
     public void Inventories_ShouldAllowChangingItemAmount(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var ballInventory = game.Trainer.Inventories.InventoryItems["Balls"];
         ballInventory.Set(MasterBall.Id, 5);
 
@@ -75,7 +75,7 @@ public class InventoryTests
     [SupportedSaveFiles]
     public void Inventories_ShouldAllowRemovingItem(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var ballInventory = game.Trainer.Inventories.InventoryItems["Balls"];
         ballInventory.Remove(MasterBall.Id);
 
@@ -90,7 +90,7 @@ public class InventoryTests
     [SupportedSaveFiles]
     public void Invories_CanAddRareCandies(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
 
         var rareCandyBag =
             game.Trainer.Inventories.InventoryItems.Values.FirstOrDefault(i =>
@@ -112,8 +112,8 @@ public class InventoryTests
     [SupportedSaveFiles]
     public void Inventories_EditsToTwoPouches_ShouldBothSurvive(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
-        var pouches = game.Trainer.Inventories.InventoryItems.Values.Take(2).ToArray();
+        var game = SaveFilePath.Load(saveFile);
+        var pouches = game.Trainer.Inventories.InventoryItems.Values.Where(pouch => !pouch.CurrentSupportedItems.IsEmpty).Take(2).ToArray();
         var edits = pouches.Select(pouch => (pouch.Type, Item: pouch.CurrentSupportedItems.First())).ToArray();
 
         foreach (var (type, item) in edits) game.Trainer.Inventories[type].Set(item.Id, 1);
@@ -130,7 +130,7 @@ public class InventoryTests
     [InlineData(SaveFilePath.Crystal, "Items")]
     public void TrySet_NewItemInAFullPouch_ShouldReturnFalseAndLeaveThePouchUnchanged(string saveFile, string pouch)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var inventory = game.Trainer.Inventories[pouch];
         var rejected = Fill(inventory);
         var before = inventory.Items.Select(i => (i.Id, i.Count)).ToList();
@@ -147,7 +147,7 @@ public class InventoryTests
     [InlineData(SaveFilePath.Crystal, "Items")]
     public void TrySet_OwnedItemInAFullPouch_ShouldReturnTrue(string saveFile, string pouch)
     {
-        var inventory = Game.LoadFrom(saveFile).Trainer.Inventories[pouch];
+        var inventory = SaveFilePath.Load(saveFile).Trainer.Inventories[pouch];
         Fill(inventory);
         var owned = inventory.AllExceptNone().First();
 

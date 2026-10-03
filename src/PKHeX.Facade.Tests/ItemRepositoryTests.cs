@@ -28,7 +28,7 @@ public class ItemRepositoryTests
     [SupportedSaveFiles]
     public void ShouldLoadAndEnumerateAllItemsInTheRepository(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         foreach (var inventoryType in game.Trainer.Inventories.InventoryTypes)
         {
             var items = game.Trainer.Inventories[inventoryType].Where(i => i.Definition.Id != ItemDefinition.None)

@@ -13,7 +13,7 @@ public class PokemonDescriptionPatchTests
     [InlineData(SaveFilePath.LetsGoPikachu)]
     public void AppliesTheDescriptionFields(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var pokemon = game.Trainer.Party.Pokemons[0];
         var before = pokemon.Details();
         var heldItem = game.Options.HeldItems.Last().Id;
@@ -62,7 +62,7 @@ public class PokemonDescriptionPatchTests
     [InlineData(SaveFilePath.Crystal)]
     public void RejectsANatureTheSaveDerivesFromThePid(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
         var nature = pokemon.Pkm.Nature == Nature.Adamant ? Nature.Bold : Nature.Adamant;
 
         var update = () => pokemon.Update(new PokemonPatch(Nature: (int)nature));
@@ -104,10 +104,10 @@ public class PokemonDescriptionPatchTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed])] // a hack Pokémon's gender comes from its PID and can't be set yet
     public void AppliesAGenderTheSpeciesCanHave(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons.First(p => p.Pkm.PersonalInfo.IsDualGender);
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons.First(p => p.Pkm.PersonalInfo.IsDualGender);
         var gender = pokemon.Gender == Gender.Male ? Gender.Female : Gender.Male;
 
         pokemon.Update(new PokemonPatch(Gender: gender));
@@ -137,7 +137,7 @@ public class PokemonDescriptionPatchTests
     [MemberData(nameof(UnstorableValues))]
     public void RejectsAValueTheSaveCantStore(string saveFile, PokemonPatch patch, string field)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
         var before = pokemon.Pkm.Data.ToArray();
 
         var update = () => pokemon.Update(patch with { Nickname = "Sparky" });
@@ -188,7 +188,7 @@ public class PokemonDescriptionPatchTests
     [SupportedSaveFiles]
     public void OffersTheEvolutionLineAndTheSpeciesAbilities(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
 
         var options = pokemon.Options();
 
@@ -203,7 +203,7 @@ public class PokemonDescriptionPatchTests
     [InlineData(SaveFilePath.LetsGoPikachu, true)]
     public void OffersEveryAbilityWhereTheSaveStoresAny(string saveFile, bool every)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
 
         var abilities = pokemon.Options().Abilities;
 

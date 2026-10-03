@@ -9,7 +9,7 @@ public class PokemonPartyTests
     [SupportedSaveFiles]
     public void PartyShouldContainPokemon(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         game.Trainer.Party.Pokemons.Should().HaveCountGreaterThan(0);
         game.Trainer.Party.Pokemons.Should().AllSatisfy(p =>
         {
@@ -27,7 +27,7 @@ public class PokemonPartyTests
     [SupportedSaveFiles]
     public void PartyShouldBePersistedAcrossSaves(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var firstPokemon = game.Trainer.Party.Pokemons.First();
         
         firstPokemon.IsShiny.Should().BeFalse();
@@ -49,7 +49,7 @@ public class PokemonPartyTests
     [InlineData(SaveFilePath.LetsGoEevee)]
     public void LetsGoBoxShowsCommittedPartyChanges(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var member = game.Trainer.Party.Pokemons[0];
         var index = game.Trainer.Party.BoxIndexOf(0)!.Value;
         var level = member.Level == 50 ? 51 : 50;
@@ -66,7 +66,7 @@ public class PokemonPartyTests
     [InlineData(SaveFilePath.LetsGoEevee)]
     public void LetsGoPartyShowsCommittedBoxChanges(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var boxed = game.Trainer.PokemonBox.All[game.Trainer.Party.BoxIndexOf(0)!.Value];
         var level = boxed.Level == 50 ? 51 : 50;
 
@@ -82,7 +82,7 @@ public class PokemonPartyTests
     [InlineData(SaveFilePath.LetsGoEevee)]
     public void LetsGoBoxChangesToAPartyMemberSurviveASaveExport(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var boxed = game.Trainer.PokemonBox.All[game.Trainer.Party.BoxIndexOf(0)!.Value];
         var level = boxed.Level == 50 ? 51 : 50;
 
@@ -103,7 +103,7 @@ public class PokemonPartyTests
     [SupportedSaveFiles]
     public void UpdatingAPartyPokemonRecalculatesItsStats(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var saved = game.Trainer.Party.Pokemons[0];
         var edited = saved.Clone();
         edited.ChangeLevel(saved.Level == 100 ? 99 : saved.Level + 1);

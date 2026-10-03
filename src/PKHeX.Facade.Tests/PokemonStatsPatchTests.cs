@@ -11,7 +11,7 @@ public class PokemonStatsPatchTests
     [SupportedSaveFiles]
     public void ReportsTheStatInputsAndTheComputedStats(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
         var pkm = pokemon.Pkm;
         var stats = pkm.GetStats(pkm.PersonalInfo);
 
@@ -25,10 +25,10 @@ public class PokemonStatsPatchTests
     }
 
     [Theory]
-    [SupportedSaveFiles(Except = [GameVersion.GP, GameVersion.GE, GameVersion.GG])]
+    [SupportedSaveFiles(Except = [SaveFilePath.LetsGoPikachu, SaveFilePath.LetsGoEevee])]
     public void HasNoAwakeningValuesOrCombatPowerOutsideLetsGo(string saveFile)
     {
-        var details = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0].Details();
+        var details = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0].Details();
 
         details.Avs.Should().BeNull();
         details.CombatPower.Should().BeNull();
@@ -41,7 +41,7 @@ public class PokemonStatsPatchTests
     [InlineData(SaveFilePath.LetsGoPikachu)]
     public void AppliesTheIvsAndEvs(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
 
         pokemon.Update(new PokemonPatch(
             Ivs: new StatPatch(1, 2, 3, 4, 5, 6),
@@ -118,7 +118,7 @@ public class PokemonStatsPatchTests
     [InlineData(SaveFilePath.HgSs, "CombatPower", "Combat Power")]
     public void RejectsAValueTheSaveCantHold(string saveFile, string field, string named)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
         var before = pokemon.Details();
         var patch = field switch
         {

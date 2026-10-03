@@ -15,12 +15,6 @@ public class RadicalRedSaveTests
 {
     private static readonly byte[] Fixture = File.ReadAllBytes(SaveFilePath.RadicalRed);
 
-    static RadicalRedSaveTests()
-    {
-        SaveFormats.Register(new UnboundFormat());
-        SaveFormats.Register(new RadicalRedFormat());
-    }
-
     private static string Load(Session session, byte[] bytes, string? formatId) =>
         Dispatch(session, "game.load", Args(Convert.ToBase64String(bytes), "radicalred.sav", formatId!));
 

@@ -14,10 +14,16 @@ public class DraftHandlerTests
     private const string LevelUp = "PKHeX.Everywhere.Engine.Tests.PlugIn.LevelUp";
     private static readonly PokemonHandle Draft = PokemonHandle.Draft();
 
-    public static TheoryData<string, bool> SavesAndSlots()
+    public static TheoryData<string, bool> SavesAndSlots() => SavesAndSlotsOf(new SupportedSaveFilesAttribute());
+
+    // A hack Pokémon's file is in the hack's format, which PKHeX can't read back.
+    public static TheoryData<string, bool> SavesAndSlotsWithPKHeXFiles() =>
+        SavesAndSlotsOf(new SupportedSaveFilesAttribute { Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed] });
+
+    private static TheoryData<string, bool> SavesAndSlotsOf(SupportedSaveFilesAttribute saves)
     {
         var data = new TheoryData<string, bool>();
-        foreach (var saveFile in new SupportedSaveFilesAttribute().GetData(null!).Select(d => (string)d[0]))
+        foreach (var saveFile in saves.GetData(null!).Select(d => (string)d[0]))
         {
             data.Add(saveFile, false);
             data.Add(saveFile, true);
@@ -152,7 +158,7 @@ public class DraftHandlerTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed])] // the hacks don't support Legality
     public void DetailsReturnsNicknameLevelAndLegality(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -334,7 +340,7 @@ public class DraftHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(SavesAndSlots))]
+    [MemberData(nameof(SavesAndSlotsWithPKHeXFiles))]
     public void ExportReturnsTheDraftWithUnsavedEdits(string saveFile, bool inBox)
     {
         var session = Loaded(saveFile);

@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PKHeX.Facade\PKHeX.Facade.csproj" />
+    <ProjectReference Include="..\PKHeX.Everywhere.RomHacks\PKHeX.Everywhere.RomHacks.csproj" />
   </ItemGroup>
 
 </Project>

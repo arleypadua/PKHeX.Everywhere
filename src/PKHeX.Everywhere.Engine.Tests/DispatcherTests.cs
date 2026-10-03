@@ -15,7 +15,7 @@ public class DispatcherTests
     [SupportedSaveFiles]
     public void PartyGetReturnsTheLoadedParty(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var session = new Session();
         session.Load(game, saveFile);
 

@@ -14,7 +14,7 @@ namespace PKHeX.Everywhere.Engine.Tests;
 public class InventoryHandlerTests
 {
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed])] // the Engine lists the hacks' unknown items with id 0
     public void GetReturnsEveryPouchOfTheSave(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -34,7 +34,7 @@ public class InventoryHandlerTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed])] // the Engine lists the hacks' unknown items with id 0
     public void GetLeavesOutEmptySlotsAndOwnedItemsFromAddable(string saveFile)
     {
         var pouches = Value(Dispatch(Loaded(saveFile), "inventory.get", "[]"))!.AsArray();

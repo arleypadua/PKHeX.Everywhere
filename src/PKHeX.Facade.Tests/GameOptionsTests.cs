@@ -12,7 +12,7 @@ public class GameOptionsTests
     [InlineData(SaveFilePath.HgSs, 25)]
     [InlineData(SaveFilePath.LetsGoPikachu, 25)]
     public void NaturesExistFromGenerationThree(string saveFile, int count) =>
-        Game.LoadFrom(saveFile).Options.Natures.Should().HaveCount(count);
+        SaveFilePath.Load(saveFile).Options.Natures.Should().HaveCount(count);
 
     [Theory]
     [InlineData(SaveFilePath.Crystal, 0)]
@@ -20,7 +20,7 @@ public class GameOptionsTests
     [InlineData(SaveFilePath.HgSs, 24)]
     public void BallsAreTheOnesTheSaveCanStore(string saveFile, int count)
     {
-        var balls = Game.LoadFrom(saveFile).Options.Balls;
+        var balls = SaveFilePath.Load(saveFile).Options.Balls;
 
         balls.Should().HaveCount(count);
         balls.Select(b => b.Id).Should().NotContain(0);
@@ -32,7 +32,7 @@ public class GameOptionsTests
     [InlineData(SaveFilePath.HgSs, true, true)]
     public void LanguagesAreTheOnesTheGenerationKnows(string saveFile, bool english, bool korean)
     {
-        var languages = Game.LoadFrom(saveFile).Options.Languages.Select(l => (LanguageID)l.Id).ToList();
+        var languages = SaveFilePath.Load(saveFile).Options.Languages.Select(l => (LanguageID)l.Id).ToList();
 
         languages.Contains(LanguageID.English).Should().Be(english);
         languages.Contains(LanguageID.Korean).Should().Be(korean);
@@ -42,7 +42,7 @@ public class GameOptionsTests
     [SupportedSaveFiles]
     public void HeldItemsIncludeNoItemAndTheItemsPartyPokemonHold(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
 
         var heldItems = game.Options.HeldItems.Select(i => i.Id).ToList();
 

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
+using PKHeX.Facade.Tests.Base;
 using Pokemon = PKHeX.Facade.Pokemons.Pokemon;
 
 namespace PKHeX.Everywhere.Engine.Tests;
@@ -10,7 +11,7 @@ internal static class EngineCalls
     internal static Session Loaded(string saveFile)
     {
         var session = new Session();
-        session.Load(Game.LoadFrom(saveFile), saveFile);
+        session.Load(SaveFilePath.Load(saveFile), saveFile);
         return session;
     }
 
@@ -56,7 +57,10 @@ internal static class EngineCalls
         .FirstOrDefault();
 
     internal static ItemHandle? OwnedItem(Game game) => game.Trainer.Inventories.InventoryItems.Values
-        .SelectMany(inventory => inventory.AllExceptNone().Select(item => new ItemHandle(inventory.Type, item.Id)))
+        .OrderBy(inventory => inventory.Type, StringComparer.Ordinal)
+        .SelectMany(inventory => inventory.AllExceptNone()
+            .Where(item => inventory.Supports(item.Definition))
+            .Select(item => new ItemHandle(inventory.Type, item.Id)))
         .FirstOrDefault();
 
     internal static string Args(params object[] args) => JsonSerializer.Serialize(args.Select(Arg));
