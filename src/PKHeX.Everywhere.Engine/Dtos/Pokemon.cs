@@ -192,10 +192,11 @@ public record HiddenPower(string Type, int? Power);
 /// <summary>
 /// One of a Pokémon's four move slots.
 /// </summary>
-/// <param name="Id">PKHeX move id. 0 means the slot is empty.</param>
+/// <param name="Id">PKHeX move id, or the save's own id for an unknown move. 0 means the slot is empty.</param>
 /// <param name="Pp">Current PP.</param>
 /// <param name="MaxPp">Maximum PP, including PP Ups.</param>
-public record MoveSlot(int Id, string Name, int Pp, int MaxPp);
+/// <param name="IsUnknown">The slot holds a move PKHeX has no id for, such as a ROM hack's own move, named like <c>Unknown move #90</c>. Its <c>id</c> can only stay in this slot, and the slot can be set to another move or to 0.</param>
+public record MoveSlot(int Id, string Name, int Pp, int MaxPp, bool IsUnknown);
 
 /// <summary>
 /// Changes to apply with <c>pokemon.update()</c>. Missing or null fields stay as they are. If any field is invalid, the update fails with <c>invalid-patch</c> and nothing changes.
@@ -358,7 +359,7 @@ public static class PokemonMapping
         details.HiddenPower is { } hiddenPower ? new HiddenPower(hiddenPower.Type, hiddenPower.Power) : null,
         details.CombatPower,
         details.CalculatedCombatPower,
-        details.Moves.Select(move => new MoveSlot(move.Id, move.Name, move.Pp, move.MaxPp)).ToArray(),
+        details.Moves.Select(move => new MoveSlot(move.Id, move.Name, move.Pp, move.MaxPp, move.IsUnknown)).ToArray(),
         details.Legality is { } legality ? new Legality(legality.Valid, legality.Messages.ToArray()) : null);
 
     public static Facade.Pokemons.PokemonPatch ToFacade(this PokemonPatch patch) => new(

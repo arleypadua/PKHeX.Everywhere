@@ -46,7 +46,10 @@ public record PokemonDetails(
 
 public record StatValues(int Health, int Attack, int Defense, int SpecialAttack, int SpecialDefense, int Speed);
 
-public record MoveSlot(int Id, string Name, int Pp, int MaxPp);
+public record MoveSlot(int Id, string Name, int Pp, int MaxPp)
+{
+    public bool IsUnknown { get; init; }
+}
 
 public record PokemonLegality(bool Valid, IReadOnlyList<string> Messages);
 

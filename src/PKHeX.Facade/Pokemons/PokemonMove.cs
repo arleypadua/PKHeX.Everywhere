@@ -1,4 +1,5 @@
 using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade.Pokemons;
@@ -7,13 +8,17 @@ public class PokemonMove(
     PKM pokemon,
     PokemonMove.MoveIndex moveIndex)
 {
+    private readonly IGameDataSource? _data;
+
+    internal PokemonMove(PKM pokemon, MoveIndex moveIndex, IGameDataSource data) : this(pokemon, moveIndex) => _data = data;
+
     public MoveDefinition Move =>
         moveIndex switch
         {
-            MoveIndex.Move1 => MoveRepository.Instance.GetMove(pokemon.Move1),
-            MoveIndex.Move2 => MoveRepository.Instance.GetMove(pokemon.Move2),
-            MoveIndex.Move3 => MoveRepository.Instance.GetMove(pokemon.Move3),
-            MoveIndex.Move4 => MoveRepository.Instance.GetMove(pokemon.Move4),
+            MoveIndex.Move1 => MoveRepository.Instance.GetMove(pokemon.Move1, _data),
+            MoveIndex.Move2 => MoveRepository.Instance.GetMove(pokemon.Move2, _data),
+            MoveIndex.Move3 => MoveRepository.Instance.GetMove(pokemon.Move3, _data),
+            MoveIndex.Move4 => MoveRepository.Instance.GetMove(pokemon.Move4, _data),
             _ => throw new ArgumentOutOfRangeException()
         };
 

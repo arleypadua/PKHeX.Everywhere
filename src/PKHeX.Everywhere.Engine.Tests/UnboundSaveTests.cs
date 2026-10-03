@@ -97,6 +97,23 @@ public class UnboundSaveTests
     }
 
     [Fact]
+    public void AMoveSlotHoldingAnUnmappedMoveIsUnknown()
+    {
+        const ushort unmappedMove = 90;
+        var session = LoadedUnbound(FixtureWith(save =>
+        {
+            var latias = (CfruPokemon)save.GetPartySlotAtIndex(0);
+            latias.SetMoveIndex(3, unmappedMove);
+            save.SetPartySlotAtIndex(latias, 0);
+        }));
+
+        var moves = Details(session, PokemonHandle.Party(0))["moves"]!.AsArray();
+
+        moves.Select(move => move!["isUnknown"]!.GetValue<bool>()).Should().Equal(false, false, false, true);
+        moves[3]!["name"]!.GetValue<string>().Should().Be($"Unknown move #{unmappedMove}");
+    }
+
+    [Fact]
     public void ExportingWithoutEditsKeepsEveryByte() =>
         Exported(LoadedUnbound()).Should().Equal(Fixture);
 

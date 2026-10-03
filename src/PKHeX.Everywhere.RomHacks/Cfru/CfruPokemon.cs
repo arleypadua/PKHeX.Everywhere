@@ -206,16 +206,20 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
         }
     }
 
-    public override ushort Move1 { get => ReadMove(0x2C); set => WriteMove(0x2C, value); }
-    public override ushort Move2 { get => ReadMove(0x2E); set => WriteMove(0x2E, value); }
-    public override ushort Move3 { get => ReadMove(0x30); set => WriteMove(0x30, value); }
-    public override ushort Move4 { get => ReadMove(0x32); set => WriteMove(0x32, value); }
+    public override ushort Move1 { get => ReadMove(0); set => WriteMove(0, value); }
+    public override ushort Move2 { get => ReadMove(1); set => WriteMove(1, value); }
+    public override ushort Move3 { get => ReadMove(2); set => WriteMove(2, value); }
+    public override ushort Move4 { get => ReadMove(3); set => WriteMove(3, value); }
 
-    private ushort ReadMove(int offset) => CfruMoves.ToNational(ReadUInt16LittleEndian(Data[offset..]));
+    public ushort GetMoveIndex(int slot) => ReadUInt16LittleEndian(Data[(0x2C + (slot * 2))..]);
+    public void SetMoveIndex(int slot, ushort index) => WriteUInt16LittleEndian(Data[(0x2C + (slot * 2))..], index);
 
-    private void WriteMove(int offset, ushort move)
+    private ushort ReadMove(int slot) => CfruMoves.ToNational(GetMoveIndex(slot));
+
+    // Like the held item, writing back the move already shown keeps an index outside the move table.
+    private void WriteMove(int slot, ushort move)
     {
-        if (move != ReadMove(offset) && CfruMoves.ToIndex(move) is { } index) WriteUInt16LittleEndian(Data[offset..], index);
+        if (move != ReadMove(slot) && CfruMoves.ToIndex(move) is { } index) SetMoveIndex(slot, index);
     }
 
     public override int Move1_PP { get => Data[0x34]; set => Data[0x34] = (byte)value; }

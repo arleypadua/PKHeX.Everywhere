@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { Checkbox, Descriptions, Flex, Grid } from 'antd'
-import { draftHandle, type Choice, type MoveSlot } from '@pkhex-everywhere/engine'
+import { draftHandle } from '@pkhex-everywhere/engine'
 import { useQuery } from '@pkhex-everywhere/react'
 import { ChoiceSelect } from './ChoiceSelect'
+import { moveChoices } from './moveChoices'
 import { useDraft } from './useDraft'
-
-const none: Choice = { id: 0, name: '(None)' }
 
 export function MovesTab() {
   const { details, submit } = useDraft()
@@ -14,9 +13,7 @@ export function MovesTab() {
   const [showAllMoves, setShowAllMoves] = useState(false)
   const layout = Grid.useBreakpoint().sm ? 'horizontal' : 'vertical'
 
-  const assigned = new Set(details.moves.map((move) => move.id).filter((id) => id !== none.id))
-  const available = (showAllMoves ? allMoves : options.moves).filter((move) => !assigned.has(move.id))
-  const choicesFor = (slot: MoveSlot) => [...(slot.id === none.id ? [] : [slot]), ...available, none]
+  const choicesFor = moveChoices(details.moves, showAllMoves ? allMoves : options.moves)
 
   const change = (index: number, id: number) =>
     submit({ moves: details.moves.map((move, i) => (i === index ? id : move.id)) })

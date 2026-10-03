@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Extensions;
 using PKHeX.Facade.Pokemons;
 
@@ -18,8 +19,12 @@ public class MoveRepository
             .ToDictionary(x => Convert.ToUInt16(x.id), x => new MoveDefinition(Convert.ToUInt16(x.id), x.moveName));
     }
 
-    public MoveDefinition GetMove(ushort id) =>
-        _moves.TryGetValue(id, out var move) ? move : new MoveDefinition(id, $"Unknown ({id})");
+    public MoveDefinition GetMove(ushort id) => GetMove(id, null);
+
+    internal MoveDefinition GetMove(ushort id, IGameDataSource? data) =>
+        _moves.TryGetValue(id, out var move) ? move
+        : data?.NameOf(GameDataKind.Move, id) is { } name ? new MoveDefinition(id, name) { IsUnknown = true }
+        : new MoveDefinition(id, $"Unknown ({id})");
 
     public List<MoveDefinition> AllMovesFor(Game game) =>
         game.Options.Moves.Select(m => GetMove((ushort)m.Id)).ToList();
@@ -54,6 +59,8 @@ public class MoveRepository
 public record MoveDefinition(ushort Id, string Name)
 {
     public static readonly MoveDefinition None = new((ushort)Move.None, $"({Move.None})");
+
+    public bool IsUnknown { get; init; }
 
     public virtual bool Equals(MoveDefinition? other)
     {

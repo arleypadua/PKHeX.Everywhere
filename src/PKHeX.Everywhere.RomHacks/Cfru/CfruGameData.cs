@@ -59,7 +59,7 @@ internal sealed class CfruGameData : IGameDataSource
     public IReadOnlyList<Choice> MetLocations(GameVersion origin, bool egg = false) =>
         _fireRedMetLocations ? FireRed.MetLocations(GameVersion.FR, egg) : NumberedLocations;
 
-    public string? NameOf(GameDataKind kind, int id) => null;
+    public string? NameOf(GameDataKind kind, int id) => kind == GameDataKind.Move ? CfruMoves.NameOf(id) : null;
 
     public IReadOnlySet<PokemonField> Locked { get; }
 
