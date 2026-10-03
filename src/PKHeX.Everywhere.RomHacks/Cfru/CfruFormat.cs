@@ -13,6 +13,10 @@ public abstract class CfruFormat : ISaveFormat
     public GameVersion BaseGame => GameVersion.FR;
     public IReadOnlySet<Capability> Capabilities => FrozenSet<Capability>.Empty;
 
+    protected abstract bool FireRedMetLocations { get; }
+
+    public IGameDataSource GameData(SaveFile save) => new CfruGameData((CfruSave)save, FireRedMetLocations);
+
     public abstract SaveFormatMatch Detect(ReadOnlySpan<byte> data);
     public abstract SaveFile Load(byte[] data);
 }

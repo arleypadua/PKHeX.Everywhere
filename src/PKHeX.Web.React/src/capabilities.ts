@@ -9,5 +9,5 @@ export function gameName(game: SaveSummary): string {
 }
 
 export function statsAreApproximate(game: SaveSummary | null): boolean {
-  return !!game?.format
+  return game?.statsApproximate ?? false
 }

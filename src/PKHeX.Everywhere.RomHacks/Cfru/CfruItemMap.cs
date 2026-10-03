@@ -30,6 +30,8 @@ public sealed class CfruItemMap
 
     public ushort[] HeldItems { get; }
 
+    public IEnumerable<ushort> Items => _indexByModern.Keys;
+
     public CfruItemStorage Pockets { get; }
 
     public ushort ToModern(ushort index) => index < _modernByIndex.Length ? _modernByIndex[index] : (ushort)0;

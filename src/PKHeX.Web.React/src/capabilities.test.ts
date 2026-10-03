@@ -9,6 +9,7 @@ const emerald: SaveSummary = {
   hasEvents: true,
   format: null,
   capabilities: ['legality', 'autoLegality', 'encounters', 'showdown', 'events', 'plugIns'],
+  statsApproximate: false,
 }
 
 const unbound: SaveSummary = {
@@ -18,6 +19,7 @@ const unbound: SaveSummary = {
   hasEvents: false,
   format: { id: 'unbound', name: 'Pokémon Unbound', baseGame: 'FireRed', baseGameId: 5 },
   capabilities: [],
+  statsApproximate: true,
 }
 
 describe('supports', () => {
@@ -42,12 +44,16 @@ describe('gameName', () => {
 })
 
 describe('statsAreApproximate', () => {
-  it('is true for a save format, whose stats come from vanilla base stats', () => {
+  it('follows the save', () => {
     expect(statsAreApproximate(unbound)).toBe(true)
+    expect(statsAreApproximate(emerald)).toBe(false)
   })
 
-  it('is false for a vanilla save or no save', () => {
-    expect(statsAreApproximate(emerald)).toBe(false)
+  it('is false without a save', () => {
     expect(statsAreApproximate(null)).toBe(false)
+  })
+
+  it('does not follow the save format', () => {
+    expect(statsAreApproximate({ ...unbound, statsApproximate: false })).toBe(false)
   })
 })

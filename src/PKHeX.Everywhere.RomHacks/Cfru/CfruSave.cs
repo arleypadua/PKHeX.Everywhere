@@ -1,5 +1,4 @@
 using PKHeX.Core;
-using PKHeX.Facade.Abstractions;
 using static System.Buffers.Binary.BinaryPrimitives;
 
 namespace PKHeX.Everywhere.RomHacks.Cfru;
@@ -8,7 +7,7 @@ namespace PKHeX.Everywhere.RomHacks.Cfru;
 /// A save from a hack built on the Complete FireRed Upgrade. It copies the box stream into one buffer when loading,
 /// writes it back on export, and leaves every other byte as it was.
 /// </summary>
-public abstract class CfruSave : SaveFile, IMoveList
+public abstract class CfruSave : SaveFile
 {
     private const int SectorSize = 0x1000;
     private const int SectorCount = 14;
@@ -146,8 +145,8 @@ public abstract class CfruSave : SaveFile, IMoveList
     public override int Language { get => (int)LanguageID.English; set { } }
 
     public override IPersonalTable Personal => SpeciesMap.Personal;
-    protected abstract CfruSpeciesMap SpeciesMap { get; }
-    protected abstract CfruItemMap ItemMap { get; }
+    internal abstract CfruSpeciesMap SpeciesMap { get; }
+    internal abstract CfruItemMap ItemMap { get; }
 
     public override int MaxStringLengthTrainer => 7;
     public override int MaxStringLengthNickname => 10;
@@ -161,7 +160,6 @@ public abstract class CfruSave : SaveFile, IMoveList
     public override int MaxMoney => 999999;
     public override ReadOnlySpan<ushort> HeldItems => ItemMap.HeldItems;
     public override CfruBag Inventory => new(Data, BlockOffset(13), BlockOffset(30), ItemMap);
-    public IReadOnlySet<ushort> Moves => CfruMoves.All;
 
     public override string GetString(ReadOnlySpan<byte> data) => StringConverter3.GetString(data, false);
     public override int LoadString(ReadOnlySpan<byte> data, Span<char> text) => StringConverter3.LoadString(data, text, false);

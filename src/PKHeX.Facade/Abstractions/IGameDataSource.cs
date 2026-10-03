@@ -31,6 +31,11 @@ public interface IGameDataSource
     /// The Pokémon fields the save can't change.
     /// </summary>
     IReadOnlySet<PokemonField> Locked { get; }
+
+    /// <summary>
+    /// Whether computed stats may differ from the game's, because they use base stats the game may change.
+    /// </summary>
+    bool StatsApproximate { get; }
 }
 
 public enum GameDataKind

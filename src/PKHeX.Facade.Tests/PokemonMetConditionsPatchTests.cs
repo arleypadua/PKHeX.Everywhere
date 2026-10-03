@@ -70,6 +70,16 @@ public class PokemonMetConditionsPatchTests
     }
 
     [Fact]
+    public void ChangingTheOriginGameToGoResetsTheMetLocationToGoPark()
+    {
+        var pokemon = Game.LoadFrom(SaveFilePath.LetsGoPikachu).Trainer.Party.Pokemons[0];
+
+        pokemon.Update(new PokemonPatch(Version: (int)GameVersion.GO));
+
+        pokemon.Details().MetLocation.Should().Be(Locations.GO8);
+    }
+
+    [Fact]
     public void AppliesTheOriginGameBeforeTheMetLocation()
     {
         var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Pkm.Version is GameVersion.HG or GameVersion.SS);

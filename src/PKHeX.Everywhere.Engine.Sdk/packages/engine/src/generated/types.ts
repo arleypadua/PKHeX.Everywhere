@@ -717,6 +717,8 @@ export interface SaveSummary {
   format: SaveFormat | null
   /** What the save supports. A save from PKHeX supports all of them. Calls behind a capability that's missing fail with `not-supported`. */
   capabilities: SaveCapability[]
+  /** Whether computed stats may differ from the game's. ROM hacks use the official games' base stats, which the hack may change. */
+  statsApproximate: boolean
 }
 
 /** The loaded save's game and generation, returned by `game.version`. */
