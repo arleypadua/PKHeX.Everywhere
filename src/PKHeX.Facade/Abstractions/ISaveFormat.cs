@@ -9,6 +9,8 @@ public interface ISaveFormat
     GameVersion BaseGame { get; }
     IReadOnlySet<Capability> Capabilities { get; }
 
+    IGameDataSource GameData(SaveFile save) => new PKHeXGameData(save);
+
     SaveFormatMatch Detect(ReadOnlySpan<byte> data);
     SaveFile Load(byte[] data);
 }

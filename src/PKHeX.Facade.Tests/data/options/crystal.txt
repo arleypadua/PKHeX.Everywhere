@@ -13,28 +13,34 @@ party/0/abilities 0 e3b0c44298fc1c14
 party/0/forms 0 e3b0c44298fc1c14
 party/0/metLocations 98 9934433345103636
 party/0/moves 12 11e60d8dc40acd01
+party/0/locked
 party/1/species 2 b196ca6d7a8b130d
 party/1/abilities 0 e3b0c44298fc1c14
 party/1/forms 0 e3b0c44298fc1c14
 party/1/metLocations 98 9934433345103636
 party/1/moves 6 d296144fa7b1636a
+party/1/locked
 party/2/species 1 e100b9124ce32d67
 party/2/abilities 0 e3b0c44298fc1c14
 party/2/forms 0 e3b0c44298fc1c14
 party/2/metLocations 98 9934433345103636
 party/2/moves 8 7797f61515eb81a3
+party/2/locked
 party/3/species 2 dd7e49664b9c1730
 party/3/abilities 0 e3b0c44298fc1c14
 party/3/forms 0 e3b0c44298fc1c14
 party/3/metLocations 98 9934433345103636
 party/3/moves 9 014b731a0d4309fe
+party/3/locked
 party/4/species 2 eccb40e68680bb44
 party/4/abilities 0 e3b0c44298fc1c14
 party/4/forms 0 e3b0c44298fc1c14
 party/4/metLocations 98 9934433345103636
 party/4/moves 6 f1c1a0fcb97f9629
+party/4/locked
 party/5/species 3 20d8c13760538897
 party/5/abilities 0 e3b0c44298fc1c14
 party/5/forms 0 e3b0c44298fc1c14
 party/5/metLocations 98 9934433345103636
 party/5/moves 5 89970dcc4e536e47
+party/5/locked

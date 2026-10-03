@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 
 namespace PKHeX.Facade.Repositories;
 
@@ -11,12 +12,9 @@ public class SpeciesRepository
     internal SpeciesRepository(Game game)
     {
         _game = game;
-        var saveSpecificDataSource = new FilteredGameDataSource(game.SaveFile, GameInfo.Sources);
-        _species = saveSpecificDataSource.Species
-            .Where(species => game.SaveFile.Personal.IsSpeciesInGame((ushort)species.Value))
-            .ToImmutableDictionary(
-                k => (Species)k.Value,
-                v => new SpeciesDefinition((Species)v.Value, v.Text));
+        _species = game.GameData.Species.ToImmutableDictionary(
+            k => (Species)k.Id,
+            v => new SpeciesDefinition((Species)v.Id, v.Name));
     }
 
     public IEnumerable<SpeciesDefinition> AllGameSpecies => _species.Values;
@@ -27,7 +25,7 @@ public class SpeciesRepository
         return _species.TryGetValue(species, out var definition)
             || All.TryGetValue(species, out definition)
             ? definition
-            : new SpeciesDefinition(species, $"Unknown ({(int)species})");
+            : new SpeciesDefinition(species, _game.GameData.NameOf(GameDataKind.Species, (int)species) ?? $"Unknown ({(int)species})");
     }
 
     public IImmutableList<SpeciesDefinition> GetEvolutionsFrom(SpeciesDefinition definition, byte form = 0) =>
@@ -35,7 +33,7 @@ public class SpeciesRepository
             .GetEvolutionTree(_game.Generation)
             .GetEvolutionsAndPreEvolutions(definition.ShortId, form)
             .Select(result => All[(Species)result.Species])
-            .Where(species => _game.IsAwareOf(species, form))
+            .Where(species => _species.ContainsKey(species) && _game.IsAwareOf(species, form))
             .ToImmutableList();
 
     public static IImmutableDictionary<Species, SpeciesDefinition> All = GameInfo.Sources

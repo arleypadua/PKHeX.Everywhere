@@ -1,1 +1,45 @@
 #nullable enable
+PKHeX.Facade.Abstractions.GameDataKind
+PKHeX.Facade.Abstractions.GameDataKind.Ball = 5 -> PKHeX.Facade.Abstractions.GameDataKind
+PKHeX.Facade.Abstractions.GameDataKind.HeldItem = 2 -> PKHeX.Facade.Abstractions.GameDataKind
+PKHeX.Facade.Abstractions.GameDataKind.Item = 1 -> PKHeX.Facade.Abstractions.GameDataKind
+PKHeX.Facade.Abstractions.GameDataKind.Language = 7 -> PKHeX.Facade.Abstractions.GameDataKind
+PKHeX.Facade.Abstractions.GameDataKind.MetLocation = 4 -> PKHeX.Facade.Abstractions.GameDataKind
+PKHeX.Facade.Abstractions.GameDataKind.Move = 3 -> PKHeX.Facade.Abstractions.GameDataKind
+PKHeX.Facade.Abstractions.GameDataKind.Nature = 6 -> PKHeX.Facade.Abstractions.GameDataKind
+PKHeX.Facade.Abstractions.GameDataKind.OriginGame = 8 -> PKHeX.Facade.Abstractions.GameDataKind
+PKHeX.Facade.Abstractions.GameDataKind.Species = 0 -> PKHeX.Facade.Abstractions.GameDataKind
+PKHeX.Facade.Abstractions.IGameDataSource
+PKHeX.Facade.Abstractions.IGameDataSource.Balls.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Abstractions.IGameDataSource.HeldItems.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Abstractions.IGameDataSource.Items.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Abstractions.IGameDataSource.Languages.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Abstractions.IGameDataSource.Locked.get -> System.Collections.Generic.IReadOnlySet<PKHeX.Facade.Pokemons.PokemonField>!
+PKHeX.Facade.Abstractions.IGameDataSource.MetLocations(PKHeX.Core.GameVersion origin, bool egg = false) -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Abstractions.IGameDataSource.Moves.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Abstractions.IGameDataSource.NameOf(PKHeX.Facade.Abstractions.GameDataKind kind, int id) -> string?
+PKHeX.Facade.Abstractions.IGameDataSource.Natures.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Abstractions.IGameDataSource.OriginGames.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Abstractions.IGameDataSource.Species.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Abstractions.ISaveFormat.GameData(PKHeX.Core.SaveFile! save) -> PKHeX.Facade.Abstractions.IGameDataSource!
+PKHeX.Facade.Game.GameData.get -> PKHeX.Facade.Abstractions.IGameDataSource!
+PKHeX.Facade.PKHeXGameData
+PKHeX.Facade.PKHeXGameData.PKHeXGameData(PKHeX.Core.SaveFile! save) -> void
+PKHeX.Facade.Pokemons.PokemonField
+PKHeX.Facade.Pokemons.PokemonField.Ability = 2 -> PKHeX.Facade.Pokemons.PokemonField
+PKHeX.Facade.Pokemons.PokemonField.Gender = 0 -> PKHeX.Facade.Pokemons.PokemonField
+PKHeX.Facade.Pokemons.PokemonField.MetLocation = 3 -> PKHeX.Facade.Pokemons.PokemonField
+PKHeX.Facade.Pokemons.PokemonField.Nature = 1 -> PKHeX.Facade.Pokemons.PokemonField
+PKHeX.Facade.Pokemons.PokemonOptions.Locked.get -> System.Collections.Generic.IReadOnlySet<PKHeX.Facade.Pokemons.PokemonField>!
+PKHeX.Facade.Pokemons.PokemonOptions.Locked.init -> void
+virtual PKHeX.Facade.PKHeXGameData.Balls.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+virtual PKHeX.Facade.PKHeXGameData.HeldItems.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+virtual PKHeX.Facade.PKHeXGameData.Items.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+virtual PKHeX.Facade.PKHeXGameData.Languages.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+virtual PKHeX.Facade.PKHeXGameData.Locked.get -> System.Collections.Generic.IReadOnlySet<PKHeX.Facade.Pokemons.PokemonField>!
+virtual PKHeX.Facade.PKHeXGameData.MetLocations(PKHeX.Core.GameVersion origin, bool egg = false) -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+virtual PKHeX.Facade.PKHeXGameData.Moves.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+virtual PKHeX.Facade.PKHeXGameData.NameOf(PKHeX.Facade.Abstractions.GameDataKind kind, int id) -> string?
+virtual PKHeX.Facade.PKHeXGameData.Natures.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+virtual PKHeX.Facade.PKHeXGameData.OriginGames.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+virtual PKHeX.Facade.PKHeXGameData.Species.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!

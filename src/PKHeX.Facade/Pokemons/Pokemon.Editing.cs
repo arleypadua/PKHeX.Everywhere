@@ -49,7 +49,10 @@ public partial class Pokemon
         Moves.Values.Select(move => new MoveSlot(move.Move.Id, move.Move.Name, move.PP.Current, move.PP.Max)).ToArray(),
         Game.Supports(Capability.Legality) ? this.LegalityReport() : null);
 
-    public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices());
+    public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices())
+    {
+        Locked = Game.GameData.Locked,
+    };
 
     /// <summary>
     /// Applies the patch in a fixed order, species before form before ability and origin game before met location and stat inputs before combat power, so each field is checked against the ones before it.
@@ -65,6 +68,7 @@ public partial class Pokemon
 
     private void Apply(PokemonPatch patch)
     {
+        RequireUnlocked(patch);
         if (patch.Species is { } species) ApplySpecies(species);
         if (patch.Form is { } form) ApplyForm(form);
         if (patch.Gender is { } gender) ApplyGender(gender);
@@ -99,6 +103,22 @@ public partial class Pokemon
         var statInputsChanged = patch is { Ivs: not null } or { Evs: not null } or { Avs: not null };
         if (statInputsChanged && Pkm is ICombatPower combatPower) combatPower.ResetCP();
         if (patch.CombatPower is { } cp) ApplyCombatPower(cp);
+    }
+
+    private void RequireUnlocked(PokemonPatch patch)
+    {
+        foreach (var field in Game.GameData.Locked)
+        {
+            var (changes, label) = field switch
+            {
+                PokemonField.Gender => (patch.Gender is { } gender && gender.ToByte() != Pkm.Gender, "Gender"),
+                PokemonField.Nature => (patch.Nature is { } nature && nature != (int)Pkm.Nature, "Nature"),
+                PokemonField.Ability => (patch.Ability is { } ability && ability != Pkm.Ability, "Ability"),
+                PokemonField.MetLocation => (patch.MetLocation is { } metLocation && metLocation != Pkm.MetLocation, "Met location"),
+                _ => (false, field.ToString()),
+            };
+            Require(!changes, field.ToString(), $"{label} can't change in this game.");
+        }
     }
 
     private void ApplySpecies(int id)
@@ -365,30 +385,20 @@ public partial class Pokemon
             .ToArray();
     }
 
-    private Choice[] MoveChoices() => MoveRepository.Instance.PossibleMovesFor(this)
-        .Where(move => Game.SaveFile is not IMoveList list || list.Moves.Contains(move.Id))
-        .Select(move => new Choice(move.Id, move.Name))
-        .ToArray();
+    private Choice[] MoveChoices()
+    {
+        var storable = Game.GameData.Moves.Select(move => move.Id).ToHashSet();
+        return MoveRepository.Instance.PossibleMovesFor(this)
+            .Where(move => storable.Contains(move.Id))
+            .Select(move => new Choice(move.Id, move.Name))
+            .ToArray();
+    }
 
     private Choice[] FormChoices() => Form.HasForm
         ? FormRepository.GetFor(Pkm).Select(form => new Choice(form.Id, form.Name)).ToArray()
         : [];
 
-    private Choice[] MetLocationChoices() => Pkm.Format <= 1
-        ? []
-        : GameInfo.GetLocationList(MetLocationVersion(), Pkm.Context)
-            .DistinctBy(location => location.Value)
-            .Select(location => new Choice(location.Value, location.Text))
-            .ToArray();
+    private IReadOnlyList<Choice> MetLocationChoices() => Game.GameData.MetLocations(Pkm.Version);
 
-    // Mirrors PKHeX's editor: an origin game without its own location list borrows the save's, then the format's.
-    private GameVersion MetLocationVersion()
-    {
-        if (GameUtil.GetMetLocationVersionGroup(Pkm.Version) is not GameVersion.Invalid) return Pkm.Version;
-
-        var version = Game.SaveFile.Version;
-        return GameUtil.GetMetLocationVersionGroup(version) is GameVersion.Invalid || version is GameVersion.Any
-            ? Pkm.Context.GetSingleGameVersion()
-            : version;
-    }
+    private GameVersion MetLocationVersion() => PKHeXGameData.MetLocationVersion(Pkm.Version, Game.SaveFile);
 }

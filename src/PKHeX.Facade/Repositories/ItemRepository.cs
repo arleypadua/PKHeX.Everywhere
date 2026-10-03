@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 
 namespace PKHeX.Facade.Repositories;
 
@@ -13,25 +14,22 @@ public class ItemRepository
         .Select((itemName, id) => (id: Convert.ToUInt16(id), itemName))
         .ToDictionary(x => Convert.ToUInt16(x.id), x => new ItemDefinition(Convert.ToUInt16(x.id), x.itemName));
     
+    private readonly IGameDataSource _data;
     private readonly Dictionary<ushort, ItemDefinition> _gameItems;
 
-
-    public ItemRepository(SaveFile saveFile)
+    public ItemRepository(SaveFile saveFile) : this(new PKHeXGameData(saveFile))
     {
-        _gameItems = GameInfo.Strings.GetItemStrings(saveFile.Context, saveFile.Version)
-            .Select((itemName, id) => (id: Convert.ToUInt16(id), itemName))
-            .Where(x => !string.IsNullOrEmpty(x.itemName))
-            .ToDictionary(x => Convert.ToUInt16(x.id), x => new ItemDefinition(Convert.ToUInt16(x.id), x.itemName));
+    }
 
-        if (saveFile.Version == GameVersion.C)
-        {
-            // for whatever reason, Pokemon Crystal has this last item
-            _gameItems[255] = new ItemDefinition(255, "Collapsible bike");
-        }
+    internal ItemRepository(IGameDataSource data)
+    {
+        _data = data;
+        _gameItems = data.Items.ToDictionary(item => (ushort)item.Id, item => new ItemDefinition((ushort)item.Id, item.Name));
     }
 
     public ISet<ItemDefinition> GameItems => _gameItems.Values.ToHashSet();
-    public ItemDefinition GetGameItem(ushort id) => _gameItems.GetValueOrDefault(id) ?? ItemDefinition.Unknown(id);
+    public ItemDefinition GetGameItem(ushort id) => _gameItems.GetValueOrDefault(id)
+        ?? (_data.NameOf(GameDataKind.Item, id) is { } name ? new ItemDefinition(id, name) : ItemDefinition.Unknown(id));
     public ItemDefinition? GetGameItemByName(string name) => _gameItems.Values
         .FirstOrDefault(i => i.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 

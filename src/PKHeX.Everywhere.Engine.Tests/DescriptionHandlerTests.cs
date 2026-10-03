@@ -108,6 +108,20 @@ public class DescriptionHandlerTests
         options["moves"]!.ToJsonString().Should().Be(Serialized(expected.Moves));
     }
 
+    [Theory]
+    [InlineData(SaveFilePath.Emerald, new[] { "nature" })]
+    [InlineData(SaveFilePath.FireRed, new[] { "nature" })]
+    [InlineData(SaveFilePath.HgSs, new[] { "nature" })]
+    [InlineData(SaveFilePath.LetsGoPikachu, new string[0])]
+    [InlineData(SaveFilePath.LetsGoEevee, new string[0])]
+    public void OptionsLockTheNatureWhereItComesFromThePid(string saveFile, string[] locked)
+    {
+        var session = Loaded(saveFile);
+
+        foreach (var pokemon in session.Game!.Trainer.Party.Pokemons.Select((_, slot) => PokemonHandle.Party(slot)))
+            Options(session, pokemon)["locked"]!.AsArray().Select(field => field!.GetValue<string>()).Should().Equal(locked);
+    }
+
     [Fact]
     public void OptionsFollowTheDraftAfterAnUpdate()
     {

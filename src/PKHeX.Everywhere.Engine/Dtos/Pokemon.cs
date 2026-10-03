@@ -203,7 +203,7 @@ public record MoveSlot(int Id, string Name, int Pp, int MaxPp);
 /// </summary>
 /// <param name="Species">PKHeX species id. Must exist in the save's game.</param>
 /// <param name="Form">Form index. See <c>forms</c> in <c>pokemon.options()</c>.</param>
-/// <param name="Nature">PKHeX nature id from <c>game.natures()</c>. Rejected in games where the nature comes from the PID.</param>
+/// <param name="Nature">PKHeX nature id from <c>game.natures()</c>. Rejected when <c>locked</c> in <c>pokemon.options()</c> has <c>nature</c>.</param>
 /// <param name="Ability">PKHeX ability id. See <c>abilities</c> in <c>pokemon.options()</c>.</param>
 /// <param name="HeldItem">PKHeX item id from <c>game.heldItems()</c>.</param>
 /// <param name="Ball">PKHeX ball id from <c>game.balls()</c>.</param>
@@ -278,7 +278,19 @@ public record Choice(int Id, string Name);
 /// <param name="Forms">Empty when the species has no forms.</param>
 /// <param name="MetLocations">Locations of its origin game. Empty in Gen 1.</param>
 /// <param name="Moves">Moves it learns by level up at or below its current level, plus the legal moves it already knows, sorted by name.</param>
-public record PokemonOptions(Choice[] Species, Choice[] Abilities, Choice[] Forms, Choice[] MetLocations, Choice[] Moves);
+/// <param name="Locked">Fields the save can't change, such as <c>nature</c> in Gen 3 and 4, where it comes from the PID. Show them disabled. An update that changes one fails with <c>invalid-patch</c>.</param>
+public record PokemonOptions(Choice[] Species, Choice[] Abilities, Choice[] Forms, Choice[] MetLocations, Choice[] Moves, PokemonField[] Locked);
+
+/// <summary>
+/// A Pokémon field a save can lock, named as in <see cref="PokemonPatch"/>.
+/// </summary>
+public enum PokemonField
+{
+    Gender,
+    Nature,
+    Ability,
+    MetLocation,
+}
 
 /// <summary>
 /// A short description of a Pokémon, sent with events such as <c>pokemonAdded</c> and <c>pokemonSaved</c>.
@@ -416,7 +428,17 @@ public static class PokemonMapping
         options.Abilities.ToChoices(),
         options.Forms.ToChoices(),
         options.MetLocations.ToChoices(),
-        options.Moves.ToChoices());
+        options.Moves.ToChoices(),
+        options.Locked.Order().Select(ToDto).ToArray());
+
+    private static PokemonField ToDto(Facade.Pokemons.PokemonField field) => field switch
+    {
+        Facade.Pokemons.PokemonField.Gender => PokemonField.Gender,
+        Facade.Pokemons.PokemonField.Nature => PokemonField.Nature,
+        Facade.Pokemons.PokemonField.Ability => PokemonField.Ability,
+        Facade.Pokemons.PokemonField.MetLocation => PokemonField.MetLocation,
+        _ => throw new ArgumentOutOfRangeException(nameof(field), field, null),
+    };
 
     public static Choice[] ToChoices(this IEnumerable<Facade.Pokemons.Choice> choices) =>
         choices.Select(choice => new Choice(choice.Id, choice.Name)).ToArray();

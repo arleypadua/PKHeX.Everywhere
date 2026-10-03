@@ -516,6 +516,9 @@ export interface PokemonChanged {
   at: PokemonHandle
 }
 
+/** A Pokémon field a save can lock, named as in `PokemonPatch`. */
+export type PokemonField = 'gender' | 'nature' | 'ability' | 'metLocation'
+
 /** A Pokémon's form. */
 export interface PokemonForm {
   /** Form index within the species' forms. 0 is the default form. */
@@ -554,6 +557,8 @@ export interface PokemonOptions {
   metLocations: Choice[]
   /** Moves it learns by level up at or below its current level, plus the legal moves it already knows, sorted by name. */
   moves: Choice[]
+  /** Fields the save can't change, such as `nature` in Gen 3 and 4, where it comes from the PID. Show them disabled. An update that changes one fails with `invalid-patch`. */
+  locked: PokemonField[]
 }
 
 /** A short description of a Pokémon, sent with events such as `pokemonAdded` and `pokemonSaved`. */
@@ -575,7 +580,7 @@ export interface PokemonPatch {
   /** Form index. See `forms` in `pokemon.options()`. */
   form?: number | null
   gender?: PokemonGender | null
-  /** PKHeX nature id from `game.natures()`. Rejected in games where the nature comes from the PID. */
+  /** PKHeX nature id from `game.natures()`. Rejected when `locked` in `pokemon.options()` has `nature`. */
   nature?: number | null
   /** PKHeX ability id. See `abilities` in `pokemon.options()`. */
   ability?: number | null

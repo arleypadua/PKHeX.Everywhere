@@ -52,6 +52,7 @@ public class OptionListSnapshotTests
             lines.Add(Line($"party/{slot}/forms", options.Forms));
             lines.Add(Line($"party/{slot}/metLocations", options.MetLocations));
             lines.Add(Line($"party/{slot}/moves", options.Moves));
+            lines.Add($"party/{slot}/locked {string.Join(',', options.Locked.Order())}".TrimEnd());
         }
 
         return string.Join('\n', lines) + '\n';

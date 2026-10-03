@@ -6,10 +6,11 @@ originGames 0 e3b0c44298fc1c14
 moves 165 ea979903ac46e215
 species 152 79b261951d9369cf
 items 144 b931fc7a7f9f9d3c
-locations 221 580ac9b6dfed3b1c
-eggLocations 221 580ac9b6dfed3b1c
+locations 0 e3b0c44298fc1c14
+eggLocations 0 e3b0c44298fc1c14
 party/0/species 2 e500446b5ec39d9a
 party/0/abilities 0 e3b0c44298fc1c14
 party/0/forms 0 e3b0c44298fc1c14
 party/0/metLocations 0 e3b0c44298fc1c14
 party/0/moves 10 c648a1a269a0778f
+party/0/locked
