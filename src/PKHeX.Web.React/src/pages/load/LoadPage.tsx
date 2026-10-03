@@ -141,7 +141,7 @@ function OpenButton({ label, type, style, onOpen }: OpenButtonProps) {
   return (
     <>
       {showRomHacksBadge(new Date()) ? (
-        <Badge count="New" size="small" color="blue">
+        <Badge count="New" size="small" color="blue" style={{ display: 'flex', flexDirection: 'column' }}>
           {buttons}
         </Badge>
       ) : (
