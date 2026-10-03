@@ -120,14 +120,18 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
 
     private CfruSpecies National => SpeciesMap.ToNational(SpeciesIndex);
 
+    private void WriteSpeciesIndex(ushort? index)
+    {
+        if (index is { } value) SpeciesIndex = value;
+    }
+
     // Writing back the species already shown keeps the raw index, so unmapped and duplicate indices survive an edit elsewhere.
     public override ushort Species
     {
         get => National.Species;
         set
         {
-            if (value != Species && (SpeciesMap.ToIndex(National with { Species = value, Form = 0 }) ?? SpeciesMap.ToIndex(value)) is { } index)
-                SpeciesIndex = index;
+            if (value != Species) WriteSpeciesIndex(SpeciesMap.ToIndex(National with { Species = value, Form = 0 }) ?? SpeciesMap.ToIndex(value));
         }
     }
 
@@ -136,8 +140,7 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
         get => National.Form;
         set
         {
-            if (value != Form && (SpeciesMap.ToIndex(National with { Form = value }) ?? SpeciesMap.ToIndex(new CfruSpecies(Species, value))) is { } index)
-                SpeciesIndex = index;
+            if (value != Form) WriteSpeciesIndex(SpeciesMap.ToIndex(National with { Form = value }) ?? SpeciesMap.ToIndex(new CfruSpecies(Species, value)));
         }
     }
 
@@ -146,7 +149,7 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
         get => National.IsGigantamax;
         set
         {
-            if (value != CanGigantamax && SpeciesMap.ToIndex(National with { IsGigantamax = value }) is { } index) SpeciesIndex = index;
+            if (value != CanGigantamax) WriteSpeciesIndex(SpeciesMap.ToIndex(National with { IsGigantamax = value }));
         }
     }
 
@@ -155,10 +158,11 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
         get => National.FormArgument;
         set
         {
-            if (value != FormArgument && SpeciesMap.ToIndex(National with { FormArgument = value }) is { } index) SpeciesIndex = index;
+            if (value != FormArgument) WriteSpeciesIndex(SpeciesMap.ToIndex(National with { FormArgument = value }));
         }
     }
 
+    // The index only holds an Alcremie sweet, so the timed form arguments of later games are always 0.
     public byte FormArgumentRemain { get => 0; set { } }
     public byte FormArgumentElapsed { get => 0; set { } }
     public byte FormArgumentMaximum { get => 0; set { } }
@@ -255,7 +259,7 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
         {
             IV32 = (IV32 & ~(1u << 30)) | (value ? 1u << 30 : 0);
             Data[0x13] = (byte)((Data[0x13] & ~4) | (value ? 4 : 0));
-            if (value != National.IsEgg && SpeciesMap.ToIndex(National with { IsEgg = value }) is { } index) SpeciesIndex = index;
+            if (!value && National.IsEgg) WriteSpeciesIndex(SpeciesMap.ToIndex(National with { IsEgg = false }));
         }
     }
 

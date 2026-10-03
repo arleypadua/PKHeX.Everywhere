@@ -2,4 +2,4 @@
 '@pkhex-everywhere/engine': patch
 ---
 
-In Unbound saves, Antique Sinistea and Polteageist, female Indeedee, Alcremie with a sweet, Gigantamax Pokémon and the Manaphy Egg now load as their species instead of `Unknown (#n)`, and can be edited. Gigantamax Pokémon in both hacks are now flagged as Gigantamax.
+In Unbound saves, Antique Sinistea and Polteageist, female Indeedee, Alcremie with a sweet, Gigantamax Pokémon and the Manaphy Egg now load as their species instead of `Unknown (#n)`, and can be edited. Radical Red's Gigantamax Pokémon from the official games are now flagged as Gigantamax too.

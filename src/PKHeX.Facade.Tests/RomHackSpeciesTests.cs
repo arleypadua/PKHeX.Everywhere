@@ -11,11 +11,13 @@ public class RomHackSpeciesTests
 {
     private const int LoveAlcremie = (22 * 30) + 18;
     private const int FemaleIndeedee = (22 * 30) + 25;
-    private const int Rewritten = 24 * 30;
+    private const int FirstOfBox24 = 24 * 30;
 
     private const ushort CharizardGigantamax = 1261;
     private const ushort AntiqueSinistea = 1194;
     private const ushort ManaphyEgg = 252;
+    private const ushort ToxtricityGigantamax = 1284;
+    private const ushort LowKeyToxtricityGigantamax = 1285;
 
     private static Pokemon At(Game game, int index) => game.Trainer.PokemonBox.All[index];
 
@@ -24,9 +26,9 @@ public class RomHackSpeciesTests
     private static Game UnboundWith(ushort speciesIndex)
     {
         var save = new UnboundSave(File.ReadAllBytes(SaveFilePath.Unbound));
-        var pokemon = (CfruPokemon)save.GetBoxSlotAtIndex(Rewritten);
+        var pokemon = (CfruPokemon)save.GetBoxSlotAtIndex(FirstOfBox24);
         pokemon.SpeciesIndex = speciesIndex;
-        save.SetBoxSlotAtIndex(pokemon, Rewritten);
+        save.SetBoxSlotAtIndex(pokemon, FirstOfBox24);
         return Game.LoadFrom(save.Write().ToArray(), SaveFilePath.Unbound);
     }
 
@@ -72,7 +74,7 @@ public class RomHackSpeciesTests
 
     [Fact]
     public void AGigantamaxPokemonKeepsTheFlagThroughAnEdit() =>
-        EditAndReload(UnboundWith(CharizardGigantamax), Rewritten, pokemon =>
+        EditAndReload(UnboundWith(CharizardGigantamax), FirstOfBox24, pokemon =>
         {
             pokemon.Species.Species.Should().Be(Species.Charizard);
             pokemon.Pkm.Form.Should().Be(0);
@@ -81,7 +83,7 @@ public class RomHackSpeciesTests
 
     [Fact]
     public void AnAntiqueSinisteaKeepsItsFormThroughAnEdit() =>
-        EditAndReload(UnboundWith(AntiqueSinistea), Rewritten, pokemon =>
+        EditAndReload(UnboundWith(AntiqueSinistea), FirstOfBox24, pokemon =>
         {
             pokemon.Species.Species.Should().Be(Species.Sinistea);
             pokemon.Pkm.Form.Should().Be(1);
@@ -89,7 +91,7 @@ public class RomHackSpeciesTests
 
     [Fact]
     public void TheManaphyEggStaysAnEggThroughAnEdit() =>
-        EditAndReload(UnboundWith(ManaphyEgg), Rewritten, pokemon =>
+        EditAndReload(UnboundWith(ManaphyEgg), FirstOfBox24, pokemon =>
         {
             pokemon.Species.Species.Should().Be(Species.Manaphy);
             pokemon.Pkm.IsEgg.Should().BeTrue();
@@ -100,25 +102,39 @@ public class RomHackSpeciesTests
     {
         var game = UnboundWith(ManaphyEgg);
 
-        At(game, Rewritten).Update(new PokemonPatch(IsEgg: false));
+        At(game, FirstOfBox24).Update(new PokemonPatch(IsEgg: false));
 
         game.SaveAndReload(reloaded =>
         {
-            var hatched = At(reloaded, Rewritten);
+            var hatched = At(reloaded, FirstOfBox24);
             hatched.Species.Species.Should().Be(Species.Manaphy);
             hatched.Pkm.IsEgg.Should().BeFalse();
         });
     }
 
     [Fact]
+    public void MakingAManaphyAnEggKeepsItsIndex()
+    {
+        var game = UnboundWith(ManaphyEgg);
+        At(game, FirstOfBox24).Update(new PokemonPatch(IsEgg: false));
+        var manaphy = SpeciesIndex(At(game, FirstOfBox24));
+
+        At(game, FirstOfBox24).Update(new PokemonPatch(IsEgg: true));
+
+        var egg = At(game, FirstOfBox24);
+        SpeciesIndex(egg).Should().Be(manaphy);
+        egg.Pkm.IsEgg.Should().BeTrue();
+    }
+
+    [Fact]
     public void ChangingTheFormOfAGigantamaxPokemonKeepsTheFlag()
     {
-        var game = UnboundWith(1284); // Toxtricity, Gigantamax
+        var game = UnboundWith(ToxtricityGigantamax);
 
-        At(game, Rewritten).Update(new PokemonPatch(Form: 1));
+        At(game, FirstOfBox24).Update(new PokemonPatch(Form: 1));
 
-        var lowKey = At(game, Rewritten);
-        SpeciesIndex(lowKey).Should().Be(1285);
+        var lowKey = At(game, FirstOfBox24);
+        SpeciesIndex(lowKey).Should().Be(LowKeyToxtricityGigantamax);
         ((IGigantamax)lowKey.Pkm).CanGigantamax.Should().BeTrue();
     }
 
@@ -127,9 +143,9 @@ public class RomHackSpeciesTests
     {
         var game = UnboundWith(CharizardGigantamax);
 
-        At(game, Rewritten).Update(new PokemonPatch(Species: (int)Species.Charmeleon));
+        At(game, FirstOfBox24).Update(new PokemonPatch(Species: (int)Species.Charmeleon));
 
-        var charmeleon = At(game, Rewritten);
+        var charmeleon = At(game, FirstOfBox24);
         charmeleon.Species.Species.Should().Be(Species.Charmeleon);
         ((IGigantamax)charmeleon.Pkm).CanGigantamax.Should().BeFalse();
     }
