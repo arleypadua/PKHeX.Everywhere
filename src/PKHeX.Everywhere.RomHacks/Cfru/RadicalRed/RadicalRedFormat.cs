@@ -11,7 +11,7 @@ public sealed class RadicalRedFormat : CfruFormat
     public override string Id => "radicalred";
     public override string Name => "Pokémon Radical Red";
 
-    // RomHackGameDataTests checks that the fixture's Pokémon were met at the FireRed places they live in.
+    // Radical Red keeps FireRed's map. RomHackGameDataTests confirms the fixture's Pokémon were met where they live in FireRed.
     protected override bool FireRedMetLocations => true;
 
     public override SaveFormatMatch Detect(ReadOnlySpan<byte> data)

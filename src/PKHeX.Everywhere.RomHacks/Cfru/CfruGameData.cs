@@ -6,10 +6,6 @@ using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Everywhere.RomHacks.Cfru;
 
-/// <summary>
-/// What a CFRU save can store: the species, items and moves its tables map, its ball table, and FireRed's languages and origin games.
-/// Its Pokémon read nature, ability and gender from the PID or the species, and its stats use the official games' base stats.
-/// </summary>
 internal sealed class CfruGameData : IGameDataSource
 {
     private static readonly PKHeXGameData FireRed = new(BlankSaveFile.Get(GameVersion.FR));
@@ -47,9 +43,8 @@ internal sealed class CfruGameData : IGameDataSource
             .OrderBy(item => item.Name)
             .Prepend(new Choice(0, itemNames[0]))
             .ToArray();
-        Locked = fireRedMetLocations
-            ? FrozenSet.Create(PokemonField.Nature, PokemonField.Ability, PokemonField.Gender)
-            : FrozenSet.Create(PokemonField.Nature, PokemonField.Ability, PokemonField.Gender, PokemonField.MetLocation);
+        PokemonField[] fromPidOrSpecies = [PokemonField.Nature, PokemonField.Ability, PokemonField.Gender];
+        Locked = (fireRedMetLocations ? fromPidOrSpecies : [.. fromPidOrSpecies, PokemonField.MetLocation]).ToFrozenSet();
     }
 
     public IReadOnlyList<Choice> Species { get; }

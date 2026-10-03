@@ -276,11 +276,14 @@ public partial class Pokemon
     private void ApplyVersion(int id)
     {
         Require(Game.Options.OriginGames.Any(g => g.Id == id), nameof(PokemonPatch.Version), $"Origin game {id} isn't in this game.");
-        var locations = MetLocationChoices();
+        var group = GameUtil.GetMetLocationVersionGroup(MetLocationVersion());
         Pkm.Version = (GameVersion)id;
         Require(Pkm.Version == (GameVersion)id, nameof(PokemonPatch.Version), $"Origin game {id} can't be stored in this game.");
-        if (!MetLocationChoices().SequenceEqual(locations))
-            Pkm.MetLocation = EncounterSuggestion.TryGetSuggestedTransferLocation(Pkm);
+        if (GameUtil.GetMetLocationVersionGroup(MetLocationVersion()) == group) return;
+
+        // A save whose met locations don't follow PKHeX's, like a ROM hack's, keeps the met location rather than take one it can't store.
+        var transfer = EncounterSuggestion.TryGetSuggestedTransferLocation(Pkm);
+        if (MetLocationChoices().Any(location => location.Id == transfer)) Pkm.MetLocation = transfer;
     }
 
     private void ApplyMetLocation(int id)
@@ -399,4 +402,6 @@ public partial class Pokemon
         : [];
 
     private IReadOnlyList<Choice> MetLocationChoices() => Game.GameData.MetLocations(Pkm.Version);
+
+    private GameVersion MetLocationVersion() => PKHeXGameData.MetLocationVersion(Pkm.Version, Game.SaveFile);
 }
