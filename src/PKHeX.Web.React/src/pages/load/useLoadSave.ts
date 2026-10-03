@@ -3,6 +3,7 @@ import { App } from 'antd'
 import { EngineError, type FormatEntry } from '@pkhex-everywhere/engine'
 import { useEngine } from '@pkhex-everywhere/react'
 import { loadFailure } from './loadFailure'
+import { romHackWarning } from './romHackWarning'
 
 const maxFileSize = 6 * 1024 * 1024
 
@@ -13,7 +14,7 @@ export interface FormatChoice {
 
 export function useLoadSave() {
   const engine = useEngine()
-  const { notification } = App.useApp()
+  const { notification, modal } = App.useApp()
   const [formatChoice, setFormatChoice] = useState<FormatChoice>()
 
   const openFile = useCallback(
@@ -24,7 +25,6 @@ export function useLoadSave() {
       }
       try {
         await engine.game.load(file, undefined, formatId)
-        return true
       } catch (error) {
         const failure = loadFailure(error)
         if (!failure) throw error
@@ -32,8 +32,11 @@ export function useLoadSave() {
         else notification.error({ title: `'${file.name}' is not a supported save file.`, description: 'The file is not a valid save file.' })
         return false
       }
+      const warning = romHackWarning(await engine.game.get())
+      if (warning) modal.warning({ ...warning, okText: 'I understand' })
+      return true
     },
-    [engine, notification],
+    [engine, notification, modal],
   )
 
   const chooseFormat = useCallback(
