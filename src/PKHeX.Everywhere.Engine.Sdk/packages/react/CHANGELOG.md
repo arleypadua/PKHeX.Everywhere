@@ -1,5 +1,17 @@
 # @pkhex-everywhere/react
 
+## 0.4.0
+
+### Minor Changes
+
+- 794b7bc: `pokemon.options()` returns `locked`, the fields the save can't change, typed as the new `PokemonField` union. Gen 3 and Gen 4 saves lock `nature`, since it comes from the PID. An update that changes a locked field fails with `invalid-patch`. Gen 1 encounters now show their location as `(Unknown)` instead of an unrelated Alola name.
+
+### Patch Changes
+
+- Updated dependencies [a468f4c]
+- Updated dependencies [794b7bc]
+  - @pkhex-everywhere/engine@0.4.0
+
 ## 0.3.1
 
 ### Patch Changes
