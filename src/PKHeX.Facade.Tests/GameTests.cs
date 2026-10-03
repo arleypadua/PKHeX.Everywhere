@@ -29,7 +29,7 @@ public class GameTests
     [InlineData(SaveFilePath.HgSs, new[] { "HeartGold", "SoulSilver" }, "SoulSilver")]
     public void AvailableVersions_IncludeTheSaveVersionApproximation(string saveFile, string[] versions, string approximation)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
 
         game.AvailableVersions.Select(v => v.Name).Should().Contain(versions);
         game.AvailableVersions.Should().Contain(game.GameVersionApproximation);

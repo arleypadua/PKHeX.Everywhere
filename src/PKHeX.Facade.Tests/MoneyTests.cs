@@ -21,7 +21,7 @@ public class MoneyTests
     [SupportedSaveFiles]
     public void Set_ShouldPersistAfterReload(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         game.Trainer.Money.IsSupported.Should().BeTrue();
 
         game.Trainer.Money.Set(1234);

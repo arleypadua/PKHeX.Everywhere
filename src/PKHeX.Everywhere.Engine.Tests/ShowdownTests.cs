@@ -11,7 +11,7 @@ namespace PKHeX.Everywhere.Engine.Tests;
 public class ShowdownTests
 {
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed])] // the hacks don't support Showdown
     public void PartyShowdownMatchesTheFacade(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -21,7 +21,7 @@ public class ShowdownTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed])] // the hacks don't support Showdown
     public void BoxShowdownCoversTheBoxedPokemon(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -31,7 +31,7 @@ public class ShowdownTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed])] // the hacks don't support Showdown
     public void PokemonShowdownMatchesTheFacadeForAPartyPokemon(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -41,7 +41,7 @@ public class ShowdownTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed])] // the hacks don't support Showdown
     public void PokemonShowdownMatchesTheFacadeForABoxPokemon(string saveFile)
     {
         var session = Loaded(saveFile);

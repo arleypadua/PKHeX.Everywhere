@@ -15,8 +15,6 @@ public class UnboundSaveTests
 {
     private static readonly byte[] Fixture = File.ReadAllBytes(SaveFilePath.Unbound);
 
-    static UnboundSaveTests() => SaveFormats.Register(new UnboundFormat());
-
     private static Session LoadedUnbound(byte[]? bytes = null)
     {
         var session = new Session();

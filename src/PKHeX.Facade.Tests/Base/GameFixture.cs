@@ -1,6 +1,9 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using AwesomeAssertions;
 using PKHeX.Core;
+using PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
+using PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 using Xunit.Sdk;
 
 namespace PKHeX.Facade.Tests.Base;
@@ -9,30 +12,28 @@ public static class GameFixture
 {
     public static void SaveAndReload(this Game game, Action<Game> afterReload)
     {
-        var byteArray = game.ToByteArray();
-        var reloadedSave = SaveUtil.GetSaveFile(byteArray, game.SaveFile.Metadata.FilePath);
-        reloadedSave.Should().NotBeNull();
+        var format = game.Format is null ? SaveFormats.PKHeX : SaveFormats.Find(game.Format.Id);
+        var reloadedGame = Game.LoadFrom(game.ToByteArray(), game.SaveFile.Metadata.FilePath, format);
+        reloadedGame.Should().NotBeNull();
 
-        var reloadedGame = new Game(reloadedSave!);
         afterReload(reloadedGame);
     }
 }
 
 public class SupportedSaveFilesAttribute : DataAttribute
 {
-    public GameVersion[] Except { get; set; } = [];
-    
-    public override IEnumerable<object[]> GetData(MethodInfo testMethod) => TestedVersions
+    public string[] Except { get; set; } = [];
+
+    public override IEnumerable<object[]> GetData(MethodInfo testMethod) => TestedFiles
         .Except(Except)
-        .Select(SaveFilePath.PathFrom)
-        .Distinct()
         .Select(p => new object[] { p });
 
-    private static readonly GameVersion[] TestedVersions =
+    private static readonly string[] TestedFiles =
     [
-        GameVersion.HG, GameVersion.SS, GameVersion.HGSS,
-        GameVersion.GP, GameVersion.GG, GameVersion.GE,
-        GameVersion.E, GameVersion.C,
+        SaveFilePath.HgSs,
+        SaveFilePath.LetsGoPikachu, SaveFilePath.LetsGoEevee,
+        SaveFilePath.Emerald, SaveFilePath.Crystal, SaveFilePath.FireRed,
+        SaveFilePath.Unbound, SaveFilePath.RadicalRed,
     ];
 }
 
@@ -56,6 +57,13 @@ public static class SaveFilePath
     public const string Unbound = "./data/save/unbound.sav"; // Unbound 2.0
     public const string RadicalRed = "./data/save/radicalred.sav";
 
+    public static IReadOnlyList<string> All { get; } =
+        [Yellow, Crystal, Emerald, FireRed, HgSs, LetsGoPikachu, LetsGoEevee, Unbound, RadicalRed];
+
+    // Radical Red only possibly matches its format, so loading it without a choice asks for one.
+    public static Game Load(string path) =>
+        Game.LoadFrom(File.ReadAllBytes(path), path, path == RadicalRed ? new RadicalRedFormat() : null);
+
     public static string PathFrom(GameVersion version) => version switch
     {
         GameVersion.RBY => Yellow,
@@ -64,6 +72,17 @@ public static class SaveFilePath
         GameVersion.GE => LetsGoEevee,
         GameVersion.E => Emerald,
         GameVersion.C => Crystal,
+        GameVersion.FR => FireRed,
         _ => throw new InvalidOperationException($"{version} not yet supported on tests"),
     };
+}
+
+internal static class RomHackFormats
+{
+    [ModuleInitializer]
+    internal static void Register()
+    {
+        SaveFormats.Register(new UnboundFormat());
+        SaveFormats.Register(new RadicalRedFormat());
+    }
 }

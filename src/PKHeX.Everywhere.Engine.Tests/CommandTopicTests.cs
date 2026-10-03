@@ -13,8 +13,11 @@ public class CommandTopicTests
 {
     private static readonly Dictionary<string, Func<Game, string, IEnumerable<string>>> SampleArgs = new()
     {
-        ["box.addEncounter"] = (_, _) => [Args(0)],
-        ["box.addFromFile"] = (game, _) => [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes))],
+        ["box.addEncounter"] = (game, _) => game.Supports(Capability.Encounters) ? [Args(0)] : [],
+        // A hack Pokémon's file is in the hack's format, which PKHeX can't read back.
+        ["box.addFromFile"] = (game, saveFile) => saveFile is SaveFilePath.Unbound or SaveFilePath.RadicalRed
+            ? []
+            : [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes))],
         ["box.get"] = (_, _) => ["[]"],
         ["box.showdown"] = (_, _) => ["[]"],
         ["catalog.names"] = (_, _) => [Args(new { speciesIds = new[] { 25 }, itemIds = new[] { 1 } })],
@@ -87,10 +90,10 @@ public class CommandTopicTests
     [MemberData(nameof(Commands))]
     public void CommandsOnlyChangeDataUnderTheTopicsTheyReport(string saveFile, string command)
     {
-        foreach (var args in SampleArgs[command](Game.LoadFrom(saveFile), saveFile))
+        foreach (var args in SampleArgs[command](SaveFilePath.Load(saveFile), saveFile))
         {
             var session = new Session();
-            session.Load(Game.LoadFrom(saveFile), saveFile);
+            session.Load(SaveFilePath.Load(saveFile), saveFile);
             OpenDraft(session);
             var queries = Queries
                 .SelectMany(q => SampleArgs[q.Name](session.Game!, saveFile).Select(a => (Call: q.Name, Args: a, q.Topics)))

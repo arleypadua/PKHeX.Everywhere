@@ -1,6 +1,7 @@
 using System.Text.Json;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
+using PKHeX.Facade.Tests.Base;
 using Pokemon = PKHeX.Facade.Pokemons.Pokemon;
 
 namespace PKHeX.Everywhere.Engine.Tests;
@@ -10,7 +11,7 @@ internal static class EngineCalls
     internal static Session Loaded(string saveFile)
     {
         var session = new Session();
-        session.Load(Game.LoadFrom(saveFile), saveFile);
+        session.Load(SaveFilePath.Load(saveFile), saveFile);
         return session;
     }
 

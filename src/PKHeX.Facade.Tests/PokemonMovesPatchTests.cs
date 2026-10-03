@@ -12,7 +12,7 @@ public class PokemonMovesPatchTests
     [SupportedSaveFiles]
     public void DetailsCarryTheFourMoveSlots(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
 
         var moves = pokemon.Details().Moves;
 
@@ -25,7 +25,7 @@ public class PokemonMovesPatchTests
     [SupportedSaveFiles]
     public void AppliesTheMovesAndFixesThem(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var pokemon = game.Trainer.Party.Pokemons[0];
         var move = game.Options.Moves.First(m => pokemon.Moves.Values.All(current => current.Move.Id != m.Id)).Id;
 
@@ -77,7 +77,7 @@ public class PokemonMovesPatchTests
     [SupportedSaveFiles]
     public void OptionsListTheLegalMoves(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
 
         pokemon.Options().Moves.Should().Equal(MoveRepository.Instance.PossibleMovesFor(pokemon).Select(m => new Choice(m.Id, m.Name)));
     }

@@ -11,7 +11,7 @@ public class PokemonPatchTests
     [SupportedSaveFiles]
     public void AppliesNicknameAndLevel(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
         var level = pokemon.Level == 50 ? 51 : 50;
 
         pokemon.Update(new PokemonPatch(Nickname: "Sparky", Level: level));
@@ -23,7 +23,7 @@ public class PokemonPatchTests
     [SupportedSaveFiles]
     public void LeavesFieldsMissingFromThePatchUnchanged(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
         var nickname = pokemon.Nickname;
 
         pokemon.Update(new PokemonPatch(Level: 42));
@@ -61,7 +61,7 @@ public class PokemonPatchTests
     [InlineData(SaveFilePath.Emerald, "Spark✨")]
     public void RejectsANicknameTheSaveCantStore(string saveFile, string nickname)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
 
         var update = () => pokemon.Update(new PokemonPatch(Nickname: nickname));
 
@@ -108,7 +108,7 @@ public class PokemonTrainerPatchTests
     [SupportedSaveFiles]
     public void AppliesTheOriginalTrainer(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
 
         pokemon.Update(new PokemonPatch(TrainerId: 12345, OriginalTrainerName: "Red", OriginalTrainerGender: Gender.Male));
 
@@ -121,7 +121,7 @@ public class PokemonTrainerPatchTests
     [InlineData(SaveFilePath.LetsGoPikachu)]
     public void AppliesTheSecretIdAndAFemaleOriginalTrainer(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
 
         pokemon.Update(new PokemonPatch(SecretId: 1234, OriginalTrainerGender: Gender.Female));
 
@@ -162,7 +162,7 @@ public class PokemonTrainerPatchTests
     [InlineData(SaveFilePath.LetsGoPikachu, 1000000u)]
     public void RejectsATrainerIdTheSaveCantStore(string saveFile, uint trainerId)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
 
         var update = () => pokemon.Update(new PokemonPatch(TrainerId: trainerId));
 
@@ -185,7 +185,7 @@ public class PokemonTrainerPatchTests
     [MemberData(nameof(Unrepresentable))]
     public void RejectsTrainerDetailsTheSaveCantStore(string saveFile, PokemonPatch patch, string field)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
 
         var update = () => pokemon.Update(patch);
 

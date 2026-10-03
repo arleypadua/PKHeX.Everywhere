@@ -12,7 +12,7 @@ public class PokemonMetConditionsPatchTests
     [InlineData(SaveFilePath.LetsGoPikachu)]
     public void AppliesTheMetConditions(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
         var before = pokemon.Details();
         var location = pokemon.Options().MetLocations.First(l => l.Id != before.MetLocation).Id;
         var date = new DateOnly(2020, 5, 17);
@@ -32,7 +32,7 @@ public class PokemonMetConditionsPatchTests
     [SupportedSaveFiles]
     public void ReportsTheMetConditions(string saveFile)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
 
         pokemon.Details().Should().BeEquivalentTo(new
         {
@@ -93,7 +93,7 @@ public class PokemonMetConditionsPatchTests
     [InlineData(SaveFilePath.Yellow)]
     [InlineData(SaveFilePath.Crystal)]
     public void OffersNoOriginGamesBeforeGenerationThree(string saveFile) =>
-        Game.LoadFrom(saveFile).Options.OriginGames.Should().BeEmpty();
+        SaveFilePath.Load(saveFile).Options.OriginGames.Should().BeEmpty();
 
     [Theory]
     [InlineData(SaveFilePath.Emerald, GameVersion.E)]
@@ -101,7 +101,7 @@ public class PokemonMetConditionsPatchTests
     [InlineData(SaveFilePath.LetsGoPikachu, GameVersion.GP)]
     public void OffersTheOriginGamesTheSaveCanHold(string saveFile, GameVersion version)
     {
-        var games = Game.LoadFrom(saveFile).Options.OriginGames.Select(g => g.Id).ToList();
+        var games = SaveFilePath.Load(saveFile).Options.OriginGames.Select(g => g.Id).ToList();
 
         games.Should().Contain((int)version);
         games.Should().NotContain((int)GameVersion.SL);
@@ -129,7 +129,7 @@ public class PokemonMetConditionsPatchTests
     [MemberData(nameof(UnstorableValues))]
     public void RejectsAValueTheSaveCantStore(string saveFile, PokemonPatch patch, string field)
     {
-        var pokemon = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0];
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
         var before = pokemon.Pkm.Data.ToArray();
 
         var update = () => pokemon.Update(patch with { Nickname = "Sparky" });

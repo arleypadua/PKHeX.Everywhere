@@ -14,7 +14,7 @@ public class CommitTests
     [SupportedSaveFiles]
     public void Export_AfterTrainerRename_WritesExistingPokemonBackUnchanged(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var before = Snapshot(game.SaveFile);
 
         game.Trainer.Name = NewTrainerName;
@@ -26,7 +26,7 @@ public class CommitTests
     [SupportedSaveFiles]
     public void EditingOnePokemon_AfterTrainerRename_LeavesTheOthersUnchanged(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         var target = game.Trainer.PokemonBox.All.First(p => p.Pkm.Species != 0);
         var before = Snapshot(game.SaveFile).Where(s => s.Nickname != target.Nickname || s.Data != Hex(target.Pkm)).ToList();
 
@@ -43,7 +43,7 @@ public class CommitTests
     [InlineData(SaveFilePath.LetsGoEevee)]
     public void AddingFromFile_AdaptsThePokemonToTheSave(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
         game.Trainer.Name = NewTrainerName;
         var pokemon = PokemonFile.LoadFor(GameVersion.GP, game);
         pokemon.Owner.Name.Should().NotBe(NewTrainerName);

@@ -27,10 +27,11 @@ public class PokemonTests
     }
 
     [Theory]
-    [SupportedSaveFiles(Except = [GameVersion.C])] // cloning in crystal is not working
+    // Cloning in Crystal is not working, and a hack Pokémon's file doesn't load without its save.
+    [SupportedSaveFiles(Except = [SaveFilePath.Crystal, SaveFilePath.Unbound, SaveFilePath.RadicalRed])]
     public async Task ShouldClonePokemonAndKeepEverythingTheSame(string saveFile)
     {
-        var game = Game.LoadFrom(saveFile);
+        var game = SaveFilePath.Load(saveFile);
 
         var pokemon = game.Trainer.Party.Pokemons.First();
         var clone = pokemon.Clone();
