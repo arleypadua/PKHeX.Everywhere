@@ -375,7 +375,7 @@ public partial class Pokemon
         if (!condition) throw new InvalidPatchException(field, message);
     }
 
-    private Choice[] SpeciesChoices() => Game.SpeciesRepository.GetEvolutionsFrom(Species)
+    private Choice[] SpeciesChoices() => (IsUnknown ? [] : Game.SpeciesRepository.GetEvolutionsFrom(Species))
         .Where(SpeciesDefinition.IsSome)
         .Append(Species)
         .DistinctBy(species => species.Id)

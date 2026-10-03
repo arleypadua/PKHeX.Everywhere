@@ -423,6 +423,7 @@ public class UnboundSaveTests
         details["isUnknown"]!.GetValue<bool>().Should().BeTrue();
         details["editable"]!.GetValue<bool>().Should().BeFalse();
         Details(session, PokemonHandle.Party(0))["editable"]!.GetValue<bool>().Should().BeTrue();
+        Ids(Value(Dispatch(session, "pokemon.options", Args(UnknownSpecies)))!["heldItems"]).Should().Contain(details["heldItem"]!.GetValue<int>());
 
         Error(Update(session, UnknownSpecies, new { nickname = "Renamed" })).Should().Be("unknown-species");
         Error(Dispatch(session, "pokemon.setLevel", Args(UnknownSpecies, 60))).Should().Be("unknown-species");

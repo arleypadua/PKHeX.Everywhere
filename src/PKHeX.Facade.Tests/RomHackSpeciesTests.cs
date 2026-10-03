@@ -163,6 +163,7 @@ public class RomHackSpeciesTests
         pokemon.Species.Name.Should().Be("Unknown (#706)");
         pokemon.Details().IsUnknown.Should().BeTrue();
         pokemon.Details().IsEditable.Should().BeFalse();
+        pokemon.Options().Species.Should().Equal(new Choice(pokemon.Species.Id, "Unknown (#706)"));
     }
 
     [Fact]

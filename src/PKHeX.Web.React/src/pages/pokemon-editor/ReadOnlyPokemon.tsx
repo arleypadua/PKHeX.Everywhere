@@ -14,7 +14,7 @@ export function ReadOnlyPokemon({ at }: ReadOnlyPokemonProps) {
   const engine = useEngine()
   const { pokemon } = usePokemon(at)
   const { details } = usePokemonDetails(at)
-  const heldItems = useQuery('game.heldItems')
+  const options = useQuery('pokemon.options', at)
   const balls = useQuery('game.balls')
   const screens = Grid.useBreakpoint()
 
@@ -35,7 +35,7 @@ export function ReadOnlyPokemon({ at }: ReadOnlyPokemonProps) {
       children: <Typography.Text copyable>{details.pid.toString(16).toUpperCase().padStart(8, '0')}</Typography.Text>,
     },
     { key: 'shiny', label: 'Shiny', children: details.isShiny ? 'Yes' : 'No' },
-    { key: 'heldItem', label: 'Held Item', children: details.unknownHeldItem ?? nameOf(heldItems, details.heldItem) },
+    { key: 'heldItem', label: 'Held Item', children: nameOf(options.heldItems, details.heldItem) },
     { key: 'ball', label: 'Ball', children: nameOf(balls, details.ball) },
     { key: 'trainer', label: 'Original Trainer', children: `${details.originalTrainerName} (${details.trainerId})` },
     { key: 'metLevel', label: 'Met Level', children: details.metLevel },
