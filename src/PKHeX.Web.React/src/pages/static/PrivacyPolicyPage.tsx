@@ -8,7 +8,7 @@ export default function PrivacyPolicyPage() {
   return (
     <Typography>
       <h1>Privacy Policy</h1>
-      <p>Effective Date: 01/05/2025</p>
+      <p>Effective Date: 03/10/2026</p>
 
       <h2>1. Introduction</h2>
       <p>
@@ -81,17 +81,7 @@ export default function PrivacyPolicyPage() {
         issues arising from the use of such plugins.
       </p>
 
-      <h2>8. Cloud</h2>
-      <p>
-        Your privacy is important to us. Our application includes a beta feature for syncing Pokémon data to the cloud,
-        enabling restoration if needed. This feature is entirely optional and will only sync your data if you explicitly
-        opt in. While we employ best practices to secure your data, please note that this feature is still in
-        development, and its functionality is not guaranteed. By using this feature, you acknowledge that there may be
-        limitations or interruptions in service during the beta phase. We recommend keeping local backups of your data
-        for added security.
-      </p>
-
-      <h2>9. Cookies, Advertising, and Third-Party Services</h2>
+      <h2>8. Cookies, Advertising, and Third-Party Services</h2>
       <p>
         Our application uses cookies and similar technologies to enhance your experience, understand usage patterns, and
         serve advertisements. If you are in the European Economic Area, the United Kingdom or Switzerland, we ask for
@@ -180,7 +170,7 @@ export default function PrivacyPolicyPage() {
         <Button onClick={showCookiePreferences}>Cookie preferences</Button>
       </Flex>
 
-      <h2>10. Contact Us</h2>
+      <h2>9. Contact Us</h2>
       <p>
         If you have any questions about this Privacy Policy, please open an issue on{' '}
         <a href={gitHubRepositoryIssues} target="_blank">GitHub</a>.
