@@ -31,11 +31,11 @@ const manifest = {
   ],
 }
 
-// Stands in for the Engine: assemblies are their version, only v2 and v3 are supported, and a broken one fails to load.
-function fakeEngine() {
+// Stands in for the Engine: assemblies are their version, the unsupported ones need reinstall, and a broken one fails to load.
+function fakeEngine({ sdk = 2, unsupported = ['v1'] } = {}) {
   const plugIns = new Map<string, { version: string; state: PlugInState; needsReinstall: boolean }>()
   const versionOf = (assembly: Uint8Array) => new TextDecoder().decode(assembly)
-  const supported = (assembly: Uint8Array) => versionOf(assembly) !== 'v1'
+  const supported = (assembly: Uint8Array) => !unsupported.includes(versionOf(assembly))
   const engine = {
     plugins: {
       register: vi.fn(async (assembly: Uint8Array, stored: PlugInState | null) => {
@@ -57,9 +57,9 @@ function fakeEngine() {
       updateSetting: async (id: string, setting: PlugInSetting) =>
         write(id, (state) => ({ ...state, settings: state.settings.map((s) => (s.key === setting.key ? setting : s)) })),
       newestCompatible: vi.fn(async (versions: PublishedVersion[], id: string | null) => {
-        const newest = versions.filter((v) => v.sdk === 2).at(-1) ?? null
+        const newest = versions.filter((v) => v.sdk === sdk).at(-1) ?? null
         const plugIn = id ? plugIns.get(id) : undefined
-        if (plugIn && newest) plugIn.state = { ...plugIn.state, hasNewerVersion: newest.version !== '2.0.0' }
+        if (plugIn && newest) plugIn.state = { ...plugIn.state, hasNewerVersion: `v${newest.version.split('.')[0]}` !== plugIn.version }
         return newest
       }),
     },
@@ -130,6 +130,22 @@ describe('plug-ins', () => {
       assembly: v2,
       state: storedState,
     })
+  })
+
+  it('replaces a stored plug-in built against an older SDK with the version for the new SDK on start', async () => {
+    const { engine, plugIns } = fakeEngine({ sdk: 3, unsupported: ['v1', 'v2'] })
+    store.writeSource({ sourceUrl: source, name: 'Example', sourceDescription: null, plugIns: [] })
+    await store.writePlugIn({ id: 'Example', sourceUrl: source, fileUrl: 'old', assembly: v2, state: storedState })
+    const sdk3 = { ...manifest, PlugIns: [{ ...manifest.PlugIns[0], PublishedVersions: ['1.0.0', { Version: '2.0.0', Sdk: 2 }, { Version: '3.0.0', Sdk: 3 }] }] }
+    const fetch = fakeFetch({ [`${source}/pkhexwebplugins.json`]: sdk3, [`${source}/Example/3.0.0/Example.dll`]: v3 })
+    const loader = createPlugIns(engine, store, fetch)
+    await loader.registerStored()
+    expect(plugIns.get('Example')?.needsReinstall).toBe(true)
+
+    await loader.refresh()
+
+    expect(plugIns.get('Example')).toEqual({ version: 'v3', state: storedState, needsReinstall: false })
+    expect((await store.readPlugIn('Example'))?.assembly).toBe(v3)
   })
 
   it('leaves a plug-in needing reinstall when its source has no version the app can run', async () => {

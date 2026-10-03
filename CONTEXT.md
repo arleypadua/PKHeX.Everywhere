@@ -58,7 +58,7 @@ A generated React hook, such as `useParty()` or `usePokemon(at)`, that returns a
 _Avoid_: query hook, data hook
 
 **Plug-in host**:
-The Engine-side registry and runtime for plug-ins built against SDK v2. It loads a plug-in from its assembly bytes and runs its hooks, and it publishes `PlugInRan` after each run.
+The Engine-side registry and runtime for plug-ins built against the plug-in SDK it supports. It loads a plug-in from its assembly bytes and runs its hooks, and it publishes `PlugInRan` after each run.
 _Avoid_: plug-in runtime, plug-in manager
 
 **Page module**:

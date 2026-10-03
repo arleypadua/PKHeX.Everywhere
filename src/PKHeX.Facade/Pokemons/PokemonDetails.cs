@@ -10,7 +10,6 @@ public record PokemonDetails(
     int Nature,
     int Ability,
     int HeldItem,
-    string? UnknownHeldItem,
     int Ball,
     int Friendship,
     int Language,

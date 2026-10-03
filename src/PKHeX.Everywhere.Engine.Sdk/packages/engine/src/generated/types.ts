@@ -690,7 +690,7 @@ export interface Pouch {
 export interface PublishedVersion {
   /** The version number, such as `1.2.0`. `plugins.newestCompatible` skips versions that don't parse as one. */
   version: string
-  /** The plug-in SDK the version is built against: `1` for the older PKHeX.Web plug-ins, `2` for PKHeX.Everywhere plug-ins. The engine runs SDK 2 only. */
+  /** The plug-in SDK the version is built against: `1` for the older PKHeX.Web plug-ins, `2` and later for PKHeX.Everywhere plug-ins. The engine runs SDK 3 only. */
   sdk: number
 }
 
