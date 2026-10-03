@@ -20,7 +20,7 @@ Exception: the public API of the npm packages gets doc comments, written for the
 
 Domain logic goes in `PKHeX.Facade`, and the Engine stays thin: resolve Handles, call the Facade, map DTOs, report Topics. If an Engine handler needs a rule or a save-type check, add it to the Facade instead. See [ADR 0004](docs/adr/0004-domain-logic-lives-in-the-facade.md).
 
-Only `PKHeX.Everywhere.RomHacks` knows about ROM hacks. The Facade learns about a save through its Save format, and an architecture test fails if anything but the host references `RomHacks`. See [ADR 0008](docs/adr/0008-rom-hacks-are-converted-at-the-save-boundary.md).
+Only `PKHeX.Everywhere.RomHacks` knows about ROM hacks. The Facade learns about a save through its Save format, and an architecture test fails if anything but the host and the tests references `RomHacks`. See [ADR 0008](docs/adr/0008-rom-hacks-are-converted-at-the-save-boundary.md).
 
 ### Facade API
 

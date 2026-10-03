@@ -2,7 +2,7 @@
 
 ROM hack saves load through PKHeX's extension points instead of new Facade interfaces. A CFRU save is a `SaveFile` subclass and a CFRU Pokémon is a `PKM` subclass that reports the Gen 9 context. Context: pkhex-web/issue-tracker#143, gate pkhex-web/issue-tracker#146.
 
-[ADR 0008](0008-rom-hacks-are-converted-at-the-save-boundary.md) supersedes the parts about unmapped values and `IMoveList`.
+[ADR 0008](0008-rom-hacks-are-converted-at-the-save-boundary.md) supersedes the parts about `IUnmappedValues`, `IUnmappedItems` and `IMoveList`.
 
 ## Decision
 

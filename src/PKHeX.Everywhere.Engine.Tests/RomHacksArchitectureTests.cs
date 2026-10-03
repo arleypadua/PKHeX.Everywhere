@@ -29,13 +29,13 @@ public class RomHacksArchitectureTests
     public void NoBuiltAssemblyOutsideRomHacksReferencesIt()
     {
         var assemblies = Directory.EnumerateFiles(AppContext.BaseDirectory, "*.dll", SearchOption.AllDirectories)
-            .Where(path => !IsExempt(Path.GetFileNameWithoutExtension(path)))
+            .ToLookup(Path.GetFileNameWithoutExtension, path => path)
+            .Where(assembly => !IsExempt(assembly.Key!))
             .ToList();
 
-        assemblies.Should().Contain(path => Path.GetFileNameWithoutExtension(path) == "PKHeX.Facade")
-            .And.Contain(path => Path.GetFileNameWithoutExtension(path) == "PKHeX.Everywhere.Engine");
+        assemblies.Select(assembly => assembly.Key).Should().Contain(["PKHeX.Facade", "PKHeX.Everywhere.Engine"]);
 
-        assemblies.Where(ReferencesRomHacks).Select(Path.GetFileName).Should().BeEmpty();
+        assemblies.Where(assembly => assembly.Any(ReferencesRomHacks)).Select(assembly => assembly.Key).Should().BeEmpty();
     }
 
     private static bool ReferencesRomHacks(string path)

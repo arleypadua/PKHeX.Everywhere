@@ -2,7 +2,7 @@
 
 Only `PKHeX.Everywhere.RomHacks` knows that a save is a ROM hack. It converts hack values into PKHeX's model when it reads, and back when it writes. Everything above it treats the save like any other. Context: pkhex-web/issue-tracker#162.
 
-This supersedes the parts of [ADR 0007](0007-rom-hack-saves-adapt-to-pkhex-types.md) about unmapped values and `IMoveList`. The rest of 0007 stands.
+This supersedes the parts of [ADR 0007](0007-rom-hack-saves-adapt-to-pkhex-types.md) about `IUnmappedValues`, `IUnmappedItems` and `IMoveList`. The rest of 0007 stands.
 
 ## Decision
 
@@ -20,7 +20,7 @@ An architecture test in `PKHeX.Everywhere.Engine.Tests` fails when anything outs
 
 ## Why
 
-With side channels, every layer had to know about hacks, and each one handled them differently. The Engine appended unknown items to its own DTO, SDK consumers read `speciesId: 0` as both "unknown" and "empty", and the web app guessed whether stats were approximate. The next hack would have touched the Facade, the Engine and the UI. Converting at the boundary means a new hack only adds a Save format.
+With `IUnmappedValues`, `IUnmappedItems` and `IMoveList`, every layer had to know about hacks, and each one handled them differently. The Engine appended unknown items to its own DTO, SDK consumers read `speciesId: 0` as both "unknown" and "empty", and the web app guessed whether stats were approximate. The next hack would have touched the Facade, the Engine and the UI. Converting at the boundary means a new hack only adds a Save format.
 
 ## Rejected alternatives
 
