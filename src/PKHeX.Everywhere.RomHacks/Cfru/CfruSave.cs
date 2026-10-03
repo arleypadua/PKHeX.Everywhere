@@ -202,7 +202,7 @@ public abstract class CfruSave : SaveFile
         if (SpeciesMap.Contains(pk.Species)) base.SetPartyValues(pk, isParty);
     }
 
-    // PKHeX counts the party by species, which reads as 0 for an unmapped one.
+    // PKHeX counts the party by species, which reads as 0 for an index outside the species table.
     public override void SetPartySlotAtIndex(PKM pk, int index, EntityImportSettings settings = default)
     {
         base.SetPartySlotAtIndex(pk, index, settings);

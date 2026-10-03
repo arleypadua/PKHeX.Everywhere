@@ -22,7 +22,7 @@ export default function PokemonEditorPage({ source, id }: PokemonEditorPageProps
 
   const saved = (source === 'party' ? party : box).find((pokemon) => pokemon.id === id)
   const key = saved && JSON.stringify(saved.at)
-  const view = editorView(saved)
+  const view = saved && editorView(saved)
 
   useEffect(() => {
     if (!saved || view !== 'editor') return

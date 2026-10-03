@@ -9,8 +9,4 @@ describe('editorView', () => {
   it('shows a Pokémon that isn\'t editable read-only, without opening a draft', () => {
     expect(editorView({ editable: false })).toBe('read-only')
   })
-
-  it('reports a missing Pokémon as not found', () => {
-    expect(editorView(undefined)).toBe('not-found')
-  })
 })

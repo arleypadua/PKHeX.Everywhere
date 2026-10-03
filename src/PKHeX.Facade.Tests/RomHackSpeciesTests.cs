@@ -149,4 +149,42 @@ public class RomHackSpeciesTests
         charmeleon.Species.Species.Should().Be(Species.Charmeleon);
         ((IGigantamax)charmeleon.Pkm).CanGigantamax.Should().BeFalse();
     }
+
+    private const int ShadowWarrior = (22 * 30) + 18;
+
+    [Fact]
+    public void AShadowWarriorIsUnknownAndNamedByTheSave()
+    {
+        var pokemon = At(SaveFilePath.Load(SaveFilePath.UnboundUnknownSpecies), ShadowWarrior);
+
+        pokemon.IsEmpty.Should().BeFalse();
+        pokemon.IsUnknown.Should().BeTrue();
+        pokemon.IsEditable.Should().BeFalse();
+        pokemon.Species.Name.Should().Be("Unknown (#706)");
+        pokemon.Details().IsUnknown.Should().BeTrue();
+        pokemon.Details().IsEditable.Should().BeFalse();
+    }
+
+    [Fact]
+    public void AKnownSpeciesIsEditable()
+    {
+        var pokemon = At(SaveFilePath.Load(SaveFilePath.UnboundUnknownSpecies), FirstOfBox24);
+
+        pokemon.IsUnknown.Should().BeFalse();
+        pokemon.IsEditable.Should().BeTrue();
+        pokemon.Details().IsEditable.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AShadowWarriorCantBeEditedOrCopiedAndKeepsItsBytes()
+    {
+        var game = SaveFilePath.Load(SaveFilePath.UnboundUnknownSpecies);
+        var pokemon = At(game, ShadowWarrior);
+        var bytes = pokemon.Pkm.Data.ToArray();
+
+        pokemon.Invoking(p => p.Update(new PokemonPatch(Nickname: "Renamed"))).Should().Throw<UnknownSpeciesException>();
+        pokemon.Invoking(p => p.MakeCopy()).Should().Throw<UnknownSpeciesException>();
+
+        game.SaveAndReload(reloaded => At(reloaded, ShadowWarrior).Pkm.Data.ToArray().Should().Equal(bytes));
+    }
 }
