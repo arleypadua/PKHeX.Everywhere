@@ -7,7 +7,7 @@ Plug-ins are .NET assemblies compiled against `PKHeX.Everywhere.PlugIns`, which 
 - `src/PKHeX.Facade/PublicAPI.Shipped.txt` and `PublicAPI.Unshipped.txt` list the Facade's public API. `Microsoft.CodeAnalysis.PublicApiAnalyzers` fails the build when the API changes and the files don't.
 - New members go in `PublicAPI.Unshipped.txt`. Adding to the API is not breaking. Removing or changing a line in `PublicAPI.Shipped.txt` is.
 - The files include the PKHeX types in Facade signatures, so a PKHeX fork update that changes one fails the build too. It breaks plug-ins the same way.
-- A breaking change bumps the plug-in SDK major. Plug-in SDK detection tells majors apart by the referenced `PKHeX.Everywhere.PlugIns` assembly version, not only its name.
+- A breaking change bumps the plug-in SDK major. Plug-in SDK detection tells majors apart by the referenced `PKHeX.Everywhere.PlugIns` assembly version, not only its name. SDK 2 references version 1.0.0.0. From SDK 3 on, the assembly's major version is the SDK major.
 - The host supports the new major once the change ships. The app marks installed plug-ins on the old major `needsReinstall` and replaces them on start with the manifest's newest version for the new major.
 - The plug-in release workflow rebuilds and publishes AutoLegality, LiveRun and Nuzlocking with the new `Sdk` before the app that needs it deploys. Otherwise the app flags installed plug-ins for reinstall with nothing to install.
 

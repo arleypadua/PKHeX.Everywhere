@@ -1,3 +1,7 @@
+using System.Buffers.Binary;
+using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
+using System.Reflection.PortableExecutable;
 using AwesomeAssertions;
 using PKHeX.Core;
 using PKHeX.Everywhere.Engine.PlugIns;
@@ -188,6 +192,7 @@ public class PlugInHostTests
     public void DetectsTheSdkAnAssemblyIsBuiltAgainst()
     {
         PlugInHost.DetectSdk(TestPlugIn).Should().Be(PlugInSdk.V2);
+        PlugInHost.DetectSdk(ReferencingSdkVersion(TestPlugIn, 3)).Should().Be(PlugInSdk.V3);
         PlugInHost.DetectSdk(V1PlugIn).Should().Be(PlugInSdk.V1);
         PlugInHost.DetectSdk(File.ReadAllBytes(typeof(Session).Assembly.Location)).Should().Be(PlugInSdk.None);
         PlugInHost.DetectSdk([1, 2, 3]).Should().Be(PlugInSdk.None);
@@ -204,5 +209,21 @@ public class PlugInHostTests
         host.List().Should().BeEmpty();
         AppDomain.CurrentDomain.GetAssemblies()
             .Should().NotContain(a => a.GetName().Name == "PKHeX.Web.Plugins.Demo");
+    }
+
+    // Patches the major version of the plug-in SDK reference in place, as if the plug-in were built against a newer SDK.
+    private static byte[] ReferencingSdkVersion(byte[] assembly, ushort major)
+    {
+        var patched = assembly.ToArray();
+        using var pe = new PEReader(new MemoryStream(assembly));
+        var metadata = pe.GetMetadataReader();
+        var reference = metadata.AssemblyReferences
+            .Single(r => metadata.GetString(metadata.GetAssemblyReference(r).Name) == "PKHeX.Everywhere.PlugIns");
+        var row = MetadataTokens.GetRowNumber(reference) - 1;
+        var offset = pe.PEHeaders.MetadataStartOffset
+                     + metadata.GetTableMetadataOffset(TableIndex.AssemblyRef)
+                     + row * metadata.GetTableRowSize(TableIndex.AssemblyRef);
+        BinaryPrimitives.WriteUInt16LittleEndian(patched.AsSpan(offset), major);
+        return patched;
     }
 }

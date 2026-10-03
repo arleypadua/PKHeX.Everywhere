@@ -2,13 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { IDBFactory } from 'fake-indexeddb'
 import type { InstalledPlugIn, PlugInSetting, PlugInState, PublishedVersion } from '@pkhex-everywhere/engine'
 import { fromBase64, toBase64 } from '../base64'
-import { createPlugIns } from './plugIns'
+import { createPlugIns, withFailedToLoad } from './plugIns'
 import { createPlugInStore, defaultSourceUrl, readSource, type PlugInStore } from './store'
 
 const source = 'https://plugins.example/main'
 const v1 = toBase64(new TextEncoder().encode('v1'))
 const v2 = toBase64(new TextEncoder().encode('v2'))
 const v3 = toBase64(new TextEncoder().encode('v3'))
+const broken = toBase64(new TextEncoder().encode('broken'))
 
 const storedState: PlugInState = {
   enabled: false,
@@ -30,7 +31,7 @@ const manifest = {
   ],
 }
 
-// Stands in for the Engine: assemblies are their version, and only v2 and v3 are supported.
+// Stands in for the Engine: assemblies are their version, only v2 and v3 are supported, and a broken one fails to load.
 function fakeEngine() {
   const plugIns = new Map<string, { version: string; state: PlugInState; needsReinstall: boolean }>()
   const versionOf = (assembly: Uint8Array) => new TextDecoder().decode(assembly)
@@ -38,6 +39,7 @@ function fakeEngine() {
   const engine = {
     plugins: {
       register: vi.fn(async (assembly: Uint8Array, stored: PlugInState | null) => {
+        if (versionOf(assembly) === 'broken') throw new Error('Could not load type Example.Settings.')
         plugIns.set('Example', {
           version: versionOf(assembly),
           state: stored ?? plugIns.get('Example')?.state ?? { enabled: true, hasNewerVersion: false, toggles: [], settings: [] },
@@ -142,6 +144,58 @@ describe('plug-ins', () => {
 
     expect(plugIns.get('Example')?.needsReinstall).toBe(true)
     expect((await store.readPlugIn('Example'))?.assembly).toBe(v1)
+  })
+
+  it('marks a stored plug-in that fails to load as needing reinstall', async () => {
+    const { engine } = fakeEngine()
+    await store.writePlugIn({ id: 'Example', sourceUrl: source, fileUrl: 'f', assembly: broken, state: storedState })
+    const loader = createPlugIns(engine, store, fakeFetch({}))
+
+    await loader.registerStored()
+
+    expect(loader.failedToLoad()).toEqual([
+      { id: 'Example', name: 'Example', version: '', enabled: false, hasNewerVersion: false, needsReinstall: true },
+    ])
+  })
+
+  it('replaces a plug-in that failed to load with the newest compatible version on start', async () => {
+    const { engine, plugIns } = fakeEngine()
+    store.writeSource({ sourceUrl: source, name: 'Example', sourceDescription: null, plugIns: [] })
+    await store.writePlugIn({ id: 'Example', sourceUrl: source, fileUrl: 'old', assembly: broken, state: storedState })
+    const fetch = fakeFetch({ [`${source}/pkhexwebplugins.json`]: manifest, [`${source}/Example/2.0.0/Example.dll`]: v2 })
+    const loader = createPlugIns(engine, store, fetch)
+    await loader.registerStored()
+
+    await loader.refresh()
+
+    expect(plugIns.get('Example')).toEqual({ version: 'v2', state: storedState, needsReinstall: false })
+    expect((await store.readPlugIn('Example'))?.assembly).toBe(v2)
+    expect(loader.failedToLoad()).toEqual([])
+  })
+
+  it('forgets a plug-in that failed to load once it is uninstalled', async () => {
+    const { engine } = fakeEngine()
+    await store.writePlugIn({ id: 'Example', sourceUrl: source, fileUrl: 'f', assembly: broken, state: storedState })
+    const loader = createPlugIns(engine, store, fakeFetch({}))
+    await loader.registerStored()
+    const changed = vi.fn()
+    loader.subscribe(changed)
+
+    await loader.uninstall('Example')
+
+    expect(loader.failedToLoad()).toEqual([])
+    expect(changed).toHaveBeenCalled()
+    expect(await store.readPlugIns()).toEqual([])
+  })
+
+  it('lists a plug-in that failed to load after the ones the engine knows, unless the engine knows it', () => {
+    const engineKnows: InstalledPlugIn = { id: 'A', name: 'A', version: '1.0.0', enabled: true, hasNewerVersion: false, needsReinstall: false }
+    const failed: InstalledPlugIn[] = [
+      { ...engineKnows, version: '', enabled: false, needsReinstall: true },
+      { id: 'B', name: 'B', version: '', enabled: false, hasNewerVersion: false, needsReinstall: true },
+    ]
+
+    expect(withFailedToLoad([engineKnows], failed)).toEqual([engineKnows, failed[1]])
   })
 
   it('stores the flag of a plug-in with a newer compatible version', async () => {
