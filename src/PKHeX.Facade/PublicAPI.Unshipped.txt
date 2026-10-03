@@ -45,3 +45,7 @@ virtual PKHeX.Facade.PKHeXGameData.Natures.get -> System.Collections.Generic.IRe
 virtual PKHeX.Facade.PKHeXGameData.OriginGames.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 virtual PKHeX.Facade.PKHeXGameData.Species.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 virtual PKHeX.Facade.PKHeXGameData.StatsApproximate.get -> bool
+PKHeX.Facade.Pokemons.MoveSlot.IsUnknown.get -> bool
+PKHeX.Facade.Pokemons.MoveSlot.IsUnknown.init -> void
+PKHeX.Facade.Repositories.MoveDefinition.IsUnknown.get -> bool
+PKHeX.Facade.Repositories.MoveDefinition.IsUnknown.init -> void

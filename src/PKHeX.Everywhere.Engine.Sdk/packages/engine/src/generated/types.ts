@@ -329,13 +329,15 @@ export interface LoadedSave {
 
 /** One of a Pokémon's four move slots. */
 export interface MoveSlot {
-  /** PKHeX move id. 0 means the slot is empty. */
+  /** PKHeX move id, or the save's own id for an unknown move. 0 means the slot is empty. */
   id: number
   name: string
   /** Current PP. */
   pp: number
   /** Maximum PP, including PP Ups. */
   maxPp: number
+  /** The slot holds a move PKHeX has no id for, such as a ROM hack's own move, named like `Unknown move #90`. Its `id` can only stay in this slot, and the slot can be set to another move or to 0. */
+  isUnknown: boolean
 }
 
 /** An item the trainer holds in a pouch. */

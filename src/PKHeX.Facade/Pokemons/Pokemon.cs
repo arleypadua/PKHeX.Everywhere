@@ -86,10 +86,10 @@ public partial class Pokemon(PKM pokemon, Game game)
         pokemon.Context is EntityContext.Gen1 or EntityContext.Gen7b || pokemon.Context.Generation >= 8
             ? null
             : new(GameInfo.Strings.types[pokemon.HPType + 1], pokemon.Format <= 5 ? pokemon.HPPower : null);
-    public PokemonMove Move1 => new(pokemon, PokemonMove.MoveIndex.Move1);
-    public PokemonMove Move2 => new(pokemon, PokemonMove.MoveIndex.Move2);
-    public PokemonMove Move3 => new(pokemon, PokemonMove.MoveIndex.Move3);
-    public PokemonMove Move4 => new(pokemon, PokemonMove.MoveIndex.Move4);
+    public PokemonMove Move1 => new(pokemon, PokemonMove.MoveIndex.Move1, game.GameData);
+    public PokemonMove Move2 => new(pokemon, PokemonMove.MoveIndex.Move2, game.GameData);
+    public PokemonMove Move3 => new(pokemon, PokemonMove.MoveIndex.Move3, game.GameData);
+    public PokemonMove Move4 => new(pokemon, PokemonMove.MoveIndex.Move4, game.GameData);
     public Gender Gender
     {
         get => Gender.FromByte(pokemon.Gender);

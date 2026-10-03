@@ -46,7 +46,7 @@ public partial class Pokemon
         HiddenPower,
         Pkm is ICombatPower combatPower ? combatPower.Stat_CP : null,
         Pkm is PB7 pb7 ? pb7.CalcCP : null,
-        Moves.Values.Select(move => new MoveSlot(move.Move.Id, move.Move.Name, move.PP.Current, move.PP.Max)).ToArray(),
+        Moves.Values.Select(move => new MoveSlot(move.Move.Id, move.Move.Name, move.PP.Current, move.PP.Max) { IsUnknown = move.Move.IsUnknown }).ToArray(),
         Game.Supports(Capability.Legality) ? this.LegalityReport() : null);
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices())
@@ -216,9 +216,14 @@ public partial class Pokemon
     private void ApplyMoves(IReadOnlyList<int> moves)
     {
         Require(moves.Count == 4, nameof(PokemonPatch.Moves), $"Moves must list all 4 slots, got {moves.Count}.");
-        foreach (var move in moves)
+        var current = Moves.Values.Select(m => m.Move).ToArray();
+        for (var slot = 0; slot < moves.Count; slot++)
         {
-            var known = move == (int)Move.None || Moves.Values.Any(m => m.Move.Id == move) || Game.Options.Moves.Any(m => m.Id == move);
+            var move = moves[slot];
+            var known = move == (int)Move.None
+                || move == current[slot].Id
+                || current.Any(m => m.Id == move && !m.IsUnknown)
+                || Game.Options.Moves.Any(m => m.Id == move);
             Require(known, nameof(PokemonPatch.Moves), $"Move {move} isn't in this game.");
         }
 
