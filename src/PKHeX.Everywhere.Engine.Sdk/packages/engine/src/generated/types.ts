@@ -75,10 +75,10 @@ export interface EditablePokemon {
   nature: number
   /** PKHeX ability id, or 0 in games without abilities. */
   ability: number
-  /** PKHeX item id. 0 means no item. See `game.heldItems()`. */
+  /** PKHeX item id. 0 means no item. See `heldItems` in `pokemon.options()`. */
   heldItem: number
-  /** Set when the Pokémon holds an item PKHeX has no id for, such as a ROM hack's own item, to a name like `Unknown item #640`. `heldItem` is 0 then, and the item stays until `heldItem` is set to another item. */
-  unknownHeldItem: string | null
+  /** True when the Pokémon holds an item PKHeX has no id for, such as a ROM hack's own item. `heldItem` is then an id of its own, named in `heldItems` in `pokemon.options()`, and the item stays until `heldItem` is set to another item or 0. */
+  heldItemIsUnknown: boolean
   /** PKHeX ball id. See `game.balls()`. */
   ball: number
   /** Friendship with the current handler, 0 to 255. */
@@ -301,6 +301,15 @@ export interface ItemChanged {
   count: number
 }
 
+/** An item a Pokémon can hold. */
+export interface ItemChoice {
+  /** PKHeX item id. 0 means no item. */
+  id: number
+  name: string
+  /** True for an item PKHeX has no id for, such as a ROM hack's own item. Only the Pokémon already holding it is offered it. */
+  isUnknown: boolean
+}
+
 /** Points `inventory.setItem` at an item in one pouch. */
 export interface ItemHandle {
   /** The pouch's name, as `Pouch.name` gives it. */
@@ -342,13 +351,15 @@ export interface MoveSlot {
 
 /** An item the trainer holds in a pouch. */
 export interface OwnedItem {
-  /** The item's id in the save's own item list. From Generation 4 on, and in ROM hack saves, these are PKHeX.Core item ids; other Generation 1 to 3 saves use their game's own numbering. 0 when the save stores an item PKHeX has no id for, such as a ROM hack's own item. `name` is then `Unknown item #n`, and `inventory.setItem` can't change it. */
+  /** The item's id in the save's own item list. From Generation 4 on, and in ROM hack saves, these are PKHeX.Core item ids; other Generation 1 to 3 saves use their game's own numbering. An unknown item gets an id of its own, which only means something to this save. */
   id: number
   name: string
   /** How many the trainer holds. */
   count: number
   /** The highest count `inventory.setItem` accepts for this item in this pouch. */
   maxCount: number
+  /** True when the save stores an item PKHeX has no id for, such as a ROM hack's own item. `name` is then `Unknown item #n`. `inventory.setItem` can change its count or remove it in this pouch, and no pouch offers it in `addable`. */
+  isUnknown: boolean
 }
 
 /** How the host frames a plug-in page: `standard` with the host's usual page chrome, such as a header with the title, or `empty` with the page module alone, filling the content area. */
@@ -559,6 +570,8 @@ export interface PokemonOptions {
   metLocations: Choice[]
   /** Moves it learns by level up at or below its current level, plus the legal moves it already knows, sorted by name. */
   moves: Choice[]
+  /** The items the save can store as held items, as `game.heldItems()` lists them, plus the unknown item it already holds. */
+  heldItems: ItemChoice[]
   /** Fields the save can't change, such as `nature` in Gen 3 and 4, where it comes from the PID. Show them disabled. An update that changes one fails with `invalid-patch`. */
   locked: PokemonField[]
 }
@@ -586,7 +599,7 @@ export interface PokemonPatch {
   nature?: number | null
   /** PKHeX ability id. See `abilities` in `pokemon.options()`. */
   ability?: number | null
-  /** PKHeX item id from `game.heldItems()`. */
+  /** PKHeX item id from `heldItems` in `pokemon.options()`. */
   heldItem?: number | null
   /** PKHeX ball id from `game.balls()`. */
   ball?: number | null

@@ -18,9 +18,9 @@ public static class InventoryHandlers
             throw new EngineException(ErrorCodes.NotFound, $"The save has no {at.Pouch} pouch.");
 
         var owned = inventory.AllExceptNone().Any(item => item.Id == at.ItemId);
-        var supported = inventory.AllSupportedItems.Any(item => item.Id == at.ItemId);
+        var settable = at.ItemId is >= 0 and <= ushort.MaxValue && inventory.CanSet((ushort)at.ItemId);
         // Saves can hold items their pouch doesn't support (the Crystal test save has key item 255); removing them is allowed.
-        if (!supported && !(owned && count == 0))
+        if (!settable && !(owned && count == 0))
             throw new EngineException(ErrorCodes.BadArguments, $"The {at.Pouch} pouch doesn't support item {at.ItemId}.");
 
         var itemId = (ushort)at.ItemId;

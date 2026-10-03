@@ -24,15 +24,23 @@ PKHeX.Facade.Abstractions.IGameDataSource.Species.get -> System.Collections.Gene
 PKHeX.Facade.Abstractions.IGameDataSource.StatsApproximate.get -> bool
 PKHeX.Facade.Abstractions.ISaveFormat.GameData(PKHeX.Core.SaveFile! save) -> PKHeX.Facade.Abstractions.IGameDataSource!
 PKHeX.Facade.Game.GameData.get -> PKHeX.Facade.Abstractions.IGameDataSource!
+PKHeX.Facade.Inventory.CanSet(ushort itemId) -> bool
+PKHeX.Facade.Inventory.Item.IsUnknown.get -> bool
 PKHeX.Facade.PKHeXGameData
 PKHeX.Facade.PKHeXGameData.PKHeXGameData(PKHeX.Core.SaveFile! save) -> void
+PKHeX.Facade.Pokemons.PokemonDetails.HeldItemIsUnknown.get -> bool
+PKHeX.Facade.Pokemons.PokemonDetails.HeldItemIsUnknown.init -> void
 PKHeX.Facade.Pokemons.PokemonField
 PKHeX.Facade.Pokemons.PokemonField.Ability = 2 -> PKHeX.Facade.Pokemons.PokemonField
 PKHeX.Facade.Pokemons.PokemonField.Gender = 0 -> PKHeX.Facade.Pokemons.PokemonField
 PKHeX.Facade.Pokemons.PokemonField.MetLocation = 3 -> PKHeX.Facade.Pokemons.PokemonField
 PKHeX.Facade.Pokemons.PokemonField.Nature = 1 -> PKHeX.Facade.Pokemons.PokemonField
+PKHeX.Facade.Pokemons.PokemonOptions.HeldItems.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Repositories.ItemDefinition!>!
+PKHeX.Facade.Pokemons.PokemonOptions.HeldItems.init -> void
 PKHeX.Facade.Pokemons.PokemonOptions.Locked.get -> System.Collections.Generic.IReadOnlySet<PKHeX.Facade.Pokemons.PokemonField>!
 PKHeX.Facade.Pokemons.PokemonOptions.Locked.init -> void
+PKHeX.Facade.Repositories.ItemDefinition.IsUnknown.get -> bool
+PKHeX.Facade.Repositories.ItemDefinition.IsUnknown.init -> void
 virtual PKHeX.Facade.PKHeXGameData.Balls.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 virtual PKHeX.Facade.PKHeXGameData.HeldItems.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 virtual PKHeX.Facade.PKHeXGameData.Items.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!

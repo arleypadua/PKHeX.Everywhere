@@ -156,6 +156,20 @@ public class InventoryTests
         inventory.Items.Should().ContainSingle(i => i.Id == owned.Id && i.Count == 2);
     }
 
+    [Theory]
+    [SupportedSaveFiles]
+    public void TrySet_OwnedItem_ShouldChangeItsCountWhereItIs(string saveFile)
+    {
+        var inventory = SaveFilePath.Load(saveFile).Trainer.Inventories.InventoryItems.Values.First(i => i.AllExceptNone().Any(item => item.Count > 1));
+        var owned = inventory.AllExceptNone().Last(item => item.Count > 1);
+        var before = inventory.Items.Select(i => i.Id).ToList();
+
+        inventory.TrySet(owned.Id, 1).Should().BeTrue();
+
+        inventory.Items.Select(i => i.Id).Should().Equal(before);
+        inventory.Items.Single(i => i.Id == owned.Id).Count.Should().Be(1);
+    }
+
     private static ItemDefinition Fill(Inventory inventory) =>
         inventory.CurrentSupportedItems.First(item => !inventory.TrySet(item.Id, 1));
 }

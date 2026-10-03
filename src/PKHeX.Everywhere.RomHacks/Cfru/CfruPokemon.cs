@@ -171,7 +171,7 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
 
     public ushort HeldItemIndex { get => ReadUInt16LittleEndian(Data[0x22..]); set => WriteUInt16LittleEndian(Data[0x22..], value); }
 
-    // Like the species, writing back the item already shown keeps an unmapped one.
+    // Like the species, writing back the item already shown keeps an index outside the hack's table.
     public override int HeldItem
     {
         get => ItemMap.ToModern(HeldItemIndex);
@@ -181,7 +181,7 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
         }
     }
 
-    public ushort? UnmappedHeldItem => HeldItemIndex != 0 && HeldItem == 0 ? HeldItemIndex : null;
+    public ushort? UnmappedHeldItem => null;
 
     public override uint EXP { get => ReadUInt32LittleEndian(Data[0x24..]); set => WriteUInt32LittleEndian(Data[0x24..], value); }
 

@@ -68,6 +68,9 @@ public class Inventory : IEnumerable<Inventory.Item>
     public bool Supports(ItemDefinition item) =>
         AllSupportedItems.Any(i => i.Id == item.Id);
 
+    public bool CanSet(ushort itemId) =>
+        AllSupportedItems.Any(i => i.Id == itemId) || Items.Any(i => i.Id == itemId && i.IsUnknown);
+
     public void Remove(ushort itemId)
     {
         if (itemId == ItemDefinition.None)
@@ -90,13 +93,18 @@ public class Inventory : IEnumerable<Inventory.Item>
             throw new InvalidOperationException("Cannot set item to None.");
         }
         
-        if (AllSupportedItems.All(i => i.Id != itemId))
+        if (!CanSet(itemId))
         {
             throw new InvalidOperationException($"Item {itemId} is not supported in this inventory.");
         }
 
-        _pouch.RemoveAll(i => i.Index == itemId);
-        if (_pouch.GiveItem(_bag, itemId, Convert.ToInt32(count)) < 0) return false;
+        var owned = _pouch.Items.Where(i => i.Index == itemId).ToArray();
+        if (owned.Length > 0)
+        {
+            foreach (var duplicate in owned.Skip(1)) duplicate.Clear();
+            owned[0].Count = _bag.Clamp(_pouch.Type, itemId, Convert.ToInt32(count));
+        }
+        else if (_pouch.GiveItem(_bag, itemId, Convert.ToInt32(count)) < 0) return false;
 
         Commit();
         return true;
@@ -130,6 +138,7 @@ public class Inventory : IEnumerable<Inventory.Item>
         public int Count => _item.Count;
 
         public bool IsNone => Id == ItemDefinition.None;
+        public bool IsUnknown => Definition.IsUnknown;
         public ItemDefinition Definition => _itemFetcher(Id);
         
         public override string ToString() => $"{Name} x{Count}";

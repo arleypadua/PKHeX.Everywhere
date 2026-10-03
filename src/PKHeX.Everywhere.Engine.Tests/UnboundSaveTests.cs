@@ -465,30 +465,42 @@ public class UnboundSaveTests
     }
 
     [Fact]
-    public void AnUnmappedHeldItemShowsAsUnknown()
+    public void AnUnknownHeldItemShowsAsUnknown()
     {
-        var details = Details(LoadedUnbound(), HoldsUnknownItem);
+        var session = LoadedUnbound();
+        var details = Details(session, HoldsUnknownItem);
+        var heldItem = details["heldItem"]!.GetValue<int>();
 
-        details["heldItem"]!.GetValue<int>().Should().Be(0);
-        details["unknownHeldItem"]!.GetValue<string>().Should().Be("Unknown item #640");
+        details["heldItemIsUnknown"]!.GetValue<bool>().Should().BeTrue();
+        Value(Dispatch(session, "pokemon.options", Args(HoldsUnknownItem)))!["heldItems"]!.AsArray()
+            .Where(item => item!["isUnknown"]!.GetValue<bool>())
+            .Select(item => (item!["id"]!.GetValue<int>(), item["name"]!.GetValue<string>()))
+            .Should().Equal((heldItem, "Unknown item #640"));
     }
 
     [Fact]
-    public void AnUnmappedHeldItemSurvivesAnEditToAnotherField()
+    public void AnUnknownHeldItemSurvivesAnEditToAnotherField()
     {
         var session = LoadedUnbound();
+        var heldItem = Details(session, HoldsUnknownItem)["heldItem"]!.GetValue<int>();
 
         Value(Update(session, HoldsUnknownItem, new { ivs = new { attack = 0 } }));
 
         var reloaded = Details(LoadedUnbound(Exported(session)), HoldsUnknownItem);
         reloaded["ivs"]!["attack"]!.GetValue<int>().Should().Be(0);
-        reloaded["unknownHeldItem"]!.GetValue<string>().Should().Be("Unknown item #640");
+        reloaded["heldItem"]!.GetValue<int>().Should().Be(heldItem);
+        reloaded["heldItemIsUnknown"]!.GetValue<bool>().Should().BeTrue();
     }
 
     private static JsonNode Pouch(Session session, string name) => Value(Dispatch(session, "inventory.get", "[]"))!.AsArray()
         .Single(pouch => pouch!["name"]!.GetValue<string>() == name)!;
 
     private static (int Id, string Name, int Count)[] Owned(JsonNode pouch) => pouch["items"]!.AsArray()
+        .Select(item => (item!["id"]!.GetValue<int>(), item["name"]!.GetValue<string>(), item["count"]!.GetValue<int>()))
+        .ToArray();
+
+    private static (int Id, string Name, int Count)[] Unknown(JsonNode pouch) => pouch["items"]!.AsArray()
+        .Where(item => item!["isUnknown"]!.GetValue<bool>())
         .Select(item => (item!["id"]!.GetValue<int>(), item["name"]!.GetValue<string>(), item["count"]!.GetValue<int>()))
         .ToArray();
 
@@ -523,13 +535,27 @@ public class UnboundSaveTests
     [InlineData("Items", 79, 92)]
     [InlineData("TMHMs", 444, 1)]
     [InlineData("Berries", 174, 4)]
-    public void AnUnmappedBagItemShowsAsUnknown(string pouch, int index, int count) =>
+    public void AnUnknownBagItemIsListedWithTheOtherItems(string pouch, int index, int count) =>
         Owned(Pouch(LoadedUnbound(), pouch)).Should().ContainSingle(owned => owned.Name == $"Unknown item #{index}")
-            .Which.Should().Be((0, $"Unknown item #{index}", count));
+            .Which.Count.Should().Be(count);
 
     [Fact]
-    public void AnUnmappedBagItemCantBeSet() =>
-        Error(SetItem(LoadedUnbound(), "Items", 0, 1)).Should().Be("bad-arguments");
+    public void OwnedItemsSayWhetherTheyAreUnknownAndUnknownOnesHaveDistinctIds()
+    {
+        var pouch = Pouch(LoadedUnbound(), "Items");
+        var unknown = Unknown(pouch);
+
+        unknown.Should().HaveCount(8).And.OnlyContain(item => item.Name.StartsWith("Unknown item #"));
+        unknown.Select(item => item.Id).Should().OnlyHaveUniqueItems().And.NotContain(0);
+        Owned(pouch).Except(unknown).Should().OnlyContain(item => !item.Name.StartsWith("Unknown item #"));
+    }
+
+    [Fact]
+    public void AnUnknownBagItemCantBeSetInAnotherPouch()
+    {
+        var session = LoadedUnbound();
+        Error(SetItem(session, "Balls", Unknown(Pouch(session, "Items"))[0].Id, 1)).Should().Be("bad-arguments");
+    }
 
     [Fact]
     public void TmsHoldOneOfEach() =>
@@ -537,12 +563,12 @@ public class UnboundSaveTests
             .Should().OnlyContain(maxCount => maxCount == 1);
 
     [Fact]
-    public void EveryMappedItemInThePocketsCanBeSetAgain()
+    public void EveryItemInThePocketsCanBeSetAgain()
     {
         var session = LoadedUnbound();
 
         foreach (var pouch in new[] { "Items", "Balls", "TMHMs", "Berries" })
-        foreach (var (id, _, count) in Owned(Pouch(session, pouch)).Where(owned => owned.Id != 0))
+        foreach (var (id, _, count) in Owned(Pouch(session, pouch)))
             Value(SetItem(session, pouch, id, count));
 
         Exported(session).Should().Equal(Fixture);
@@ -558,7 +584,7 @@ public class UnboundSaveTests
     {
         var session = LoadedUnbound();
         var before = Owned(Pouch(session, pouch));
-        var owned = before.Where(item => item.Id != 0).Select(item => item.Id).ToArray();
+        var owned = before.Select(item => item.Id).ToArray();
         var (changed, removed, freed) = (owned[0], owned[1], owned[2]);
 
         Value(SetItem(session, pouch, changed, changeTo));
@@ -585,7 +611,7 @@ public class UnboundSaveTests
     {
         var session = LoadedUnbound();
 
-        Value(SetItem(session, pouch, Owned(Pouch(session, pouch)).First(owned => owned.Id != 0).Id, 0));
+        Value(SetItem(session, pouch, Owned(Pouch(session, pouch)).First().Id, 0));
 
         var changed = ChangedOffsets(Exported(session));
         changed.Should().NotBeEmpty();
@@ -608,15 +634,15 @@ public class UnboundSaveTests
     }
 
     [Fact]
-    public void UnmappedBagItemsSurviveAnEditInTheirPocket()
+    public void UnknownBagItemsSurviveAnEditInTheirPocket()
     {
         var session = LoadedUnbound();
-        var unknown = Owned(Pouch(session, "Items")).Where(owned => owned.Id == 0).ToArray();
+        var unknown = Unknown(Pouch(session, "Items"));
         unknown.Should().HaveCount(8);
 
         Value(SetItem(session, "Items", Item("Max Repel"), 0));
 
-        Owned(Pouch(LoadedUnbound(Exported(session)), "Items")).Where(owned => owned.Id == 0).Should().Equal(unknown);
+        Unknown(Pouch(LoadedUnbound(Exported(session)), "Items")).Should().Equal(unknown);
     }
 
     // The key items pocket isn't listed yet, so its bytes are checked where they follow the main pocket in sector 30.
