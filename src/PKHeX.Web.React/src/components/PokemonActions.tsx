@@ -24,7 +24,7 @@ export function PokemonActions({ pokemon }: PokemonActionsProps) {
       onClick={() => navigate(routes.pokemon(pokemon))}
       menu={{
         items: [
-          { key: 'clone', label: 'Clone', onClick: () => navigate(routes.clonePokemon(pokemon)) },
+          ...(pokemon.editable ? [{ key: 'clone', label: 'Clone', onClick: () => navigate(routes.clonePokemon(pokemon)) }] : []),
           ...(showdownSupported
             ? [
                 { key: 'calculator', label: 'Calculator', onClick: async () => openCalculator(await showdown()) },

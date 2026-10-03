@@ -2,6 +2,9 @@ namespace PKHeX.Everywhere.RomHacks.Cfru;
 
 public sealed class CfruSpeciesMap
 {
+    // PKHeX's species ids end below 1100, so an index with no national species travels as an id from here up.
+    private const ushort UnknownIdBase = 0xF000;
+
     private readonly CfruSpecies[] _nationalByIndex;
     private readonly Dictionary<CfruSpecies, ushort> _indexByNational;
     private readonly HashSet<(ushort Species, byte Form)> _forms;
@@ -28,6 +31,14 @@ public sealed class CfruSpeciesMap
 
     public CfruSpecies ToNational(ushort index) =>
         index < _nationalByIndex.Length ? _nationalByIndex[index] : default;
+
+    public ushort ToSpeciesId(ushort index) => IsUnknown(index) ? (ushort)(UnknownIdBase + index) : ToNational(index).Species;
+
+    public string? NameOf(int species) => UnknownIndex(species) is { } index ? $"Unknown (#{index})" : null;
+
+    private bool IsUnknown(int index) => index is > 0 and <= ushort.MaxValue - UnknownIdBase && ToNational((ushort)index).Species == 0;
+
+    private ushort? UnknownIndex(int species) => IsUnknown(species - UnknownIdBase) ? (ushort)(species - UnknownIdBase) : null;
 
     public ushort? ToIndex(CfruSpecies national) =>
         national.Species == 0 ? (ushort)0 : _indexByNational.TryGetValue(national, out var index) ? index : null;

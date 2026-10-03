@@ -66,8 +66,12 @@ export interface DeclaredPage {
 
 /** The editable fields of a Pokémon. Send changes back with `pokemon.update()` as a `PokemonPatch`. */
 export interface EditablePokemon {
-  /** PKHeX species id, which is the National Pokédex number. */
-  species: number
+  /** PKHeX species id, which is the National Pokédex number. Null when `isUnknown` is true. */
+  species: number | null
+  /** The save stores a species PKHeX has no id for, such as a ROM hack's own species. */
+  isUnknown: boolean
+  /** When false, show the fields read-only: `pokemon.update()` fails with `unknown-species`. */
+  editable: boolean
   /** Form index within the species' forms. 0 is the default form. */
   form: number
   gender: PokemonGender
@@ -367,8 +371,8 @@ export type PageLayout = 'standard' | 'empty'
 
 /** A Pokémon in the trainer's party. */
 export interface PartyMember {
-  /** The species' National Pokédex number, as PKHeX.Core numbers species. */
-  speciesId: number
+  /** The species' National Pokédex number, as PKHeX.Core numbers species. Null when the save stores a species PKHeX has no id for. */
+  speciesId: number | null
   species: string
   /** The Pokémon's current level. */
   level: number
@@ -657,9 +661,14 @@ export interface PokemonSummary {
   id: PokemonId
   /** Where the Pokémon is. */
   at: PokemonHandle
-  /** PKHeX species id, which is the National Pokédex number. 0 when the save stores a species PKHeX has no id for, such as a ROM hack's own species. `species` is then `Unknown (#n)`, and editing the Pokémon fails with `unknown-species`. */
-  speciesId: number
+  /** PKHeX species id, which is the National Pokédex number. Null when `isUnknown` is true. */
+  speciesId: number | null
+  /** Species name, or a name like `Unknown (#706)` when `isUnknown` is true. */
   species: string
+  /** The save stores a species PKHeX has no id for, such as a ROM hack's own species. Show a placeholder instead of a sprite. */
+  isUnknown: boolean
+  /** The Pokémon can be opened with `pokemon.edit()` and copied with `pokemon.clone()`. When false, show it read-only with `pokemon.details()`: editing it fails with `unknown-species`. */
+  editable: boolean
   form: PokemonForm
   /** The species name when the Pokémon has no nickname. */
   nickname: string

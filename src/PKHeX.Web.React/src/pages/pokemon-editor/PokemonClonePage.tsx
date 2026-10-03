@@ -23,7 +23,7 @@ export default function PokemonClonePage({ source, id }: PokemonClonePageProps) 
   const key = saved && JSON.stringify(saved.at)
 
   useEffect(() => {
-    if (!saved) return
+    if (!saved?.editable) return
     let current = true
     void engine.pokemon.clone(saved.at).then(() => current && setPhase('editing'))
     return () => {
@@ -49,6 +49,7 @@ export default function PokemonClonePage({ source, id }: PokemonClonePageProps) 
 
   if (phase === 'adding') return <Spin />
   if (!saved) return <Result status="404" title="Pokémon not found" />
+  if (!saved.editable) return <Result status="warning" title="This Pokémon's species is unknown, so it can't be cloned." />
   if (phase === 'opening') return <Spin />
   return (
     <DraftEditor

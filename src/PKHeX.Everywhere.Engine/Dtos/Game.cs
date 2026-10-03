@@ -67,9 +67,9 @@ public record ExportedSave(byte[] Bytes, string FileName);
 /// <summary>
 /// A Pokémon in the trainer's party.
 /// </summary>
-/// <param name="SpeciesId">The species' National Pokédex number, as PKHeX.Core numbers species.</param>
+/// <param name="SpeciesId">The species' National Pokédex number, as PKHeX.Core numbers species. Null when the save stores a species PKHeX has no id for.</param>
 /// <param name="Level">The Pokémon's current level.</param>
-public record PartyMember(int SpeciesId, string Species, int Level);
+public record PartyMember(int? SpeciesId, string Species, int Level);
 
 /// <summary>
 /// A snapshot of the save that game events carry: game, generation, trainer gender, box size and party.
@@ -143,7 +143,7 @@ public static class GameMapping
         (int)game.Generation,
         game.Trainer.Gender.Name,
         game.Trainer.PokemonBox.All.Count,
-        game.Trainer.Party.Pokemons.Select(p => new PartyMember(p.Species.Id, p.Species.Name, p.Level)).ToArray(),
+        game.Trainer.Party.Pokemons.Select(p => new PartyMember(p.IsUnknown ? null : p.Species.Id, p.Species.Name, p.Level)).ToArray(),
         game.Format?.Id);
 
     public static LoadedSave ToFile(this Game game, string? fileName) =>

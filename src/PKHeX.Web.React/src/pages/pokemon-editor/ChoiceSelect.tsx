@@ -5,7 +5,7 @@ import type { Choice } from '@pkhex-everywhere/engine'
 interface ChoiceSelectProps {
   label: string
   choices: Choice[]
-  value: number
+  value: number | null
   disabled?: boolean
   onChange: (id: number) => void
 }
@@ -15,7 +15,7 @@ export function ChoiceSelect({ label, choices, value, disabled, onChange }: Choi
 
   return (
     <Select<number>
-      value={value}
+      value={value ?? undefined}
       disabled={disabled}
       aria-label={label}
       placeholder={label}

@@ -50,6 +50,8 @@ public partial class Pokemon
         Game.Supports(Capability.Legality) ? this.LegalityReport() : null)
     {
         HeldItemIsUnknown = HeldItem.IsUnknown,
+        IsUnknown = IsUnknown,
+        IsEditable = IsEditable,
     };
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices())

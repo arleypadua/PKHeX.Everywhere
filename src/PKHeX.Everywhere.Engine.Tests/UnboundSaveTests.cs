@@ -392,29 +392,72 @@ public class UnboundSaveTests
 
     private static byte[] WithUnknownSpecies() => FixtureWith(PutShadowWarriorInTheUnknownSlot);
 
-    [Fact]
-    public void AnUnmappedSpeciesIsListedAsUnknown()
-    {
-        var boxed = Value(Dispatch(LoadedUnbound(WithUnknownSpecies()), "box.get", "[]"))!.AsArray();
+    private static JsonNode Listed(Session session, PokemonHandle at) => Value(Dispatch(session, "box.get", "[]"))!.AsArray()
+        .Single(p => p!["at"]!["box"]!.GetValue<int>() == at.Box && p["at"]!["slot"]!.GetValue<int>() == at.Slot)!;
 
-        boxed.Where(p => p!["at"]!["box"]!.GetValue<int>() == 22)
-            .Select(p => (p!["at"]!["slot"]!.GetValue<int>(), p["species"]!.GetValue<string>()))
-            .Should().Contain((18, $"Unknown (#{ShadowWarrior})"));
+    [Fact]
+    public void AnUnknownSpeciesIsListedWithNoSpeciesIdAndIsNotEditable()
+    {
+        var session = LoadedUnbound(WithUnknownSpecies());
+
+        var unknown = Listed(session, UnknownSpecies);
+        unknown["species"]!.GetValue<string>().Should().Be($"Unknown (#{ShadowWarrior})");
+        unknown["speciesId"].Should().BeNull();
+        unknown["isUnknown"]!.GetValue<bool>().Should().BeTrue();
+        unknown["editable"]!.GetValue<bool>().Should().BeFalse();
+
+        var known = Listed(session, PokemonHandle.InBox(0, 0));
+        known["speciesId"]!.GetValue<int>().Should().BePositive();
+        known["isUnknown"]!.GetValue<bool>().Should().BeFalse();
+        known["editable"]!.GetValue<bool>().Should().BeTrue();
     }
 
     [Fact]
-    public void AnUnmappedSpeciesCantBeEdited()
+    public void AnUnknownSpeciesShowsItsDetailsButCantBeEdited()
     {
         var bytes = WithUnknownSpecies();
         var session = LoadedUnbound(bytes);
+
+        var details = Details(session, UnknownSpecies);
+        details["species"].Should().BeNull();
+        details["isUnknown"]!.GetValue<bool>().Should().BeTrue();
+        details["editable"]!.GetValue<bool>().Should().BeFalse();
+        Details(session, PokemonHandle.Party(0))["editable"]!.GetValue<bool>().Should().BeTrue();
 
         Error(Update(session, UnknownSpecies, new { nickname = "Renamed" })).Should().Be("unknown-species");
         Error(Dispatch(session, "pokemon.setLevel", Args(UnknownSpecies, 60))).Should().Be("unknown-species");
         Error(Dispatch(session, "pokemon.edit", Args(UnknownSpecies))).Should().Be("unknown-species");
         Error(Dispatch(session, "pokemon.clone", Args(UnknownSpecies))).Should().Be("unknown-species");
-        Value(Dispatch(session, "pokemon.details", Args(UnknownSpecies)))!["species"]!.GetValue<int>().Should().Be(0);
 
         Exported(session).Should().Equal(bytes);
+    }
+
+    [Fact]
+    public void AnUnknownSpeciesExportsWithItsBytes()
+    {
+        var bytes = WithUnknownSpecies();
+        var session = LoadedUnbound(bytes);
+
+        var exported = Convert.FromBase64String(Value(Dispatch(session, "pokemon.export", Args(UnknownSpecies)))!["bytes"]!.GetValue<string>());
+
+        exported.Should().Equal(new UnboundSave(bytes).GetBoxSlotAtIndex(UnknownSlot).Data.ToArray());
+    }
+
+    // The Engine has no command to release a Pokémon, so it's released in the save before it loads, as the game would.
+    [Fact]
+    public void AnUnknownSpeciesReleasedFromItsSlotLeavesItEmpty()
+    {
+        var released = FixtureWith(save =>
+        {
+            PutShadowWarriorInTheUnknownSlot(save);
+            save.SetBoxSlotAtIndex(save.BlankPKM, UnknownSlot);
+        });
+        var session = LoadedUnbound(released);
+
+        Error(Dispatch(session, "pokemon.get", Args(UnknownSpecies))).Should().Be("not-found");
+        Value(Dispatch(session, "box.get", "[]"))!.AsArray()
+            .Should().NotContain(p => p!["isUnknown"]!.GetValue<bool>());
+        Exported(session).Should().Equal(released);
     }
 
     private static byte[] FixtureWith(Action<UnboundSave> change)
@@ -425,7 +468,7 @@ public class UnboundSaveTests
     }
 
     [Fact]
-    public void AnUnmappedSpeciesMovedToAnotherBoxSlotSurvivesExport()
+    public void AnUnknownSpeciesMovedToAnotherBoxSlotSurvivesExport()
     {
         var to = new UnboundSave(Fixture.ToArray()).NextOpenBoxSlot();
         byte[]? moved = null;
@@ -447,7 +490,7 @@ public class UnboundSaveTests
     }
 
     [Fact]
-    public void AnUnmappedSpeciesInThePartySurvivesAnEditToAnotherMember()
+    public void AnUnknownSpeciesInThePartySurvivesAnEditToAnotherMember()
     {
         var session = LoadedUnbound(FixtureWith(save =>
         {

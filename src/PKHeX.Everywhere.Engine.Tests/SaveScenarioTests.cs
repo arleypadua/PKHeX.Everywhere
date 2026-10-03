@@ -41,19 +41,29 @@ public class SaveScenarioTests
 
     [Theory]
     [EverySave]
-    public void EveryListedPokemonHasASpecies(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
-        Listed(LoadSession(saveFile)).Should().OnlyContain(p => p["speciesId"]!.GetValue<int>() != 0));
+    public void EveryListedPokemonHasASpeciesOrIsUnknown(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
+        Listed(LoadSession(saveFile)).Should().OnlyContain(p => p["isUnknown"]!.GetValue<bool>()
+            ? p["speciesId"] == null && !p["editable"]!.GetValue<bool>()
+            : p["speciesId"]!.GetValue<int>() != 0 && p["editable"]!.GetValue<bool>()));
 
     [Theory]
     [EverySave]
-    public void EveryListedPokemonOpensInTheEditor(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
+    public void EveryListedPokemonOpensInTheEditorOrReadOnly(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
         var session = LoadSession(saveFile);
 
         foreach (var pokemon in Listed(session))
         {
-            Value(Dispatch(session, "pokemon.edit", Args(Handle(pokemon))));
-            Value(Dispatch(session, "pokemon.details", Args(PokemonHandle.Draft())));
+            if (pokemon["editable"]!.GetValue<bool>())
+            {
+                Value(Dispatch(session, "pokemon.edit", Args(Handle(pokemon))));
+                Value(Dispatch(session, "pokemon.details", Args(PokemonHandle.Draft())));
+            }
+            else
+            {
+                Value(Dispatch(session, "pokemon.details", Args(Handle(pokemon))))!["editable"]!.GetValue<bool>().Should().BeFalse();
+                Error(Dispatch(session, "pokemon.edit", Args(Handle(pokemon)))).Should().Be("unknown-species");
+            }
         }
     });
 
@@ -280,7 +290,8 @@ public class EverySaveAttribute : DataAttribute
     public override IEnumerable<object[]> GetData(MethodInfo testMethod)
     {
         var gaps = testMethod.GetCustomAttributes<KnownGapAttribute>().ToDictionary(gap => gap.SaveFile, gap => gap.Reason);
-        return SaveFilePath.All.Select(saveFile => new object[] { saveFile, gaps.GetValueOrDefault(saveFile)! });
+        return SaveFilePath.All.Append(SaveFilePath.UnboundUnknownSpecies)
+            .Select(saveFile => new object[] { saveFile, gaps.GetValueOrDefault(saveFile)! });
     }
 }
 

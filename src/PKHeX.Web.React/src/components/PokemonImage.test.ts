@@ -12,6 +12,11 @@ describe('pokemonImageUrl', () => {
     expect(pokemonImageUrl(25, true)).toBe(`${showdownUrl}/shiny/25.gif`)
   })
 
+  it('builds no URL for an unknown species', () => {
+    expect(pokemonImageUrl(null, false)).toBeNull()
+    expect(pokemonImageUrl(null, true)).toBeNull()
+  })
+
   it('does not use the small generation VIII icon', () => {
     expect(pokemonImageUrl(25, false)).not.toContain('generation-viii/icons')
     expect(pokemonImageUrl(25, true)).not.toContain('generation-viii/icons')

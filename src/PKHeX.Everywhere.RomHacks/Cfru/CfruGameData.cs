@@ -25,11 +25,13 @@ internal sealed class CfruGameData : IGameDataSource
 
     private readonly bool _fireRedMetLocations;
     private readonly CfruItemMap _itemMap;
+    private readonly CfruSpeciesMap _speciesMap;
 
     public CfruGameData(CfruSave save, bool fireRedMetLocations)
     {
         _fireRedMetLocations = fireRedMetLocations;
         _itemMap = save.ItemMap;
+        _speciesMap = save.SpeciesMap;
         var itemNames = GameInfo.Strings.GetItemStrings(save.Context, save.Version);
 
         Species = save.SpeciesMap.Species
@@ -63,6 +65,7 @@ internal sealed class CfruGameData : IGameDataSource
 
     public string? NameOf(GameDataKind kind, int id) => kind switch
     {
+        GameDataKind.Species => _speciesMap.NameOf(id),
         GameDataKind.Move => CfruMoves.NameOf(id),
         GameDataKind.Item or GameDataKind.HeldItem => _itemMap.UnknownIndex(id) is { } index ? $"Unknown item #{index}" : null,
         _ => null,

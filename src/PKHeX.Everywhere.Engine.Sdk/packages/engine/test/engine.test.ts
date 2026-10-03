@@ -8,6 +8,8 @@ const pikachu = {
   at: { source: 'party', slot: 0, box: null },
   speciesId: 25,
   species: 'Pikachu',
+  isUnknown: false,
+  editable: true,
   form: { id: 0, name: '' },
   nickname: 'Sparky',
   level: 12,

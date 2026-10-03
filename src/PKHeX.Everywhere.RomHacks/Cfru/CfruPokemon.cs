@@ -69,7 +69,7 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
     public override int SIZE_PARTY => SizeParty;
     public override int SIZE_STORED => SizeStored;
     public override EntityContext Context => EntityContext.Gen9;
-    public override PersonalInfo PersonalInfo => SpeciesMap.Personal[Species, Form];
+    public override PersonalInfo PersonalInfo => SpeciesMap.Personal[National.Species, Form];
 
     public override bool Valid { get => true; set { } }
     public override bool ChecksumValid => true;
@@ -128,7 +128,7 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
     // Writing back the species already shown keeps the raw index, so unmapped and duplicate indices survive an edit elsewhere.
     public override ushort Species
     {
-        get => National.Species;
+        get => SpeciesMap.ToSpeciesId(SpeciesIndex);
         set
         {
             if (value != Species) WriteSpeciesIndex(SpeciesMap.ToIndex(National with { Species = value, Form = 0 }) ?? SpeciesMap.ToIndex(value));
@@ -167,7 +167,7 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
     public byte FormArgumentElapsed { get => 0; set { } }
     public byte FormArgumentMaximum { get => 0; set { } }
 
-    public ushort? UnmappedSpecies => SpeciesIndex != 0 && Species == 0 ? SpeciesIndex : null;
+    public ushort? UnmappedSpecies => SpeciesIndex != 0 && National.Species == 0 ? SpeciesIndex : null;
 
     public ushort HeldItemIndex { get => ReadUInt16LittleEndian(Data[0x22..]); set => WriteUInt16LittleEndian(Data[0x22..], value); }
 
@@ -287,7 +287,7 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
 
     public override byte Gender { get => EntityGender.GetFromPIDAndRatio(PID, PersonalInfo.Gender); set { } }
     public override Nature Nature { get => (Nature)(PID % 25); set { } }
-    public override bool IsNicknamed { get => SpeciesName.IsNicknamed(Species, Nickname, Language); set { } }
+    public override bool IsNicknamed { get => SpeciesName.IsNicknamed(National.Species, Nickname, Language); set { } }
     public override int Characteristic => -1;
     public override byte CurrentHandler { get => 0; set { } }
     public override ushort EggLocation { get => 0; set { } }
