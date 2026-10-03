@@ -1,15 +1,16 @@
 import { Suspense, useRef, useState, type ChangeEvent, type CSSProperties } from 'react'
 import { EllipsisOutlined, ExportOutlined, FolderOpenOutlined } from '@ant-design/icons'
-import { Button, Descriptions, Dropdown, Flex, Space, type ButtonProps } from 'antd'
+import { Badge, Button, Descriptions, Dropdown, Flex, Space, type ButtonProps } from 'antd'
 import type { SaveSummary } from '@pkhex-everywhere/engine'
 import { useEngine, useLoadedGame, useQuery } from '@pkhex-everywhere/react'
 import { gameName } from '../../capabilities'
 import { AdSlot } from '../../components/AdSlot'
-import { downloadFile, romHacksEnabled, useNavigate } from '../../host'
+import { downloadFile, useNavigate } from '../../host'
 import { journey } from '../../layout/journey'
 import { routes } from '../../routes'
 import { FormatPickerModal } from './FormatPickerModal'
 import { LoadRomHackModal } from './LoadRomHackModal'
+import { showRomHacksBadge } from './romHacksBadge'
 import { useLoadSave } from './useLoadSave'
 
 const topAdSlot = '5784199745'
@@ -116,35 +117,36 @@ interface OpenButtonProps {
 
 function OpenButton({ label, type, style, onOpen }: OpenButtonProps) {
   const [loadingRomHack, setLoadingRomHack] = useState(false)
-  const icon = <FolderOpenOutlined aria-hidden />
 
-  if (!romHacksEnabled) {
-    return (
-      <Button type={type} icon={icon} style={style} onClick={onOpen}>
+  const buttons = (
+    <Space.Compact style={style}>
+      <Button type={type} icon={<FolderOpenOutlined aria-hidden />} style={{ flexGrow: 1 }} onClick={onOpen}>
         {label}
       </Button>
-    )
-  }
+      <Dropdown
+        trigger={['click']}
+        menu={{
+          items: [
+            { key: 'open', label: 'Open save file' },
+            { key: 'romHack', label: 'Load ROM Hack' },
+          ],
+          onClick: ({ key }) => (key === 'romHack' ? setLoadingRomHack(true) : onOpen()),
+        }}
+      >
+        <Button type={type} icon={<EllipsisOutlined />} aria-label="More ways to open" />
+      </Dropdown>
+    </Space.Compact>
+  )
 
   return (
     <>
-      <Space.Compact style={style}>
-        <Button type={type} icon={icon} style={{ flexGrow: 1 }} onClick={onOpen}>
-          {label}
-        </Button>
-        <Dropdown
-          trigger={['click']}
-          menu={{
-            items: [
-              { key: 'open', label: 'Open save file' },
-              { key: 'romHack', label: 'Load ROM Hack' },
-            ],
-            onClick: ({ key }) => (key === 'romHack' ? setLoadingRomHack(true) : onOpen()),
-          }}
-        >
-          <Button type={type} icon={<EllipsisOutlined />} aria-label="More ways to open" />
-        </Dropdown>
-      </Space.Compact>
+      {showRomHacksBadge(new Date()) ? (
+        <Badge count="New" size="small" color="blue" style={{ display: 'flex', flexDirection: 'column' }}>
+          {buttons}
+        </Badge>
+      ) : (
+        buttons
+      )}
       {loadingRomHack && (
         <Suspense fallback={null}>
           <LoadRomHackModal onClose={() => setLoadingRomHack(false)} />

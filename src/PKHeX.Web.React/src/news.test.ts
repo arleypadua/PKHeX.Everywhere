@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { checkUnseenNews, latestNewsDate, markNewsSeen, news } from './news'
+import { checkUnseenNews, latestNewsDate, markNewsSeen, news, newsHeadline } from './news'
 import { createSettings } from './settings'
 
 describe('news', () => {
@@ -8,6 +8,14 @@ describe('news', () => {
   it('lists the latest entry first', () => {
     expect(news[0].date).toBe(latestNewsDate)
     expect([...news].sort((a, b) => b.date.localeCompare(a.date))).toEqual(news)
+  })
+
+  it('headlines the latest entry with ROM hack support', () => {
+    expect(newsHeadline(news[0])).toBe('PKHeX.Web now opens Unbound and Radical Red saves.')
+  })
+
+  it('falls back to the default headline for an entry without one', () => {
+    expect(newsHeadline({ date: '2099-01-01', items: [] })).toBe('PKHeX.Web just got updated')
   })
 
   it('shows news newer than the date Blazor stored', () => {

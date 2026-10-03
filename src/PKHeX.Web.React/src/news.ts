@@ -2,10 +2,18 @@ import type { Settings } from './settings'
 
 export interface NewsEntry {
   date: string
+  headline?: string
   items: string[]
 }
 
+export const romHacksNewsDate = '2026-10-03'
+
 export const news: NewsEntry[] = [
+  {
+    date: romHacksNewsDate,
+    headline: 'PKHeX.Web now opens Unbound and Radical Red saves.',
+    items: ['Added support for Pokémon Unbound and Radical Red saves.'],
+  },
   {
     date: '2026-10-01',
     items: [
@@ -81,6 +89,10 @@ export const news: NewsEntry[] = [
 
 export const latestNewsDate = news[0].date
 
+export function newsHeadline(entry: NewsEntry) {
+  return entry.headline ?? 'PKHeX.Web just got updated'
+}
+
 export function checkUnseenNews(settings: Settings, today: Date) {
   const since = settings.readLastDateNewsSeen()
   const lastSeen = since ?? formatDate(daysBefore(today, 30))
@@ -96,7 +108,7 @@ function daysBefore(date: Date, days: number) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() - days)
 }
 
-function formatDate(date: Date) {
+export function formatDate(date: Date) {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
