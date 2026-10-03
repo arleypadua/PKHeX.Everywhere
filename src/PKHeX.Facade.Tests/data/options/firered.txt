@@ -1,0 +1,15 @@
+natures 25 96aeadbf3b9a9a7a
+balls 12 0dd6d6329bb98c5b
+languages 6 24573f8165185ab9
+heldItems 245 d6f31b580b9f660a
+originGames 7 06bf6ed8c6fa0345
+moves 354 138e4a22a94496bf
+species 387 f03a135af772d6bd
+items 377 8cd65c202ee87fda
+locations 216 d96c78c8b3e8e9e8
+eggLocations 216 d96c78c8b3e8e9e8
+party/0/species 2 94377e0739fea9ea
+party/0/abilities 1 877567cecb03785a
+party/0/forms 0 e3b0c44298fc1c14
+party/0/metLocations 216 f22ba0856b43f48c
+party/0/moves 13 7d4e813766fd90cf
