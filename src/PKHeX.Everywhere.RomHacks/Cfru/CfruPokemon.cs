@@ -14,7 +14,7 @@ public abstract class CfruPokemon : PKM, IUnmappedValues, IGigantamax, IFormArgu
     public const int SizeStored = 80;
     public const int SizeBoxed = 58;
 
-    private static readonly Ball[] Balls =
+    internal static readonly Ball[] Balls =
     [
         Core.Ball.Master, Core.Ball.Ultra, Core.Ball.Great, Core.Ball.Poke, Core.Ball.Safari, Core.Ball.Net,
         Core.Ball.Dive, Core.Ball.Nest, Core.Ball.Repeat, Core.Ball.Timer, Core.Ball.Luxury, Core.Ball.Premier,

@@ -11,6 +11,7 @@ const save = (hasEvents: boolean, capabilities = allCapabilities): SaveSummary =
   hasEvents,
   format: null,
   capabilities,
+  statsApproximate: false,
 })
 
 const plugIn = (id: string, needsReinstall = false): InstalledPlugIn => ({

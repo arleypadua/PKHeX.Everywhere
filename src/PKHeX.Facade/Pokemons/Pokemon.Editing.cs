@@ -276,10 +276,10 @@ public partial class Pokemon
     private void ApplyVersion(int id)
     {
         Require(Game.Options.OriginGames.Any(g => g.Id == id), nameof(PokemonPatch.Version), $"Origin game {id} isn't in this game.");
-        var group = GameUtil.GetMetLocationVersionGroup(MetLocationVersion());
+        var locations = MetLocationChoices();
         Pkm.Version = (GameVersion)id;
         Require(Pkm.Version == (GameVersion)id, nameof(PokemonPatch.Version), $"Origin game {id} can't be stored in this game.");
-        if (GameUtil.GetMetLocationVersionGroup(MetLocationVersion()) != group)
+        if (!MetLocationChoices().SequenceEqual(locations))
             Pkm.MetLocation = EncounterSuggestion.TryGetSuggestedTransferLocation(Pkm);
     }
 
@@ -399,6 +399,4 @@ public partial class Pokemon
         : [];
 
     private IReadOnlyList<Choice> MetLocationChoices() => Game.GameData.MetLocations(Pkm.Version);
-
-    private GameVersion MetLocationVersion() => PKHeXGameData.MetLocationVersion(Pkm.Version, Game.SaveFile);
 }

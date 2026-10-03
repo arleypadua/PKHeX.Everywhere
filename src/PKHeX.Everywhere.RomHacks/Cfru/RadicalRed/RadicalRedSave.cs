@@ -6,8 +6,8 @@ public sealed class RadicalRedSave(byte[] data) : CfruSave(data, Signatures)
 {
     public static readonly uint[] Signatures = [0x08012025];
 
-    protected override CfruSpeciesMap SpeciesMap => RadicalRedPokemon.Map;
-    protected override CfruItemMap ItemMap => RadicalRedPokemon.Items;
+    internal override CfruSpeciesMap SpeciesMap => RadicalRedPokemon.Map;
+    internal override CfruItemMap ItemMap => RadicalRedPokemon.Items;
 
     public override Type PKMType => typeof(RadicalRedPokemon);
     public override RadicalRedPokemon BlankPKM => new();

@@ -13,7 +13,8 @@ namespace PKHeX.Everywhere.Engine.Dtos;
 /// <param name="HasEvents">Whether the save has event flags and work to edit. When false, <c>events.get</c> returns null, or fails with <c>not-supported</c> when the save doesn't support <c>events</c>.</param>
 /// <param name="Format">The save format the save loaded through, or null for a save PKHeX reads on its own.</param>
 /// <param name="Capabilities">What the save supports. A save from PKHeX supports all of them. Calls behind a capability that's missing fail with <c>not-supported</c>.</param>
-public record SaveSummary(string? FileName, string Version, int Generation, bool HasEvents, SaveFormat? Format, SaveCapability[] Capabilities);
+/// <param name="StatsApproximate">Whether computed stats may differ from the game's. ROM hacks use the official games' base stats, which the hack may change.</param>
+public record SaveSummary(string? FileName, string Version, int Generation, bool HasEvents, SaveFormat? Format, SaveCapability[] Capabilities, bool StatsApproximate);
 
 /// <summary>
 /// A save format PKHeX doesn't know, such as a ROM hack's, that the engine loads on its own.
@@ -106,7 +107,8 @@ public static class GameMapping
         game.SaveFile.Generation,
         game.Events is not null,
         game.Format?.ToDto(),
-        game.Capabilities.Order().Select(ToDto).ToArray());
+        game.Capabilities.Order().Select(ToDto).ToArray(),
+        game.GameData.StatsApproximate);
 
     public static SaveVersion ToVersion(this Game game) => new(
         game.GameVersionApproximation.Name,

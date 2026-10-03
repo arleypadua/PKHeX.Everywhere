@@ -9,6 +9,7 @@ const fireRed: SaveSummary = {
   hasEvents: true,
   format: null,
   capabilities: [],
+  statsApproximate: false,
 }
 
 describe('romHackWarning', () => {

@@ -26,7 +26,8 @@ public class PKHeXGameData : IGameDataSource
             .Select(ToChoice)
             .ToArray());
         _items = new(GameItems);
-        _moves = new(() => MoveIds()
+        _moves = new(() => _source.Value.Moves
+            .Select(move => move.Value)
             .Where(move => move != (int)Move.None)
             .Select(move => MoveRepository.Instance.GetMove((ushort)move))
             .OrderBy(move => move.Name)
@@ -55,8 +56,10 @@ public class PKHeXGameData : IGameDataSource
 
     public virtual IReadOnlySet<PokemonField> Locked { get; }
 
+    public virtual bool StatsApproximate => false;
+
     // Mirrors PKHeX's editor: an origin game without its own location list borrows the save's, then the format's.
-    internal static GameVersion MetLocationVersion(GameVersion origin, SaveFile save)
+    private static GameVersion MetLocationVersion(GameVersion origin, SaveFile save)
     {
         if (GameUtil.GetMetLocationVersionGroup(origin) is not GameVersion.Invalid) return origin;
 
@@ -76,10 +79,6 @@ public class PKHeXGameData : IGameDataSource
             ? items.Where(item => item.Id != 255).Append(new Choice(255, "Collapsible bike")).ToArray()
             : items.ToArray();
     }
-
-    private IEnumerable<int> MoveIds() => _save is IMoveList list
-        ? list.Moves.Select(move => (int)move)
-        : _source.Value.Moves.Select(move => move.Value);
 
     private static Choice ToChoice(ComboItem item) => new(item.Value, item.Text);
 

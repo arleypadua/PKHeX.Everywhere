@@ -21,6 +21,7 @@ PKHeX.Facade.Abstractions.IGameDataSource.NameOf(PKHeX.Facade.Abstractions.GameD
 PKHeX.Facade.Abstractions.IGameDataSource.Natures.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 PKHeX.Facade.Abstractions.IGameDataSource.OriginGames.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 PKHeX.Facade.Abstractions.IGameDataSource.Species.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.Abstractions.IGameDataSource.StatsApproximate.get -> bool
 PKHeX.Facade.Abstractions.ISaveFormat.GameData(PKHeX.Core.SaveFile! save) -> PKHeX.Facade.Abstractions.IGameDataSource!
 PKHeX.Facade.Game.GameData.get -> PKHeX.Facade.Abstractions.IGameDataSource!
 PKHeX.Facade.PKHeXGameData
@@ -43,3 +44,4 @@ virtual PKHeX.Facade.PKHeXGameData.NameOf(PKHeX.Facade.Abstractions.GameDataKind
 virtual PKHeX.Facade.PKHeXGameData.Natures.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 virtual PKHeX.Facade.PKHeXGameData.OriginGames.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 virtual PKHeX.Facade.PKHeXGameData.Species.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+virtual PKHeX.Facade.PKHeXGameData.StatsApproximate.get -> bool

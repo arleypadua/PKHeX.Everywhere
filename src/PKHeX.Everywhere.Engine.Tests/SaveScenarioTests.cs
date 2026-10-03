@@ -147,8 +147,6 @@ public class SaveScenarioTests
 
     [Theory]
     [EverySave]
-    [KnownGap(SaveFilePath.Unbound, NatureFromPid)]
-    [KnownGap(SaveFilePath.RadicalRed, NatureFromPid)]
     public void EveryOfferedNatureCanBeStored(string saveFile, string? knownGap) =>
         PassesUnlessKnownGap(knownGap, () => EveryChoiceIsStored(saveFile, "nature", session => Value(Dispatch(session, "game.natures", "[]"))));
 
@@ -169,15 +167,11 @@ public class SaveScenarioTests
 
     [Theory]
     [EverySave]
-    [KnownGap(SaveFilePath.Unbound, "Abilities the save can't store are offered.")]
-    [KnownGap(SaveFilePath.RadicalRed, "Abilities the save can't store are offered.")]
     public void EveryOfferedAbilityCanBeStored(string saveFile, string? knownGap) =>
         PassesUnlessKnownGap(knownGap, () => EveryChoiceIsStored(saveFile, "ability", session => Options(session)["abilities"]));
 
     [Theory]
     [EverySave]
-    [KnownGap(SaveFilePath.Unbound, "Met locations the save can't store, such as Gen 5 transfer locations, are offered.")]
-    [KnownGap(SaveFilePath.RadicalRed, "Met locations the save can't store, such as Gen 5 transfer locations, are offered.")]
     public void EveryOfferedMetLocationCanBeStored(string saveFile, string? knownGap) =>
         PassesUnlessKnownGap(knownGap, () => EveryChoiceIsStored(saveFile, "metLocation", session => Options(session)["metLocations"]));
 
@@ -200,7 +194,6 @@ public class SaveScenarioTests
 
     private static readonly string[] RewrittenByPKHeX = [SaveFilePath.Yellow, SaveFilePath.Crystal, SaveFilePath.FireRed, SaveFilePath.HgSs];
 
-    private const string NatureFromPid = "Natures are offered, but the nature comes from the PID and can't change. It should be a Locked field.";
     private const string ExportRewritesUneditedPokemon = "Export rewrites Pokémon nobody edited.";
 
     private static void PassesUnlessKnownGap(string? knownGap, Action scenario)

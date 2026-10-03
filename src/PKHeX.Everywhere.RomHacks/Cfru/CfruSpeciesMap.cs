@@ -24,6 +24,8 @@ public sealed class CfruSpeciesMap
 
     public CfruPersonalTable Personal { get; }
 
+    public IEnumerable<ushort> Species => _species;
+
     public CfruSpecies ToNational(ushort index) =>
         index < _nationalByIndex.Length ? _nationalByIndex[index] : default;
 
