@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+
 namespace PKHeX.Facade.Pokemons;
 
 public record PokemonDetails(
@@ -105,4 +107,18 @@ public record Choice(int Id, string Name);
 /// <summary>
 /// The choices that depend on the Pokémon itself: its evolution line, its species' abilities, its forms, the met locations of its origin game and the moves it can legally know.
 /// </summary>
-public record PokemonOptions(IReadOnlyList<Choice> Species, IReadOnlyList<Choice> Abilities, IReadOnlyList<Choice> Forms, IReadOnlyList<Choice> MetLocations, IReadOnlyList<Choice> Moves);
+public record PokemonOptions(IReadOnlyList<Choice> Species, IReadOnlyList<Choice> Abilities, IReadOnlyList<Choice> Forms, IReadOnlyList<Choice> MetLocations, IReadOnlyList<Choice> Moves)
+{
+    public IReadOnlySet<PokemonField> Locked { get; init; } = FrozenSet<PokemonField>.Empty;
+}
+
+/// <summary>
+/// A Pokémon field a save can lock, named as in <see cref="PokemonPatch"/>.
+/// </summary>
+public enum PokemonField
+{
+    Gender,
+    Nature,
+    Ability,
+    MetLocation,
+}

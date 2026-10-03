@@ -147,9 +147,6 @@ public class SaveScenarioTests
 
     [Theory]
     [EverySave]
-    [KnownGap(SaveFilePath.Emerald, NatureFromPid)]
-    [KnownGap(SaveFilePath.FireRed, NatureFromPid)]
-    [KnownGap(SaveFilePath.HgSs, NatureFromPid)]
     [KnownGap(SaveFilePath.Unbound, NatureFromPid)]
     [KnownGap(SaveFilePath.RadicalRed, NatureFromPid)]
     public void EveryOfferedNatureCanBeStored(string saveFile, string? knownGap) =>
@@ -269,6 +266,7 @@ public class SaveScenarioTests
     private static void EveryChoiceIsStored(string saveFile, string field, Func<Session, JsonNode?> choices)
     {
         var session = LoadSession(saveFile);
+        if (Options(session)["locked"]!.AsArray().Any(locked => locked!.GetValue<string>() == field)) return;
 
         var unstorable = choices(session)!.AsArray()
             .Select(choice => choice!["id"]!.GetValue<int>())

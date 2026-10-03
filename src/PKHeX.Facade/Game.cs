@@ -19,11 +19,12 @@ public class Game
         SaveFile = saveFile;
         Format = format is null ? null : new SaveFormatDescription(format.Id, format.Name, format.BaseGame);
         Capabilities = format?.Capabilities ?? AllCapabilities;
+        GameData = format?.GameData(saveFile) ?? new PKHeXGameData(saveFile);
         SpeciesRepository = new SpeciesRepository(this);
         PokemonRepository = new PokemonRepository(this);
         LocationRepository = new LocationRepository(this);
-        ItemRepository = new ItemRepository(saveFile);
-        Options = new GameOptions(saveFile);
+        ItemRepository = new ItemRepository(GameData);
+        Options = new GameOptions(GameData);
 
         Trainer = new Trainer(this);
         BattlePoints = BattlePoints.GetInstance(saveFile);
@@ -33,6 +34,8 @@ public class Game
     public SaveFormatDescription? Format { get; }
 
     public IReadOnlySet<Capability> Capabilities { get; }
+
+    public IGameDataSource GameData { get; }
 
     public bool Supports(Capability capability) => Capabilities.Contains(capability);
 

@@ -5,6 +5,7 @@ import { draftHandle } from '@pkhex-everywhere/engine'
 import { useQuery } from '@pkhex-everywhere/react'
 import { ItemSelect } from '../../components/ItemSelect'
 import { ChoiceSelect } from './ChoiceSelect'
+import { isLocked } from './locked'
 import { useDraft } from './useDraft'
 
 export function MetConditionsTab() {
@@ -42,6 +43,7 @@ export function MetConditionsTab() {
                 label="Location"
                 choices={options.metLocations}
                 value={details.metLocation}
+                disabled={isLocked(options, 'metLocation')}
                 onChange={(metLocation) => submit({ metLocation })}
               />
             ),

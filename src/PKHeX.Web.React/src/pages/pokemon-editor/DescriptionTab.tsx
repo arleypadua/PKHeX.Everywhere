@@ -4,6 +4,7 @@ import { draftHandle, type PokemonGender } from '@pkhex-everywhere/engine'
 import { useQuery } from '@pkhex-everywhere/react'
 import { ItemSelect } from '../../components/ItemSelect'
 import { ChoiceSelect } from './ChoiceSelect'
+import { isLocked } from './locked'
 import { useDraft } from './useDraft'
 
 const typesUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield'
@@ -65,6 +66,7 @@ export function DescriptionTab() {
           optionType="button"
           buttonStyle="solid"
           value={details.gender}
+          disabled={isLocked(options, 'gender')}
           options={genders.filter((gender) => gender.value !== 'genderless' || details.gender === 'genderless')}
           onChange={(event) => submit({ gender: event.target.value as PokemonGender })}
         />
@@ -104,7 +106,13 @@ export function DescriptionTab() {
             key: 'nature',
             label: 'Nature',
             children: (
-              <ChoiceSelect label="Nature" choices={natures} value={details.nature} onChange={(nature) => submit({ nature })} />
+              <ChoiceSelect
+                label="Nature"
+                choices={natures}
+                value={details.nature}
+                disabled={isLocked(options, 'nature')}
+                onChange={(nature) => submit({ nature })}
+              />
             ),
           },
         ]),
@@ -145,6 +153,7 @@ export function DescriptionTab() {
                 label="Ability"
                 choices={options.abilities}
                 value={details.ability}
+                disabled={isLocked(options, 'ability')}
                 onChange={(ability) => submit({ ability })}
               />
             ),
