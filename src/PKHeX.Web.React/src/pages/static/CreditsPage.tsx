@@ -24,6 +24,19 @@ export default function CreditsPage() {
         <a href="https://github.com/santacrab2/PKHeX-Plugins" target="_blank">PKHeX-Plugins</a> fork, which includes the
         Auto-Legality mode.
       </p>
+
+      <h2>OpenHome</h2>
+      <p>
+        The Pokémon Unbound and Radical Red species, item and move data comes from{' '}
+        <a href="https://github.com/andrewbenington/OpenHome" target="_blank">OpenHome</a> by{' '}
+        <a href="https://github.com/andrewbenington" target="_blank">Andrew Benington</a>. Thanks for making it available.
+      </p>
+
+      <h2>PKMN RBYGSC font</h2>
+      <p>
+        The pixel font is{' '}
+        <a href="https://fontstruct.com/fontstructions/show/875033" target="_blank">PKMN RBYGSC</a> by David Fens.
+      </p>
     </Typography>
   )
 }
