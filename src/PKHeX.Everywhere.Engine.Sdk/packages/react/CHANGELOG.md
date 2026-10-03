@@ -1,5 +1,19 @@
 # @pkhex-everywhere/react
 
+## 0.6.0
+
+### Minor Changes
+
+- bf74352: Unknown items, such as a ROM hack's own items, now have ids of their own. `OwnedItem` gets `isUnknown`, and `inventory.setItem` can change the count of an unknown item or remove it in its pouch. `pokemon.options()` returns `heldItems`, typed as the new `ItemChoice` with `isUnknown`, which lists the unknown item only for the Pokémon already holding it. `EditablePokemon.unknownHeldItem` is replaced by `heldItemIsUnknown`, and setting `heldItem` to 0 now removes an unknown held item.
+
+### Patch Changes
+
+- Updated dependencies [9781875]
+- Updated dependencies [bf74352]
+- Updated dependencies [a9062a7]
+- Updated dependencies [52d8956]
+  - @pkhex-everywhere/engine@0.6.0
+
 ## 0.5.0
 
 ### Patch Changes

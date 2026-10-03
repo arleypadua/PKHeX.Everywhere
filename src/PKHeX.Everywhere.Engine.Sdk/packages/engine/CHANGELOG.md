@@ -1,5 +1,14 @@
 # @pkhex-everywhere/engine
 
+## 0.6.0
+
+### Minor Changes
+
+- 9781875: The engine runs plug-ins built against plug-in SDK 3 only. `plugins.isSupported` returns false for an SDK 2 plug-in, `plugins.register` lists it with `needsReinstall`, and `plugins.newestCompatible` picks the newest version with `Sdk: 3`.
+- bf74352: Unknown items, such as a ROM hack's own items, now have ids of their own. `OwnedItem` gets `isUnknown`, and `inventory.setItem` can change the count of an unknown item or remove it in its pouch. `pokemon.options()` returns `heldItems`, typed as the new `ItemChoice` with `isUnknown`, which lists the unknown item only for the Pokémon already holding it. `EditablePokemon.unknownHeldItem` is replaced by `heldItemIsUnknown`, and setting `heldItem` to 0 now removes an unknown held item.
+- a9062a7: Move slots have a required `isUnknown`. In a ROM hack save, a move PKHeX has no id for now shows in its slot as `Unknown move #n` instead of an empty slot. It can stay in that slot, be replaced or be cleared, and clearing it removes it from the save.
+- 52d8956: Pokémon summaries and details have a required `isUnknown` and `editable`. A species PKHeX has no id for, such as a ROM hack's own species, now has `speciesId: null` (`species: null` in details, and in party members) instead of 0, and is named like `Unknown (#706)`. Such a Pokémon isn't editable: show it with `pokemon.details()`, since `pokemon.edit()`, `pokemon.clone()` and `pokemon.update()` fail with `unknown-species`.
+
 ## 0.5.0
 
 ### Minor Changes
