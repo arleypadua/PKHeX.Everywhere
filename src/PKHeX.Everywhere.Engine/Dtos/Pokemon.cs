@@ -108,8 +108,8 @@ public enum PokemonHandler
 /// <param name="Form">Form index within the species' forms. 0 is the default form.</param>
 /// <param name="Nature">PKHeX nature id. See <c>game.natures()</c>.</param>
 /// <param name="Ability">PKHeX ability id, or 0 in games without abilities.</param>
-/// <param name="HeldItem">PKHeX item id. 0 means no item. See <c>game.heldItems()</c>.</param>
-/// <param name="UnknownHeldItem">Set when the Pokémon holds an item PKHeX has no id for, such as a ROM hack's own item, to a name like <c>Unknown item #640</c>. <c>heldItem</c> is 0 then, and the item stays until <c>heldItem</c> is set to another item.</param>
+/// <param name="HeldItem">PKHeX item id. 0 means no item. See <c>heldItems</c> in <c>pokemon.options()</c>.</param>
+/// <param name="HeldItemIsUnknown">True when the Pokémon holds an item PKHeX has no id for, such as a ROM hack's own item. <c>heldItem</c> is then an id of its own, named in <c>heldItems</c> in <c>pokemon.options()</c>, and the item stays until <c>heldItem</c> is set to another item or 0.</param>
 /// <param name="Ball">PKHeX ball id. See <c>game.balls()</c>.</param>
 /// <param name="Friendship">Friendship with the current handler, 0 to 255.</param>
 /// <param name="Language">PKHeX language id. See <c>game.languages()</c>.</param>
@@ -142,7 +142,7 @@ public record EditablePokemon(
     int Nature,
     int Ability,
     int HeldItem,
-    string? UnknownHeldItem,
+    bool HeldItemIsUnknown,
     int Ball,
     int Friendship,
     int Language,
@@ -206,7 +206,7 @@ public record MoveSlot(int Id, string Name, int Pp, int MaxPp, bool IsUnknown);
 /// <param name="Form">Form index. See <c>forms</c> in <c>pokemon.options()</c>.</param>
 /// <param name="Nature">PKHeX nature id from <c>game.natures()</c>. Rejected when <c>locked</c> in <c>pokemon.options()</c> has <c>nature</c>.</param>
 /// <param name="Ability">PKHeX ability id. See <c>abilities</c> in <c>pokemon.options()</c>.</param>
-/// <param name="HeldItem">PKHeX item id from <c>game.heldItems()</c>.</param>
+/// <param name="HeldItem">PKHeX item id from <c>heldItems</c> in <c>pokemon.options()</c>.</param>
 /// <param name="Ball">PKHeX ball id from <c>game.balls()</c>.</param>
 /// <param name="Friendship">0 to 255.</param>
 /// <param name="Language">PKHeX language id from <c>game.languages()</c>.</param>
@@ -272,6 +272,13 @@ public record StatPatch(
 public record Choice(int Id, string Name);
 
 /// <summary>
+/// An item a Pokémon can hold.
+/// </summary>
+/// <param name="Id">PKHeX item id. 0 means no item.</param>
+/// <param name="IsUnknown">True for an item PKHeX has no id for, such as a ROM hack's own item. Only the Pokémon already holding it is offered it.</param>
+public record ItemChoice(int Id, string Name, bool IsUnknown);
+
+/// <summary>
 /// The values a specific Pokémon can take for the fields whose choices depend on it.
 /// </summary>
 /// <param name="Species">Its evolution line: pre-evolutions, evolutions and itself, limited to species in the save's game.</param>
@@ -279,8 +286,9 @@ public record Choice(int Id, string Name);
 /// <param name="Forms">Empty when the species has no forms.</param>
 /// <param name="MetLocations">Locations of its origin game. Empty in Gen 1.</param>
 /// <param name="Moves">Moves it learns by level up at or below its current level, plus the legal moves it already knows, sorted by name.</param>
+/// <param name="HeldItems">The items the save can store as held items, as <c>game.heldItems()</c> lists them, plus the unknown item it already holds.</param>
 /// <param name="Locked">Fields the save can't change, such as <c>nature</c> in Gen 3 and 4, where it comes from the PID. Show them disabled. An update that changes one fails with <c>invalid-patch</c>.</param>
-public record PokemonOptions(Choice[] Species, Choice[] Abilities, Choice[] Forms, Choice[] MetLocations, Choice[] Moves, PokemonField[] Locked);
+public record PokemonOptions(Choice[] Species, Choice[] Abilities, Choice[] Forms, Choice[] MetLocations, Choice[] Moves, ItemChoice[] HeldItems, PokemonField[] Locked);
 
 /// <summary>
 /// A Pokémon field a save can lock, named as in <see cref="PokemonPatch"/>.
@@ -327,7 +335,7 @@ public static class PokemonMapping
         details.Nature,
         details.Ability,
         details.HeldItem,
-        details.UnknownHeldItem,
+        details.HeldItemIsUnknown,
         details.Ball,
         details.Friendship,
         details.Language,
@@ -430,6 +438,7 @@ public static class PokemonMapping
         options.Forms.ToChoices(),
         options.MetLocations.ToChoices(),
         options.Moves.ToChoices(),
+        options.HeldItems.Select(item => new ItemChoice(item.Id, item.Name, item.IsUnknown)).ToArray(),
         options.Locked.Order().Select(ToDto).ToArray());
 
     private static PokemonField ToDto(Facade.Pokemons.PokemonField field) => field switch

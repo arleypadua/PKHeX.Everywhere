@@ -24,10 +24,12 @@ internal sealed class CfruGameData : IGameDataSource
         .ToArray();
 
     private readonly bool _fireRedMetLocations;
+    private readonly CfruItemMap _itemMap;
 
     public CfruGameData(CfruSave save, bool fireRedMetLocations)
     {
         _fireRedMetLocations = fireRedMetLocations;
+        _itemMap = save.ItemMap;
         var itemNames = GameInfo.Strings.GetItemStrings(save.Context, save.Version);
 
         Species = save.SpeciesMap.Species
@@ -59,7 +61,12 @@ internal sealed class CfruGameData : IGameDataSource
     public IReadOnlyList<Choice> MetLocations(GameVersion origin, bool egg = false) =>
         _fireRedMetLocations ? FireRed.MetLocations(GameVersion.FR, egg) : NumberedLocations;
 
-    public string? NameOf(GameDataKind kind, int id) => kind == GameDataKind.Move ? CfruMoves.NameOf(id) : null;
+    public string? NameOf(GameDataKind kind, int id) => kind switch
+    {
+        GameDataKind.Move => CfruMoves.NameOf(id),
+        GameDataKind.Item or GameDataKind.HeldItem => _itemMap.UnknownIndex(id) is { } index ? $"Unknown item #{index}" : null,
+        _ => null,
+    };
 
     public IReadOnlySet<PokemonField> Locked { get; }
 

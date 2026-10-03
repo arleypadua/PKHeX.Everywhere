@@ -21,7 +21,6 @@ export function DescriptionTab() {
   const natures = useQuery('game.natures')
   const balls = useQuery('game.balls')
   const languages = useQuery('game.languages')
-  const heldItems = useQuery('game.heldItems')
   const screens = Grid.useBreakpoint()
 
   const items: DescriptionsProps['items'] = [
@@ -125,7 +124,7 @@ export function DescriptionTab() {
             children: <ChoiceSelect label="Form" choices={options.forms} value={details.form} onChange={(form) => submit({ form })} />,
           },
         ]),
-    ...(heldItems.length <= 1
+    ...(options.heldItems.length <= 1
       ? []
       : [
           {
@@ -133,10 +132,9 @@ export function DescriptionTab() {
             label: 'Held Item',
             children: (
               <ItemSelect
-                items={heldItems}
+                items={options.heldItems}
                 label="Held Item"
-                value={details.unknownHeldItem ? undefined : details.heldItem}
-                placeholder={details.unknownHeldItem ?? undefined}
+                value={details.heldItem}
                 onChange={(item) => submit({ heldItem: item.id })}
               />
             ),

@@ -5,7 +5,10 @@ import { ItemIcon } from './ItemIcon'
 interface Item {
   id: number
   name: string
+  isUnknown?: boolean
 }
+
+const hasIcon = (item: Item) => item.id !== 0 && !item.isUnknown
 
 interface ItemSelectProps<T extends Item> {
   items: T[]
@@ -19,16 +22,18 @@ export function ItemSelect<T extends Item>({ items, label, value, placeholder = 
   const [search, setSearch] = useState('')
 
   return (
-    <Select<number, { value: number; label: string }>
+    <Select<number, { value: number; label: string; icon: boolean }>
       value={value}
       aria-label={label}
       placeholder={placeholder}
       style={{ width: '100%' }}
       showSearch={{ searchValue: search, onSearch: setSearch, optionFilterProp: 'label' }}
       virtual
-      options={items.map((item) => ({ value: item.id, label: item.name }))}
-      optionRender={({ data }) => <ItemOption id={data.value} name={data.label} />}
-      labelRender={({ value, label }) => <ItemOption id={Number(value)} name={String(label)} />}
+      options={items.map((item) => ({ value: item.id, label: item.name, icon: hasIcon(item) }))}
+      optionRender={({ data }) => <ItemOption icon={data.icon} name={data.label} />}
+      labelRender={({ value, label }) => (
+        <ItemOption icon={items.some((item) => item.id === Number(value) && hasIcon(item))} name={String(label)} />
+      )}
       onSelect={() => setSearch('')}
       onChange={(id) => {
         const item = items.find((item) => item.id === id)
@@ -38,10 +43,10 @@ export function ItemSelect<T extends Item>({ items, label, value, placeholder = 
   )
 }
 
-function ItemOption({ id, name }: { id: number; name: string }) {
+function ItemOption({ icon, name }: { icon: boolean; name: string }) {
   return (
     <Space size={5}>
-      {id !== 0 && <ItemIcon name={name} />}
+      {icon && <ItemIcon name={name} />}
       <span>{name}</span>
     </Space>
   )

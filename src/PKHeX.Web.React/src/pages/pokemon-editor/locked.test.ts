@@ -8,6 +8,7 @@ const options = (locked: PokemonOptions['locked']): PokemonOptions => ({
   forms: [],
   metLocations: [],
   moves: [],
+  heldItems: [],
   locked,
 })
 

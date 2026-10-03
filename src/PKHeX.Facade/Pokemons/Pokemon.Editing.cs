@@ -47,10 +47,14 @@ public partial class Pokemon
         Pkm is ICombatPower combatPower ? combatPower.Stat_CP : null,
         Pkm is PB7 pb7 ? pb7.CalcCP : null,
         Moves.Values.Select(move => new MoveSlot(move.Move.Id, move.Move.Name, move.PP.Current, move.PP.Max) { IsUnknown = move.Move.IsUnknown }).ToArray(),
-        Game.Supports(Capability.Legality) ? this.LegalityReport() : null);
+        Game.Supports(Capability.Legality) ? this.LegalityReport() : null)
+    {
+        HeldItemIsUnknown = HeldItem.IsUnknown,
+    };
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices())
     {
+        HeldItems = HeldItemChoices(),
         Locked = Game.GameData.Locked,
     };
 
@@ -166,7 +170,7 @@ public partial class Pokemon
 
     private void ApplyHeldItem(int id)
     {
-        Require(Game.Options.HeldItems.Any(i => i.Id == id), nameof(PokemonPatch.HeldItem), $"Held item {id} isn't in this game.");
+        Require(HeldItemChoices().Any(i => i.Id == id), nameof(PokemonPatch.HeldItem), $"Held item {id} isn't in this game.");
         Pkm.HeldItem = id;
         Require(Pkm.HeldItem == id, nameof(PokemonPatch.HeldItem), $"Held item {id} can't be stored in this game.");
     }
@@ -399,6 +403,15 @@ public partial class Pokemon
         return MoveRepository.Instance.PossibleMovesFor(this)
             .Where(move => storable.Contains(move.Id))
             .Select(move => new Choice(move.Id, move.Name))
+            .ToArray();
+    }
+
+    private ItemDefinition[] HeldItemChoices()
+    {
+        var held = HeldItem;
+        return Game.Options.HeldItems
+            .Select(item => new ItemDefinition((ushort)item.Id, item.Name))
+            .Concat(held.IsUnknown ? [held] : [])
             .ToArray();
     }
 

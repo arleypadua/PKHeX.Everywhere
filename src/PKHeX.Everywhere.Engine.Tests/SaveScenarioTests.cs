@@ -127,8 +127,6 @@ public class SaveScenarioTests
     [EverySave]
     [KnownGap(SaveFilePath.Crystal, "The key items pocket lists item 255, which it can't set.")]
     [KnownGap(SaveFilePath.HgSs, "The Berries pocket lists a Max Repel with a count of 0, which it can't set.")]
-    [KnownGap(SaveFilePath.Unbound, "Unknown items are listed with id 0 and can't be changed or removed.")]
-    [KnownGap(SaveFilePath.RadicalRed, "Unknown items are listed with id 0 and can't be changed or removed.")]
     public void EveryListedBagItemCanBeChangedAndRemoved(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
         var session = LoadSession(saveFile);
