@@ -88,6 +88,11 @@ public class GameHandlerTests
             .Should().Be("invalid-save");
 
     [Fact]
+    public void LoadReturnsInvalidSaveForAGen3SaveAboveTheBaseGamesLimits() =>
+        Error(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(Gen3SaveOverLimits.EmeraldWithBoxSpecies(412)), "emerald.sav", null!)))
+            .Should().Be("invalid-save");
+
+    [Fact]
     public void ExportedBytesLoadBackWithTheSameTrainer()
     {
         var session = EngineCalls.Loaded(SaveFilePath.HgSs);

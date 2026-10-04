@@ -12,6 +12,7 @@
   <ItemGroup>
     <Compile Include="..\PKHeX.Facade.Tests\Base\GameFixture.cs" Link="Base\GameFixture.cs" />
     <Compile Include="..\PKHeX.Facade.Tests\Base\PokemonFixture.cs" Link="Base\PokemonFixture.cs" />
+    <Compile Include="..\PKHeX.Facade.Tests\Base\Gen3SaveOverLimits.cs" Link="Base\Gen3SaveOverLimits.cs" />
     <Content Include="..\PKHeX.Facade.Tests\data\save\**" LinkBase="data\save">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
