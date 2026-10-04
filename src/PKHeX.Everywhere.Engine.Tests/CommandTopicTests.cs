@@ -9,6 +9,7 @@ using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 
 namespace PKHeX.Everywhere.Engine.Tests;
 
+[Collection(nameof(SaveFormats))]
 public class CommandTopicTests
 {
     private static readonly Dictionary<string, Func<Game, string, IEnumerable<string>>> SampleArgs = new()

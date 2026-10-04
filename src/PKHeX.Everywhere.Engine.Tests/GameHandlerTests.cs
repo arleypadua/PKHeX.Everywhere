@@ -9,6 +9,8 @@ using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 
 namespace PKHeX.Everywhere.Engine.Tests;
 
+// Enabling a format changes game.formats, which CommandTopicTests compares before and after each command.
+[Collection(nameof(SaveFormats))]
 public class GameHandlerTests
 {
     static GameHandlerTests()
@@ -85,6 +87,11 @@ public class GameHandlerTests
     [Fact]
     public void LoadReturnsInvalidSaveForBytesThatAreNotASave() =>
         Error(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(new byte[1234]), "nope.sav", null!)))
+            .Should().Be("invalid-save");
+
+    [Fact]
+    public void LoadReturnsInvalidSaveForAGen3SaveAboveTheBaseGamesLimits() =>
+        Error(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(EditedEmerald.WithBoxSpecies(412)), "emerald.sav", null!)))
             .Should().Be("invalid-save");
 
     [Fact]
