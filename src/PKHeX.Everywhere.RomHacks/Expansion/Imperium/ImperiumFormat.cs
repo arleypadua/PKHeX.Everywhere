@@ -15,9 +15,6 @@ public sealed class ImperiumFormat : ISaveFormat
 
     private static readonly int[] FileSizes = [0x20000, 0x20010];
 
-    private static readonly int[] Version1ChecksumLengths =
-        [2572, 4084, 4084, 4084, 2152, .. new int[12], .. Enumerable.Repeat(4084, 8), 1472, 0, 0];
-
     private static readonly int[] Version2ChecksumLengths =
         [2940, 4084, 4084, 4084, 772, .. new int[9], .. Enumerable.Repeat(4084, 12), 1512, 0];
 
@@ -26,11 +23,13 @@ public sealed class ImperiumFormat : ISaveFormat
     public GameVersion BaseGame => GameVersion.E;
     public IReadOnlySet<Capability> Capabilities => FrozenSet<Capability>.Empty;
 
-    public SaveFormatMatch Detect(ReadOnlySpan<byte> data) =>
-        Matches(data, Version1ChecksumLengths) || Matches(data, Version2ChecksumLengths) ? SaveFormatMatch.Certain : SaveFormatMatch.No;
+    public IGameDataSource GameData(SaveFile save) => new ImperiumGameData((ImperiumSave)save);
 
-    // 2.0 is refused for good. 1.x is refused until its save is built.
-    public SaveFile Load(byte[] data) => throw new GameNotLoadedException();
+    public SaveFormatMatch Detect(ReadOnlySpan<byte> data) =>
+        Matches(data, ImperiumSave.ChunkLengths) || Matches(data, Version2ChecksumLengths) ? SaveFormatMatch.Certain : SaveFormatMatch.No;
+
+    // 2.0 changes the layout and isn't released, so it's refused.
+    public SaveFile Load(byte[] data) => Matches(data, ImperiumSave.ChunkLengths) ? new ImperiumSave(data) : throw new GameNotLoadedException();
 
     private static bool Matches(ReadOnlySpan<byte> data, int[] checksumLengths)
     {

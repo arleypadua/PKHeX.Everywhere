@@ -104,7 +104,7 @@ public class PokemonDescriptionPatchTests
     }
 
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed])] // a hack Pokémon's gender comes from its PID and can't be set yet
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // a hack Pokémon's gender comes from its PID and can't be set yet
     public void AppliesAGenderTheSpeciesCanHave(string saveFile)
     {
         var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons.First(p => p.Pkm.PersonalInfo.IsDualGender);
