@@ -36,6 +36,7 @@ internal sealed class CfruGameData : IGameDataSource
 
         Species = save.SpeciesMap.Species
             .Select(species => new Choice(species, GameInfo.Strings.specieslist[species]))
+            .Concat(save.SpeciesMap.HackSpeciesWithData.Select(hack => new Choice(hack.Species, hack.Name)))
             .OrderBy(species => species.Name)
             .ToArray();
         Items = save.ItemMap.Items

@@ -69,7 +69,7 @@ public abstract class CfruPokemon : PKM, IGigantamax, IFormArgument
     public override int SIZE_PARTY => SizeParty;
     public override int SIZE_STORED => SizeStored;
     public override EntityContext Context => EntityContext.Gen9;
-    public override PersonalInfo PersonalInfo => SpeciesMap.Personal[National.Species, Form];
+    public override PersonalInfo PersonalInfo => Hack?.Data?.Personal ?? SpeciesMap.Personal[National.Species, Form];
 
     public override bool Valid { get => true; set { } }
     public override bool ChecksumValid => true;
@@ -120,6 +120,11 @@ public abstract class CfruPokemon : PKM, IGigantamax, IFormArgument
 
     private CfruSpecies National => SpeciesMap.ToNational(SpeciesIndex);
 
+    private HackSpecies? Hack => SpeciesMap.ToHack(SpeciesIndex);
+
+    // A species with no national entry has no forms, and writing one would wipe its index.
+    private bool HasNational => National.Species != 0;
+
     private void WriteSpeciesIndex(ushort? index)
     {
         if (index is { } value) SpeciesIndex = value;
@@ -140,7 +145,7 @@ public abstract class CfruPokemon : PKM, IGigantamax, IFormArgument
         get => National.Form;
         set
         {
-            if (value != Form) WriteSpeciesIndex(SpeciesMap.ToIndex(National with { Form = value }) ?? SpeciesMap.ToIndex(new CfruSpecies(Species, value)));
+            if (value != Form && HasNational) WriteSpeciesIndex(SpeciesMap.ToIndex(National with { Form = value }) ?? SpeciesMap.ToIndex(new CfruSpecies(Species, value)));
         }
     }
 
@@ -149,7 +154,7 @@ public abstract class CfruPokemon : PKM, IGigantamax, IFormArgument
         get => National.IsGigantamax;
         set
         {
-            if (value != CanGigantamax) WriteSpeciesIndex(SpeciesMap.ToIndex(National with { IsGigantamax = value }));
+            if (value != CanGigantamax && HasNational) WriteSpeciesIndex(SpeciesMap.ToIndex(National with { IsGigantamax = value }));
         }
     }
 
@@ -158,7 +163,7 @@ public abstract class CfruPokemon : PKM, IGigantamax, IFormArgument
         get => National.FormArgument;
         set
         {
-            if (value != FormArgument) WriteSpeciesIndex(SpeciesMap.ToIndex(National with { FormArgument = value }));
+            if (value != FormArgument && HasNational) WriteSpeciesIndex(SpeciesMap.ToIndex(National with { FormArgument = value }));
         }
     }
 
@@ -283,7 +288,7 @@ public abstract class CfruPokemon : PKM, IGigantamax, IFormArgument
 
     public override byte Gender { get => EntityGender.GetFromPIDAndRatio(PID, PersonalInfo.Gender); set { } }
     public override Nature Nature { get => (Nature)(PID % 25); set { } }
-    public override bool IsNicknamed { get => SpeciesName.IsNicknamed(National.Species, Nickname, Language); set { } }
+    public override bool IsNicknamed { get => Hack is { } hack ? Nickname != hack.DefaultNickname : SpeciesName.IsNicknamed(National.Species, Nickname, Language); set { } }
     public override int Characteristic => -1;
     public override byte CurrentHandler { get => 0; set { } }
     public override ushort EggLocation { get => 0; set { } }

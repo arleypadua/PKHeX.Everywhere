@@ -8,6 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="PKHeX.Facade.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\PKHeX.Facade\PKHeX.Facade.csproj" />
     </ItemGroup>
 
