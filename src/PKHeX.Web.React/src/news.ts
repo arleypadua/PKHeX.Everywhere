@@ -6,11 +6,16 @@ export interface NewsEntry {
   items: string[]
 }
 
-export const romHacksNewsDate = '2026-10-03'
+export const romHacksNewsDate = '2026-10-04'
 
 export const news: NewsEntry[] = [
   {
     date: romHacksNewsDate,
+    headline: 'PKHeX.Web now opens Emerald Imperium saves.',
+    items: ['Added support for Pokémon Emerald Imperium saves.'],
+  },
+  {
+    date: '2026-10-03',
     headline: 'PKHeX.Web now opens Unbound and Radical Red saves.',
     items: ['Added support for Pokémon Unbound and Radical Red saves.'],
   },

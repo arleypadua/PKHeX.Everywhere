@@ -15,7 +15,7 @@ RuntimeCryptographyProvider.Md5 = new JsMd5Provider();
 
 SaveFormats.Register(new UnboundFormat());
 SaveFormats.Register(new RadicalRedFormat());
-SaveFormats.Register(new ImperiumFormat(), enabled: false);
+SaveFormats.Register(new ImperiumFormat());
 
 _ = new PlugInHost(Session.Current);
 
