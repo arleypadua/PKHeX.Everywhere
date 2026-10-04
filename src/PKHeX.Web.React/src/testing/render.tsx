@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
-import { afterEach } from 'vitest'
+import { afterEach, expect } from 'vitest'
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean
@@ -30,4 +30,9 @@ export function failToLoad(image: HTMLImageElement) {
   act(() => {
     image.dispatchEvent(new Event('error'))
   })
+}
+
+export function expectPlaceholder(container: HTMLElement, name: string) {
+  expect(container.querySelector('img')).toBeNull()
+  expect(container.querySelector('[role="img"]')?.getAttribute('aria-label')).toBe(name)
 }

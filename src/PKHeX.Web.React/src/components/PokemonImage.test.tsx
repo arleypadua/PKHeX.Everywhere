@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { failToLoad, render } from '../testing/render'
+import { expectPlaceholder, failToLoad, render } from '../testing/render'
 import { PokemonImage, pokemonImageUrl } from './PokemonImage'
 
 const showdownUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown'
@@ -32,14 +32,12 @@ describe('PokemonImage', () => {
 
   it('shows the placeholder for an unknown species', () => {
     const { container } = render(<PokemonImage pokemon={{ speciesId: null, species: '(Unknown)', isShiny: false }} />)
-    expect(container.querySelector('img')).toBeNull()
-    expect(container.querySelector('[role="img"]')?.getAttribute('aria-label')).toBe('(Unknown)')
+    expectPlaceholder(container, '(Unknown)')
   })
 
   it('shows the placeholder when the sprite fails to load', () => {
     const { container } = render(<PokemonImage pokemon={{ speciesId: 62146, species: 'Missing', isShiny: true }} />)
     failToLoad(container.querySelector('img')!)
-    expect(container.querySelector('img')).toBeNull()
-    expect(container.querySelector('[role="img"]')?.getAttribute('aria-label')).toBe('Missing')
+    expectPlaceholder(container, 'Missing')
   })
 })

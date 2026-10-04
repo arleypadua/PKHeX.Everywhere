@@ -29,12 +29,12 @@ function PlaceholderSprite({ name, size }: PlaceholderSpriteProps) {
 interface SpeciesImageProps {
   name: string
   src: string | null
-  size: number
+  placeholderSize: number
 }
 
-export function SpeciesImage({ name, src, size }: SpeciesImageProps) {
+export function SpeciesImage({ name, src, placeholderSize }: SpeciesImageProps) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null)
-  if (src === null || src === failedSrc) return <PlaceholderSprite name={name} size={size} />
+  if (src === null || src === failedSrc) return <PlaceholderSprite name={name} size={placeholderSize} />
   return <img alt={name} src={src} onError={() => setFailedSrc(src)} />
 }
 
@@ -43,5 +43,5 @@ interface PokemonSpriteProps {
 }
 
 export function PokemonSprite({ pokemon }: PokemonSpriteProps) {
-  return <SpeciesImage name={pokemon.species} src={pokemonIconUrl(pokemon)} size={32} />
+  return <SpeciesImage name={pokemon.species} src={pokemonIconUrl(pokemon)} placeholderSize={32} />
 }

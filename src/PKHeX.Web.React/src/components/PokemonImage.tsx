@@ -14,7 +14,7 @@ interface PokemonImageProps {
 }
 
 export function PokemonImage({ pokemon }: PokemonImageProps) {
-  const image = <SpeciesImage name={pokemon.species} src={pokemonImageUrl(pokemon.speciesId, pokemon.isShiny)} size={64} />
+  const image = <SpeciesImage name={pokemon.species} src={pokemonImageUrl(pokemon.speciesId, pokemon.isShiny)} placeholderSize={64} />
   if (!pokemon.isShiny) return image
   return (
     <Badge.Ribbon text="shiny" color="orange">
