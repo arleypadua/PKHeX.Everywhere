@@ -1,5 +1,22 @@
 # @pkhex-everywhere/engine
 
+## 0.7.0
+
+### Minor Changes
+
+- 4118f50: `pokemon.update`, `pokemon.edit` and `pokemon.clone` accept Unbound's Shadow Warrior, Zygarde Cell and Zygarde Core. Their `speciesId` is an id the save defines, so a sprite lookup by id can miss, and `isUnknown` is false. `isUnknown` now means neither PKHeX nor the save knows the species.
+
+### Patch Changes
+
+- de5202d: New `game.enableFormat(id)` turns on a save format the host registered off. Until then, `game.formats()` leaves it out, `game.load()` with its id fails with `not-found`, and a save it recognizes fails with `invalid-save`.
+- 344875d: A Gen 3 save whose party or boxes hold a species or move the base game doesn't have, such as a Run & Bun save, now fails to load with `invalid-save` instead of loading as the base game. Loading it with the `pkhex` format still works.
+- 5cd1cac: Unbound's Shadow Warrior, Zygarde Cell and Zygarde Core show by name, with their own types, stats, ability and gender, and `species.list` offers them. Radical Red's Chillet and Galarian Mime Jr. show by name. They all stay read-only, with `isUnknown` true.
+- e850702: An Emerald Imperium save's bag reads and edits through `inventory.get` and `inventory.setItem`: Items, MegaStones, KeyItems, Balls, TMHMs and Berries, up to 999 of an item. Imperium's own items show as Unknown and can be changed or removed where they are.
+- 3bbcace: An Emerald Imperium save loads with the `emerald-imperium` format instead of as Emerald, without a format id or `game.enableFormat`. `game.formats()` lists it.
+- 4888600: An Emerald Imperium 1.x save loads. Its party and 14 boxes list, a Pokémon's level, nature, moves, held item, nickname and ball can be edited, and export keeps every byte it didn't change. Imperium's own forms show by name and are read-only. Its own moves and items show as Unknown.
+- fda0ba5: An Emerald Imperium save shows the trainer's name, gender, IDs and money, and the name, gender and money can be edited. A Gen 3 ROM hack save shows its trainer ID and secret ID as Gen 3 does, not in the six-digit format.
+- 563b057: Radical Red saves read Mime Jr., Porygon-Z, Type: Null, Sirfetch'd, Mr. Rime and the female and Galarian variants that showed as unknown. Forms such as Paldean Tauros, Ogerpon's masks, Pumpkaboo's sizes and Deerling's seasons read as their form instead of the base form.
+
 ## 0.6.0
 
 ### Minor Changes
