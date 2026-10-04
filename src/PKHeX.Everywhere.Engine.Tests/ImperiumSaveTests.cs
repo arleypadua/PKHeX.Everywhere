@@ -7,14 +7,19 @@ namespace PKHeX.Everywhere.Engine.Tests;
 
 public class ImperiumSaveTests
 {
-    private static readonly byte[] Fixture = File.ReadAllBytes(SaveFilePath.Imperium);
+    public static TheoryData<string, byte[]> Saves => new()
+    {
+        { "as found", File.ReadAllBytes(SaveFilePath.Imperium) },
+        { "readable as Emerald", SaveFilePath.ImperiumReadableAsEmerald() },
+    };
 
-    [Fact]
-    public void LoadingWhileTheFormatIsOffFailsWithInvalidSave()
+    [Theory]
+    [MemberData(nameof(Saves))]
+    public void LoadingWhileTheFormatIsOffFailsWithInvalidSave(string _, byte[] save)
     {
         var session = new Session();
 
-        Error(Dispatch(session, "game.load", Args(Convert.ToBase64String(Fixture), "imperium.sav", null!))).Should().Be("invalid-save");
+        Error(Dispatch(session, "game.load", Args(Convert.ToBase64String(save), "imperium.sav", null!))).Should().Be("invalid-save");
 
         session.Game.Should().BeNull();
     }

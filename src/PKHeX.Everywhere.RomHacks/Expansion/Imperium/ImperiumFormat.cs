@@ -15,10 +15,10 @@ public sealed class ImperiumFormat : ISaveFormat
 
     private static readonly int[] FileSizes = [0x20000, 0x20010];
 
-    private static readonly int[] Version1Checksummed =
-        [0xA0C, 4084, 4084, 4084, 2152, .. new int[12], .. Enumerable.Repeat(4084, 8), 1472, 0, 0];
+    private static readonly int[] Version1ChecksumLengths =
+        [2572, 4084, 4084, 4084, 2152, .. new int[12], .. Enumerable.Repeat(4084, 8), 1472, 0, 0];
 
-    private static readonly int[] Version2Checksummed =
+    private static readonly int[] Version2ChecksumLengths =
         [2940, 4084, 4084, 4084, 772, .. new int[9], .. Enumerable.Repeat(4084, 12), 1512, 0];
 
     public string Id => "emerald-imperium";
@@ -27,12 +27,12 @@ public sealed class ImperiumFormat : ISaveFormat
     public IReadOnlySet<Capability> Capabilities => FrozenSet<Capability>.Empty;
 
     public SaveFormatMatch Detect(ReadOnlySpan<byte> data) =>
-        Matches(data, Version1Checksummed) || Matches(data, Version2Checksummed) ? SaveFormatMatch.Certain : SaveFormatMatch.No;
+        Matches(data, Version1ChecksumLengths) || Matches(data, Version2ChecksumLengths) ? SaveFormatMatch.Certain : SaveFormatMatch.No;
 
     // 2.0 is refused for good. 1.x is refused until its save is built.
     public SaveFile Load(byte[] data) => throw new GameNotLoadedException();
 
-    private static bool Matches(ReadOnlySpan<byte> data, int[] checksummed)
+    private static bool Matches(ReadOnlySpan<byte> data, int[] checksumLengths)
     {
         if (!FileSizes.Contains(data.Length)) return false;
 
@@ -43,7 +43,7 @@ public sealed class ImperiumFormat : ISaveFormat
             int id = ReadUInt16LittleEndian(sector[0xFF4..]);
             if (id >= SectorCount || (seen & (1 << id)) != 0) return false;
             if (ReadUInt32LittleEndian(sector[0xFF8..]) != Signature) return false;
-            if (ReadUInt16LittleEndian(sector[0xFF6..]) != Checksums.CheckSum32(sector[..checksummed[id]])) return false;
+            if (ReadUInt16LittleEndian(sector[0xFF6..]) != Checksums.CheckSum32(sector[..checksumLengths[id]])) return false;
             seen |= 1 << id;
         }
 

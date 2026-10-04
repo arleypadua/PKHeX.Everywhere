@@ -78,7 +78,7 @@ public class ImperiumFormatTests
     [Fact]
     public void ASaveRotatedLikeEmeraldDoesNotLoadWhileTheFormatIsOff()
     {
-        var data = RotatedToSectorZero();
+        var data = SaveFilePath.ImperiumReadableAsEmerald();
         SaveUtil.GetSaveFile(data).Should().BeOfType<SAV3E>();
 
         var load = () => Game.LoadFrom(data);
@@ -98,26 +98,16 @@ public class ImperiumFormatTests
         load.Should().Throw<GameNotLoadedException>();
     }
 
-    private static byte[] RotatedToSectorZero()
-    {
-        var data = Fixture.ToArray();
-        var first = Enumerable.Range(0, 28).First(sector => ReadUInt16LittleEndian(Fixture.AsSpan((sector * 0x1000) + 0xFF4)) == 0);
-        for (var sector = 0; sector < 28; sector++)
-            Fixture.AsSpan(((sector + first) % 28) * 0x1000, 0x1000).CopyTo(data.AsSpan(sector * 0x1000));
-
-        return data;
-    }
-
     private static byte[] Version2Save()
     {
-        int[] checksummed = [2940, 4084, 4084, 4084, 772, 0, 0, 0, 0, 0, 0, 0, 0, 0, .. Enumerable.Repeat(4084, 12), 1512, 0];
+        int[] checksumLengths = [2940, 4084, 4084, 4084, 772, 0, 0, 0, 0, 0, 0, 0, 0, 0, .. Enumerable.Repeat(4084, 12), 1512, 0];
         var data = new byte[0x20000];
         new Random(20).NextBytes(data);
-        for (var id = 0; id < checksummed.Length; id++)
+        for (var id = 0; id < checksumLengths.Length; id++)
         {
             var sector = data.AsSpan(((id + 3) % 28) * 0x1000, 0x1000);
             WriteUInt16LittleEndian(sector[0xFF4..], (ushort)id);
-            WriteUInt16LittleEndian(sector[0xFF6..], Checksums.CheckSum32(sector[..checksummed[id]]));
+            WriteUInt16LittleEndian(sector[0xFF6..], Checksums.CheckSum32(sector[..checksumLengths[id]]));
             WriteUInt32LittleEndian(sector[0xFF8..], 0x08012025);
         }
 

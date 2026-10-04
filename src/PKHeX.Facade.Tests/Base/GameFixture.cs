@@ -7,6 +7,7 @@ using PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 using PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 using PKHeX.Everywhere.RomHacks.Expansion.Imperium;
 using Xunit.Sdk;
+using static System.Buffers.Binary.BinaryPrimitives;
 
 namespace PKHeX.Facade.Tests.Base;
 
@@ -55,6 +56,18 @@ public static class SaveFilePath
 
     public static IReadOnlyList<string> All { get; } =
         [Yellow, Crystal, Emerald, FireRed, HgSs, LetsGoPikachu, LetsGoEevee, Unbound, RadicalRed];
+
+    // The fixture's slot starts at sector id 18. Rotated so id 0 comes first, PKHeX reads it as Emerald.
+    public static byte[] ImperiumReadableAsEmerald()
+    {
+        var fixture = File.ReadAllBytes(Imperium);
+        var data = fixture.ToArray();
+        var first = Enumerable.Range(0, 28).First(sector => ReadUInt16LittleEndian(fixture.AsSpan((sector * 0x1000) + 0xFF4)) == 0);
+        for (var sector = 0; sector < 28; sector++)
+            fixture.AsSpan(((sector + first) % 28) * 0x1000, 0x1000).CopyTo(data.AsSpan(sector * 0x1000));
+
+        return data;
+    }
 
     public static Game Load(string path) => Game.LoadFrom(File.ReadAllBytes(path), path, FormatOf(path));
 
