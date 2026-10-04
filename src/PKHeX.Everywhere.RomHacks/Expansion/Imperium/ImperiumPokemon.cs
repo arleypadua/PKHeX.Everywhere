@@ -140,7 +140,7 @@ public sealed class ImperiumPokemon : PKM
         set => HiddenNatureModifier = (int)((PID % 25) ^ (uint)value);
     }
 
-    private const byte HasSpeciesFlag = 1 << 1;
+    internal const byte HasSpeciesFlag = 1 << 1;
     private const byte IsEggFlag = 1 << 2;
     private byte Flags { get => Data[0x13]; set => Data[0x13] = value; }
 
@@ -300,17 +300,32 @@ public sealed class ImperiumPokemon : PKM
 
     public override bool FatefulEncounter { get => Ribbons >> 31 == 1; set => Ribbons = (Ribbons & 0x7FFFFFFF) | (value ? 1u << 31 : 0); }
 
-    public override int Status_Condition { get => ReadInt32LittleEndian(Data[0x50..]); set => WriteInt32LittleEndian(Data[0x50..], value); }
+    // The game rebuilds a withdrawn Pokémon's HP and status from the box header, so party edits keep the header in step, as the game does.
+    public override int Status_Condition
+    {
+        get => ReadInt32LittleEndian(Data[0x50..]);
+        set
+        {
+            WriteInt32LittleEndian(Data[0x50..], value);
+            if (value == 0) Data[0x1B] &= 0x0F;
+        }
+    }
+
     public override byte Stat_Level { get => Data[0x54]; set => Data[0x54] = value; }
-    public override int Stat_HPCurrent { get => ReadUInt16LittleEndian(Data[0x56..]); set => WriteUInt16LittleEndian(Data[0x56..], (ushort)value); }
-    public override int Stat_HPMax { get => ReadUInt16LittleEndian(Data[0x58..]); set => WriteUInt16LittleEndian(Data[0x58..], (ushort)value); }
+    public override int Stat_HPCurrent { get => ReadUInt16LittleEndian(Data[0x56..]); set { WriteUInt16LittleEndian(Data[0x56..], (ushort)value); KeepHpLostInStep(); } }
+    public override int Stat_HPMax { get => ReadUInt16LittleEndian(Data[0x58..]); set { WriteUInt16LittleEndian(Data[0x58..], (ushort)value); KeepHpLostInStep(); } }
     public override int Stat_ATK { get => ReadUInt16LittleEndian(Data[0x5A..]); set => WriteUInt16LittleEndian(Data[0x5A..], (ushort)value); }
     public override int Stat_DEF { get => ReadUInt16LittleEndian(Data[0x5C..]); set => WriteUInt16LittleEndian(Data[0x5C..], (ushort)value); }
     public override int Stat_SPE { get => ReadUInt16LittleEndian(Data[0x5E..]); set => WriteUInt16LittleEndian(Data[0x5E..], (ushort)value); }
     public override int Stat_SPA { get => ReadUInt16LittleEndian(Data[0x60..]); set => WriteUInt16LittleEndian(Data[0x60..], (ushort)value); }
     public override int Stat_SPD { get => ReadUInt16LittleEndian(Data[0x62..]); set => WriteUInt16LittleEndian(Data[0x62..], (ushort)value); }
 
-    private bool ShinyModifier => ((ReadUInt16LittleEndian(Data[0x1E..]) >> 14) & 1) == 1;
+    private ushort HealthWord { get => ReadUInt16LittleEndian(Data[0x1E..]); set => WriteUInt16LittleEndian(Data[0x1E..], value); }
+
+    private void KeepHpLostInStep() =>
+        HealthWord = (ushort)((HealthWord & ~0x3FFF) | Math.Clamp(Stat_HPMax - Stat_HPCurrent, 0, 0x3FFF));
+
+    private bool ShinyModifier => ((HealthWord >> 14) & 1) == 1;
 
     public override uint PSV => ((PID >> 16) ^ (PID & 0xFFFF)) >> 3;
     public override uint TSV => (uint)(TID16 ^ SID16) >> 3;

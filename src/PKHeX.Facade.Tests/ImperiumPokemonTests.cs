@@ -110,6 +110,20 @@ public class ImperiumPokemonTests
         return string.Join(",", masked);
     }
 
+    [Fact]
+    public void APartyEditKeepsTheHpTheBoxHeaderStoresInStep()
+    {
+        var game = Load();
+
+        game.Trainer.Party.Pokemons[0].Update(new PokemonPatch(Level: 70));
+
+        game.SaveAndReload(reloaded =>
+        {
+            var pokemon = reloaded.Trainer.Party.Pokemons[0].Pkm;
+            (ReadUInt16LittleEndian(pokemon.Data[0x1E..]) & 0x3FFF).Should().Be(pokemon.Stat_HPMax - pokemon.Stat_HPCurrent);
+        });
+    }
+
     // Imperium's shiny odds are 36 in 65536, and its shiny flag flips the result.
     [Theory]
     [InlineData(35, false, true)]

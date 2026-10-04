@@ -126,7 +126,7 @@ public sealed class ImperiumSave : SaveFile
     protected override Span<byte> BoxBuffer => _storage;
     public override int GetBoxOffset(int box) => BoxesOffset + (box * SlotsPerBox * ImperiumPokemon.SizeStored);
     public override int CurrentBox { get => _storage[0]; set => _storage[0] = (byte)value; }
-    public override bool IsPKMPresent(ReadOnlySpan<byte> data) => (data[0x13] & 2) != 0;
+    public override bool IsPKMPresent(ReadOnlySpan<byte> data) => (data[0x13] & ImperiumPokemon.HasSpeciesFlag) != 0;
 
     public override int SIZE_STORED => ImperiumPokemon.SizeStored;
     public override int SIZE_PARTY => ImperiumPokemon.SizeParty;
