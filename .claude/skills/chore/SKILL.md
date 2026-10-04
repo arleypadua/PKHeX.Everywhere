@@ -39,7 +39,11 @@ Done when every file the change touches is named, with the tests to add.
 
 ## 3. Show the plan
 
-In the terminal, short: what you found (file and line), the change you would ask for, and the issue title. Ask whether to file it. File nothing without a yes. The person may change the plan here.
+In the terminal, short: what you found (file and line), the change you would ask for, and the issue title.
+
+If the change shows in the UI, add the **surface**: the exact text it shows (labels, buttons, tooltips, messages, empty states) and where it sits (the page, the panel, what it goes next to). The person signs off on the surface as well as the code change, so write the real words, not a description of them.
+
+Ask whether to file it. File nothing without a yes. The person may change the plan or the surface here.
 
 ## 4. File the issue
 
@@ -48,7 +52,8 @@ Load `/unslop` and read `docs/agents/issue-tracker.md`. Title it the way recent 
 The agent that picks it up did not see the screen and did not read this conversation, so the body carries everything:
 
 - **What happens now**: where the person saw it, the game or save type, and the file and line that cause it. Leave out emails, save file contents and anything else personal.
-- **What to build**: each change named by file and function, with the exact values or text to use.
+- **What to build**: each change named by file and function, with the exact values to use.
+- **Surface**: when the change shows in the UI, the text and placement the person signed off on, word for word.
 - **Tests**: the existing test file to extend, and the cases to add. One case shows the old behaviour is gone. Tests go in `PKHeX.Facade.Tests`, or `PKHeX.Everywhere.Engine.Tests` for the Engine. An E2E test only where ADR 0001 allows it.
 - **Out of scope**: what you considered and are not asking for.
 - **Done when**: the test projects for the parts it touches pass locally, and the SDK drift check passes if the Engine changed.
