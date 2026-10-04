@@ -11,6 +11,7 @@ namespace PKHeX.Everywhere.RomHacks.Expansion.Imperium;
 public sealed class ImperiumSave : SaveFile
 {
     private const int SectorSize = 0x1000;
+    private const int SectorData = 4084;
     private const int SectorCount = 28;
     private const int SaveBlock2 = 0;
     private const int SaveBlock1 = 1;
@@ -21,7 +22,7 @@ public sealed class ImperiumSave : SaveFile
 
     // How many of each sector's 4084 data bytes the game uses, and its checksum covers.
     internal static readonly int[] ChunkLengths =
-        [2572, 4084, 4084, 4084, 2152, .. new int[12], .. Enumerable.Repeat(4084, 8), 1472, 0, 0];
+        [2572, SectorData, SectorData, SectorData, 2152, .. new int[12], .. Enumerable.Repeat(SectorData, 8), 1472, 0, 0];
 
     private readonly int[] _sectors = new int[SectorCount];
     private readonly byte[] _storage = new byte[ChunkLengths[Storage..].Sum()];
@@ -38,6 +39,22 @@ public sealed class ImperiumSave : SaveFile
     }
 
     private Span<byte> Sector(int id) => Data.Slice(_sectors[id], SectorSize);
+
+    // SaveBlock1 runs on across sectors 1 to 4, so a run of slots can start in one sector and end in the next.
+    internal (int Offset, int Slots)[] SaveBlock1Slots(int offset, int slots, int slotSize)
+    {
+        List<(int Offset, int Slots)> regions = [];
+        while (slots > 0)
+        {
+            var inSector = offset % SectorData;
+            var fit = Math.Min(slots, (SectorData - inSector) / slotSize);
+            regions.Add((_sectors[SaveBlock1 + (offset / SectorData)] + inSector, fit));
+            offset += fit * slotSize;
+            slots -= fit;
+        }
+
+        return [..regions];
+    }
 
     private void CopyStorage(bool toSave)
     {
@@ -101,6 +118,7 @@ public sealed class ImperiumSave : SaveFile
     public override int MaxEV => EffortValues.Max255;
     public override int MaxMoney => 999999;
     public override ReadOnlySpan<ushort> HeldItems => ItemMap.HeldItems;
+    public override ImperiumBag Inventory => new(this);
 
     public override string GetString(ReadOnlySpan<byte> data) => StringConverter3.GetString(data, false);
     public override int LoadString(ReadOnlySpan<byte> data, Span<char> text) => StringConverter3.LoadString(data, text, false);
@@ -118,7 +136,7 @@ public sealed class ImperiumSave : SaveFile
     public override ushort TID16 { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0A..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0A..], value); }
     public override ushort SID16 { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0C..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0C..], value); }
 
-    private uint EncryptionKey => ReadUInt32LittleEndian(Sector(SaveBlock2)[0x44..]);
+    internal uint EncryptionKey => ReadUInt32LittleEndian(Sector(SaveBlock2)[0x44..]);
     public override uint Money { get => ReadUInt32LittleEndian(Sector(SaveBlock1)[0x490..]) ^ EncryptionKey; set => WriteUInt32LittleEndian(Sector(SaveBlock1)[0x490..], value ^ EncryptionKey); }
 
     public override int PartyCount { get => Sector(SaveBlock1)[0x234]; protected set => Sector(SaveBlock1)[0x234] = (byte)value; }

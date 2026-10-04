@@ -2,7 +2,7 @@ using PKHeX.Core;
 
 namespace PKHeX.Everywhere.RomHacks.Cfru;
 
-// A hack's items go in the pocket modern games put them in. Key items have no pocket yet.
+// A hack's items go in the pocket modern games put them in, unless the hack names another. Key items have no pocket in CFRU yet.
 // Some key items, like the Escape Rope, became key items in later games, so an item any game lets a Pokémon hold isn't one.
 public sealed class CfruItemStorage : IItemStorage
 {
@@ -38,8 +38,8 @@ public sealed class CfruItemStorage : IItemStorage
 
     private readonly Dictionary<InventoryType, ushort[]> _items;
 
-    public CfruItemStorage(IEnumerable<ushort> items) => _items = items
-        .GroupBy(PocketOf)
+    public CfruItemStorage(IEnumerable<ushort> items, IReadOnlyDictionary<ushort, InventoryType>? hackPockets = null) => _items = items
+        .GroupBy(item => hackPockets?.TryGetValue(item, out var pocket) == true ? pocket : PocketOf(item))
         .ToDictionary(pocket => pocket.Key, pocket => pocket.Order().ToArray());
 
     private static InventoryType PocketOf(ushort item) => item switch

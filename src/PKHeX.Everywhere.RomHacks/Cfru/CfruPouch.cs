@@ -4,9 +4,10 @@ using static System.Buffers.Binary.BinaryPrimitives;
 namespace PKHeX.Everywhere.RomHacks.Cfru;
 
 /// <summary>
-/// A bag pocket stored as a hack item index and a quantity per slot, with no XOR. Its slots can be split across regions of the file.
+/// A bag pocket stored as a hack item index and a quantity per slot, the quantity XORed with a key where the hack encrypts it.
+/// Its slots can be split across regions of the file.
 /// </summary>
-public sealed class CfruPouch(InventoryType type, IItemStorage info, int maxCount, CfruItemMap map, params (int Offset, int Slots)[] regions)
+public sealed class CfruPouch(InventoryType type, IItemStorage info, int maxCount, CfruItemMap map, ushort countKey, params (int Offset, int Slots)[] regions)
     : InventoryPouch(type, info, maxCount, 0, regions.Sum(region => region.Slots))
 {
     public const int SlotSize = 4;
@@ -26,7 +27,7 @@ public sealed class CfruPouch(InventoryType type, IItemStorage info, int maxCoun
         foreach (var (slot, offset) in SlotOffsets.Index())
         {
             var index = ReadUInt16LittleEndian(data[offset..]);
-            int count = ReadUInt16LittleEndian(data[(offset + 2)..]);
+            int count = (ushort)(ReadUInt16LittleEndian(data[(offset + 2)..]) ^ countKey);
             if (map.IsOutsideTable(index)) outsideTable.Add(slot);
             else items.Add(new InventoryItem { Index = map.ToModern(index), Count = count });
         }
@@ -46,7 +47,7 @@ public sealed class CfruPouch(InventoryType type, IItemStorage info, int maxCoun
             var index = map.ToIndex((ushort)item.Index)
                 ?? throw new InvalidOperationException($"Item {item.Index} has no index in this hack.");
             WriteUInt16LittleEndian(data[offset..], index);
-            WriteUInt16LittleEndian(data[(offset + 2)..], (ushort)item.Count);
+            WriteUInt16LittleEndian(data[(offset + 2)..], (ushort)(item.Count ^ countKey));
         }
     }
 
