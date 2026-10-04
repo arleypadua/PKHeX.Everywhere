@@ -10,8 +10,8 @@ describe('news', () => {
     expect([...news].sort((a, b) => b.date.localeCompare(a.date))).toEqual(news)
   })
 
-  it('headlines the latest entry with ROM hack support', () => {
-    expect(newsHeadline(news[0])).toBe('PKHeX.Web now opens Unbound and Radical Red saves.')
+  it('headlines the latest entry with Emerald Imperium support', () => {
+    expect(newsHeadline(news[0])).toBe('PKHeX.Web now opens Emerald Imperium saves.')
   })
 
   it('falls back to the default headline for an entry without one', () => {
