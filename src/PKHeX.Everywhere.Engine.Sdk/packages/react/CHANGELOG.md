@@ -1,5 +1,21 @@
 # @pkhex-everywhere/react
 
+## 0.7.0
+
+### Patch Changes
+
+- de5202d: New `game.enableFormat(id)` turns on a save format the host registered off. Until then, `game.formats()` leaves it out, `game.load()` with its id fails with `not-found`, and a save it recognizes fails with `invalid-save`.
+- Updated dependencies [de5202d]
+- Updated dependencies [344875d]
+- Updated dependencies [4118f50]
+- Updated dependencies [5cd1cac]
+- Updated dependencies [e850702]
+- Updated dependencies [3bbcace]
+- Updated dependencies [4888600]
+- Updated dependencies [fda0ba5]
+- Updated dependencies [563b057]
+  - @pkhex-everywhere/engine@0.7.0
+
 ## 0.6.0
 
 ### Minor Changes
