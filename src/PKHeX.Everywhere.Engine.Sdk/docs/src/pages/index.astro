@@ -441,9 +441,11 @@ const features = [
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
     column-gap: 2rem;
+    row-gap: 3rem;
   }
   .samples > div {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     grid-row: span 3;
     grid-template-rows: subgrid;
     row-gap: 0;
