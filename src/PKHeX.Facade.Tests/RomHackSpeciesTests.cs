@@ -13,7 +13,7 @@ public class RomHackSpeciesTests
     private const int LoveAlcremie = (22 * 30) + 18;
     private const int FemaleIndeedee = (22 * 30) + 25;
     private const int FirstOfBox24 = 24 * 30;
-    private const int RadicalRedPidgey = 1;
+    private const int RadicalRedSlot = 1;
 
     private const ushort CharizardGigantamax = 1261;
     private const ushort AntiqueSinistea = 1194;
@@ -25,22 +25,18 @@ public class RomHackSpeciesTests
 
     private static ushort SpeciesIndex(Pokemon pokemon) => ((CfruPokemon)pokemon.Pkm).SpeciesIndex;
 
-    private static Game UnboundWith(ushort speciesIndex)
-    {
-        var save = new UnboundSave(File.ReadAllBytes(SaveFilePath.Unbound));
-        var pokemon = (CfruPokemon)save.GetBoxSlotAtIndex(FirstOfBox24);
-        pokemon.SpeciesIndex = speciesIndex;
-        save.SetBoxSlotAtIndex(pokemon, FirstOfBox24);
-        return Game.LoadFrom(save.Write().ToArray(), SaveFilePath.Unbound);
-    }
+    private static Game UnboundWith(ushort speciesIndex) =>
+        With(new UnboundSave(File.ReadAllBytes(SaveFilePath.Unbound)), SaveFilePath.Unbound, FirstOfBox24, speciesIndex);
 
-    private static Game RadicalRedWith(ushort speciesIndex)
+    private static Game RadicalRedWith(ushort speciesIndex) =>
+        With(new RadicalRedSave(File.ReadAllBytes(SaveFilePath.RadicalRed)), SaveFilePath.RadicalRed, RadicalRedSlot, speciesIndex);
+
+    private static Game With(CfruSave save, string path, int slot, ushort speciesIndex)
     {
-        var save = new RadicalRedSave(File.ReadAllBytes(SaveFilePath.RadicalRed));
-        var pokemon = (CfruPokemon)save.GetBoxSlotAtIndex(RadicalRedPidgey);
+        var pokemon = (CfruPokemon)save.GetBoxSlotAtIndex(slot);
         pokemon.SpeciesIndex = speciesIndex;
-        save.SetBoxSlotAtIndex(pokemon, RadicalRedPidgey);
-        return Game.LoadFrom(save.Write().ToArray(), SaveFilePath.RadicalRed, new RadicalRedFormat());
+        save.SetBoxSlotAtIndex(pokemon, slot);
+        return Game.LoadFrom(save.Write().ToArray(), path, SaveFilePath.FormatOf(path));
     }
 
     private static void EditAndReload(Game game, int index, Action<Pokemon> check)
@@ -81,7 +77,7 @@ public class RomHackSpeciesTests
     [InlineData(1240, Species.Tauros, 2)]
     [InlineData(1359, Species.Ogerpon, 2)]
     public void ARadicalRedPokemonReadsAsItsSpeciesAndFormAndKeepsItsIndexThroughAnEdit(int speciesIndex, Species species, int form) =>
-        EditAndReload(RadicalRedWith((ushort)speciesIndex), RadicalRedPidgey, pokemon =>
+        EditAndReload(RadicalRedWith((ushort)speciesIndex), RadicalRedSlot, pokemon =>
         {
             pokemon.IsUnknown.Should().BeFalse();
             pokemon.IsEditable.Should().BeTrue();

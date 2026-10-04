@@ -1,10 +1,9 @@
 namespace PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 
 // Ported from OpenHome's RR_TO_NATIONAL_DEX_MAP: https://github.com/andrewbenington/OpenHome (GPL-3.0), commit a61afa518e0c0ce4766cadefb940e1b5360b7be6.
-// That map reads every form as its base form, so the forms come from RadicalRedToNationalDexMap in OpenHome's species.ts at commit 9f1f1f623a8da9c02caaceefbcb4340623741596,
-// renumbered to PKHeX's form order: Pumpkaboo and Gourgeist's base index is the Small size, and 1235 is Aqua Tauros while 1240 is Blaze.
-// The indexes OpenHome marks as not present (Mime Jr., Porygon-Z, Type: Null, Sirfetch'd, Mr. Rime and the female and Galarian variants) are mapped from the hack's own species data.
-// The Gigantamax flags come from the sprite names in OpenHome's RadicalRedSprites.ts at commit 9f1f1f623a8da9c02caaceefbcb4340623741596.
+// That map reads every form as its base form, so the forms, and the Gigantamax flags from sprite names, come from OpenHome's species.ts and RadicalRedSprites.ts at commit 9f1f1f623a8da9c02caaceefbcb4340623741596.
+// Forms follow PKHeX's order: the base Pumpkaboo and Gourgeist index is the Small size, 1235 is Aqua Tauros and 1240 is Blaze.
+// The indexes OpenHome marks as not present come from the hack's own species data.
 internal static class RadicalRedSpeciesTable
 {
     public static readonly CfruSpecies[] NationalByIndex =
