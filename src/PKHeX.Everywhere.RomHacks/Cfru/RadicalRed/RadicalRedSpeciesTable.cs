@@ -4,8 +4,12 @@ namespace PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 // That map reads every form as its base form, so the forms, and the Gigantamax flags from sprite names, come from OpenHome's species.ts and RadicalRedSprites.ts at commit 9f1f1f623a8da9c02caaceefbcb4340623741596.
 // Forms follow PKHeX's order: the base Pumpkaboo and Gourgeist index is the Small size, 1235 is Aqua Tauros and 1240 is Blaze.
 // The indexes OpenHome marks as not present come from the hack's own species data.
+// Radical Red is closed source, so its hack species have only a name.
 internal static class RadicalRedSpeciesTable
 {
+    private static readonly HackSpecies GalarianMimeJr = new("Galarian Mime Jr.");
+    private static readonly HackSpecies Chillet = new("Chillet");
+
     public static readonly CfruSpecies[] NationalByIndex =
     [
         (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0),
@@ -110,7 +114,7 @@ internal static class RadicalRedSpeciesTable
         (894, 0), (895, 0), (845, 1), (845, 2), (849, 1), (1007, 0), (1008, 0), (996, 0), (997, 0), (998, 0), (948, 0), (949, 0),
         (919, 0), (875, 1), (876, 1), (877, 1), (888, 1), (889, 1), (890, 1), (892, 1), (52, 2), (77, 1), (78, 1), (79, 1),
         (80, 2), (83, 1), (109, 0), (110, 1), (122, 1), (144, 1), (145, 1), (146, 1), (199, 1), (222, 1), (263, 1), (264, 1),
-        (0, 0), (554, 1), (555, 2), (555, 3), (562, 1), (618, 1), (995, 0), (991, 0), (1006, 0), new(12, 0, IsGigantamax: true),
+        GalarianMimeJr, (554, 1), (555, 2), (555, 3), (562, 1), (618, 1), (995, 0), (991, 0), (1006, 0), new(12, 0, IsGigantamax: true),
         (128, 1), (128, 3),
         new(68, 0, IsGigantamax: true), (984, 0), new(99, 0, IsGigantamax: true), new(131, 0, IsGigantamax: true), (128, 2),
         new(143, 0, IsGigantamax: true), new(569, 0, IsGigantamax: true), (986, 0), (989, 0), (985, 0), (987, 0), (994, 0),
@@ -128,6 +132,6 @@ internal static class RadicalRedSpeciesTable
         (974, 0), (975, 0), (978, 0), (940, 0), (941, 0), (962, 0), (931, 0), (973, 0), (932, 0), (933, 0), (934, 0), (969, 0),
         (970, 0), (944, 0), (945, 0), (926, 0), (927, 0), (942, 0), (943, 0), (946, 0), (947, 0), (1010, 0), (1009, 0), (931, 2),
         (901, 1), (1017, 0), (1017, 1), (1017, 2), (1017, 3), (1012, 0), (1013, 0), (1011, 0), (1016, 0), (1015, 0), (1014, 0), (1021, 0),
-        (1023, 0), (1018, 0), (1024, 0), (1019, 0), (1025, 0), (1022, 0), (1020, 0),
+        (1023, 0), (1018, 0), (1024, 0), (1019, 0), (1025, 0), (1022, 0), (1020, 0), Chillet,
     ];
 }

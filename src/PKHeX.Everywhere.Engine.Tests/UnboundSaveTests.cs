@@ -309,6 +309,9 @@ public class UnboundSaveTests
 
     private const int UnknownSlot = (22 * 30) + 18;
     private const ushort ShadowWarrior = 706;
+    private const int ShadowWarriorId = 0xF000 + ShadowWarrior;
+    private const int ZygardeCellId = 0xF000 + 835;
+    private const int ZygardeCoreId = 0xF000 + 836;
     private static readonly PokemonHandle UnknownSpecies = PokemonHandle.InBox(22, 18);
     private static readonly PokemonHandle HoldsUnknownItem = PokemonHandle.InBox(19, 27);
 
@@ -324,8 +327,16 @@ public class UnboundSaveTests
     {
         var species = Ids(Value(Dispatch(LoadedUnbound(), "species.list", "[]")));
 
-        species.Should().HaveCount(905).And.OnlyContain(id => id >= 1 && id <= (int)Core.Species.Enamorus);
+        species.Where(id => id >= 1 && id <= (int)Core.Species.Enamorus).Should().HaveCount(905);
+        species.Except(Enumerable.Range(1, (int)Core.Species.Enamorus)).Should().BeEquivalentTo([ShadowWarriorId, ZygardeCellId, ZygardeCoreId]);
     }
+
+    [Fact]
+    public void TheSpeciesCatalogNamesUnboundsHackSpecies() =>
+        Value(Dispatch(LoadedUnbound(), "species.list", "[]"))!.AsArray()
+            .Where(species => species!["id"]!.GetValue<int>() > (int)Core.Species.Enamorus)
+            .Select(species => (species!["id"]!.GetValue<int>(), species["name"]!.GetValue<string>()))
+            .Should().BeEquivalentTo([(ShadowWarriorId, "Shadow Warrior"), (ZygardeCellId, "Zygarde Cell"), (ZygardeCoreId, "Zygarde Core")]);
 
     [Fact]
     public void TheMoveCatalogListsOnlyCfruMoves()
@@ -401,7 +412,7 @@ public class UnboundSaveTests
         var session = LoadedUnbound(WithUnknownSpecies());
 
         var unknown = Listed(session, UnknownSpecies);
-        unknown["species"]!.GetValue<string>().Should().Be($"Unknown (#{ShadowWarrior})");
+        unknown["species"]!.GetValue<string>().Should().Be("Shadow Warrior");
         unknown["speciesId"].Should().BeNull();
         unknown["isUnknown"]!.GetValue<bool>().Should().BeTrue();
         unknown["editable"]!.GetValue<bool>().Should().BeFalse();
@@ -431,6 +442,16 @@ public class UnboundSaveTests
         Error(Dispatch(session, "pokemon.clone", Args(UnknownSpecies))).Should().Be("unknown-species");
 
         Exported(session).Should().Equal(bytes);
+    }
+
+    [Fact]
+    public void AShadowWarriorsDetailsShowItsOwnTypesAbilityAndGender()
+    {
+        var details = Details(LoadedUnbound(WithUnknownSpecies()), UnknownSpecies);
+
+        details["types"]!.AsArray().Select(type => type!.GetValue<int>()).Should().Equal((int)Core.MoveType.Ghost, (int)Core.MoveType.Dark);
+        details["ability"]!.GetValue<int>().Should().BeOneOf((int)Core.Ability.ToughClaws, (int)Core.Ability.WonderGuard);
+        details["gender"]!.GetValue<string>().Should().Be("genderless");
     }
 
     [Fact]
@@ -485,7 +506,7 @@ public class UnboundSaveTests
 
         reloaded.Game!.SaveFile.GetBoxSlotAtIndex(to).Data.ToArray().Should().Equal(moved);
         Value(Dispatch(reloaded, "box.get", "[]"))!.AsArray()
-            .Where(p => p!["species"]!.GetValue<string>() == $"Unknown (#{ShadowWarrior})")
+            .Where(p => p!["species"]!.GetValue<string>() == "Shadow Warrior")
             .Select(p => (p!["at"]!["box"]!.GetValue<int>() * 30) + p["at"]!["slot"]!.GetValue<int>())
             .Should().Equal(to);
     }
@@ -504,7 +525,7 @@ public class UnboundSaveTests
 
         var reloaded = LoadedUnbound(Exported(session));
         Value(Dispatch(reloaded, "party.get", "[]"))!.AsArray().Select(p => p!["species"]!.GetValue<string>())
-            .Should().Equal("Latias", $"Unknown (#{ShadowWarrior})");
+            .Should().Equal("Latias", "Shadow Warrior");
         reloaded.Game!.SaveFile.GetPartySlotAtIndex(1).Data.ToArray().Should().Equal(before);
     }
 

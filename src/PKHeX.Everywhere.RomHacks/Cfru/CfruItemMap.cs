@@ -10,9 +10,6 @@ public sealed class CfruItemMap
         ..ItemStorage7USUM.GetAllHeld(), ..ItemStorage8SWSH.GetAllHeld(), ..ItemStorage9SV.GetAllHeld(), ..ItemStorage9ZA.GetAllHeld(),
     ];
 
-    // PKHeX's item ids stay far below this, so an index the hack's table has no modern item for gets this id plus the index.
-    private const ushort UnknownBase = 0xF000;
-
     private readonly ushort[] _modernByIndex;
     private readonly Dictionary<ushort, ushort> _indexByModern;
 
@@ -42,7 +39,7 @@ public sealed class CfruItemMap
     {
         0 => 0,
         _ when index >= _modernByIndex.Length => 0,
-        _ when _modernByIndex[index] == 0 => (ushort)(UnknownBase + index),
+        _ when _modernByIndex[index] == 0 => (ushort)(RomHackIds.Base + index),
         _ => _modernByIndex[index],
     };
 
@@ -53,7 +50,7 @@ public sealed class CfruItemMap
     public bool IsOutsideTable(ushort index) => index >= _modernByIndex.Length;
 
     public ushort? UnknownIndex(int item) =>
-        item > UnknownBase && item - UnknownBase < _modernByIndex.Length && _modernByIndex[item - UnknownBase] == 0
-            ? (ushort)(item - UnknownBase)
+        item > RomHackIds.Base && item - RomHackIds.Base < _modernByIndex.Length && _modernByIndex[item - RomHackIds.Base] == 0
+            ? (ushort)(item - RomHackIds.Base)
             : null;
 }

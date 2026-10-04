@@ -33,6 +33,10 @@ _Avoid_: game data, option source
 A species, item or move the save stores that PKHeX has no id or name for, such as an Unbound-only item. An unknown item or move can be changed or cleared where it is. A Pokémon of an unknown species is read-only.
 _Avoid_: unmapped, invalid
 
+**Hack species**:
+A species a Save format defines that PKHeX has no id for, such as Unbound's Shadow Warrior. It has a name, and it has data (types, base stats, abilities, gender ratio, growth rate and catch rate) when we have a source for it.
+_Avoid_: custom species, fakemon
+
 **Locked field**:
 A Pokémon field the save can't change, such as nature on a Gen 3 save. The Game data source declares them, and the editor shows them disabled.
 _Avoid_: read-only field, frozen field

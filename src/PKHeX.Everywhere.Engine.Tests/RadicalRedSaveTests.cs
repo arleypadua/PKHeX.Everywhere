@@ -185,7 +185,7 @@ public class RadicalRedSaveTests
     private const ushort Chillet = 1375;
 
     [Fact]
-    public void AFakeSpeciesShowsAsUnknownAndCantBeEdited()
+    public void ANameOnlyHackSpeciesShowsByNameAndCantBeEdited()
     {
         var bytes = FixtureWith(save =>
         {
@@ -198,7 +198,7 @@ public class RadicalRedSaveTests
 
         Value(Dispatch(session, "box.get", "[]"))!.AsArray()
             .Single(p => p!["at"]!["box"]!.GetValue<int>() == 24 && p["at"]!["slot"]!.GetValue<int>() == 0)!["species"]!
-            .GetValue<string>().Should().Be($"Unknown (#{Chillet})");
+            .GetValue<string>().Should().Be("Chillet");
         Error(Update(session, at, new { nickname = "Renamed" })).Should().Be("unknown-species");
         Error(Dispatch(session, "pokemon.setLevel", Args(at, 60))).Should().Be("unknown-species");
 

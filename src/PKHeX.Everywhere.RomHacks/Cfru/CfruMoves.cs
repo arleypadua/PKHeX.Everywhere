@@ -2,9 +2,6 @@ namespace PKHeX.Everywhere.RomHacks.Cfru;
 
 internal static class CfruMoves
 {
-    // PKHeX's move ids end below 1000, so an index with no national move travels as an id from here up.
-    private const ushort UnknownIdBase = 0xF000;
-
     private static readonly ushort[] NationalByIndex = CfruMoveTable.NationalByIndex;
 
     private static readonly Dictionary<ushort, ushort> IndexByNational = NationalByIndex
@@ -17,7 +14,7 @@ internal static class CfruMoves
 
     public static ushort ToNational(ushort index) =>
         index >= NationalByIndex.Length ? (ushort)0
-        : IsUnknown(index) ? (ushort)(UnknownIdBase + index)
+        : IsUnknown(index) ? (ushort)(RomHackIds.Base + index)
         : NationalByIndex[index];
 
     public static ushort? ToIndex(ushort move) =>
@@ -29,5 +26,5 @@ internal static class CfruMoves
 
     private static bool IsUnknown(int index) => index > 0 && index < NationalByIndex.Length && NationalByIndex[index] == 0;
 
-    private static ushort? UnknownIndex(int move) => IsUnknown(move - UnknownIdBase) ? (ushort)(move - UnknownIdBase) : null;
+    private static ushort? UnknownIndex(int move) => IsUnknown(move - RomHackIds.Base) ? (ushort)(move - RomHackIds.Base) : null;
 }

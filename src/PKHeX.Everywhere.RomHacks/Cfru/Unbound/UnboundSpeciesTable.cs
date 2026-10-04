@@ -1,9 +1,25 @@
+using PKHeX.Core;
+
 namespace PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 
 // Ported from OpenHome's UB_TO_NATIONAL_DEX_MAP: https://github.com/andrewbenington/OpenHome (GPL-3.0), commit 9f1f1f623a8da9c02caaceefbcb4340623741596.
 // The forms, Gigantamax indexes and Manaphy Egg it leaves unmapped come from its comments.
+// The hack species' data comes from Skeli789's Dynamic-Pokemon-Expansion, branch Unbound (WTFPL): https://github.com/Skeli789/Dynamic-Pokemon-Expansion/tree/Unbound,
+// src/Base_Stats.c, include/species.h and strings/Pokemon_Name_Table.string.
 internal static class UnboundSpeciesTable
 {
+    private static readonly HackSpecies ShadowWarrior = new("Shadow Warrior", new HackSpeciesData(
+        (MoveType.Ghost, MoveType.Dark), (60, 115, 85, 80, 85, 115), (Ability.ToughClaws, Ability.None, Ability.WonderGuard),
+        PersonalInfo.RatioMagicGenderless, GrowthRate.MediumFast, CatchRate: 0), NameInGame: "Warrior");
+
+    private static readonly HackSpecies ZygardeCell = new("Zygarde Cell", new HackSpeciesData(
+        (MoveType.Dragon, MoveType.Ground), (50, 50, 50, 50, 50, 50), (Ability.AuraBreak, Ability.None, Ability.None),
+        PersonalInfo.RatioMagicGenderless, GrowthRate.Slow, CatchRate: 3), NameInGame: "Zygarde");
+
+    private static readonly HackSpecies ZygardeCore = new("Zygarde Core", new HackSpeciesData(
+        (MoveType.Dragon, MoveType.Ground), (75, 75, 75, 75, 75, 75), (Ability.AuraBreak, Ability.None, Ability.None),
+        PersonalInfo.RatioMagicGenderless, GrowthRate.Slow, CatchRate: 3), NameInGame: "Zygarde");
+
     public static readonly CfruSpecies[] NationalByIndex =
     [
         (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0),
@@ -64,7 +80,7 @@ internal static class UnboundSpeciesTable
         (607, 0), (608, 0), (609, 0), (610, 0), (611, 0), (612, 0), (613, 0), (614, 0), (615, 0), (616, 0), (617, 0), (618, 0),
         (619, 0), (620, 0), (621, 0), (622, 0), (623, 0), (624, 0), (625, 0), (626, 0), (627, 0), (628, 0), (629, 0), (630, 0),
         (631, 0), (632, 0), (633, 0), (634, 0), (635, 0), (636, 0), (637, 0), (638, 0), (639, 0), (640, 0), (641, 0), (642, 0),
-        (643, 0), (644, 0), (645, 0), (646, 0), (647, 0), (648, 0), (649, 0), (521, 0), (592, 0), (593, 0), (0, 0), (412, 0),
+        (643, 0), (644, 0), (645, 0), (646, 0), (647, 0), (648, 0), (649, 0), (521, 0), (592, 0), (593, 0), ShadowWarrior, (412, 0),
         (412, 0), (413, 1), (413, 2), (422, 0), (423, 0), (479, 1), (479, 2), (479, 3), (479, 4), (479, 5), (487, 1), (492, 1),
         (493, 1), (493, 2), (493, 3), (493, 4), (493, 5), (493, 6), (493, 7), (493, 8), (493, 9), (493, 10), (493, 11), (493, 12),
         (493, 13), (493, 14), (493, 15), (493, 16), (550, 0), (555, 1), (585, 0), (585, 0), (585, 0), (586, 0), (586, 0), (586, 0),
@@ -75,7 +91,7 @@ internal static class UnboundSpeciesTable
         (684, 0), (685, 0), (686, 0), (687, 0), (688, 0), (689, 0), (690, 0), (691, 0), (692, 0), (693, 0), (694, 0), (695, 0),
         (696, 0), (697, 0), (698, 0), (699, 0), (700, 0), (701, 0), (702, 0), (703, 0), (704, 0), (705, 0), (706, 0), (707, 0),
         (708, 0), (709, 0), (710, 0), (711, 0), (712, 0), (713, 0), (714, 0), (715, 0), (716, 0), (717, 0), (718, 0), (719, 0),
-        (720, 0), (720, 1), (721, 0), (668, 0), (678, 1), (681, 1), (493, 17), (0, 0), (0, 0), (718, 1), (718, 4), (658, 2),
+        (720, 0), (720, 1), (721, 0), (668, 0), (678, 1), (681, 1), (493, 17), ZygardeCell, ZygardeCore, (718, 1), (718, 4), (658, 2),
         (669, 3), (669, 2), (669, 1), (669, 4), (670, 3), (670, 2), (670, 1), (670, 4), (670, 5), (671, 3), (671, 2), (671, 1),
         (671, 4), (710, 0), (710, 0), (710, 0), (711, 0), (711, 0), (711, 0), (676, 1), (676, 3), (676, 2), (676, 0), (676, 8),
         (676, 7), (676, 5), (676, 6), (676, 4), (666, 18), (3, 1), (6, 1), (6, 2), (9, 1), (15, 1), (18, 1), (65, 1),
