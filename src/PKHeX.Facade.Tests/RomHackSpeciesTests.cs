@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using PKHeX.Core;
 using PKHeX.Everywhere.RomHacks.Cfru;
+using PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 using PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Facade.Tests.Base;
@@ -12,6 +13,7 @@ public class RomHackSpeciesTests
     private const int LoveAlcremie = (22 * 30) + 18;
     private const int FemaleIndeedee = (22 * 30) + 25;
     private const int FirstOfBox24 = 24 * 30;
+    private const int RadicalRedSlot = 1;
 
     private const ushort CharizardGigantamax = 1261;
     private const ushort AntiqueSinistea = 1194;
@@ -23,13 +25,18 @@ public class RomHackSpeciesTests
 
     private static ushort SpeciesIndex(Pokemon pokemon) => ((CfruPokemon)pokemon.Pkm).SpeciesIndex;
 
-    private static Game UnboundWith(ushort speciesIndex)
+    private static Game UnboundWith(ushort speciesIndex) =>
+        With(new UnboundSave(File.ReadAllBytes(SaveFilePath.Unbound)), SaveFilePath.Unbound, FirstOfBox24, speciesIndex);
+
+    private static Game RadicalRedWith(ushort speciesIndex) =>
+        With(new RadicalRedSave(File.ReadAllBytes(SaveFilePath.RadicalRed)), SaveFilePath.RadicalRed, RadicalRedSlot, speciesIndex);
+
+    private static Game With(CfruSave save, string path, int slot, ushort speciesIndex)
     {
-        var save = new UnboundSave(File.ReadAllBytes(SaveFilePath.Unbound));
-        var pokemon = (CfruPokemon)save.GetBoxSlotAtIndex(FirstOfBox24);
+        var pokemon = (CfruPokemon)save.GetBoxSlotAtIndex(slot);
         pokemon.SpeciesIndex = speciesIndex;
-        save.SetBoxSlotAtIndex(pokemon, FirstOfBox24);
-        return Game.LoadFrom(save.Write().ToArray(), SaveFilePath.Unbound);
+        save.SetBoxSlotAtIndex(pokemon, slot);
+        return Game.LoadFrom(save.Write().ToArray(), path, SaveFilePath.FormatOf(path));
     }
 
     private static void EditAndReload(Game game, int index, Action<Pokemon> check)
@@ -50,6 +57,33 @@ public class RomHackSpeciesTests
             check(exported);
         });
     }
+
+    [Theory]
+    [InlineData(492, Species.MimeJr, 0)]
+    [InlineData(527, Species.PorygonZ, 0)]
+    [InlineData(832, Species.Meowstic, 1)]
+    [InlineData(849, Species.Oinkologne, 1)]
+    [InlineData(989, Species.TypeNull, 0)]
+    [InlineData(1157, Species.Sirfetchd, 0)]
+    [InlineData(1158, Species.MrRime, 0)]
+    [InlineData(1202, Species.Indeedee, 1)]
+    [InlineData(1213, Species.Farfetchd, 1)]
+    [InlineData(1216, Species.MrMime, 1)]
+    [InlineData(1306, Species.Basculegion, 1)]
+    [InlineData(818, Species.Pumpkaboo, 1)]
+    [InlineData(853, Species.Pumpkaboo, 3)]
+    [InlineData(855, Species.Pumpkaboo, 0)]
+    [InlineData(1235, Species.Tauros, 3)]
+    [InlineData(1240, Species.Tauros, 2)]
+    [InlineData(1359, Species.Ogerpon, 2)]
+    public void ARadicalRedPokemonReadsAsItsSpeciesAndFormAndKeepsItsIndexThroughAnEdit(int speciesIndex, Species species, int form) =>
+        EditAndReload(RadicalRedWith((ushort)speciesIndex), RadicalRedSlot, pokemon =>
+        {
+            pokemon.IsUnknown.Should().BeFalse();
+            pokemon.IsEditable.Should().BeTrue();
+            pokemon.Species.Species.Should().Be(species);
+            pokemon.Pkm.Form.Should().Be((byte)form);
+        });
 
     [Fact]
     public void AnAlcremieWithASweetShowsAsAlcremieAndKeepsTheSweetThroughAnEdit() =>
