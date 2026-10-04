@@ -20,6 +20,8 @@ public sealed class CfruPersonalTable(CfruSpeciesMap map) : IPersonalTable
         map.HackDataOf(species)?.Personal
         ?? (Sources.FirstOrDefault(table => table.IsPresentInGame(species, form)) ?? PersonalTable.SV).GetFormEntry(species, form);
 
-    public bool IsSpeciesInGame(ushort species) => map.Contains(species) || map.HackDataOf(species) is not null;
-    public bool IsPresentInGame(ushort species, byte form) => map.Contains(species, form) || (form == 0 && map.HackDataOf(species) is not null);
+    public bool IsSpeciesInGame(ushort species) => map.Contains(species) || HasHackData(species);
+    public bool IsPresentInGame(ushort species, byte form) => map.Contains(species, form) || (form == 0 && HasHackData(species));
+
+    private bool HasHackData(ushort species) => map.HackDataOf(species) is not null;
 }

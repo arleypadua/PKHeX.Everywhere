@@ -4,7 +4,7 @@ Only `PKHeX.Everywhere.RomHacks` knows that a save is a ROM hack. It converts ha
 
 This supersedes the parts of [ADR 0007](0007-rom-hack-saves-adapt-to-pkhex-types.md) about `IUnmappedValues`, `IUnmappedItems` and `IMoveList`. The rest of 0007 stands.
 
-[ADR 0010](0010-a-species-the-save-knows-is-not-unknown.md) supersedes the rule here that an unknown species is read-only.
+[ADR 0010](0010-a-species-the-save-knows-is-not-unknown.md) supersedes the rule here that an unknown species has no PKHeX id. A species the save knows is no longer Unknown.
 
 ## Decision
 

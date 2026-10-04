@@ -7,9 +7,13 @@ This supersedes the rule in ADR 0008 that "an unknown species has no PKHeX id, a
 ## Decision
 
 - A species is Unknown when neither PKHeX nor the Game data source knows it. A Pokémon of an Unknown species stays read-only.
-- A hack species with data gets an id from the range `RomHacks` keeps for values PKHeX has no id for. The Game data source lists it, so it isn't Unknown. Its Pokémon can be edited and copied, and `Game.IsAwareOf` accepts it in a save of the same hack.
+- A hack species with data gets an id from the range `RomHacks` keeps for values PKHeX has no id for. The Game data source lists it, so it isn't Unknown. Players can edit and copy its Pokémon, and `Game.IsAwareOf` accepts it in a save of the same hack.
 - The Facade only checks whether the Game data source lists the id. It never decodes the id.
-- Where the Facade reads PKHeX's static per-species tables, it handles ids PKHeX doesn't know. Such a species has no evolutions, offers every move the Game data source lists, keeps its nickname when PKHeX has no default name for it, and keeps its gender when its PID is rerolled, using its own personal info.
+- Where the Facade reads PKHeX's static per-species tables, it handles ids PKHeX doesn't know:
+  - The species has no evolutions.
+  - Its Pokémon is offered every move the Game data source lists.
+  - Clearing its nickname keeps the nickname, as PKHeX has no default name for it.
+  - Rerolling its PID keeps its gender, read from its own personal info.
 - A hack species with only a name, egg slots and filler indexes stay Unknown.
 
 ## Why

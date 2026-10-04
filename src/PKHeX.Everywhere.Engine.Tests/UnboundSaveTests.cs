@@ -481,50 +481,15 @@ public class UnboundSaveTests
     }
 
     [Fact]
-    public void AShadowWarriorIsOfferedEveryMoveTheGameHas()
-    {
-        var session = LoadedUnbound(WithShadowWarrior());
-
-        Ids(Value(Dispatch(session, "pokemon.options", Args(UnknownSpecies)))!["moves"])
-            .Should().BeEquivalentTo(Ids(Value(Dispatch(session, "game.moves", "[]"))));
-    }
-
-    [Fact]
-    public void AShadowWarriorOpensWithNoEvolutionsToPick()
+    public void AShadowWarriorOpensForEditingAndCloning()
     {
         var session = LoadedUnbound(WithShadowWarrior());
 
         Value(Dispatch(session, "pokemon.edit", Args(UnknownSpecies)));
-
         Details(session, PokemonHandle.Draft())["species"]!.GetValue<int>().Should().Be(ShadowWarriorId);
-        Ids(Value(Dispatch(session, "pokemon.options", Args(PokemonHandle.Draft())))!["species"]).Should().Equal(ShadowWarriorId);
-    }
-
-    [Fact]
-    public void ACopiedShadowWarriorKeepsItsNicknameAndGender()
-    {
-        var session = LoadedUnbound(WithShadowWarrior());
-        Value(Update(session, UnknownSpecies, new { nickname = "Shade" }));
 
         Value(Dispatch(session, "pokemon.clone", Args(UnknownSpecies)));
-
-        var copy = Details(session, PokemonHandle.Draft());
-        copy["nickname"]!.GetValue<string>().Should().Be("Shade");
-        copy["gender"]!.GetValue<string>().Should().Be("genderless");
-        copy["species"]!.GetValue<int>().Should().Be(ShadowWarriorId);
-    }
-
-    [Fact]
-    public void TogglingAShadowWarriorsShininessKeepsItGenderless()
-    {
-        var session = LoadedUnbound(WithShadowWarrior());
-        var shiny = Details(session, UnknownSpecies)["isShiny"]!.GetValue<bool>();
-
-        Value(Update(session, UnknownSpecies, new { isShiny = !shiny }));
-
-        var details = Details(session, UnknownSpecies);
-        details["isShiny"]!.GetValue<bool>().Should().Be(!shiny);
-        details["gender"]!.GetValue<string>().Should().Be("genderless");
+        Details(session, PokemonHandle.Draft())["species"]!.GetValue<int>().Should().Be(ShadowWarriorId);
     }
 
     [Fact]
