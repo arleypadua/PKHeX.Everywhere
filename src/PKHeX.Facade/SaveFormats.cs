@@ -32,9 +32,6 @@ public static class SaveFormats
             ? registered
             : registered.Add(new Registration(format, enabled)));
 
-    /// <summary>
-    /// Enables a format registered disabled.
-    /// </summary>
     /// <returns><c>false</c> if no format with the id is registered.</returns>
     public static bool Enable(string id)
     {
@@ -56,6 +53,7 @@ public static class SaveFormats
         var matches = _registered
             .Select(registration => (registration.Format, registration.Enabled, Match: registration.Format.Detect(data)))
             .Where(match => match.Match != SaveFormatMatch.No)
+            // An enabled format's certain match wins over a disabled one's.
             .OrderByDescending(match => match.Enabled)
             .ToArray();
 
