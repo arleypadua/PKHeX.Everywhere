@@ -92,6 +92,17 @@ public static class GameHandlers
     [Query("game.formats")]
     public static FormatEntry[] Formats() => SaveFormats.All.Select(format => format.ToEntry()).ToArray();
 
+    /// <summary>
+    /// Turns on a save format that's registered off, such as a ROM hack that hasn't been validated yet.
+    /// Until then, <c>game.formats()</c> leaves it out and a save it recognizes fails with <c>invalid-save</c>.
+    /// </summary>
+    /// <param name="id">The format's id. An unknown id fails with <c>not-found</c>.</param>
+    [Command("game.enableFormat")]
+    public static void EnableFormat(string id)
+    {
+        if (!SaveFormats.Enable(id)) throw new EngineException(ErrorCodes.NotFound, $"There is no save format '{id}'.");
+    }
+
     [Command("game.loadBlank", Topics.All)]
     public static void LoadBlank(Session session, int version)
     {

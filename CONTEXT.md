@@ -19,6 +19,7 @@ _Avoid_: API client
 **Save format**:
 A way to read saves PKHeX doesn't know, such as a ROM hack's. The host registers save formats at startup, and loading asks them before PKHeX's own detection. A save loaded through one carries the format's id, name and base game.
 A format detects a save as a certain or a possible match. A possible match fails with `format-choice-required` until the caller names a format, or `pkhex` for PKHeX's own detection.
+A format can be registered off, for a hack we haven't validated. It isn't listed or chosen, and a save it matches for certain fails to load instead of falling through to PKHeX. Its possible matches aren't offered. The host turns it on with `game.enableFormat`.
 _Avoid_: save type, ROM hack format
 
 **Capability**:

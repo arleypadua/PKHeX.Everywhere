@@ -30,6 +30,7 @@ public class CommandTopicTests
         ["events.setWork"] = (game, _) => game.Events?.Work.LastOrDefault() is { } work ? [Args(work.Index, work.Value == 7 ? 8 : 7)] : [],
         ["game.blankVersions"] = (_, _) => ["[]"],
         ["game.formats"] = (_, _) => ["[]"],
+        ["game.enableFormat"] = (_, _) => [Args("unbound")],
         ["game.natures"] = (_, _) => ["[]"],
         ["game.balls"] = (_, _) => ["[]"],
         ["game.languages"] = (_, _) => ["[]"],

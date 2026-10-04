@@ -8,12 +8,19 @@ public class SaveFormatsTests
 {
     private static readonly byte[] Marked = Enumerable.Repeat((byte)0x5A, 0x1234).ToArray();
     private static readonly byte[] PossiblyMarked = PossiblyMarkedEmerald();
+    private static readonly byte[] MarkedForDisabled = Enumerable.Repeat((byte)0xD1, 0x1234).ToArray();
+    private static readonly byte[] MarkedForEnabledLater = Enumerable.Repeat((byte)0xE1, 0x1234).ToArray();
+    private static readonly byte[] PossiblyMarkedForDisabled = Enumerable.Repeat((byte)0xD2, 0x1234).ToArray();
 
     static SaveFormatsTests()
     {
-        SaveFormats.Register(new MarkedFormat());
-        SaveFormats.Register(new PossiblyMarkedFormat("possible"));
-        SaveFormats.Register(new PossiblyMarkedFormat("also-possible"));
+        SaveFormats.Register(new MarkedFormat("marked", Marked));
+        SaveFormats.Register(new PossiblyMarkedFormat("possible", PossiblyMarked));
+        SaveFormats.Register(new PossiblyMarkedFormat("also-possible", PossiblyMarked));
+        SaveFormats.Register(new PossiblyMarkedFormat("disabled-possible", PossiblyMarked), enabled: false);
+        SaveFormats.Register(new MarkedFormat("disabled-marked", MarkedForDisabled), enabled: false);
+        SaveFormats.Register(new MarkedFormat("enabled-later", MarkedForEnabledLater), enabled: false);
+        SaveFormats.Register(new PossiblyMarkedFormat("only-disabled-possible", PossiblyMarkedForDisabled), enabled: false);
     }
 
     private static byte[] PossiblyMarkedEmerald()
@@ -57,7 +64,7 @@ public class SaveFormatsTests
     [Fact]
     public void RegisteringAFormatTwiceKeepsOne()
     {
-        SaveFormats.Register(new MarkedFormat());
+        SaveFormats.Register(new MarkedFormat("marked", Marked));
 
         SaveFormats.All.Count(format => format.Id == "marked").Should().Be(1);
     }
@@ -95,23 +102,71 @@ public class SaveFormatsTests
         load.Should().Throw<GameNotLoadedException>();
     }
 
-    private sealed class MarkedFormat : ISaveFormat
+    [Fact]
+    public void ACertainMatchOnADisabledFormatFailsToLoad()
     {
-        public string Id => "marked";
-        public string Name => "Marked";
+        var load = () => Game.LoadFrom(MarkedForDisabled);
+
+        load.Should().Throw<GameNotLoadedException>();
+    }
+
+    [Fact]
+    public void AnEnabledFormatLoadsTheSaveItMatches()
+    {
+        var load = () => Game.LoadFrom(MarkedForEnabledLater);
+        load.Should().Throw<GameNotLoadedException>();
+
+        SaveFormats.Enable("enabled-later").Should().BeTrue();
+
+        load().Format!.Id.Should().Be("enabled-later");
+    }
+
+    [Fact]
+    public void EnablingAnUnknownFormatFindsNothing() =>
+        SaveFormats.Enable("nope").Should().BeFalse();
+
+    [Fact]
+    public void ADisabledPossibleMatchIsNotACandidate()
+    {
+        var load = () => Game.LoadFrom(PossiblyMarked);
+
+        load.Should().Throw<FormatChoiceRequiredException>()
+            .Which.Candidates.Select(format => format.Id).Should().NotContain("disabled-possible");
+    }
+
+    [Fact]
+    public void APossibleMatchOnlyOnDisabledFormatsFailsToLoad()
+    {
+        var load = () => Game.LoadFrom(PossiblyMarkedForDisabled);
+
+        load.Should().Throw<GameNotLoadedException>();
+    }
+
+    [Fact]
+    public void FindsNoDisabledFormat() =>
+        SaveFormats.Find("disabled-marked").Should().BeNull();
+
+    [Fact]
+    public void ADisabledFormatIsNotListed() =>
+        SaveFormats.All.Select(format => format.Id).Should().NotContain("disabled-marked");
+
+    private sealed class MarkedFormat(string id, byte[] marker) : ISaveFormat
+    {
+        public string Id => id;
+        public string Name => id;
         public GameVersion BaseGame => GameVersion.SL;
         public IReadOnlySet<Capability> Capabilities { get; } = new HashSet<Capability>();
-        public SaveFormatMatch Detect(ReadOnlySpan<byte> data) => data.SequenceEqual(Marked) ? SaveFormatMatch.Certain : SaveFormatMatch.No;
+        public SaveFormatMatch Detect(ReadOnlySpan<byte> data) => data.SequenceEqual(marker) ? SaveFormatMatch.Certain : SaveFormatMatch.No;
         public SaveFile Load(byte[] data) => BlankSaveFile.Get(GameVersion.SL, "Marked");
     }
 
-    private sealed class PossiblyMarkedFormat(string id) : ISaveFormat
+    private sealed class PossiblyMarkedFormat(string id, byte[] marker) : ISaveFormat
     {
         public string Id => id;
         public string Name => id;
         public GameVersion BaseGame => GameVersion.E;
         public IReadOnlySet<Capability> Capabilities { get; } = new HashSet<Capability>();
-        public SaveFormatMatch Detect(ReadOnlySpan<byte> data) => data.SequenceEqual(PossiblyMarked) ? SaveFormatMatch.Possible : SaveFormatMatch.No;
+        public SaveFormatMatch Detect(ReadOnlySpan<byte> data) => data.SequenceEqual(marker) ? SaveFormatMatch.Possible : SaveFormatMatch.No;
         public SaveFile Load(byte[] data) => throw new InvalidOperationException("This format can't read any save.");
     }
 }

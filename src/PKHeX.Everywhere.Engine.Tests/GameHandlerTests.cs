@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using PKHeX.Core;
 using PKHeX.Facade;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Repositories;
 using PKHeX.Facade.Tests.Base;
 using static PKHeX.Everywhere.Engine.Tests.EngineResults;
@@ -10,6 +11,12 @@ namespace PKHeX.Everywhere.Engine.Tests;
 
 public class GameHandlerTests
 {
+    static GameHandlerTests()
+    {
+        SaveFormats.Register(new DisabledFormat("engine-disabled"), enabled: false);
+        SaveFormats.Register(new DisabledFormat("engine-enabled-later"), enabled: false);
+    }
+
     [Fact]
     public void GetReturnsNullWithoutALoadedSave() =>
         Value(Dispatch(new Session(), "game.get", "[]")).Should().BeNull();
@@ -164,5 +171,40 @@ public class GameHandlerTests
         Value(Dispatch(session, "game.get", "[]")).Should().BeNull();
         Error(Dispatch(session, "party.get", "[]")).Should().Be("no-save");
         changes.Should().BeEquivalentTo([new[] { Topics.All }]);
+    }
+
+    [Fact]
+    public void FormatsSkipADisabledFormat() =>
+        Value(Dispatch(new Session(), "game.formats", "[]"))!.AsArray()
+            .Select(format => format!["id"]!.GetValue<string>())
+            .Should().NotContain("engine-disabled");
+
+    [Fact]
+    public void EnableFormatListsTheFormat()
+    {
+        Value(Dispatch(new Session(), "game.enableFormat", Args("engine-enabled-later"))).Should().BeNull();
+
+        Value(Dispatch(new Session(), "game.formats", "[]"))!.AsArray()
+            .Select(format => format!["id"]!.GetValue<string>())
+            .Should().Contain("engine-enabled-later");
+    }
+
+    [Fact]
+    public void EnableFormatFailsWithNotFoundForAnUnknownId() =>
+        Error(Dispatch(new Session(), "game.enableFormat", Args("nope"))).Should().Be("not-found");
+
+    [Fact]
+    public void LoadingWithADisabledFormatFailsWithNotFound() =>
+        Error(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), "emerald.sav", "engine-disabled")))
+            .Should().Be("not-found");
+
+    private sealed class DisabledFormat(string id) : ISaveFormat
+    {
+        public string Id => id;
+        public string Name => id;
+        public GameVersion BaseGame => GameVersion.E;
+        public IReadOnlySet<Capability> Capabilities { get; } = new HashSet<Capability>();
+        public SaveFormatMatch Detect(ReadOnlySpan<byte> data) => SaveFormatMatch.No;
+        public SaveFile Load(byte[] data) => throw new InvalidOperationException("This format can't read any save.");
     }
 }
