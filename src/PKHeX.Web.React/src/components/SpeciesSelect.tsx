@@ -33,7 +33,7 @@ export function SpeciesSelect({ value, onChange }: SpeciesSelectProps) {
   )
 }
 
-function SpeciesOption({ id, name }: { id: number; name: string }) {
+export function SpeciesOption({ id, name }: { id: number; name: string }) {
   return (
     <Space size={5} align="center">
       <span style={{ display: 'inline-flex', width: 40, height: 30, overflow: 'hidden', alignItems: 'center' }}>

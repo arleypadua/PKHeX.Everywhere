@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import type { PokemonSummary } from '@pkhex-everywhere/engine'
 
@@ -21,8 +22,20 @@ interface PlaceholderSpriteProps {
   size: number
 }
 
-export function PlaceholderSprite({ name, size }: PlaceholderSpriteProps) {
+function PlaceholderSprite({ name, size }: PlaceholderSpriteProps) {
   return <QuestionCircleOutlined role="img" aria-label={name} title={name} style={{ fontSize: size }} />
+}
+
+interface SpeciesImageProps {
+  name: string
+  src: string | null
+  placeholderSize: number
+}
+
+export function SpeciesImage({ name, src, placeholderSize }: SpeciesImageProps) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null)
+  if (src === null || src === failedSrc) return <PlaceholderSprite name={name} size={placeholderSize} />
+  return <img alt={name} src={src} onError={() => setFailedSrc(src)} />
 }
 
 interface PokemonSpriteProps {
@@ -30,7 +43,5 @@ interface PokemonSpriteProps {
 }
 
 export function PokemonSprite({ pokemon }: PokemonSpriteProps) {
-  const url = pokemonIconUrl(pokemon)
-  if (url === null) return <PlaceholderSprite name={pokemon.species} size={32} />
-  return <img alt={pokemon.species} src={url} />
+  return <SpeciesImage name={pokemon.species} src={pokemonIconUrl(pokemon)} placeholderSize={32} />
 }
