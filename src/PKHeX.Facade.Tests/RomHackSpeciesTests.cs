@@ -190,6 +190,9 @@ public class RomHackSpeciesTests
     private const ushort ZygardeCore = 836;
     private const ushort GalarianMimeJr = 1224;
     private const ushort Chillet = 1375;
+    private const ushort Fletchling = 769;
+    private const ushort UnboundEggSlot = 412;
+    private const ushort UnboundFiller = 253;
 
     // The stat formula of Gen 3 onwards, with base stats in the order HP, Attack, Defense, Special Attack, Special Defense, Speed.
     private static StatValues StatsFrom(Pokemon pokemon, int[] baseStats)
@@ -220,14 +223,131 @@ public class RomHackSpeciesTests
     }
 
     [Fact]
-    public void AShadowWarriorIsStillReadOnly()
+    public void AShadowWarriorIsKnownAndEditable()
     {
         var pokemon = At(SaveFilePath.Load(SaveFilePath.UnboundUnknownSpecies), ShadowWarrior);
 
         pokemon.IsEmpty.Should().BeFalse();
+        pokemon.IsUnknown.Should().BeFalse();
+        pokemon.IsEditable.Should().BeTrue();
+        pokemon.Details().IsUnknown.Should().BeFalse();
+        pokemon.Details().IsEditable.Should().BeTrue();
+    }
+
+    [Fact]
+    public void EditingAShadowWarriorSavesAndKeepsItsIndex()
+    {
+        var game = SaveFilePath.Load(SaveFilePath.UnboundUnknownSpecies);
+        var pokemon = At(game, ShadowWarrior);
+        var heldItem = game.Options.HeldItems.First(item => item.Id != 0 && item.Id != pokemon.Pkm.HeldItem).Id;
+        var ball = game.Options.Balls.First(b => b.Id != pokemon.Pkm.Ball).Id;
+        var moves = pokemon.Options().Moves.Take(4).Select(move => move.Id).ToArray();
+
+        pokemon.Update(new PokemonPatch(
+            HeldItem: heldItem, Ball: ball, Nickname: "Shade", Level: 70, Moves: moves,
+            Ivs: new StatPatch(Attack: 31, Speed: 30), Evs: new StatPatch(Attack: 252, Speed: 4)));
+
+        game.SaveAndReload(reloaded =>
+        {
+            var edited = At(reloaded, ShadowWarrior);
+            SpeciesIndex(edited).Should().Be(ShadowWarriorIndex);
+            edited.Species.Name.Should().Be("Shadow Warrior");
+            edited.Nickname.Should().Be("Shade");
+            edited.Level.Should().Be(70);
+            edited.Pkm.HeldItem.Should().Be(heldItem);
+            edited.Pkm.Ball.Should().Be((byte)ball);
+            edited.Moves.Values.Select(move => (int)move.Move.Id).Should().Equal(moves);
+            (edited.Pkm.IV_ATK, edited.Pkm.IV_SPE, edited.Pkm.EV_ATK, edited.Pkm.EV_SPE).Should().Be((31, 30, 252, 4));
+        });
+    }
+
+    [Fact]
+    public void AShadowWarriorCanBeOfferedEveryMoveTheGameHas()
+    {
+        var game = SaveFilePath.Load(SaveFilePath.UnboundUnknownSpecies);
+
+        At(game, ShadowWarrior).Options().Moves.Should().BeEquivalentTo(game.GameData.Moves);
+    }
+
+    [Fact]
+    public void AShadowWarriorHasNoEvolutions()
+    {
+        var game = SaveFilePath.Load(SaveFilePath.UnboundUnknownSpecies);
+        var pokemon = At(game, ShadowWarrior);
+
+        game.SpeciesRepository.GetEvolutionsFrom(pokemon.Species).Should().BeEmpty();
+        pokemon.Options().Species.Should().Equal(new Choice(pokemon.Species.Id, "Shadow Warrior"));
+    }
+
+    [Fact]
+    public void ACopiedShadowWarriorKeepsItsNicknameGenderAndIndex()
+    {
+        var pokemon = At(SaveFilePath.Load(SaveFilePath.UnboundUnknownSpecies), ShadowWarrior);
+        pokemon.Update(new PokemonPatch(Nickname: "Shade"));
+
+        var copy = pokemon.MakeCopy();
+
+        copy.Nickname.Should().Be("Shade");
+        copy.Gender.Should().Be(Gender.Genderless);
+        SpeciesIndex(copy).Should().Be(ShadowWarriorIndex);
+    }
+
+    [Fact]
+    public void TogglingAShadowWarriorsShininessKeepsItGenderless()
+    {
+        var pokemon = At(SaveFilePath.Load(SaveFilePath.UnboundUnknownSpecies), ShadowWarrior);
+        var shiny = pokemon.IsShiny;
+
+        pokemon.Update(new PokemonPatch(IsShiny: !shiny));
+
+        pokemon.IsShiny.Should().Be(!shiny);
+        pokemon.Gender.Should().Be(Gender.Genderless);
+    }
+
+    // PKHeX's Gen 5 gender table stops at Genesect, so a later species with two genders would get a random one.
+    [Fact]
+    public void ACopiedOrShinyToggledFletchlingKeepsItsGender()
+    {
+        var game = UnboundWith(Fletchling);
+        var pokemon = At(game, FirstOfBox24);
+        pokemon.Pkm.Version = GameVersion.FR;
+        pokemon.Pkm.PID = 0;
+        pokemon.Gender.Should().Be(Gender.Female);
+
+        for (var i = 0; i < 20; i++)
+        {
+            pokemon.MakeCopy().Gender.Should().Be(Gender.Female);
+            pokemon.SetShiny(i % 2 == 0);
+            pokemon.Gender.Should().Be(Gender.Female);
+        }
+    }
+
+    [Fact]
+    public void AnUnboundSaveIsAwareOfItsHackSpeciesWithData()
+    {
+        var unbound = SaveFilePath.Load(SaveFilePath.UnboundUnknownSpecies);
+        var shadowWarrior = At(unbound, ShadowWarrior);
+
+        unbound.IsAwareOf(shadowWarrior).Should().BeTrue();
+        SaveFilePath.Load(SaveFilePath.FireRed).IsAwareOf(shadowWarrior.Species).Should().BeFalse();
+        SaveFilePath.Load(SaveFilePath.RadicalRed).IsAwareOf(shadowWarrior.Species).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(UnboundEggSlot)]
+    [InlineData(UnboundFiller)]
+    public void AnEggSlotOrFillerIndexStaysUnknownAndReadOnly(ushort index)
+    {
+        var game = UnboundWith(index);
+        var pokemon = At(game, FirstOfBox24);
+        var bytes = pokemon.Pkm.Data.ToArray();
+
+        pokemon.Species.Name.Should().Be($"Unknown (#{index})");
         pokemon.IsUnknown.Should().BeTrue();
         pokemon.IsEditable.Should().BeFalse();
-        pokemon.Details().IsEditable.Should().BeFalse();
+        pokemon.Invoking(p => p.Update(new PokemonPatch(Nickname: "Renamed"))).Should().Throw<UnknownSpeciesException>();
+        pokemon.Invoking(p => p.MakeCopy()).Should().Throw<UnknownSpeciesException>();
+        game.SaveAndReload(reloaded => At(reloaded, FirstOfBox24).Pkm.Data.ToArray().Should().Equal(bytes));
     }
 
     [Theory]
@@ -242,7 +362,7 @@ public class RomHackSpeciesTests
         pokemon.Details().Stats.Should().Be(StatsFrom(pokemon, Enumerable.Repeat(baseStat, 6).ToArray()));
         ((Ability)pokemon.Pkm.Ability).Should().Be(Ability.AuraBreak);
         pokemon.Gender.Should().Be(Gender.Genderless);
-        pokemon.IsEditable.Should().BeFalse();
+        pokemon.IsEditable.Should().BeTrue();
     }
 
     [Theory]
@@ -300,7 +420,7 @@ public class RomHackSpeciesTests
             SpeciesIndex(pokemon).Should().Be(ShadowWarriorIndex);
             pokemon.Species.Name.Should().Be("Shadow Warrior");
 
-            // The Facade keeps a hack species read-only, so it turns back through the PKM.
+            // The slot started empty, and a patch can't empty it, so it turns back through the PKM.
             pokemon.Pkm.Species = originalSpecies;
 
             reloaded.SaveAndReload(back => SpeciesIndex(At(back, FirstOfBox24)).Should().Be(originalIndex));
@@ -348,18 +468,5 @@ public class RomHackSpeciesTests
         pokemon.IsUnknown.Should().BeFalse();
         pokemon.IsEditable.Should().BeTrue();
         pokemon.Details().IsEditable.Should().BeTrue();
-    }
-
-    [Fact]
-    public void AShadowWarriorCantBeEditedOrCopiedAndKeepsItsBytes()
-    {
-        var game = SaveFilePath.Load(SaveFilePath.UnboundUnknownSpecies);
-        var pokemon = At(game, ShadowWarrior);
-        var bytes = pokemon.Pkm.Data.ToArray();
-
-        pokemon.Invoking(p => p.Update(new PokemonPatch(Nickname: "Renamed"))).Should().Throw<UnknownSpeciesException>();
-        pokemon.Invoking(p => p.MakeCopy()).Should().Throw<UnknownSpeciesException>();
-
-        game.SaveAndReload(reloaded => At(reloaded, ShadowWarrior).Pkm.Data.ToArray().Should().Equal(bytes));
     }
 }

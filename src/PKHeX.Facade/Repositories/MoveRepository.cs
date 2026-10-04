@@ -31,22 +31,27 @@ public class MoveRepository
 
     public List<MoveDefinition> PossibleMovesFor(Pokemon pokemon)
     {
-        // consider the current set of moves, whenever they have been learnt by other sources
-        var possibleCurrentMoves = pokemon.Legality().Info.Moves
-            .Zip(pokemon.Moves.Values)
-            .Where(m => m.Second.Move != MoveDefinition.None && m.First.Valid)
-            .Select(m => m.Second.Move.Id);
-        
         var saveFile = pokemon.Game.SaveFile;
         var version = saveFile.Version == GameVersion.BATREV
             ? saveFile.Context.GetSingleGameVersion()
             : saveFile.Version;
         var learnSource = GameData.GetLearnSource(version);
-        var learnSet = learnSource.GetLearnset(pokemon.Pkm.Species, pokemon.Pkm.Form);
-        
-        var moves = learnSet.GetMoveRange((byte)pokemon.Level)
-            .ToArray().ToImmutableArray().AddRange(possibleCurrentMoves)
-            .ToHashSet();
+        var learnable = SpeciesRepository.Find(pokemon.Pkm.Species) is null
+            ? []
+            : learnSource.GetLearnset(pokemon.Pkm.Species, pokemon.Pkm.Form).GetMoveRange((byte)pokemon.Level).ToArray();
+        if (learnable.Length == 0)
+            return pokemon.Game.GameData.Moves
+                .Select(move => GetMove((ushort)move.Id, pokemon.Game.GameData))
+                .OrderBy(move => move.Name)
+                .ToList();
+
+        // consider the current set of moves, whenever they have been learnt by other sources
+        var possibleCurrentMoves = pokemon.Legality().Info.Moves
+            .Zip(pokemon.Moves.Values)
+            .Where(m => m.Second.Move != MoveDefinition.None && m.First.Valid)
+            .Select(m => m.Second.Move.Id);
+
+        var moves = learnable.ToImmutableArray().AddRange(possibleCurrentMoves).ToHashSet();
 
         return _moves
             .Where(x => moves.Contains(x.Key))

@@ -3,7 +3,7 @@ using PKHeX.Core;
 namespace PKHeX.Everywhere.RomHacks.Cfru;
 
 /// <summary>
-/// Base stats from the latest game that has each species, with presence decided by the hack's species map.
+/// Base stats from the latest game that has each species, or the hack's own for its species with data, with presence decided by the hack's species map.
 /// </summary>
 public sealed class CfruPersonalTable(CfruSpeciesMap map) : IPersonalTable
 {
@@ -17,8 +17,11 @@ public sealed class CfruPersonalTable(CfruSpeciesMap map) : IPersonalTable
     public int GetFormIndex(ushort species, byte form) => PersonalTable.SV.GetFormIndex(species, form);
 
     public PersonalInfo GetFormEntry(ushort species, byte form) =>
-        (Sources.FirstOrDefault(table => table.IsPresentInGame(species, form)) ?? PersonalTable.SV).GetFormEntry(species, form);
+        map.HackDataOf(species)?.Personal
+        ?? (Sources.FirstOrDefault(table => table.IsPresentInGame(species, form)) ?? PersonalTable.SV).GetFormEntry(species, form);
 
-    public bool IsSpeciesInGame(ushort species) => map.Contains(species);
-    public bool IsPresentInGame(ushort species, byte form) => map.Contains(species, form);
+    public bool IsSpeciesInGame(ushort species) => map.Contains(species) || HasHackData(species);
+    public bool IsPresentInGame(ushort species, byte form) => map.Contains(species, form) || (form == 0 && HasHackData(species));
+
+    private bool HasHackData(ushort species) => map.HackDataOf(species) is not null;
 }

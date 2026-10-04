@@ -40,6 +40,8 @@ public sealed class CfruSpeciesMap
 
     public HackSpecies? ToHack(ushort index) => _hackByIndex.GetValueOrDefault(index);
 
+    public HackSpeciesData? HackDataOf(int species) => HackIndex(species) is { } index ? _hackByIndex[index].Data : null;
+
     public ushort ToSpeciesId(ushort index) => IsUnknown(index) ? (ushort)(RomHackIds.Base + index) : ToNational(index).Species;
 
     public string? NameOf(int species) => UnknownIndex(species) is { } index ? ToHack(index)?.Name ?? $"Unknown (#{index})" : null;

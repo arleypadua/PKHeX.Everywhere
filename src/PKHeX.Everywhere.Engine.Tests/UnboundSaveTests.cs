@@ -309,6 +309,7 @@ public class UnboundSaveTests
 
     private const int UnknownSlot = (22 * 30) + 18;
     private const ushort ShadowWarrior = 706;
+    private const ushort EggSlot = 412;
     private const int ShadowWarriorId = 0xF000 + ShadowWarrior;
     private const int ZygardeCellId = 0xF000 + 835;
     private const int ZygardeCoreId = 0xF000 + 836;
@@ -394,14 +395,18 @@ public class UnboundSaveTests
         Exported(session).Should().Equal(Fixture);
     }
 
-    private static void PutShadowWarriorInTheUnknownSlot(UnboundSave save)
+    private static void PutUnknownSpeciesInTheUnknownSlot(UnboundSave save) => PutInTheUnknownSlot(save, EggSlot);
+
+    private static void PutInTheUnknownSlot(UnboundSave save, ushort speciesIndex)
     {
         var pokemon = (CfruPokemon)save.GetBoxSlotAtIndex(UnknownSlot);
-        pokemon.SpeciesIndex = ShadowWarrior;
+        pokemon.SpeciesIndex = speciesIndex;
         save.SetBoxSlotAtIndex(pokemon, UnknownSlot);
     }
 
-    private static byte[] WithUnknownSpecies() => FixtureWith(PutShadowWarriorInTheUnknownSlot);
+    private static byte[] WithUnknownSpecies() => FixtureWith(PutUnknownSpeciesInTheUnknownSlot);
+
+    private static byte[] WithShadowWarrior() => FixtureWith(save => PutInTheUnknownSlot(save, ShadowWarrior));
 
     private static JsonNode Listed(Session session, PokemonHandle at) => Value(Dispatch(session, "box.get", "[]"))!.AsArray()
         .Single(p => p!["at"]!["box"]!.GetValue<int>() == at.Box && p["at"]!["slot"]!.GetValue<int>() == at.Slot)!;
@@ -412,7 +417,7 @@ public class UnboundSaveTests
         var session = LoadedUnbound(WithUnknownSpecies());
 
         var unknown = Listed(session, UnknownSpecies);
-        unknown["species"]!.GetValue<string>().Should().Be("Shadow Warrior");
+        unknown["species"]!.GetValue<string>().Should().Be($"Unknown (#{EggSlot})");
         unknown["speciesId"].Should().BeNull();
         unknown["isUnknown"]!.GetValue<bool>().Should().BeTrue();
         unknown["editable"]!.GetValue<bool>().Should().BeFalse();
@@ -445,9 +450,52 @@ public class UnboundSaveTests
     }
 
     [Fact]
+    public void AShadowWarriorIsListedWithItsIdAndIsEditable()
+    {
+        var shadowWarrior = Listed(LoadedUnbound(WithShadowWarrior()), UnknownSpecies);
+
+        shadowWarrior["speciesId"]!.GetValue<int>().Should().Be(ShadowWarriorId);
+        shadowWarrior["species"]!.GetValue<string>().Should().Be("Shadow Warrior");
+        shadowWarrior["isUnknown"]!.GetValue<bool>().Should().BeFalse();
+        shadowWarrior["editable"]!.GetValue<bool>().Should().BeTrue();
+    }
+
+    [Fact]
+    public void EditingAShadowWarriorSavesAndKeepsItsHackIndex()
+    {
+        var session = LoadedUnbound(WithShadowWarrior());
+        var heldItem = Item("Leftovers");
+        int[] moves = [(int)Core.Move.ShadowClaw, (int)Core.Move.NightSlash, (int)Core.Move.SwordsDance, (int)Core.Move.ShadowSneak];
+
+        Value(Update(session, UnknownSpecies, new
+        {
+            level = 70, nickname = "Shade", heldItem, moves,
+            ivs = new { attack = 31, speed = 30 }, evs = new { attack = 252, speed = 4 },
+        }));
+
+        var saved = (CfruPokemon)new UnboundSave(Exported(session)).GetBoxSlotAtIndex(UnknownSlot);
+        saved.SpeciesIndex.Should().Be(ShadowWarrior);
+        (saved.CurrentLevel, saved.Nickname, saved.HeldItem).Should().Be(((byte)70, "Shade", heldItem));
+        new[] { saved.Move1, saved.Move2, saved.Move3, saved.Move4 }.Select(move => (int)move).Should().Equal(moves);
+        (saved.IV_ATK, saved.IV_SPE, saved.EV_ATK, saved.EV_SPE).Should().Be((31, 30, 252, 4));
+    }
+
+    [Fact]
+    public void AShadowWarriorOpensForEditingAndCloning()
+    {
+        var session = LoadedUnbound(WithShadowWarrior());
+
+        Value(Dispatch(session, "pokemon.edit", Args(UnknownSpecies)));
+        Details(session, PokemonHandle.Draft())["species"]!.GetValue<int>().Should().Be(ShadowWarriorId);
+
+        Value(Dispatch(session, "pokemon.clone", Args(UnknownSpecies)));
+        Details(session, PokemonHandle.Draft())["species"]!.GetValue<int>().Should().Be(ShadowWarriorId);
+    }
+
+    [Fact]
     public void AShadowWarriorsDetailsShowItsOwnTypesAbilityAndGender()
     {
-        var details = Details(LoadedUnbound(WithUnknownSpecies()), UnknownSpecies);
+        var details = Details(LoadedUnbound(WithShadowWarrior()), UnknownSpecies);
 
         details["types"]!.AsArray().Select(type => type!.GetValue<int>()).Should().Equal((int)Core.MoveType.Ghost, (int)Core.MoveType.Dark);
         details["ability"]!.GetValue<int>().Should().BeOneOf((int)Core.Ability.ToughClaws, (int)Core.Ability.WonderGuard);
@@ -471,7 +519,7 @@ public class UnboundSaveTests
     {
         var released = FixtureWith(save =>
         {
-            PutShadowWarriorInTheUnknownSlot(save);
+            PutUnknownSpeciesInTheUnknownSlot(save);
             save.SetBoxSlotAtIndex(save.BlankPKM, UnknownSlot);
         });
         var session = LoadedUnbound(released);
@@ -496,7 +544,7 @@ public class UnboundSaveTests
         byte[]? moved = null;
         var session = LoadedUnbound(FixtureWith(save =>
         {
-            PutShadowWarriorInTheUnknownSlot(save);
+            PutUnknownSpeciesInTheUnknownSlot(save);
             moved = save.GetBoxSlotAtIndex(UnknownSlot).Data.ToArray();
             save.SetBoxSlotAtIndex(save.GetBoxSlotAtIndex(UnknownSlot), to);
             save.SetBoxSlotAtIndex(save.BlankPKM, UnknownSlot);
@@ -506,7 +554,7 @@ public class UnboundSaveTests
 
         reloaded.Game!.SaveFile.GetBoxSlotAtIndex(to).Data.ToArray().Should().Equal(moved);
         Value(Dispatch(reloaded, "box.get", "[]"))!.AsArray()
-            .Where(p => p!["species"]!.GetValue<string>() == "Shadow Warrior")
+            .Where(p => p!["species"]!.GetValue<string>() == $"Unknown (#{EggSlot})")
             .Select(p => (p!["at"]!["box"]!.GetValue<int>() * 30) + p["at"]!["slot"]!.GetValue<int>())
             .Should().Equal(to);
     }
@@ -516,7 +564,7 @@ public class UnboundSaveTests
     {
         var session = LoadedUnbound(FixtureWith(save =>
         {
-            PutShadowWarriorInTheUnknownSlot(save);
+            PutUnknownSpeciesInTheUnknownSlot(save);
             save.SetPartySlotAtIndex(save.GetBoxSlotAtIndex(UnknownSlot), 1);
         }));
         var before = session.Game!.SaveFile.GetPartySlotAtIndex(1).Data.ToArray();
@@ -525,7 +573,7 @@ public class UnboundSaveTests
 
         var reloaded = LoadedUnbound(Exported(session));
         Value(Dispatch(reloaded, "party.get", "[]"))!.AsArray().Select(p => p!["species"]!.GetValue<string>())
-            .Should().Equal("Latias", "Shadow Warrior");
+            .Should().Equal("Latias", $"Unknown (#{EggSlot})");
         reloaded.Game!.SaveFile.GetPartySlotAtIndex(1).Data.ToArray().Should().Equal(before);
     }
 
