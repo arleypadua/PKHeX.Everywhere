@@ -2,4 +2,4 @@
 "@pkhex-everywhere/engine": patch
 ---
 
-The `emerald-imperium` format is on. An Emerald Imperium save loads without a format id or `game.enableFormat`, and `game.formats()` lists it.
+An Emerald Imperium save loads with the `emerald-imperium` format instead of as Emerald, without a format id or `game.enableFormat`. `game.formats()` lists it.
