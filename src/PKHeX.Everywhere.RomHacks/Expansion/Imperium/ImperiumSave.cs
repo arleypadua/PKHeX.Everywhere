@@ -99,6 +99,7 @@ public sealed class ImperiumSave : SaveFile
     public override int MaxBallID => BlankPKM.MaxBallID;
     public override GameVersion MaxGameID => BlankPKM.MaxGameID;
     public override int MaxEV => EffortValues.Max255;
+    public override int MaxMoney => 999999;
     public override ReadOnlySpan<ushort> HeldItems => ItemMap.HeldItems;
 
     public override string GetString(ReadOnlySpan<byte> data) => StringConverter3.GetString(data, false);
@@ -116,6 +117,9 @@ public sealed class ImperiumSave : SaveFile
     public override uint ID32 { get => ReadUInt32LittleEndian(Sector(SaveBlock2)[0x0A..]); set => WriteUInt32LittleEndian(Sector(SaveBlock2)[0x0A..], value); }
     public override ushort TID16 { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0A..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0A..], value); }
     public override ushort SID16 { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0C..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0C..], value); }
+
+    private uint EncryptionKey => ReadUInt32LittleEndian(Sector(SaveBlock2)[0x44..]);
+    public override uint Money { get => ReadUInt32LittleEndian(Sector(SaveBlock1)[0x490..]) ^ EncryptionKey; set => WriteUInt32LittleEndian(Sector(SaveBlock1)[0x490..], value ^ EncryptionKey); }
 
     public override int PartyCount { get => Sector(SaveBlock1)[0x234]; protected set => Sector(SaveBlock1)[0x234] = (byte)value; }
     protected override Span<byte> PartyBuffer => Sector(SaveBlock1).Slice(0x238, 6 * ImperiumPokemon.SizeParty);

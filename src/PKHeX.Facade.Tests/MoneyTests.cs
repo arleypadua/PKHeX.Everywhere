@@ -18,7 +18,7 @@ public class MoneyTests
     }
 
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Imperium])] // Imperium's money isn't read yet
+    [SupportedSaveFiles]
     public void Set_ShouldPersistAfterReload(string saveFile)
     {
         var game = SaveFilePath.Load(saveFile);

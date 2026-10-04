@@ -73,7 +73,7 @@ public class TrainerHandlerTests
     }
 
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Imperium])] // Imperium's money isn't read yet
+    [SupportedSaveFiles]
     public void SetMoneyChangesTheMoney(string saveFile)
     {
         var session = Loaded(saveFile);
