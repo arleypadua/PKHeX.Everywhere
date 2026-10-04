@@ -181,6 +181,40 @@ public class ImperiumSaveTests
     }
 
     [Fact]
+    public void ShowsTheTrainer()
+    {
+        var trainer = Value(Dispatch(Loaded(), "trainer.get", "[]"))!;
+
+        trainer["name"]!.GetValue<string>().Should().Be("A");
+        trainer["gender"]!.GetValue<string>().Should().Be("male");
+        trainer["id"]!.GetValue<string>().Should().Be("27859/47663");
+        trainer["money"]!.GetValue<uint>().Should().Be(119322);
+    }
+
+    [Fact]
+    public void AnEditedNameAndMoneySurviveExportAndChangeNoOtherByte()
+    {
+        var session = Loaded();
+
+        Value(Dispatch(session, "trainer.setName", Args("Brendan")));
+        Value(Dispatch(session, "trainer.setMoney", Args(424242)));
+
+        var exported = Exported(session);
+        var money = SectorOf(1) + 0x490;
+        var key = ReadUInt32LittleEndian(Fixture.AsSpan(SectorOf(0) + 0x44));
+        ReadUInt32LittleEndian(exported.AsSpan(money)).Should().Be(424242 ^ key);
+        var owned = new HashSet<int>(Enumerable.Range(0, 28).Select(sector => (sector * 0x1000) + 0xFF6).SelectMany(checksum => new[] { checksum, checksum + 1 }));
+        owned.UnionWith(Enumerable.Range(SectorOf(0), 7));
+        owned.UnionWith(Enumerable.Range(money, 4));
+        Enumerable.Range(0, Fixture.Length).Where(index => exported[index] != Fixture[index])
+            .Should().NotBeEmpty().And.OnlyContain(index => owned.Contains(index));
+
+        var trainer = Value(Dispatch(Loaded(exported), "trainer.get", "[]"))!;
+        trainer["name"]!.GetValue<string>().Should().Be("Brendan");
+        trainer["money"]!.GetValue<uint>().Should().Be(424242);
+    }
+
+    [Fact]
     public void TheFormatIsListed() =>
         Value(Dispatch(new Session(), "game.formats", "[]"))!.AsArray()
             .Select(format => format!["id"]!.GetValue<string>()).Should().Contain("emerald-imperium");

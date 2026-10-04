@@ -12,7 +12,10 @@ public class Trainer
     {
         _game = game;
 
-        Id = new EntityId(_game.SaveFile.DisplayTID, _game.SaveFile.DisplaySID);
+        // A ROM hack save reports Gen 9, which would show its IDs in the six-digit format of Gen 7 onwards.
+        Id = _game.Format is { BaseGame.Generation: < 7 }
+            ? new EntityId(_game.SaveFile.TID16, _game.SaveFile.SID16)
+            : new EntityId(_game.SaveFile.DisplayTID, _game.SaveFile.DisplaySID);
         Money = new Money(_game);
         Inventories = new Inventories(_game);
         Party = new PokemonParty(_game);
