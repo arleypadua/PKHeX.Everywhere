@@ -1,6 +1,6 @@
 import { Badge } from 'antd'
 import type { PokemonSummary } from '@pkhex-everywhere/engine'
-import { PlaceholderSprite } from './PokemonSprite'
+import { SpeciesImage } from './PokemonSprite'
 
 const showdownUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown'
 
@@ -14,8 +14,7 @@ interface PokemonImageProps {
 }
 
 export function PokemonImage({ pokemon }: PokemonImageProps) {
-  const url = pokemonImageUrl(pokemon.speciesId, pokemon.isShiny)
-  const image = url === null ? <PlaceholderSprite name={pokemon.species} size={64} /> : <img alt={pokemon.species} src={url} />
+  const image = <SpeciesImage name={pokemon.species} src={pokemonImageUrl(pokemon.speciesId, pokemon.isShiny)} size={64} />
   if (!pokemon.isShiny) return image
   return (
     <Badge.Ribbon text="shiny" color="orange">
