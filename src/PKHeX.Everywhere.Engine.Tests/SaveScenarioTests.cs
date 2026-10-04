@@ -117,10 +117,13 @@ public class SaveScenarioTests
 
     [Theory]
     [EverySave]
+    [KnownGap(SaveFilePath.Imperium, "Imperium's bag isn't read yet.")]
     public void SettingAndRemovingBagItemsSurvivesExport(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
         var session = LoadSession(saveFile);
-        var (added, maxCount) = AddableItem(session.Game!)!.Value;
+        var addable = AddableItem(session.Game!);
+        addable.Should().NotBeNull("the bag should have room for an item");
+        var (added, maxCount) = addable!.Value;
         var removed = OwnedItem(session.Game!)!;
 
         Value(Dispatch(session, "inventory.setItem", Args(added, maxCount)));

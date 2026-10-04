@@ -13,7 +13,7 @@ internal sealed class CfruGameData : IGameDataSource
     private static readonly Choice[] NumberedLocations =
         Enumerable.Range(0, byte.MaxValue + 1).Select(location => new Choice(location, $"Location #{location}")).ToArray();
 
-    private static readonly Choice[] CfruMoveChoices = CfruMoves.All
+    private static readonly Choice[] CfruMoveChoices = CfruMoveTable.Map.All
         .Select(move => new Choice(move, GameInfo.Strings.movelist[move]))
         .OrderBy(move => move.Name)
         .ToArray();
@@ -67,7 +67,7 @@ internal sealed class CfruGameData : IGameDataSource
     public string? NameOf(GameDataKind kind, int id) => kind switch
     {
         GameDataKind.Species => _speciesMap.NameOf(id),
-        GameDataKind.Move => CfruMoves.NameOf(id),
+        GameDataKind.Move => CfruMoveTable.Map.NameOf(id),
         GameDataKind.Item or GameDataKind.HeldItem => _itemMap.UnknownIndex(id) is { } index ? $"Unknown item #{index}" : null,
         _ => null,
     };

@@ -46,7 +46,7 @@ public class InventoryTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Imperium])] // Imperium's bag isn't read yet
     public void Inventories_ShouldContainBallsInventory(string saveFile)
     {
         var game = SaveFilePath.Load(saveFile);
@@ -57,7 +57,7 @@ public class InventoryTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Imperium])] // Imperium's bag isn't read yet
     public void Inventories_ShouldAllowChangingItemAmount(string saveFile)
     {
         var game = SaveFilePath.Load(saveFile);
@@ -72,7 +72,7 @@ public class InventoryTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Imperium])] // Imperium's bag isn't read yet
     public void Inventories_ShouldAllowRemovingItem(string saveFile)
     {
         var game = SaveFilePath.Load(saveFile);
@@ -87,7 +87,7 @@ public class InventoryTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Imperium])] // Imperium's bag isn't read yet
     public void Invories_CanAddRareCandies(string saveFile)
     {
         var game = SaveFilePath.Load(saveFile);
@@ -157,7 +157,7 @@ public class InventoryTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Imperium])] // Imperium's bag isn't read yet
     public void TrySet_OwnedItem_ShouldChangeItsCountWhereItIs(string saveFile)
     {
         var inventory = SaveFilePath.Load(saveFile).Trainer.Inventories.InventoryItems.Values.First(i => i.AllExceptNone().Any(item => item.Count > 1));

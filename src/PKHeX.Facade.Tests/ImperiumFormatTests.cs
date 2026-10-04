@@ -68,22 +68,16 @@ public class ImperiumFormatTests
     }
 
     [Fact]
-    public void RefusesToLoadAVersion1SaveForNow()
-    {
-        var load = () => Format.Load(Fixture);
-
-        load.Should().Throw<GameNotLoadedException>();
-    }
+    public void LoadsAVersion1Save() =>
+        Format.Load(Fixture.ToArray()).Should().BeOfType<ImperiumSave>();
 
     [Fact]
-    public void ASaveRotatedLikeEmeraldDoesNotLoadWhileTheFormatIsOff()
+    public void ASaveRotatedLikeEmeraldLoadsAsImperium()
     {
         var data = SaveFilePath.ImperiumReadableAsEmerald();
         SaveUtil.GetSaveFile(data).Should().BeOfType<SAV3E>();
 
-        var load = () => Game.LoadFrom(data);
-
-        load.Should().Throw<GameNotLoadedException>();
+        Game.LoadFrom(data).SaveFile.Should().BeOfType<ImperiumSave>();
     }
 
     [Fact]

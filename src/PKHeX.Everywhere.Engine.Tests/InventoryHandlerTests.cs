@@ -14,7 +14,7 @@ namespace PKHeX.Everywhere.Engine.Tests;
 public class InventoryHandlerTests
 {
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Imperium])] // Imperium's bag isn't read yet
     public void GetReturnsEveryPouchOfTheSave(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -74,7 +74,7 @@ public class InventoryHandlerTests
         Error(Dispatch(new Session(), "inventory.get", "[]")).Should().Be("no-save");
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Imperium])] // Imperium's bag isn't read yet
     public void SetItemAddsAnItemTheSaveDoesNotOwn(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -88,7 +88,7 @@ public class InventoryHandlerTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Imperium])] // Imperium's bag isn't read yet
     public void SetItemReplacesTheCountOfAnOwnedItem(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -103,7 +103,7 @@ public class InventoryHandlerTests
     }
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.Imperium])] // Imperium's bag isn't read yet
     public void SetItemRemovesAnItemWithACountOfZero(string saveFile)
     {
         var session = Loaded(saveFile);

@@ -57,4 +57,6 @@ internal static class CfruMoveTable
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0,
     ];
+
+    public static readonly MoveMap Map = new(NationalByIndex);
 }
