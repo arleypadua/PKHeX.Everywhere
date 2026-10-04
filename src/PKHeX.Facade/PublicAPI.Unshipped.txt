@@ -77,3 +77,5 @@ PKHeX.Facade.Pokemons.PokemonDetails.IsEditable.get -> bool
 PKHeX.Facade.Pokemons.PokemonDetails.IsEditable.init -> void
 PKHeX.Facade.Pokemons.PokemonDetails.IsUnknown.get -> bool
 PKHeX.Facade.Pokemons.PokemonDetails.IsUnknown.init -> void
+static PKHeX.Facade.SaveFormats.Enable(string! id) -> bool
+static PKHeX.Facade.SaveFormats.Register(PKHeX.Facade.Abstractions.ISaveFormat! format, bool enabled) -> void
