@@ -22,7 +22,7 @@ public sealed class ImperiumSave : SaveFile
 
     // How many of each sector's 4084 data bytes the game uses, and its checksum covers.
     internal static readonly int[] ChunkLengths =
-        [2572, 4084, 4084, 4084, 2152, .. new int[12], .. Enumerable.Repeat(4084, 8), 1472, 0, 0];
+        [2572, SectorData, SectorData, SectorData, 2152, .. new int[12], .. Enumerable.Repeat(SectorData, 8), 1472, 0, 0];
 
     private readonly int[] _sectors = new int[SectorCount];
     private readonly byte[] _storage = new byte[ChunkLengths[Storage..].Sum()];
@@ -132,13 +132,11 @@ public sealed class ImperiumSave : SaveFile
     }
 
     public override byte Gender { get => Sector(SaveBlock2)[0x08]; set => Sector(SaveBlock2)[0x08] = value; }
-    internal uint EncryptionKey => ReadUInt32LittleEndian(Sector(SaveBlock2)[0x44..]);
-
     public override uint ID32 { get => ReadUInt32LittleEndian(Sector(SaveBlock2)[0x0A..]); set => WriteUInt32LittleEndian(Sector(SaveBlock2)[0x0A..], value); }
     public override ushort TID16 { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0A..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0A..], value); }
     public override ushort SID16 { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0C..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0C..], value); }
 
-    private uint EncryptionKey => ReadUInt32LittleEndian(Sector(SaveBlock2)[0x44..]);
+    internal uint EncryptionKey => ReadUInt32LittleEndian(Sector(SaveBlock2)[0x44..]);
     public override uint Money { get => ReadUInt32LittleEndian(Sector(SaveBlock1)[0x490..]) ^ EncryptionKey; set => WriteUInt32LittleEndian(Sector(SaveBlock1)[0x490..], value ^ EncryptionKey); }
 
     public override int PartyCount { get => Sector(SaveBlock1)[0x234]; protected set => Sector(SaveBlock1)[0x234] = (byte)value; }

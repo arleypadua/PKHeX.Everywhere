@@ -17,11 +17,11 @@ public sealed class CfruBag : PlayerBag
         Info = map.Pockets;
         Pouches =
         [
-            new CfruPouch(InventoryType.Items, Info, 999, map, 0,
+            new CfruPouch(InventoryType.Items, Info, 999, map, countKey: 0,
                 (block13 + MainPocket, MainSlotsInBlock), (sector30, MainSlots - MainSlotsInBlock)),
-            new CfruPouch(InventoryType.Balls, Info, 999, map, 0, (sector30 + 0x31C, 50)),
-            new CfruPouch(InventoryType.TMHMs, Info, 1, map, 0, (sector30 + 0x3E4, 128)),
-            new CfruPouch(InventoryType.Berries, Info, 999, map, 0, (sector30 + 0x5E4, 75)),
+            new CfruPouch(InventoryType.Balls, Info, 999, map, countKey: 0, (sector30 + 0x31C, 50)),
+            new CfruPouch(InventoryType.TMHMs, Info, 1, map, countKey: 0, (sector30 + 0x3E4, 128)),
+            new CfruPouch(InventoryType.Berries, Info, 999, map, countKey: 0, (sector30 + 0x5E4, 75)),
         ];
         Pouches.LoadAll(data);
     }

@@ -10,6 +10,7 @@ public class ImperiumBagTests
 
     private const int SectorSize = 0x1000;
     private const int SectorData = 4084;
+    private const int BerrySlotsInTheFirstSector = (SectorData - 0xF08) / 4;
 
     private static Game Load(byte[]? bytes = null) => Game.LoadFrom(bytes ?? Fixture.ToArray(), SaveFilePath.Imperium);
 
@@ -122,9 +123,13 @@ public class ImperiumBagTests
         while (berries.CurrentSupportedItems.FirstOrDefault() is { } berry && berries.TrySet(berry.Id, 1)) { }
         var filled = berries.AllExceptNone().Select(item => (item.Id, item.Count)).ToArray();
 
-        filled.Should().HaveCountGreaterThan(59);
+        filled.Should().HaveCountGreaterThan(BerrySlotsInTheFirstSector);
         game.SaveAndReload(reloaded =>
             reloaded.Trainer.Inventories["Berries"].AllExceptNone().Select(item => (item.Id, item.Count)).Should().Equal(filled));
+        var firstInNextSector = SectorOf(2);
+        var exported = game.ToByteArray();
+        ReadUInt16LittleEndian(exported.AsSpan(firstInNextSector)).Should().NotBe(0);
+        ReadUInt16LittleEndian(exported.AsSpan(firstInNextSector + 2)).Should().Be((ushort)(1 ^ Key));
     }
 
     [Fact]
@@ -163,7 +168,7 @@ public class ImperiumBagTests
         var balls = game.Trainer.Inventories["Balls"];
 
         balls.MaxItemCountAllowed.Should().Be(999);
-        balls.TrySet(balls.Items[0].Id, 999);
+        balls.TrySet(balls.Items[0].Id, 999).Should().BeTrue();
 
         game.SaveAndReload(reloaded => reloaded.Trainer.Inventories["Balls"].Items[0].Count.Should().Be(999));
     }
