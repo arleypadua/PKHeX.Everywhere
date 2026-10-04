@@ -9,6 +9,8 @@ using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 
 namespace PKHeX.Everywhere.Engine.Tests;
 
+// Enabling a format changes game.formats, which CommandTopicTests compares before and after each command.
+[Collection(nameof(SaveFormats))]
 public class GameHandlerTests
 {
     static GameHandlerTests()
