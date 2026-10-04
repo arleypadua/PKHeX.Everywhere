@@ -28,7 +28,9 @@ public class SpeciesRepository
             : new SpeciesDefinition(species, _game.GameData.NameOf(GameDataKind.Species, (int)species) ?? $"Unknown ({(int)species})");
     }
 
-    public IImmutableList<SpeciesDefinition> GetEvolutionsFrom(SpeciesDefinition definition, byte form = 0) =>
+    internal bool Knows(ushort id) => Find(id) is not null || _species.ContainsKey((Species)id);
+
+    public IImmutableList<SpeciesDefinition> GetEvolutionsFrom(SpeciesDefinition definition, byte form = 0) => Find(definition.ShortId) is null ? [] :
         EvolutionTree
             .GetEvolutionTree(_game.Generation)
             .GetEvolutionsAndPreEvolutions(definition.ShortId, form)
@@ -45,7 +47,7 @@ public class SpeciesRepository
     public static SpeciesDefinition? Find(ushort id) =>
         All.GetValueOrDefault((Species)id) is { } species && SpeciesDefinition.IsSome(species) ? species : null;
     
-    public static IImmutableList<SpeciesDefinition> GetEvolutionsFrom(Species species, EntityContext generation, byte form = 0) =>
+    public static IImmutableList<SpeciesDefinition> GetEvolutionsFrom(Species species, EntityContext generation, byte form = 0) => Find((ushort)species) is null ? [] :
         EvolutionTree
             .GetEvolutionTree(generation)
             .GetEvolutionsAndPreEvolutions((ushort)species, form)

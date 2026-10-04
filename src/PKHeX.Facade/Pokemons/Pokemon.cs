@@ -31,7 +31,7 @@ public partial class Pokemon(PKM pokemon, Game game)
 
     public bool IsEmpty => IsBlank(pokemon);
 
-    public bool IsUnknown => !IsBlank(pokemon) && SpeciesRepository.Find(pokemon.Species) is null;
+    public bool IsUnknown => !IsBlank(pokemon) && !Game.SpeciesRepository.Knows(pokemon.Species);
 
     public bool IsEditable => !IsUnknown;
 
@@ -54,7 +54,7 @@ public partial class Pokemon(PKM pokemon, Game game)
             Pkm.Species = value.ShortId;
 
             if (Pkm is ICombatPower combatPower) combatPower.ResetCP();
-            if (!nicknamed) Pkm.ClearNickname();
+            if (!nicknamed) Pkm.ResetNickname();
         }
     }
 
@@ -148,12 +148,13 @@ public partial class Pokemon(PKM pokemon, Game game)
 
     public void ChangeNickname(string nickname)
     {
-        pokemon.SetNickname(nickname);
+        if (nickname.Length == 0) pokemon.ResetNickname();
+        else pokemon.SetNickname(nickname);
     }
 
     public void SetShiny(bool shiny)
     {
-        pokemon.SetIsShiny(shiny);
+        pokemon.SetShinyKeepingGender(shiny);
     }
 
     public void ChangeMove(PokemonMove.MoveIndex moveIndex, MoveDefinition newMove) =>
@@ -171,18 +172,17 @@ public partial class Pokemon(PKM pokemon, Game game)
     {
         RequireEditable();
         var underlyingPkm = Pkm.Clone();
-        underlyingPkm.ClearNickname();
+        underlyingPkm.ResetNickname();
 
         var isShiny = underlyingPkm.IsShiny;
 
         // re-roll the pid
-        underlyingPkm.PID = EntityPID.GetRandomPID(Random.Shared, underlyingPkm.Species, underlyingPkm.Gender,
-            underlyingPkm.Version, underlyingPkm.Nature, underlyingPkm.Form, underlyingPkm.PID);
+        underlyingPkm.PID = underlyingPkm.RandomPid(Random.Shared);
 
         if (isShiny)
         {
             // because re-rolling may void the shiny status, we are making it shiny again
-            underlyingPkm.SetIsShiny(true);
+            underlyingPkm.SetShinyKeepingGender(true);
         }
 
         return new Pokemon(underlyingPkm, Game);

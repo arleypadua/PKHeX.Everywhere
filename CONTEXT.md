@@ -30,11 +30,11 @@ What a save can store for each kind of value, with names: species, items, held i
 _Avoid_: game data, option source
 
 **Unknown**:
-A species, item or move the save stores that PKHeX has no id or name for, such as an Unbound-only item. An unknown item or move can be changed or cleared where it is. A Pokémon of an unknown species is read-only.
+An item or move the save stores that PKHeX has no id or name for, such as an Unbound-only item, or a species that neither PKHeX nor the Game data source knows, such as an egg slot. An unknown item or move can be changed or cleared where it is. A Pokémon of an unknown species is read-only. See [ADR 0010](docs/adr/0010-a-species-the-save-knows-is-not-unknown.md).
 _Avoid_: unmapped, invalid
 
 **Hack species**:
-A species a Save format defines that PKHeX has no id for, such as Unbound's Shadow Warrior. It has a name, and it has data (types, base stats, abilities, gender ratio, growth rate and catch rate) when we have a source for it.
+A species a Save format defines that PKHeX has no id for, such as Unbound's Shadow Warrior. It has a name, and it has data (types, base stats, abilities, gender ratio, growth rate and catch rate) when we have a source for it. A hack species with data isn't Unknown, and its Pokémon can be edited.
 _Avoid_: custom species, fakemon
 
 **Locked field**:

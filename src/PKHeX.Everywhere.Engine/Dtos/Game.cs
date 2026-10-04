@@ -67,7 +67,7 @@ public record ExportedSave(byte[] Bytes, string FileName);
 /// <summary>
 /// A Pokémon in the trainer's party.
 /// </summary>
-/// <param name="SpeciesId">The species' National Pokédex number, as PKHeX.Core numbers species. Null when the save stores a species PKHeX has no id for.</param>
+/// <param name="SpeciesId">The species' National Pokédex number, as PKHeX.Core numbers species, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. Null when neither PKHeX nor the save knows the species.</param>
 /// <param name="Level">The Pokémon's current level.</param>
 public record PartyMember(int? SpeciesId, string Species, int Level);
 

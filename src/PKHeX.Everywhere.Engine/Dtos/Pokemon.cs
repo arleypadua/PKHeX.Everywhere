@@ -50,9 +50,9 @@ public record PokemonForm(int Id, string Name);
 /// The basics of a Pokémon, as listed in the party and the boxes.
 /// </summary>
 /// <param name="At">Where the Pokémon is.</param>
-/// <param name="SpeciesId">PKHeX species id, which is the National Pokédex number. Null when <c>isUnknown</c> is true.</param>
-/// <param name="Species">Species name, or a name like <c>Unknown (#706)</c> when <c>isUnknown</c> is true.</param>
-/// <param name="IsUnknown">The save stores a species PKHeX has no id for, such as a ROM hack's own species. Show a placeholder instead of a sprite.</param>
+/// <param name="SpeciesId">PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. Null when <c>isUnknown</c> is true.</param>
+/// <param name="Species">Species name, or a name like <c>Unknown (#412)</c> when <c>isUnknown</c> is true.</param>
+/// <param name="IsUnknown">Neither PKHeX nor the save knows the species, such as a ROM hack's egg slot. Show a placeholder instead of a sprite.</param>
 /// <param name="Editable">The Pokémon can be opened with <c>pokemon.edit()</c> and copied with <c>pokemon.clone()</c>. When false, show it read-only with <c>pokemon.details()</c>: editing it fails with <c>unknown-species</c>.</param>
 /// <param name="Nickname">The species name when the Pokémon has no nickname.</param>
 public record PokemonSummary(
@@ -109,8 +109,8 @@ public enum PokemonHandler
 /// <summary>
 /// The editable fields of a Pokémon. Send changes back with <c>pokemon.update()</c> as a <see cref="PokemonPatch"/>.
 /// </summary>
-/// <param name="Species">PKHeX species id, which is the National Pokédex number. Null when <c>isUnknown</c> is true.</param>
-/// <param name="IsUnknown">The save stores a species PKHeX has no id for, such as a ROM hack's own species.</param>
+/// <param name="Species">PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. Null when <c>isUnknown</c> is true.</param>
+/// <param name="IsUnknown">Neither PKHeX nor the save knows the species, such as a ROM hack's egg slot.</param>
 /// <param name="Editable">When false, show the fields read-only: <c>pokemon.update()</c> fails with <c>unknown-species</c>.</param>
 /// <param name="Form">Form index within the species' forms. 0 is the default form.</param>
 /// <param name="Nature">PKHeX nature id. See <c>game.natures()</c>.</param>
@@ -313,7 +313,7 @@ public enum PokemonField
 /// <summary>
 /// A short description of a Pokémon, sent with events such as <c>pokemonAdded</c> and <c>pokemonSaved</c>.
 /// </summary>
-/// <param name="SpeciesId">PKHeX species id, which is the National Pokédex number.</param>
+/// <param name="SpeciesId">PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those.</param>
 /// <param name="Gender">Gender name, such as <c>Male</c>, <c>Female</c> or <c>Genderless</c>.</param>
 /// <param name="Ball">Name of the ball it was caught in.</param>
 public record PokemonOverview(int SpeciesId, string Species, string Gender, string Ball, int Level);

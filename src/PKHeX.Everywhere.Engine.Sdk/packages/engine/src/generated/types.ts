@@ -66,9 +66,9 @@ export interface DeclaredPage {
 
 /** The editable fields of a Pokémon. Send changes back with `pokemon.update()` as a `PokemonPatch`. */
 export interface EditablePokemon {
-  /** PKHeX species id, which is the National Pokédex number. Null when `isUnknown` is true. */
+  /** PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. Null when `isUnknown` is true. */
   species: number | null
-  /** The save stores a species PKHeX has no id for, such as a ROM hack's own species. */
+  /** Neither PKHeX nor the save knows the species, such as a ROM hack's egg slot. */
   isUnknown: boolean
   /** When false, show the fields read-only: `pokemon.update()` fails with `unknown-species`. */
   editable: boolean
@@ -371,7 +371,7 @@ export type PageLayout = 'standard' | 'empty'
 
 /** A Pokémon in the trainer's party. */
 export interface PartyMember {
-  /** The species' National Pokédex number, as PKHeX.Core numbers species. Null when the save stores a species PKHeX has no id for. */
+  /** The species' National Pokédex number, as PKHeX.Core numbers species, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. Null when neither PKHeX nor the save knows the species. */
   speciesId: number | null
   species: string
   /** The Pokémon's current level. */
@@ -582,7 +582,7 @@ export interface PokemonOptions {
 
 /** A short description of a Pokémon, sent with events such as `pokemonAdded` and `pokemonSaved`. */
 export interface PokemonOverview {
-  /** PKHeX species id, which is the National Pokédex number. */
+  /** PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. */
   speciesId: number
   species: string
   /** Gender name, such as `Male`, `Female` or `Genderless`. */
@@ -661,11 +661,11 @@ export interface PokemonSummary {
   id: PokemonId
   /** Where the Pokémon is. */
   at: PokemonHandle
-  /** PKHeX species id, which is the National Pokédex number. Null when `isUnknown` is true. */
+  /** PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. Null when `isUnknown` is true. */
   speciesId: number | null
-  /** Species name, or a name like `Unknown (#706)` when `isUnknown` is true. */
+  /** Species name, or a name like `Unknown (#412)` when `isUnknown` is true. */
   species: string
-  /** The save stores a species PKHeX has no id for, such as a ROM hack's own species. Show a placeholder instead of a sprite. */
+  /** Neither PKHeX nor the save knows the species, such as a ROM hack's egg slot. Show a placeholder instead of a sprite. */
   isUnknown: boolean
   /** The Pokémon can be opened with `pokemon.edit()` and copied with `pokemon.clone()`. When false, show it read-only with `pokemon.details()`: editing it fails with `unknown-species`. */
   editable: boolean
