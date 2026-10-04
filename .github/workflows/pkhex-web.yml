@@ -88,7 +88,7 @@ jobs:
 
       - name: Copy artifacts to Github pages repository
         run: |
-          cp -R artifacts/artifact-pkhex-web/* pkhex-web/
+          rsync -a --delete --exclude .git --exclude README.md artifacts/artifact-pkhex-web/ pkhex-web/
 
       - name: Commit and push new artifacts
         run: |
