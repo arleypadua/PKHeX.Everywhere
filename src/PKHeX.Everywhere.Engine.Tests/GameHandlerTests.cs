@@ -89,7 +89,7 @@ public class GameHandlerTests
 
     [Fact]
     public void LoadReturnsInvalidSaveForAGen3SaveAboveTheBaseGamesLimits() =>
-        Error(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(Gen3SaveOverLimits.EmeraldWithBoxSpecies(412)), "emerald.sav", null!)))
+        Error(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(EditedEmerald.WithBoxSpecies(412)), "emerald.sav", null!)))
             .Should().Be("invalid-save");
 
     [Fact]

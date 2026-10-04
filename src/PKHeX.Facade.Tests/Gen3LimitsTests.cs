@@ -18,7 +18,7 @@ public class Gen3LimitsTests
     [Fact]
     public void ABoxPokemonAtGen3sLimitsLoads()
     {
-        var bytes = Gen3SaveOverLimits.EmeraldWithFirstBoxPokemon(pk =>
+        var bytes = EditedEmerald.WithFirstBoxPokemon(pk =>
         {
             pk.SpeciesInternal = AboveGen3Species - 1;
             pk.Move1 = AboveGen3Move - 1;
@@ -30,39 +30,51 @@ public class Gen3LimitsTests
     [Fact]
     public void ABoxPokemonWithASpeciesAboveGen3sMaximumFailsToLoad()
     {
-        var load = () => Game.LoadFrom(Gen3SaveOverLimits.EmeraldWithBoxSpecies(AboveGen3Species), "emerald.sav");
+        var load = () => Game.LoadFrom(EditedEmerald.WithBoxSpecies(AboveGen3Species), "emerald.sav");
 
-        load.Should().Throw<GameNotLoadedException>();
+        load.Should().Throw<GameNotLoadedException>().Which.InnerException.Should().BeNull();
     }
 
     [Fact]
     public void ABoxPokemonWithAMoveAboveGen3sMaximumFailsToLoad()
     {
-        var load = () => Game.LoadFrom(Gen3SaveOverLimits.EmeraldWithBoxMove(AboveGen3Move), "emerald.sav");
+        var load = () => Game.LoadFrom(EditedEmerald.WithBoxMove(AboveGen3Move), "emerald.sav");
 
-        load.Should().Throw<GameNotLoadedException>();
+        load.Should().Throw<GameNotLoadedException>().Which.InnerException.Should().BeNull();
     }
 
     [Fact]
     public void APartyPokemonWithASpeciesAboveGen3sMaximumFailsToLoad()
     {
-        var load = () => Game.LoadFrom(Gen3SaveOverLimits.EmeraldWithFirstPartyPokemon(pk => pk.SpeciesInternal = AboveGen3Species), "emerald.sav");
+        var load = () => Game.LoadFrom(EditedEmerald.WithFirstPartyPokemon(pk => pk.SpeciesInternal = AboveGen3Species), "emerald.sav");
 
-        load.Should().Throw<GameNotLoadedException>();
+        load.Should().Throw<GameNotLoadedException>().Which.InnerException.Should().BeNull();
     }
 
     [Fact]
     public void AnEmptyBoxSlotWithAMoveAboveGen3sMaximumFailsToLoad()
     {
-        var load = () => Game.LoadFrom(Gen3SaveOverLimits.EmeraldWithEmptyBoxSlot(pk => pk.Move1 = AboveGen3Move), "emerald.sav");
+        var load = () => Game.LoadFrom(EditedEmerald.WithEmptyBoxSlot(pk => pk.Move1 = AboveGen3Move), "emerald.sav");
 
-        load.Should().Throw<GameNotLoadedException>();
+        load.Should().Throw<GameNotLoadedException>().Which.InnerException.Should().BeNull();
+    }
+
+    [Fact]
+    public void AnEggWithASpeciesAboveGen3sMaximumFailsToLoad()
+    {
+        var load = () => Game.LoadFrom(EditedEmerald.WithFirstBoxPokemon(pk =>
+        {
+            pk.IsEgg = true;
+            pk.SpeciesInternal = AboveGen3Species;
+        }), "emerald.sav");
+
+        load.Should().Throw<GameNotLoadedException>().Which.InnerException.Should().BeNull();
     }
 
     [Fact]
     public void ChoosingPKHeXLoadsASaveAboveGen3sLimits()
     {
-        var bytes = Gen3SaveOverLimits.EmeraldWithBoxSpecies(AboveGen3Species);
+        var bytes = EditedEmerald.WithBoxSpecies(AboveGen3Species);
 
         Game.LoadFrom(bytes, "emerald.sav", SaveFormats.PKHeX).SaveFile.Should().BeOfType<SAV3E>();
     }
@@ -70,7 +82,7 @@ public class Gen3LimitsTests
     [Fact]
     public void ChoosingPKHeXLoadsASaveWithAMoveAboveGen3sMaximum()
     {
-        var bytes = Gen3SaveOverLimits.EmeraldWithBoxMove(AboveGen3Move);
+        var bytes = EditedEmerald.WithBoxMove(AboveGen3Move);
 
         Game.LoadFrom(bytes, "emerald.sav", SaveFormats.PKHeX).SaveFile.Should().BeOfType<SAV3E>();
     }

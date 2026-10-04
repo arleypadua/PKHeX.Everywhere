@@ -2,21 +2,21 @@ using PKHeX.Core;
 
 namespace PKHeX.Facade.Tests.Base;
 
-public static class Gen3SaveOverLimits
+public static class EditedEmerald
 {
-    public static byte[] EmeraldWithBoxSpecies(ushort speciesInternal) =>
-        EmeraldWithFirstBoxPokemon(pk => pk.SpeciesInternal = speciesInternal);
+    public static byte[] WithBoxSpecies(ushort speciesInternal) =>
+        WithFirstBoxPokemon(pk => pk.SpeciesInternal = speciesInternal);
 
-    public static byte[] EmeraldWithBoxMove(ushort move) =>
-        EmeraldWithFirstBoxPokemon(pk => pk.Move1 = move);
+    public static byte[] WithBoxMove(ushort move) =>
+        WithFirstBoxPokemon(pk => pk.Move1 = move);
 
-    public static byte[] EmeraldWithFirstBoxPokemon(Action<PK3> change) =>
+    public static byte[] WithFirstBoxPokemon(Action<PK3> change) =>
         Emerald(save => ChangeBoxSlot(save, 0, change));
 
-    public static byte[] EmeraldWithEmptyBoxSlot(Action<PK3> change) =>
+    public static byte[] WithEmptyBoxSlot(Action<PK3> change) =>
         Emerald(save => ChangeBoxSlot(save, Enumerable.Range(0, save.SlotCount).First(i => save.GetBoxSlotAtIndex(i).Species == 0), change));
 
-    public static byte[] EmeraldWithFirstPartyPokemon(Action<PK3> change) =>
+    public static byte[] WithFirstPartyPokemon(Action<PK3> change) =>
         Emerald(save =>
         {
             var count = save.PartyCount;

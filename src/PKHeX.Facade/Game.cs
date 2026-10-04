@@ -91,17 +91,17 @@ public class Game
     }
 
     public static Game LoadFrom(string path) =>
-        LoadFrom(() => SaveFormats.Detect(File.ReadAllBytes(path)) ?? Detected(SaveUtil.GetSaveFile(path)), path);
+        LoadFrom(() => SaveFormats.Detect(File.ReadAllBytes(path)) ?? FromPKHeXDetection(SaveUtil.GetSaveFile(path)), path);
 
     public static Game LoadFrom(byte[] bytes, string? path = null, ISaveFormat? format = null) =>
         LoadFrom(() => format switch
         {
-            null => SaveFormats.Detect(bytes) ?? Detected(SaveUtil.GetSaveFile(bytes, path)),
+            null => SaveFormats.Detect(bytes) ?? FromPKHeXDetection(SaveUtil.GetSaveFile(bytes, path)),
             SaveFormats.PKHeXFormat => FromPKHeX(SaveUtil.GetSaveFile(bytes, path)),
             _ => new Game(format.Load(bytes), format),
         }, path);
 
-    private static Game? Detected(SaveFile? saveFile) =>
+    private static Game? FromPKHeXDetection(SaveFile? saveFile) =>
         saveFile is SAV3 gen3 && Gen3Limits.AreExceededBy(gen3) ? null : FromPKHeX(saveFile);
 
     private static Game? FromPKHeX(SaveFile? saveFile) => saveFile is null ? null : new Game(saveFile);
