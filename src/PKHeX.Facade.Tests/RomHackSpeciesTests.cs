@@ -76,6 +76,12 @@ public class RomHackSpeciesTests
     [InlineData(1235, Species.Tauros, 3)]
     [InlineData(1240, Species.Tauros, 2)]
     [InlineData(1359, Species.Ogerpon, 2)]
+    [InlineData(603, Species.Basculin, 0)]
+    [InlineData(736, Species.Basculin, 1)]
+    [InlineData(1000, Species.Hakamoo, 0)]
+    [InlineData(1264, Species.Calyrex, 1)]
+    [InlineData(1265, Species.Calyrex, 2)]
+    [InlineData(1370, Species.Terapagos, 1)]
     public void ARadicalRedPokemonReadsAsItsSpeciesAndFormAndKeepsItsIndexThroughAnEdit(int speciesIndex, Species species, int form) =>
         EditAndReload(RadicalRedWith((ushort)speciesIndex), RadicalRedSlot, pokemon =>
         {
