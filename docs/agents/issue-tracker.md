@@ -2,11 +2,15 @@
 
 Issues and specs for this repo live as GitHub issues in **`pkhex-web/issue-tracker`**, not in this code repo (`arleypadua/PKHeX.Everywhere`). Use the `gh` CLI for all operations, and **always pass `-R pkhex-web/issue-tracker`**: `gh` otherwise infers the code repo from `git remote -v`, which is the wrong place.
 
+## Shared with pke-emu
+
+The tracker also holds issues for [pkhex-web/pke-emu](https://github.com/pkhex-web/pke-emu), labelled `repo:pke-emu`. They belong to that repo: leave them out of every list, search and triage here by adding `--search "-label:repo:pke-emu"`. An issue for this repo never carries that label.
+
 ## Conventions
 
 - **Create an issue**: `gh issue create -R pkhex-web/issue-tracker --title "..." --body "..."`. Use a heredoc for multi-line bodies.
 - **Read an issue**: `gh issue view <number> -R pkhex-web/issue-tracker --comments`, filtering comments by `jq` and also fetching labels.
-- **List issues**: `gh issue list -R pkhex-web/issue-tracker --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'` with appropriate `--label` and `--state` filters.
+- **List issues**: `gh issue list -R pkhex-web/issue-tracker --state open --search "-label:repo:pke-emu" --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'` with appropriate `--label` and `--state` filters.
 - **Comment on an issue**: `gh issue comment <number> -R pkhex-web/issue-tracker --body "..."`
 - **Apply / remove labels**: `gh issue edit <number> -R pkhex-web/issue-tracker --add-label "..."` / `--remove-label "..."`
 - **Close**: `gh issue close <number> -R pkhex-web/issue-tracker --comment "..."`
