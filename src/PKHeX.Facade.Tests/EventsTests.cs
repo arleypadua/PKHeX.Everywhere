@@ -19,6 +19,8 @@ public class EventsTests
         GameVersion.BD,
     ];
 
+    public static TheoryData<GameVersion> IndexedVersions => [.. LabelledVersions, GameVersion.YW];
+
     [Fact]
     public void Events_Emerald_ShouldRoundTripLabelledFlag()
     {
@@ -62,7 +64,7 @@ public class EventsTests
     }
 
     [Theory]
-    [MemberData(nameof(LabelledVersions))]
+    [MemberData(nameof(IndexedVersions))]
     public void Events_ShouldRoundTripFlagByIndex(GameVersion version)
     {
         var game = Load(version);
@@ -90,12 +92,55 @@ public class EventsTests
         events.FlagCount.Should().BeGreaterThan(events.Flags.Max(f => f.Index));
     }
 
+    public static TheoryData<LanguageID, GameVersion> Gen1Saves => new()
+    {
+        { LanguageID.English, GameVersion.RD },
+        { LanguageID.English, GameVersion.BU },
+        { LanguageID.English, GameVersion.YW },
+        { LanguageID.Japanese, GameVersion.RD },
+        { LanguageID.Japanese, GameVersion.GN },
+        { LanguageID.Japanese, GameVersion.YW },
+    };
+
     [Theory]
-    [InlineData(GameVersion.RD)]
+    [MemberData(nameof(Gen1Saves))]
+    public void Events_Gen1_ShouldExposeEveryFlagAndWorkWithoutLabels(LanguageID language, GameVersion version)
+    {
+        var save = new SAV1(language, version);
+        var events = new Game(save).Events!;
+
+        events.Flags.Should().BeEmpty();
+        events.Work.Should().BeEmpty();
+        events.FlagCount.Should().Be(save.EventFlagCount);
+        events.WorkCount.Should().Be(save.EventWorkCount);
+        events.WorkMin.Should().Be(byte.MinValue);
+        events.WorkMax.Should().Be(byte.MaxValue);
+    }
+
+    [Theory]
+    [MemberData(nameof(Gen1Saves))]
+    public void Events_Gen1_ShouldRoundTripFlagAndWorkByIndex(LanguageID language, GameVersion version)
+    {
+        var game = new Game(new SAV1(language, version));
+        var flag = game.Events!.FlagCount - 1;
+        var work = game.Events.WorkCount - 1;
+        var original = game.Events.GetFlag(flag);
+
+        game.Events.SetFlag(flag, !original);
+        game.Events.SetWork(work, 42);
+
+        Reload(game, reloaded =>
+        {
+            reloaded.Events!.GetFlag(flag).Should().Be(!original);
+            reloaded.Events.GetWork(work).Should().Be(42);
+        });
+    }
+
+    [Theory]
     [InlineData(GameVersion.SW)]
     [InlineData(GameVersion.SL)]
     [InlineData(GameVersion.PLA)]
-    public void Events_ShouldBeUnavailableWithoutLabels(GameVersion version)
+    public void Events_ShouldBeUnavailableWithoutAFlagArray(GameVersion version)
     {
         Load(version).Events.Should().BeNull();
     }
@@ -124,6 +169,7 @@ public class EventsTests
     private static Game Load(GameVersion version) => version switch
     {
         GameVersion.E or GameVersion.C or GameVersion.HG or GameVersion.GP => Game.LoadFrom(SaveFilePath.PathFrom(version)),
+        GameVersion.YW => Game.LoadFrom(SaveFilePath.Yellow),
         _ => Game.EmptyOf(GameVersionRepository.Instance.Get(version), "ASH"),
     };
 

@@ -37,8 +37,8 @@ public record TicketsAndIslands(string[] Tickets, bool AnyTicketMissing, bool Ol
 /// <summary>
 /// The save's event flags and work, returned by <c>events.get</c>, which returns null for saves without them.
 /// </summary>
-/// <param name="Flags">The flags PKHeX has labels for. The save can have more.</param>
-/// <param name="Work">The work entries PKHeX has labels for. The save can have more.</param>
+/// <param name="Flags">The flags PKHeX has labels for. The save can have more. Empty in Generation 1, which has no labels.</param>
+/// <param name="Work">The work entries PKHeX has labels for. The save can have more. Empty in Generation 1, which has no labels.</param>
 /// <param name="FlagCount">How many flags the save has. <c>events.setFlag</c> accepts indexes from 0 to <c>flagCount - 1</c>.</param>
 /// <param name="WorkCount">How many work entries the save has. <c>events.setWork</c> accepts indexes from 0 to <c>workCount - 1</c>.</param>
 /// <param name="WorkMin">The lowest value <c>events.setWork</c> accepts.</param>

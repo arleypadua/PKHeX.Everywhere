@@ -11,22 +11,29 @@ internal sealed class WorkspaceStore<TSave, TWork> : IEventStore
     private readonly TSave _save;
 
     public WorkspaceStore(TSave save, GameVersion version)
+        : this(save, new EventWorkspace<TSave, TWork>(save, version).Labels)
+    {
+    }
+
+    private WorkspaceStore(TSave save, EventLabelCollection? labels)
     {
         _save = save;
-        var labels = new EventWorkspace<TSave, TWork>(save, version).Labels;
 
-        Flags = labels.Flag
+        Flags = labels?.Flag
             .Select(l => new EventFlagEntry(l.Index, l.Name, l.Type.ToString(),
                 () => GetFlag(l.Index),
                 v => SetFlag(l.Index, v)))
-            .ToImmutableList();
-        Work = labels.Work
+            .ToImmutableList() ?? [];
+        Work = labels?.Work
             .Select(l => new EventWorkEntry(l.Index, l.Name, l.Type.ToString(),
                 EventWorkOption.From(l.PredefinedValues),
                 () => GetWork(l.Index),
                 v => SetWork(l.Index, v)))
-            .ToImmutableList();
+            .ToImmutableList() ?? [];
     }
+
+    // EventWorkspace throws for games PKHeX has no label files for, such as Generation 1.
+    public static WorkspaceStore<TSave, TWork> Unlabelled(TSave save) => new(save, labels: null);
 
     public ImmutableList<EventFlagEntry> Flags { get; }
     public ImmutableList<EventWorkEntry> Work { get; }
