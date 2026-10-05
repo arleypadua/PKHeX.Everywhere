@@ -2,6 +2,16 @@
 
 This repository offers 2 different ways of accessing PKHex features in any operating system: a web-based version and a terminal-based version compiled to all major operating systems (macOS, Linux and Windows).
 
+## Supported games
+PKHeX.Web and the CLI open every save [PKHeX](https://github.com/kwsch/PKHeX) supports, from Red and Blue to Scarlet and Violet.
+
+PKHeX.Web also opens saves from these ROM hacks:
+- Pokémon Unbound
+- Pokémon Radical Red
+- Emerald Imperium
+
+ROM hack support is experimental. Keep a backup of your save.
+
 ## PKHeX.Web
 The PKHeX Web version ([pkhex-web.github.io](https://pkhex-web.github.io)) provides a user-friendly interface accessible via any web browser.
 
