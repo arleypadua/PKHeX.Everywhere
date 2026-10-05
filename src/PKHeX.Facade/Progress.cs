@@ -15,7 +15,7 @@ public record Progress(PlayTime? PlayTime, BadgeCount? Badges, PokedexCount? Pok
 
     private static PlayTime? PlayTimeOf(SaveFile save) => save switch
     {
-        SAV_STADIUM or SAV3RSBox or BulkStorage and not SAV4Ranch => null,
+        SAV_STADIUM or SAV3RSBox or (BulkStorage and not SAV4Ranch) => null,
         _ => new PlayTime(save.PlayedHours, save.PlayedMinutes, save.PlayedSeconds),
     };
 

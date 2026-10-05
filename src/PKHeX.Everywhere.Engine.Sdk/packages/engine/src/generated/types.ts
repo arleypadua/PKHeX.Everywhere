@@ -270,9 +270,9 @@ export interface GameOverview {
 export interface GameProgress {
   /** The play time the save records, or null when the save has none, such as a Stadium or Box save. */
   playTime: PlayTime | null
-  /** The gym badges earned, or null when the engine can't read them for the game. Games from Sun and Moon on report null, except Brilliant Diamond and Shining Pearl, and so do ROM hacks. */
+  /** The gym badges earned, or null when the engine can't read them for the game. Games from Sun and Moon on report null, except Brilliant Diamond and Shining Pearl. */
   badges: BadgeCount | null
-  /** The Pokédex counts, or null when the save has no Pokédex or the engine can't read it, as for ROM hacks. */
+  /** The Pokédex counts, or null when the save has no Pokédex or the engine can't read it. */
   pokedex: PokedexCount | null
 }
 

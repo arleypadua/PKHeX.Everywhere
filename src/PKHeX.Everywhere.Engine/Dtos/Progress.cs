@@ -6,8 +6,8 @@ namespace PKHeX.Everywhere.Engine.Dtos;
 /// How far the trainer has got, returned by <c>game.progress</c>.
 /// </summary>
 /// <param name="PlayTime">The play time the save records, or null when the save has none, such as a Stadium or Box save.</param>
-/// <param name="Badges">The gym badges earned, or null when the engine can't read them for the game. Games from Sun and Moon on report null, except Brilliant Diamond and Shining Pearl, and so do ROM hacks.</param>
-/// <param name="Pokedex">The Pokédex counts, or null when the save has no Pokédex or the engine can't read it, as for ROM hacks.</param>
+/// <param name="Badges">The gym badges earned, or null when the engine can't read them for the game. Games from Sun and Moon on report null, except Brilliant Diamond and Shining Pearl.</param>
+/// <param name="Pokedex">The Pokédex counts, or null when the save has no Pokédex or the engine can't read it.</param>
 public record GameProgress(PlayTime? PlayTime, BadgeCount? Badges, PokedexCount? Pokedex);
 
 /// <summary>
