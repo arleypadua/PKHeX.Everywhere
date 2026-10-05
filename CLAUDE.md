@@ -46,7 +46,7 @@ A PR that changes a published package (`@pkhex-everywhere/engine`, `react` or `p
 
 ### Issue tracker
 
-GitHub Issues in the separate repo `pkhex-web/issue-tracker` (always pass `-R pkhex-web/issue-tracker` to `gh issue`). Issues labelled `repo:pke-emu` belong to pkhex-web/pke-emu; skip them. See `docs/agents/issue-tracker.md`.
+GitHub Issues in the separate repo `pkhex-web/issue-tracker` (always pass `-R pkhex-web/issue-tracker` to `gh issue`). Issues labelled `repo:pkh-emu` belong to pkhex-web/pkh-emu; skip them. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

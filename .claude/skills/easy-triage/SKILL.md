@@ -18,7 +18,7 @@ List the issues, oldest first, and drop any labelled `epic`: they are not part o
 
 ```bash
 gh issue list -R pkhex-web/issue-tracker --label needs-triage --state open --limit 200 \
-  --search "-label:repo:pke-emu" \
+  --search "-label:repo:pkh-emu" \
   --json number,title,body,labels,comments,createdAt
 ```
 
