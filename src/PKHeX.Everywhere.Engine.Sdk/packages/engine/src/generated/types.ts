@@ -98,7 +98,7 @@ export interface EditablePokemon {
   level: number
   /** Personality value (PID). */
   pid: number
-  /** PKHeX type ids (0 is Normal). One entry for a single-type Pokémon. */
+  /** Type ids, named by `game.types()`. One entry for a single-type Pokémon. */
   types: number[]
   /** Has Pokérus. */
   isInfected: boolean

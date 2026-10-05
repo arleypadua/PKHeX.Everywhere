@@ -82,6 +82,12 @@ public static class GameHandlers
     [Query("game.moves", Topics.Game)]
     public static Choice[] Moves(Game game) => game.Options.Moves.ToChoices();
 
+    /// <summary>
+    /// Names the type ids in a Pokémon's <c>types</c>, from Normal (0) to Fairy (17). The list is the same for every save.
+    /// </summary>
+    [Query("game.types", Topics.Game)]
+    public static Choice[] Types(Game game) => game.Options.Types.ToChoices();
+
     [Query("game.blankVersions")]
     public static VersionEntry[] BlankVersions() =>
         GameVersionRepository.Instance.Blank.Select(version => version.ToEntry()).ToArray();

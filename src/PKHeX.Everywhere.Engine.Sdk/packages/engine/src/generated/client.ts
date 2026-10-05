@@ -5,7 +5,7 @@ import type { ActionPlacement, AddedPokemon, Binary, CatalogNames, CatalogNamesR
 
 export type Invoke = <T>(call: CallName, args: unknown[]) => Promise<T>
 
-export const queries = ['box.get', 'box.showdown', 'catalog.names', 'encounters.search', 'encounters.versions', 'events.flag', 'events.get', 'game.balls', 'game.blankVersions', 'game.formats', 'game.get', 'game.heldItems', 'game.languages', 'game.moves', 'game.natures', 'game.originGames', 'game.version', 'inventory.get', 'party.get', 'party.showdown', 'plugins.actions', 'plugins.details', 'plugins.failures', 'plugins.installed', 'plugins.isSupported', 'plugins.pageModule', 'plugins.pages', 'plugins.setting', 'plugins.state', 'pokemon.details', 'pokemon.export', 'pokemon.get', 'pokemon.options', 'pokemon.showdown', 'species.list', 'trainer.get'] as const
+export const queries = ['box.get', 'box.showdown', 'catalog.names', 'encounters.search', 'encounters.versions', 'events.flag', 'events.get', 'game.balls', 'game.blankVersions', 'game.formats', 'game.get', 'game.heldItems', 'game.languages', 'game.moves', 'game.natures', 'game.originGames', 'game.types', 'game.version', 'inventory.get', 'party.get', 'party.showdown', 'plugins.actions', 'plugins.details', 'plugins.failures', 'plugins.installed', 'plugins.isSupported', 'plugins.pageModule', 'plugins.pages', 'plugins.setting', 'plugins.state', 'pokemon.details', 'pokemon.export', 'pokemon.get', 'pokemon.options', 'pokemon.showdown', 'species.list', 'trainer.get'] as const
 
 export const commands = ['box.addEncounter', 'box.addFromFile', 'events.giveTickets', 'events.setFlag', 'events.setWork', 'game.close', 'game.enableFormat', 'game.export', 'game.file', 'game.load', 'game.loadBlank', 'inventory.setItem', 'plugins.dismissFailure', 'plugins.newestCompatible', 'plugins.register', 'plugins.run', 'plugins.setEnabled', 'plugins.setHookEnabled', 'plugins.unregister', 'plugins.updateSetting', 'pokemon.addToBox', 'pokemon.clone', 'pokemon.commit', 'pokemon.edit', 'pokemon.setLevel', 'pokemon.update', 'trainer.setBattlePoints', 'trainer.setGender', 'trainer.setMoney', 'trainer.setName'] as const
 
@@ -83,6 +83,8 @@ export interface EngineClient {
     natures(): Promise<Choice[]>
     /** Requires a loaded save; throws `no-save` otherwise. */
     originGames(): Promise<Choice[]>
+    /** Names the type ids in a Pokémon's `types`, from Normal (0) to Fairy (17). The list is the same for every save. Requires a loaded save; throws `no-save` otherwise. */
+    types(): Promise<Choice[]>
     version(): Promise<SaveVersion | null>
   }
   inventory: {
@@ -196,6 +198,7 @@ export function createClient(invoke: Invoke): EngineClient {
       moves: () => invoke('game.moves', []),
       natures: () => invoke('game.natures', []),
       originGames: () => invoke('game.originGames', []),
+      types: () => invoke('game.types', []),
       version: () => invoke('game.version', []),
     },
     inventory: {

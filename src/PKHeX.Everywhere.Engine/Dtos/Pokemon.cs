@@ -123,7 +123,7 @@ public enum PokemonHandler
 /// <param name="IsAlpha">Null in games without alpha Pokémon. Only Legends: Arceus and Legends: Z-A have them.</param>
 /// <param name="Nickname">The species name when the Pokémon has no nickname.</param>
 /// <param name="Pid">Personality value (PID).</param>
-/// <param name="Types">PKHeX type ids (0 is Normal). One entry for a single-type Pokémon.</param>
+/// <param name="Types">Type ids, named by <c>game.types()</c>. One entry for a single-type Pokémon.</param>
 /// <param name="IsInfected">Has Pokérus.</param>
 /// <param name="IsCured">Had Pokérus and is cured.</param>
 /// <param name="TrainerId">Original trainer's ID as the game shows it: 6 digits from Gen 7 on, 5 digits before.</param>

@@ -49,4 +49,16 @@ public class GameOptionsTests
         heldItems.Should().Contain(0);
         heldItems.Should().Contain(game.Trainer.Party.Pokemons.Select(p => p.Pkm.HeldItem));
     }
+
+    [Theory]
+    [InlineData(SaveFilePath.Crystal)]
+    [InlineData(SaveFilePath.Emerald)]
+    [InlineData(SaveFilePath.Unbound)]
+    public void TypesAreEveryTypeASpeciesCanHave(string saveFile)
+    {
+        var types = SaveFilePath.Load(saveFile).Options.Types;
+
+        types.Select(t => t.Id).Should().Equal(Enumerable.Range(0, 18));
+        types.Single(t => t.Id == 9).Name.Should().Be("Fire");
+    }
 }

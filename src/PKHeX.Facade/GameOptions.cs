@@ -23,4 +23,9 @@ public class GameOptions
     public IReadOnlyList<Choice> HeldItems => _data.HeldItems;
     public IReadOnlyList<Choice> OriginGames => _data.OriginGames;
     public IReadOnlyList<Choice> Moves => _data.Moves;
+
+    public IReadOnlyList<Choice> Types => GameInfo.Strings.types
+        .Take((int)MoveType.Fairy + 1)
+        .Select((name, id) => new Choice(id, name))
+        .ToArray();
 }
