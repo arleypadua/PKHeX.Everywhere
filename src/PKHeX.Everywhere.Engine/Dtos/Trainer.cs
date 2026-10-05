@@ -43,3 +43,15 @@ public static class TrainerMapping
 
     public static Gender ToGender(this TrainerGender gender) => gender == TrainerGender.Female ? Gender.Female : Gender.Male;
 }
+
+/// <summary>
+/// A gym badge, as <c>trainer.badges</c> lists it.
+/// </summary>
+/// <param name="Name">The badge's English name without "Badge", such as <c>Boulder</c>.</param>
+/// <param name="Earned">Whether the trainer has the badge.</param>
+public record Badge(string Name, bool Earned);
+
+public static class BadgeMapping
+{
+    public static Badge[] ToDto(this Badges badges) => badges.All.Select(b => new Badge(b.Name, b.Earned)).ToArray();
+}

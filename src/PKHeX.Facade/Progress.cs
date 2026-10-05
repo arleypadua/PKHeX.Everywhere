@@ -22,9 +22,7 @@ public record Progress(PlayTime? PlayTime, BadgeCount? Badges, PokedexCount? Pok
     // SWSH keeps a badge byte too, but whether it counts badges or flags them is unconfirmed.
     private static BadgeCount? BadgesOf(SaveFile save) => save switch
     {
-        SAV1 gen1 => Earned(gen1.Badges, 8),
-        SAV2 gen2 => Earned(gen2.Badges, 16),
-        SAV3 gen3 => Earned(gen3.Badges, 8),
+        _ when Facade.Badges.Of(save) is { All: var all } => new BadgeCount(all.Count(b => b.Earned), all.Count),
         SAV4HGSS hgss => Earned(hgss.Badges | (hgss.Badges16 << 8), 16),
         SAV4 gen4 => Earned(gen4.Badges, 8),
         SAV5 gen5 => Earned(gen5.Misc.Badges, 8),

@@ -36,6 +36,31 @@ public static class TrainerHandlers
         supported.BattlePoints = value;
     }
 
+    /// <summary>
+    /// Lists the gym badges in game order. Gold, Silver and Crystal list the Johto badges, then the Kanto ones.
+    /// Returns null outside Generations 1 to 3 and for ROM hacks.
+    /// </summary>
+    [Query("trainer.badges", Topics.Trainer, Topics.Events)]
+    public static Dtos.Badge[]? Badges(Game game) => game.Badges?.ToDto();
+
+    /// <summary>
+    /// Sets which gym badges the trainer has, one value per badge in the order <c>trainer.badges</c> lists them.
+    /// Throws <c>not-supported</c> when <c>trainer.badges</c> returns null, and <c>out-of-range</c> when the number of values doesn't match.
+    /// </summary>
+    [Command("trainer.setBadges", Topics.Trainer, Topics.Events)]
+    public static void SetBadges(Game game, bool[] earned)
+    {
+        var badges = game.Badges ?? throw new EngineException(ErrorCodes.NotSupported, "The engine can't write badges for this save.");
+        try
+        {
+            badges.Set(earned);
+        }
+        catch (ArgumentOutOfRangeException e)
+        {
+            throw new EngineException(ErrorCodes.OutOfRange, e.Message, e);
+        }
+    }
+
     private static void RequireInRange(int value, int max)
     {
         if (value < 0 || value > max)
