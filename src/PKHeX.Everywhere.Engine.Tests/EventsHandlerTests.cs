@@ -54,6 +54,37 @@ public class EventsHandlerTests
         Indices(events["work"]!).Should().OnlyHaveUniqueItems();
     }
 
+    [Theory]
+    [InlineData(GameVersion.RD)]
+    [InlineData(GameVersion.YW)]
+    public void GetReturnsEveryGen1FlagWithoutLabels(GameVersion version)
+    {
+        var session = Gen1(version);
+        var save = (SAV1)session.Game!.SaveFile;
+
+        var events = Value(Dispatch(session, "events.get", "[]"))!;
+
+        events["flags"]!.AsArray().Should().BeEmpty();
+        events["work"]!.AsArray().Should().BeEmpty();
+        events["flagCount"]!.GetValue<int>().Should().Be(save.EventFlagCount);
+        events["workCount"]!.GetValue<int>().Should().Be(save.EventWorkCount);
+        Value(Dispatch(session, "game.get", "[]"))!["hasEvents"]!.GetValue<bool>().Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(GameVersion.RD)]
+    [InlineData(GameVersion.YW)]
+    public void SetFlagChangesAGen1Flag(GameVersion version)
+    {
+        var session = Gen1(version);
+        var index = session.Game!.Events!.FlagCount - 1;
+        var expected = !Flag(session, index);
+
+        Dispatch(session, "events.setFlag", Args(index, expected));
+
+        Flag(session, index).Should().Be(expected);
+    }
+
     [Fact]
     public void GetReturnsNullWhenTheSaveHasNoEvents() =>
         Value(Dispatch(NoEvents(), "events.get", "[]")).Should().BeNull();
@@ -251,6 +282,16 @@ public class EventsHandlerTests
     [Fact]
     public void GiveTicketsFailsWithNotFoundOutsideGen3() =>
         Error(Dispatch(Loaded(SaveFilePath.HgSs), "events.giveTickets", Args(true))).Should().Be("not-found");
+
+    private static Session Gen1(GameVersion version)
+    {
+        if (version == GameVersion.YW)
+            return Loaded(SaveFilePath.Yellow);
+
+        var session = new Session();
+        session.Load(Game.EmptyOf(GameVersionRepository.Instance.Get(version)), "red.sav");
+        return session;
+    }
 
     private static Session NoEvents()
     {

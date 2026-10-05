@@ -737,9 +737,9 @@ export type SaveCapability = 'legality' | 'autoLegality' | 'encounters' | 'showd
 
 /** The save's event flags and work, returned by `events.get`, which returns null for saves without them. */
 export interface SaveEvents {
-  /** The flags PKHeX has labels for. The save can have more. */
+  /** The flags PKHeX has labels for. The save can have more. Empty in Generation 1, which has no labels. */
   flags: EventFlag[]
-  /** The work entries PKHeX has labels for. The save can have more. */
+  /** The work entries PKHeX has labels for. The save can have more. Empty in Generation 1, which has no labels. */
   work: EventWork[]
   /** How many flags the save has. `events.setFlag` accepts indexes from 0 to `flagCount - 1`. */
   flagCount: number

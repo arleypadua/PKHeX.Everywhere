@@ -37,7 +37,7 @@ public class GameHandlerTests
     public void GetSaysWhenTheSaveHasNoEvents()
     {
         var session = new Session();
-        session.Load(Game.LoadFrom(SaveFilePath.Yellow), "yellow.sav");
+        session.Load(Game.EmptyOf(GameVersionRepository.Instance.Get(GameVersion.PLA)), "legends.bin");
 
         Value(Dispatch(session, "game.get", "[]"))!["hasEvents"]!.GetValue<bool>().Should().BeFalse();
     }

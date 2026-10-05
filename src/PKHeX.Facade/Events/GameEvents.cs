@@ -61,13 +61,14 @@ public sealed class GameEvents
         {
             IEventFlag37 s => new WorkspaceStore<IEventFlag37, ushort>(s, saveFile.Version),
             IEventFlagProvider37 p => new WorkspaceStore<IEventFlag37, ushort>(p.EventWork, saveFile.Version),
+            SAV1 s => WorkspaceStore<SAV1, byte>.Unlabelled(s),
             SAV2 s => new WorkspaceStore<SAV2, byte>(s, saveFile.Version),
             SAV7b s => new LetsGoStore(s.EventWork),
             SAV8BS s => new BrilliantDiamondShiningPearlStore(s.FlagWork),
             _ => null,
         };
 
-        return store is null || store.Flags.Count == 0 ? null : new GameEvents(store, Gen3Events.For(game));
+        return store is null ? null : new GameEvents(store, Gen3Events.For(game));
     }
 }
 
