@@ -38,7 +38,7 @@ public class Badges
         _set(earned.Select((e, i) => e ? 1 << i : 0).Sum());
     }
 
-    internal static Badges? Of(Game game) => game.Format is not null ? null : game.SaveFile switch
+    internal static Badges? Of(SaveFile save) => save switch
     {
         SAV1 gen1 => new Badges(Kanto, () => gen1.Badges, value => gen1.Badges = value),
         SAV2 gen2 => new Badges([..Johto, ..Kanto], () => gen2.Badges, value => gen2.Badges = value),

@@ -55,7 +55,7 @@ public class Game
     public BattlePoints BattlePoints { get; }
     public GameEvents? Events => _events.Value;
     public Progress Progress => Progress.Of(SaveFile);
-    public Badges? Badges => Badges.Of(this);
+    public Badges? Badges => Badges.Of(SaveFile);
 
     public GameVersionDefinition SaveVersion => GameVersionRepository.Instance.Get(SaveFile.Version);
 

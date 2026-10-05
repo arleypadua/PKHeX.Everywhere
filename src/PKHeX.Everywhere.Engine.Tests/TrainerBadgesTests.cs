@@ -42,7 +42,7 @@ public class TrainerBadgesTests
         Value(Dispatch(session, "trainer.setBadges", Args(earned))).Should().BeNull();
 
         Value(Dispatch(session, "game.progress", "[]"))!["badges"]!["earned"]!.GetValue<int>().Should().Be(earned.Count(e => e));
-        (PKHeXBadges(session.Game.SaveFile) & 1).Should().Be(earned[0] ? 1 : 0);
+        PKHeXBadges(session.Game.SaveFile).Should().Be(earned.Select((e, i) => e ? 1 << i : 0).Sum());
     }
 
     [Fact]
