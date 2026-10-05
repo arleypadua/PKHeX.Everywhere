@@ -19,6 +19,13 @@ export interface AddedPokemon {
   at: PokemonHandle
 }
 
+/** Gym badges earned out of the badges the game has. */
+export interface BadgeCount {
+  earned: number
+  /** The badges the game has, such as 16 for Gold, Silver, Crystal, HeartGold and SoulSilver. */
+  total: number
+}
+
 /** Bytes encoded as a base64 string. */
 export type Base64 = string
 
@@ -259,6 +266,16 @@ export interface GameOverview {
   formatId: string | null
 }
 
+/** How far the trainer has got, returned by `game.progress`. */
+export interface GameProgress {
+  /** The play time the save records, or null when the save has none, such as a Stadium or Box save. */
+  playTime: PlayTime | null
+  /** The gym badges earned, or null when the engine can't read them for the game. Games from Sun and Moon on report null, except Brilliant Diamond and Shining Pearl. */
+  badges: BadgeCount | null
+  /** The Pokédex counts, or null when the save has no Pokédex or the engine can't read it. */
+  pokedex: PokedexCount | null
+}
+
 /** The type and power of a Pokémon's Hidden Power. */
 export interface HiddenPower {
   /** Type name. */
@@ -376,6 +393,13 @@ export interface PartyMember {
   species: string
   /** The Pokémon's current level. */
   level: number
+}
+
+/** Hours, minutes and seconds played, as the game shows them. */
+export interface PlayTime {
+  hours: number
+  minutes: number
+  seconds: number
 }
 
 /** An action an enabled plug-in hook offers, as listed by `plugins.actions`. Run it with `plugins.run`. */
@@ -512,6 +536,12 @@ export interface PlugInUpdated {
   plugInId: string
   /** The newly registered assembly's version. */
   version: string
+}
+
+/** The number of species the Pokédex has seen and caught, as PKHeX counts them. */
+export interface PokedexCount {
+  seen: number
+  caught: number
 }
 
 /** Where a Pokémon added to the box came from: an imported Pokémon file (`box.addFromFile`) or an encounter search result (`box.addEncounter`). */

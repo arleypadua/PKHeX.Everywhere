@@ -54,6 +54,7 @@ public class Game
     public Trainer Trainer { get; }
     public BattlePoints BattlePoints { get; }
     public GameEvents? Events => _events.Value;
+    public Progress Progress => Progress.Of(SaveFile);
 
     public GameVersionDefinition SaveVersion => GameVersionRepository.Instance.Get(SaveFile.Version);
 

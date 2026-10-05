@@ -177,6 +177,10 @@ public abstract class CfruSave : SaveFile
     public override ushort TID16 { get => ReadUInt16LittleEndian(Block(0)[0x0A..]); set => WriteUInt16LittleEndian(Block(0)[0x0A..], value); }
     public override ushort SID16 { get => ReadUInt16LittleEndian(Block(0)[0x0C..]); set => WriteUInt16LittleEndian(Block(0)[0x0C..], value); }
 
+    public override int PlayedHours { get => ReadUInt16LittleEndian(Block(0)[0x0E..]); set => WriteUInt16LittleEndian(Block(0)[0x0E..], (ushort)value); }
+    public override int PlayedMinutes { get => Block(0)[0x10]; set => Block(0)[0x10] = (byte)value; }
+    public override int PlayedSeconds { get => Block(0)[0x11]; set => Block(0)[0x11] = (byte)value; }
+
     public override uint Money { get => ReadUInt32LittleEndian(Block(1)[0x290..]); set => WriteUInt32LittleEndian(Block(1)[0x290..], value); }
 
     public override int PartyCount { get => Block(1)[0x34]; protected set => Block(1)[0x34] = (byte)value; }
