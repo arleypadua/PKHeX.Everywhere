@@ -19,6 +19,14 @@ export interface AddedPokemon {
   at: PokemonHandle
 }
 
+/** A gym badge, as `trainer.badges` lists it. */
+export interface Badge {
+  /** The badge's English name without "Badge", such as `Boulder`. */
+  name: string
+  /** Whether the trainer has the badge. */
+  earned: boolean
+}
+
 /** Gym badges earned out of the badges the game has. */
 export interface BadgeCount {
   earned: number

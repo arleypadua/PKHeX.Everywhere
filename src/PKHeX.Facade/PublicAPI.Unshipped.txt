@@ -153,3 +153,24 @@ virtual PKHeX.Facade.Progress.<Clone>$() -> PKHeX.Facade.Progress!
 virtual PKHeX.Facade.Progress.EqualityContract.get -> System.Type!
 virtual PKHeX.Facade.Progress.Equals(PKHeX.Facade.Progress? other) -> bool
 virtual PKHeX.Facade.Progress.PrintMembers(System.Text.StringBuilder! builder) -> bool
+PKHeX.Facade.Badge
+PKHeX.Facade.Badge.Badge(PKHeX.Facade.Badge! original) -> void
+PKHeX.Facade.Badge.Badge(string! Name, bool Earned) -> void
+PKHeX.Facade.Badge.Deconstruct(out string! Name, out bool Earned) -> void
+PKHeX.Facade.Badge.Earned.get -> bool
+PKHeX.Facade.Badge.Earned.init -> void
+PKHeX.Facade.Badge.Name.get -> string!
+PKHeX.Facade.Badge.Name.init -> void
+PKHeX.Facade.Badges
+PKHeX.Facade.Badges.All.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Badge!>!
+PKHeX.Facade.Badges.Set(System.Collections.Generic.IReadOnlyList<bool>! earned) -> void
+PKHeX.Facade.Game.Badges.get -> PKHeX.Facade.Badges?
+override PKHeX.Facade.Badge.Equals(object? obj) -> bool
+override PKHeX.Facade.Badge.GetHashCode() -> int
+override PKHeX.Facade.Badge.ToString() -> string!
+static PKHeX.Facade.Badge.operator !=(PKHeX.Facade.Badge? left, PKHeX.Facade.Badge? right) -> bool
+static PKHeX.Facade.Badge.operator ==(PKHeX.Facade.Badge? left, PKHeX.Facade.Badge? right) -> bool
+virtual PKHeX.Facade.Badge.<Clone>$() -> PKHeX.Facade.Badge!
+virtual PKHeX.Facade.Badge.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Badge.Equals(PKHeX.Facade.Badge? other) -> bool
+virtual PKHeX.Facade.Badge.PrintMembers(System.Text.StringBuilder! builder) -> bool

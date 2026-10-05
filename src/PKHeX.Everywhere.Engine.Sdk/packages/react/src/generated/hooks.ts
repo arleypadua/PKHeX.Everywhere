@@ -120,6 +120,8 @@ export function useTrainer() {
   const trainer = useQuery('trainer.get')
   const commands = useMemo(
     () => ({
+      /** Sets which gym badges the trainer has, one value per badge in the order `trainer.badges` lists them. Throws `not-supported` when `trainer.badges` returns null, and `out-of-range` when the number of values doesn't match. Requires a loaded save; throws `no-save` otherwise. Wrap in `<RequireGame>`. */
+      setBadges: (earned: boolean[]) => engine.trainer.setBadges(earned),
       /** Requires a loaded save; throws `no-save` otherwise. Wrap in `<RequireGame>`. */
       setBattlePoints: (value: number) => engine.trainer.setBattlePoints(value),
       /** Requires a loaded save; throws `no-save` otherwise. Wrap in `<RequireGame>`. */
