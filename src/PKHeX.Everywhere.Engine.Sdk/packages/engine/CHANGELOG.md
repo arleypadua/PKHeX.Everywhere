@@ -1,5 +1,13 @@
 # @pkhex-everywhere/engine
 
+## 0.7.2
+
+### Patch Changes
+
+- f74dcdd: New `game.progress()` returns the save's play time, gym badges and Pokédex seen and caught counts. Each is null when the engine can't read it for the game. ROM hack saves give only play time.
+- 40f058d: `events.get()` now works for Generation 1 saves. PKHeX has no labels for them, so `flags` and `work` are empty, but `events.flag()`, `events.setFlag()` and `events.setWork()` reach every index up to `flagCount` and `workCount`. `hasEvents` is true for these saves.
+- 73a0afe: New `trainer.badges()` lists the gym badges by name with whether each is earned, and `trainer.setBadges(earned)` sets them. Both work on Generation 1, 2 and 3 saves, but not ROM hacks. `useTrainer()` gains `setBadges`.
+
 ## 0.7.1
 
 ### Patch Changes
