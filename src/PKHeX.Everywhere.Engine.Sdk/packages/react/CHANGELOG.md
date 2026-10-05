@@ -1,5 +1,15 @@
 # @pkhex-everywhere/react
 
+## 0.7.2
+
+### Patch Changes
+
+- 73a0afe: New `trainer.badges()` lists the gym badges by name with whether each is earned, and `trainer.setBadges(earned)` sets them. Both work on Generation 1, 2 and 3 saves, but not ROM hacks. `useTrainer()` gains `setBadges`.
+- Updated dependencies [f74dcdd]
+- Updated dependencies [40f058d]
+- Updated dependencies [73a0afe]
+  - @pkhex-everywhere/engine@0.7.2
+
 ## 0.7.1
 
 ### Patch Changes
