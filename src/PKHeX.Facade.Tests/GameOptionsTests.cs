@@ -54,7 +54,7 @@ public class GameOptionsTests
     [InlineData(SaveFilePath.Crystal)]
     [InlineData(SaveFilePath.Emerald)]
     [InlineData(SaveFilePath.Unbound)]
-    public void TypesAreEveryTypeASpeciesCanHave(string saveFile)
+    public void TypesAreNormalToFairyInEverySave(string saveFile)
     {
         var types = SaveFilePath.Load(saveFile).Options.Types;
 
