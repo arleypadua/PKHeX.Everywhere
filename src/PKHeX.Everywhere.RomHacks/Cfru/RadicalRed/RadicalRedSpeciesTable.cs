@@ -1,8 +1,8 @@
 namespace PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 
 // Ported from OpenHome's RR_TO_NATIONAL_DEX_MAP: https://github.com/andrewbenington/OpenHome (GPL-3.0), commit a61afa518e0c0ce4766cadefb940e1b5360b7be6.
-// We corrected that map's Basculin forms (603 is Red-Striped, 736 Blue-Striped) and its Hakamo-o (1000), which it read as Dhelmise.
 // That map reads every form as its base form, so the forms, and the Gigantamax flags from sprite names, come from OpenHome's species.ts and RadicalRedSprites.ts at commit 9f1f1f623a8da9c02caaceefbcb4340623741596.
+// Corrected from OpenHome: it swapped the Basculin forms (603 is Red-Striped, 736 Blue-Striped) and read 1000, Hakamo-o, as Dhelmise.
 // Forms follow PKHeX's order: the base Pumpkaboo and Gourgeist index is the Small size, 1235 is Aqua Tauros and 1240 is Blaze.
 // The indexes OpenHome marks as not present come from the hack's own species data.
 // Radical Red is closed source, so its hack species have only a name.
