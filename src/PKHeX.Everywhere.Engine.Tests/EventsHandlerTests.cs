@@ -289,7 +289,7 @@ public class EventsHandlerTests
             return Loaded(SaveFilePath.Yellow);
 
         var session = new Session();
-        session.Load(Game.EmptyOf(GameVersionRepository.Instance.Get(version)), "red.sav");
+        session.Load(Game.EmptyOf(GameVersionRepository.Instance.Get(version)), $"{version}.sav");
         return session;
     }
 

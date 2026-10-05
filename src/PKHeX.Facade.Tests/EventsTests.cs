@@ -19,6 +19,8 @@ public class EventsTests
         GameVersion.BD,
     ];
 
+    public static TheoryData<GameVersion> IndexedVersions => [.. LabelledVersions, GameVersion.YW];
+
     [Fact]
     public void Events_Emerald_ShouldRoundTripLabelledFlag()
     {
@@ -62,7 +64,7 @@ public class EventsTests
     }
 
     [Theory]
-    [MemberData(nameof(LabelledVersions))]
+    [MemberData(nameof(IndexedVersions))]
     public void Events_ShouldRoundTripFlagByIndex(GameVersion version)
     {
         var game = Load(version);
@@ -119,30 +121,19 @@ public class EventsTests
     [MemberData(nameof(Gen1Saves))]
     public void Events_Gen1_ShouldRoundTripFlagAndWorkByIndex(LanguageID language, GameVersion version)
     {
-        var save = new SAV1(language, version);
-        var events = new Game(save).Events!;
-        var flag = events.FlagCount - 1;
-        var work = events.WorkCount - 1;
-        var original = events.GetFlag(flag);
+        var game = new Game(new SAV1(language, version));
+        var flag = game.Events!.FlagCount - 1;
+        var work = game.Events.WorkCount - 1;
+        var original = game.Events.GetFlag(flag);
 
-        events.SetFlag(flag, !original);
-        events.SetWork(work, 42);
+        game.Events.SetFlag(flag, !original);
+        game.Events.SetWork(work, 42);
 
-        var reloaded = new Game(save).Events!;
-        reloaded.GetFlag(flag).Should().Be(!original);
-        reloaded.GetWork(work).Should().Be(42);
-    }
-
-    [Fact]
-    public void Events_Yellow_ShouldRoundTripFlagByIndex()
-    {
-        var game = Game.LoadFrom(SaveFilePath.Yellow);
-        var index = game.Events!.FlagCount - 1;
-        var original = game.Events.GetFlag(index);
-
-        game.Events.SetFlag(index, !original);
-
-        game.SaveAndReload(reloaded => reloaded.Events!.GetFlag(index).Should().Be(!original));
+        Reload(game, reloaded =>
+        {
+            reloaded.Events!.GetFlag(flag).Should().Be(!original);
+            reloaded.Events.GetWork(work).Should().Be(42);
+        });
     }
 
     [Theory]
@@ -178,6 +169,7 @@ public class EventsTests
     private static Game Load(GameVersion version) => version switch
     {
         GameVersion.E or GameVersion.C or GameVersion.HG or GameVersion.GP => Game.LoadFrom(SaveFilePath.PathFrom(version)),
+        GameVersion.YW => Game.LoadFrom(SaveFilePath.Yellow),
         _ => Game.EmptyOf(GameVersionRepository.Instance.Get(version), "ASH"),
     };
 
