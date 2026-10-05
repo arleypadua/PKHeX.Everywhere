@@ -80,3 +80,76 @@ PKHeX.Facade.Pokemons.PokemonDetails.IsUnknown.init -> void
 static PKHeX.Facade.SaveFormats.Enable(string! id) -> bool
 static PKHeX.Facade.SaveFormats.Register(PKHeX.Facade.Abstractions.ISaveFormat! format, bool enabled) -> void
 PKHeX.Facade.GameOptions.Types.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
+PKHeX.Facade.BadgeCount
+PKHeX.Facade.BadgeCount.BadgeCount(PKHeX.Facade.BadgeCount! original) -> void
+PKHeX.Facade.BadgeCount.BadgeCount(int Earned, int Total) -> void
+PKHeX.Facade.BadgeCount.Deconstruct(out int Earned, out int Total) -> void
+PKHeX.Facade.BadgeCount.Earned.get -> int
+PKHeX.Facade.BadgeCount.Earned.init -> void
+PKHeX.Facade.BadgeCount.Total.get -> int
+PKHeX.Facade.BadgeCount.Total.init -> void
+PKHeX.Facade.Game.Progress.get -> PKHeX.Facade.Progress!
+PKHeX.Facade.PlayTime
+PKHeX.Facade.PlayTime.Deconstruct(out int Hours, out int Minutes, out int Seconds) -> void
+PKHeX.Facade.PlayTime.Hours.get -> int
+PKHeX.Facade.PlayTime.Hours.init -> void
+PKHeX.Facade.PlayTime.Minutes.get -> int
+PKHeX.Facade.PlayTime.Minutes.init -> void
+PKHeX.Facade.PlayTime.PlayTime(PKHeX.Facade.PlayTime! original) -> void
+PKHeX.Facade.PlayTime.PlayTime(int Hours, int Minutes, int Seconds) -> void
+PKHeX.Facade.PlayTime.Seconds.get -> int
+PKHeX.Facade.PlayTime.Seconds.init -> void
+PKHeX.Facade.PokedexCount
+PKHeX.Facade.PokedexCount.Caught.get -> int
+PKHeX.Facade.PokedexCount.Caught.init -> void
+PKHeX.Facade.PokedexCount.Deconstruct(out int Seen, out int Caught) -> void
+PKHeX.Facade.PokedexCount.PokedexCount(PKHeX.Facade.PokedexCount! original) -> void
+PKHeX.Facade.PokedexCount.PokedexCount(int Seen, int Caught) -> void
+PKHeX.Facade.PokedexCount.Seen.get -> int
+PKHeX.Facade.PokedexCount.Seen.init -> void
+PKHeX.Facade.Progress
+PKHeX.Facade.Progress.Badges.get -> PKHeX.Facade.BadgeCount?
+PKHeX.Facade.Progress.Badges.init -> void
+PKHeX.Facade.Progress.Deconstruct(out PKHeX.Facade.PlayTime? PlayTime, out PKHeX.Facade.BadgeCount? Badges, out PKHeX.Facade.PokedexCount? Pokedex) -> void
+PKHeX.Facade.Progress.PlayTime.get -> PKHeX.Facade.PlayTime?
+PKHeX.Facade.Progress.PlayTime.init -> void
+PKHeX.Facade.Progress.Pokedex.get -> PKHeX.Facade.PokedexCount?
+PKHeX.Facade.Progress.Pokedex.init -> void
+PKHeX.Facade.Progress.Progress(PKHeX.Facade.PlayTime? PlayTime, PKHeX.Facade.BadgeCount? Badges, PKHeX.Facade.PokedexCount? Pokedex) -> void
+PKHeX.Facade.Progress.Progress(PKHeX.Facade.Progress! original) -> void
+override PKHeX.Facade.BadgeCount.Equals(object? obj) -> bool
+override PKHeX.Facade.BadgeCount.GetHashCode() -> int
+override PKHeX.Facade.BadgeCount.ToString() -> string!
+override PKHeX.Facade.PlayTime.Equals(object? obj) -> bool
+override PKHeX.Facade.PlayTime.GetHashCode() -> int
+override PKHeX.Facade.PlayTime.ToString() -> string!
+override PKHeX.Facade.PokedexCount.Equals(object? obj) -> bool
+override PKHeX.Facade.PokedexCount.GetHashCode() -> int
+override PKHeX.Facade.PokedexCount.ToString() -> string!
+override PKHeX.Facade.Progress.Equals(object? obj) -> bool
+override PKHeX.Facade.Progress.GetHashCode() -> int
+override PKHeX.Facade.Progress.ToString() -> string!
+static PKHeX.Facade.BadgeCount.operator !=(PKHeX.Facade.BadgeCount? left, PKHeX.Facade.BadgeCount? right) -> bool
+static PKHeX.Facade.BadgeCount.operator ==(PKHeX.Facade.BadgeCount? left, PKHeX.Facade.BadgeCount? right) -> bool
+static PKHeX.Facade.PlayTime.operator !=(PKHeX.Facade.PlayTime? left, PKHeX.Facade.PlayTime? right) -> bool
+static PKHeX.Facade.PlayTime.operator ==(PKHeX.Facade.PlayTime? left, PKHeX.Facade.PlayTime? right) -> bool
+static PKHeX.Facade.PokedexCount.operator !=(PKHeX.Facade.PokedexCount? left, PKHeX.Facade.PokedexCount? right) -> bool
+static PKHeX.Facade.PokedexCount.operator ==(PKHeX.Facade.PokedexCount? left, PKHeX.Facade.PokedexCount? right) -> bool
+static PKHeX.Facade.Progress.operator !=(PKHeX.Facade.Progress? left, PKHeX.Facade.Progress? right) -> bool
+static PKHeX.Facade.Progress.operator ==(PKHeX.Facade.Progress? left, PKHeX.Facade.Progress? right) -> bool
+virtual PKHeX.Facade.BadgeCount.<Clone>$() -> PKHeX.Facade.BadgeCount!
+virtual PKHeX.Facade.BadgeCount.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.BadgeCount.Equals(PKHeX.Facade.BadgeCount? other) -> bool
+virtual PKHeX.Facade.BadgeCount.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.PlayTime.<Clone>$() -> PKHeX.Facade.PlayTime!
+virtual PKHeX.Facade.PlayTime.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.PlayTime.Equals(PKHeX.Facade.PlayTime? other) -> bool
+virtual PKHeX.Facade.PlayTime.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.PokedexCount.<Clone>$() -> PKHeX.Facade.PokedexCount!
+virtual PKHeX.Facade.PokedexCount.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.PokedexCount.Equals(PKHeX.Facade.PokedexCount? other) -> bool
+virtual PKHeX.Facade.PokedexCount.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Progress.<Clone>$() -> PKHeX.Facade.Progress!
+virtual PKHeX.Facade.Progress.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Progress.Equals(PKHeX.Facade.Progress? other) -> bool
+virtual PKHeX.Facade.Progress.PrintMembers(System.Text.StringBuilder! builder) -> bool

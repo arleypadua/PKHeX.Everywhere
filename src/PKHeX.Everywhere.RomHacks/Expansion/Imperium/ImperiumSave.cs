@@ -136,6 +136,10 @@ public sealed class ImperiumSave : SaveFile
     public override ushort TID16 { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0A..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0A..], value); }
     public override ushort SID16 { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0C..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0C..], value); }
 
+    public override int PlayedHours { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0E..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0E..], (ushort)value); }
+    public override int PlayedMinutes { get => Sector(SaveBlock2)[0x10]; set => Sector(SaveBlock2)[0x10] = (byte)value; }
+    public override int PlayedSeconds { get => Sector(SaveBlock2)[0x11]; set => Sector(SaveBlock2)[0x11] = (byte)value; }
+
     internal uint EncryptionKey => ReadUInt32LittleEndian(Sector(SaveBlock2)[0x44..]);
     public override uint Money { get => ReadUInt32LittleEndian(Sector(SaveBlock1)[0x490..]) ^ EncryptionKey; set => WriteUInt32LittleEndian(Sector(SaveBlock1)[0x490..], value ^ EncryptionKey); }
 

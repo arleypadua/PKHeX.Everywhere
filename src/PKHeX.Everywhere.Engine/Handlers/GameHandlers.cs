@@ -15,6 +15,12 @@ public static class GameHandlers
     [Query("game.version", Topics.Game)]
     public static SaveVersion? Version(Session session) => session.Game?.ToVersion();
 
+    /// <summary>
+    /// Reads the save's play time, gym badges and Pokédex counts.
+    /// </summary>
+    [Query("game.progress", Topics.Game, Topics.Events, Topics.Party, Topics.Box)]
+    public static GameProgress Progress(Game game) => game.Progress.ToDto();
+
     // Serialising compacts LGPE storage, which moves box slots.
     [Command("game.file", Topics.Party, Topics.Box)]
     public static LoadedSave? File(Session session) => session.Game?.ToFile(session.FileName);
