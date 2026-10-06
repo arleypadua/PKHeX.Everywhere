@@ -78,7 +78,7 @@ public class DescriptionHandlerTests
     [Theory]
     [InlineData(SaveFilePath.Emerald, "ball", 20, "Ball")]
     [InlineData(SaveFilePath.Crystal, "species", 252, "Species")]
-    [InlineData(SaveFilePath.HgSs, "nature", 3, "Nature")]
+    [InlineData(SaveFilePath.Crystal, "nature", 3, "Nature")]
     [InlineData(SaveFilePath.HgSs, "isAlpha", true, "Alpha")]
     [InlineData(SaveFilePath.HgSs, "heldItem", 5000, "Held item")]
     [InlineData(SaveFilePath.HgSs, "language", 9, "Language")]
@@ -111,17 +111,17 @@ public class DescriptionHandlerTests
     }
 
     [Theory]
-    [InlineData(SaveFilePath.Emerald, new[] { "nature" })]
-    [InlineData(SaveFilePath.FireRed, new[] { "nature" })]
-    [InlineData(SaveFilePath.HgSs, new[] { "nature" })]
-    [InlineData(SaveFilePath.LetsGoPikachu, new string[0])]
-    [InlineData(SaveFilePath.LetsGoEevee, new string[0])]
-    public void OptionsLockTheNatureWhereItComesFromThePid(string saveFile, string[] locked)
+    [InlineData(SaveFilePath.Emerald)]
+    [InlineData(SaveFilePath.FireRed)]
+    [InlineData(SaveFilePath.HgSs)]
+    [InlineData(SaveFilePath.LetsGoPikachu)]
+    [InlineData(SaveFilePath.LetsGoEevee)]
+    public void OptionsLockNothingOnAnOfficialSave(string saveFile)
     {
         var session = Loaded(saveFile);
 
         foreach (var pokemon in session.Game!.Trainer.Party.Pokemons.Select((_, slot) => PokemonHandle.Party(slot)))
-            Options(session, pokemon)["locked"]!.AsArray().Select(field => field!.GetValue<string>()).Should().Equal(locked);
+            Options(session, pokemon)["locked"]!.AsArray().Should().BeEmpty();
     }
 
     [Fact]

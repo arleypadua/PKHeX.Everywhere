@@ -33,7 +33,6 @@ public class PKHeXGameData : IGameDataSource
             .OrderBy(move => move.Name)
             .Select(move => new Choice(move.Id, move.Name))
             .ToArray());
-        Locked = save.Generation is 3 or 4 ? FrozenSet.Create(PokemonField.Nature) : FrozenSet<PokemonField>.Empty;
     }
 
     public virtual IReadOnlyList<Choice> Species => _species.Value;
@@ -54,7 +53,7 @@ public class PKHeXGameData : IGameDataSource
 
     public virtual string? NameOf(GameDataKind kind, int id) => null;
 
-    public virtual IReadOnlySet<PokemonField> Locked { get; }
+    public virtual IReadOnlySet<PokemonField> Locked => FrozenSet<PokemonField>.Empty;
 
     public virtual bool StatsApproximate => false;
 

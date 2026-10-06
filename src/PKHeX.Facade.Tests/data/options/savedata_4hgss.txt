@@ -13,34 +13,34 @@ party/0/abilities 123 85c0f471ce9ee818
 party/0/forms 0 e3b0c44298fc1c14
 party/0/metLocations 326 73a338fd4f0f8371
 party/0/moves 9 5304f692dd85c601
-party/0/locked Nature
+party/0/locked
 party/1/species 3 20d8c13760538897
 party/1/abilities 123 98f957168c0121e8
 party/1/forms 0 e3b0c44298fc1c14
 party/1/metLocations 326 73a338fd4f0f8371
 party/1/moves 10 7ed0f70087e7c831
-party/1/locked Nature
+party/1/locked
 party/2/species 3 046152c8039429d1
 party/2/abilities 123 c73103ad0a199014
 party/2/forms 0 e3b0c44298fc1c14
 party/2/metLocations 326 73a338fd4f0f8371
 party/2/moves 9 ede92bf88c442dd6
-party/2/locked Nature
+party/2/locked
 party/3/species 3 6152816123088609
 party/3/abilities 123 ec072f075a520a0b
 party/3/forms 0 e3b0c44298fc1c14
 party/3/metLocations 326 73a338fd4f0f8371
 party/3/moves 1 3fe0dead2a25c7d7
-party/3/locked Nature
+party/3/locked
 party/4/species 3 c431474dc5d88675
 party/4/abilities 123 79bbc242ae1cc720
 party/4/forms 0 e3b0c44298fc1c14
 party/4/metLocations 326 73a338fd4f0f8371
 party/4/moves 3 2b4e0ebe723c2e05
-party/4/locked Nature
+party/4/locked
 party/5/species 2 968dc9bb3d113ff4
 party/5/abilities 123 3cc448126912e2d2
 party/5/forms 0 e3b0c44298fc1c14
 party/5/metLocations 326 73a338fd4f0f8371
 party/5/moves 3 6a568c3dab04d18f
-party/5/locked Nature
+party/5/locked

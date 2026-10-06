@@ -624,7 +624,7 @@ export interface PokemonOptions {
   moves: Choice[]
   /** The items the save can store as held items, as `game.heldItems()` lists them, plus the unknown item it already holds. */
   heldItems: ItemChoice[]
-  /** Fields the save can't change, such as `nature` in Gen 3 and 4, where it comes from the PID. Show them disabled. An update that changes one fails with `invalid-patch`. */
+  /** Fields the save can't change, such as `nature` in Unbound and Radical Red, where it comes from the PID. Show them disabled. An update that changes one fails with `invalid-patch`. */
   locked: PokemonField[]
 }
 
@@ -647,7 +647,7 @@ export interface PokemonPatch {
   /** Form index. See `forms` in `pokemon.options()`. */
   form?: number | null
   gender?: PokemonGender | null
-  /** PKHeX nature id from `game.natures()`. Rejected when `locked` in `pokemon.options()` has `nature`. */
+  /** PKHeX nature id from `game.natures()`. Rejected when `locked` in `pokemon.options()` has `nature`. In Gen 3 and 4, where the nature comes from the PID, the Pokémon gets a new PID that keeps its gender, ability and shininess. */
   nature?: number | null
   /** PKHeX ability id. See `abilities` in `pokemon.options()`. */
   ability?: number | null

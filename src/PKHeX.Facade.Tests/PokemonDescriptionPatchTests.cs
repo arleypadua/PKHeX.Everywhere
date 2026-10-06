@@ -56,18 +56,70 @@ public class PokemonDescriptionPatchTests
         pokemon.Pkm.StatAlignment.Should().Be(nature);
     }
 
-    [Theory]
-    [InlineData(SaveFilePath.Emerald)]
-    [InlineData(SaveFilePath.HgSs)]
-    [InlineData(SaveFilePath.Crystal)]
-    public void RejectsANatureTheSaveDerivesFromThePid(string saveFile)
+    [Fact]
+    public void RejectsANatureWhereTheSaveHasNone()
     {
-        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0];
-        var nature = pokemon.Pkm.Nature == Nature.Adamant ? Nature.Bold : Nature.Adamant;
+        var pokemon = SaveFilePath.Load(SaveFilePath.Crystal).Trainer.Party.Pokemons[0];
 
-        var update = () => pokemon.Update(new PokemonPatch(Nature: (int)nature));
+        var update = () => pokemon.Update(new PokemonPatch(Nature: (int)Nature.Adamant));
 
         update.Should().Throw<InvalidPatchException>().Which.Field.Should().Be(nameof(PokemonPatch.Nature));
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Emerald, false)]
+    [InlineData(SaveFilePath.Emerald, true)]
+    [InlineData(SaveFilePath.HgSs, false)]
+    [InlineData(SaveFilePath.HgSs, true)]
+    public void ANatureFromThePidKeepsGenderAbilityAndShininess(string saveFile, bool shiny)
+    {
+        var game = SaveFilePath.Load(saveFile);
+        var slot = game.Trainer.Party.Pokemons.ToList().FindIndex(p => p.Pkm.PersonalInfo.IsDualGender);
+        var pokemon = game.Trainer.Party.Pokemons[slot];
+        pokemon.Update(new PokemonPatch(IsShiny: shiny));
+        var before = pokemon.Details();
+        var abilitySlot = pokemon.Pkm.PID & 1;
+        var nature = pokemon.Pkm.Nature == Nature.Adamant ? Nature.Bold : Nature.Adamant;
+
+        pokemon.Update(new PokemonPatch(Nature: (int)nature));
+
+        (pokemon.Pkm.PID & 1).Should().Be(abilitySlot);
+        game.SaveAndReload(reloaded =>
+            reloaded.Trainer.Party.Pokemons[slot].Details().Should().BeEquivalentTo(new
+            {
+                Nature = (int)nature,
+                before.Gender,
+                before.Ability,
+                IsShiny = shiny,
+            }));
+    }
+
+    [Fact]
+    public void ANatureFromThePidKeepsAGen3UnownsLetter()
+    {
+        var pokemon = SaveFilePath.Load(SaveFilePath.Emerald).Trainer.Party.Pokemons[0];
+        pokemon.Update(new PokemonPatch(Species: (int)Species.Unown));
+        pokemon.Pkm.Form = 5;
+        pokemon.Update(new PokemonPatch(IsShiny: true));
+        var nature = pokemon.Pkm.Nature == Nature.Adamant ? Nature.Bold : Nature.Adamant;
+
+        pokemon.Update(new PokemonPatch(Nature: (int)nature));
+
+        pokemon.Details().Should().BeEquivalentTo(new { Nature = (int)nature, Form = 5, IsShiny = true });
+    }
+
+    [Fact]
+    public void ANatureFromThePidKeepsTheGenderOfAPokemonWithNoOriginGame()
+    {
+        var pokemon = SaveFilePath.Load(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Pkm.PersonalInfo.IsDualGender);
+        pokemon.Pkm.Version = 0;
+        var gender = pokemon.Gender;
+        var nature = pokemon.Pkm.Nature == Nature.Adamant ? Nature.Bold : Nature.Adamant;
+
+        pokemon.Update(new PokemonPatch(Nature: (int)nature));
+
+        pokemon.Details().Should().BeEquivalentTo(new { Nature = (int)nature, Gender = gender });
+        EntityGender.GetFromPIDAndRatio(pokemon.Pkm.PID, pokemon.Pkm.PersonalInfo.Gender).Should().Be(gender.ToByte());
     }
 
     [Fact]

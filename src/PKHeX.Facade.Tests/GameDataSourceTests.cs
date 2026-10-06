@@ -17,17 +17,13 @@ public class GameDataSourceTests
         SaveFilePath.Load(SaveFilePath.Emerald).GameData.Should().BeOfType<PKHeXGameData>();
 
     [Theory]
+    [InlineData(SaveFilePath.Yellow)]
+    [InlineData(SaveFilePath.Crystal)]
     [InlineData(SaveFilePath.Emerald)]
     [InlineData(SaveFilePath.FireRed)]
     [InlineData(SaveFilePath.HgSs)]
-    public void TheDefaultLocksNatureWhereItComesFromThePid(string saveFile) =>
-        SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0].Options().Locked.Should().Equal(PokemonField.Nature);
-
-    [Theory]
-    [InlineData(SaveFilePath.Yellow)]
-    [InlineData(SaveFilePath.Crystal)]
     [InlineData(SaveFilePath.LetsGoPikachu)]
-    public void TheDefaultLocksNothingElsewhere(string saveFile) =>
+    public void TheDefaultLocksNothing(string saveFile) =>
         SaveFilePath.Load(saveFile).Trainer.Party.Pokemons[0].Options().Locked.Should().BeEmpty();
 
     [Fact]
