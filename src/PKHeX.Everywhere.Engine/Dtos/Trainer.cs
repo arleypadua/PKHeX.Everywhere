@@ -16,7 +16,7 @@ public enum TrainerGender
 /// </summary>
 /// <param name="Id">The trainer ID and secret ID as <c>TID/SID</c>, in the format the game displays them.</param>
 /// <param name="MaxNameLength">The longest name the game allows. <c>trainer.setName</c> cuts longer names to this length.</param>
-/// <param name="Gender">The trainer's gender, or null for Red, Blue, Yellow, Gold and Silver, which have none. <c>trainer.setGender</c> fails with <c>not-in-game</c> for those.</param>
+/// <param name="Gender">The trainer's gender, or null for games without one: Red, Green, Blue, Yellow, Gold, Silver and Pokémon Stadium. <c>trainer.setGender</c> fails with <c>not-in-game</c> for those.</param>
 /// <param name="Money">The trainer's money, or null when the save has none. <c>trainer.setMoney</c> accepts 0 to 999999 and caps it at the game's maximum.</param>
 /// <param name="BattlePoints">The trainer's Battle Points, or null outside Generation 4 and 6 saves. <c>trainer.setBattlePoints</c> accepts 0 to 65535.</param>
 /// <param name="Rival">The rival's name, or null when the engine can't read one for this game.</param>

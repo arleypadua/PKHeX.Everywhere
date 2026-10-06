@@ -856,7 +856,7 @@ export interface TrainerCard {
   name: string
   /** The longest name the game allows. `trainer.setName` cuts longer names to this length. */
   maxNameLength: number
-  /** The trainer's gender, or null for Red, Blue, Yellow, Gold and Silver, which have none. `trainer.setGender` fails with `not-in-game` for those. */
+  /** The trainer's gender, or null for games without one: Red, Green, Blue, Yellow, Gold, Silver and Pokémon Stadium. `trainer.setGender` fails with `not-in-game` for those. */
   gender: TrainerGender | null
   /** The trainer's money, or null when the save has none. `trainer.setMoney` accepts 0 to 999999 and caps it at the game's maximum. */
   money: number | null

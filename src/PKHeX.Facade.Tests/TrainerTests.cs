@@ -35,8 +35,15 @@ public class TrainerTests
     [InlineData(GameVersion.SI, false)]
     [InlineData(GameVersion.C, true)]
     [InlineData(GameVersion.E, true)]
-    public void HasGender_IsFalseForGamesWithoutATrainerGender(GameVersion version, bool expected) =>
+    public void HasGender_SaysWhetherTheGameHasATrainerGender(GameVersion version, bool expected) =>
         Game.EmptyOf(GameVersionRepository.Instance.Get(version)).Trainer.HasGender.Should().Be(expected);
+
+    [Fact]
+    public void HasGender_IsFalseForPokemonStadium()
+    {
+        new Game(new SAV1Stadium()).Trainer.HasGender.Should().BeFalse();
+        new Game(new SAV2Stadium()).Trainer.HasGender.Should().BeFalse();
+    }
 
     [Fact]
     public void HasGender_IsFalseForTheYellowFixture() =>
