@@ -25,7 +25,7 @@ public class TrainerHandlerTests
             id = game.Trainer.Id.ToString(),
             name = game.Trainer.Name,
             maxNameLength = game.SaveFile.MaxStringLengthTrainer,
-            gender = game.Trainer.Gender == PKHeX.Facade.Gender.Female ? "female" : "male",
+            gender = game.Trainer.HasGender ? game.Trainer.Gender == PKHeX.Facade.Gender.Female ? "female" : "male" : null,
             money = game.Trainer.Money.IsSupported ? game.Trainer.Money.Amount : (uint?)null,
             battlePoints = game.BattlePoints.IsSupported(out var supported) ? supported.BattlePoints : (int?)null,
             rival = game.Trainer.RivalName,
@@ -35,6 +35,17 @@ public class TrainerHandlerTests
     [Fact]
     public void GetReturnsNullMoneyWhenTheSaveDoesNotSupportIt() =>
         Value(Dispatch(LegendsZA(), "trainer.get", "[]"))!["money"].Should().BeNull();
+
+    [Theory]
+    [InlineData("yellow")]
+    [InlineData("gold")]
+    [InlineData("silver")]
+    public void GetReturnsNullGenderWhenTheGameHasNone(string save) =>
+        Value(Dispatch(WithoutGender(save), "trainer.get", "[]"))!["gender"].Should().BeNull();
+
+    [Fact]
+    public void GetReturnsTheGenderOfCrystal() =>
+        Value(Dispatch(Loaded(SaveFilePath.Crystal), "trainer.get", "[]"))!["gender"]!.GetValue<string>().Should().Be("male");
 
     [Fact]
     public void GetReturnsNullBattlePointsWhenTheSaveHasNone() =>
@@ -71,6 +82,13 @@ public class TrainerHandlerTests
 
         Trainer(session)["gender"]!.GetValue<string>().Should().Be(expected);
     }
+
+    [Theory]
+    [InlineData("yellow")]
+    [InlineData("gold")]
+    [InlineData("silver")]
+    public void SetGenderFailsWithNotInGameWhenTheGameHasNone(string save) =>
+        Error(Dispatch(WithoutGender(save), "trainer.setGender", Args("female"))).Should().Be("not-in-game");
 
     [Theory]
     [SupportedSaveFiles]
@@ -137,6 +155,16 @@ public class TrainerHandlerTests
 
     private static System.Text.Json.Nodes.JsonNode Trainer(Session session) =>
         Value(Dispatch(session, "trainer.get", "[]"))!;
+
+    private static Session WithoutGender(string save)
+    {
+        if (save == "yellow")
+            return Loaded(SaveFilePath.Yellow);
+
+        var session = new Session();
+        Dispatch(session, "game.loadBlank", Args((int)(save == "gold" ? GameVersion.GD : GameVersion.SI)));
+        return session;
+    }
 
     private static Session LegendsZA()
     {

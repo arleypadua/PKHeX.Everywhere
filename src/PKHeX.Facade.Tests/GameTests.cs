@@ -1,4 +1,6 @@
 using AwesomeAssertions;
+using PKHeX.Core;
+using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade.Tests;
 
@@ -35,4 +37,11 @@ public class GameTests
         game.AvailableVersions.Should().Contain(game.GameVersionApproximation);
         game.GameVersionApproximation.Name.Should().Be(approximation);
     }
+
+    [Theory]
+    [InlineData(GameVersion.GD)]
+    [InlineData(GameVersion.SI)]
+    [InlineData(GameVersion.C)]
+    public void EmptyOf_Gen2_CutsTheTrainerNameToTheGamesLimit(GameVersion version) =>
+        Game.EmptyOf(GameVersionRepository.Instance.Get(version), "ABCDEFGHIJ").Trainer.Name.Should().Be("ABCDEFG");
 }

@@ -69,7 +69,7 @@ public class CommandTopicTests
         ["species.list"] = (_, _) => ["[]"],
         ["trainer.get"] = (_, _) => ["[]"],
         ["trainer.setName"] = (_, _) => [Args("Ash")],
-        ["trainer.setGender"] = (game, _) => [Args(game.Trainer.Gender == PKHeX.Facade.Gender.Female ? "male" : "female")],
+        ["trainer.setGender"] = (game, _) => game.Trainer.HasGender ? [Args(game.Trainer.Gender == PKHeX.Facade.Gender.Female ? "male" : "female")] : [],
         ["trainer.setMoney"] = (game, _) => game.Trainer.Money.IsSupported ? [Args(game.Trainer.Money.Amount == 1234 ? 4321 : 1234)] : [],
         ["trainer.badges"] = (_, _) => ["[]"],
         ["trainer.setBadges"] = (game, _) => game.Badges is { } badges ? [Args(badges.All.Select(b => !b.Earned).ToArray())] : [],
