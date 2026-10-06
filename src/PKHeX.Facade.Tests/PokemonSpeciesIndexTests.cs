@@ -3,6 +3,7 @@ using PKHeX.Core;
 using PKHeX.Everywhere.RomHacks.Cfru;
 using PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 using PKHeX.Facade.Pokemons;
+using PKHeX.Facade.Repositories;
 using PKHeX.Facade.Tests.Base;
 
 namespace PKHeX.Facade.Tests;
@@ -45,7 +46,7 @@ public class PokemonSpeciesIndexTests
     [Fact]
     public void AGen9SpeciesHasItsInternalIndex()
     {
-        var pokemon = new Pokemon(new PK9 { Species = (ushort)Species.Tarountula }, null!);
+        var pokemon = new Pokemon(new PK9 { Species = (ushort)Species.Tarountula }, Game.EmptyOf(GameVersionRepository.Instance.Get(GameVersion.SL)));
 
         pokemon.SpeciesIndex.Should().Be(SpeciesConverter.GetInternal9((ushort)Species.Tarountula)).And.NotBe((int)Species.Tarountula);
     }
