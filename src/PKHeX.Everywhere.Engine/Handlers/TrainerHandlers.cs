@@ -14,7 +14,13 @@ public static class TrainerHandlers
     public static void SetName(Game game, string name) => game.Trainer.Name = name;
 
     [Command("trainer.setGender", Topics.Trainer)]
-    public static void SetGender(Game game, TrainerGender gender) => game.Trainer.Gender = gender.ToGender();
+    public static void SetGender(Game game, TrainerGender gender)
+    {
+        if (!game.Trainer.HasGender)
+            throw new EngineException(ErrorCodes.NotInGame, "This game has no trainer gender.");
+
+        game.Trainer.Gender = gender.ToGender();
+    }
 
     [Command("trainer.setMoney", Topics.Trainer)]
     public static void SetMoney(Game game, int amount)

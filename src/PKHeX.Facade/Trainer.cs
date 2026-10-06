@@ -33,6 +33,8 @@ public class Trainer
             _game.SaveFile.OT = value.Length > max ? value[..max] : value;
         }
     }
+    public bool HasGender => _game.SaveFile is not (SAV1 or SAV2 { Version: not GameVersion.C } or SAV_STADIUM);
+
     public Gender Gender
     {
         get => Gender.FromByte(_game.SaveFile.Gender);

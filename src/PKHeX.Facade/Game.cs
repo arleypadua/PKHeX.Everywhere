@@ -133,7 +133,13 @@ public class Game
 
     public static Game EmptyOf(
         GameVersionDefinition version,
-        string? trainerName = null) => new(BlankSaveFile.Get(version.Version, trainerName ?? "PKHeXWeb"));
+        string? trainerName = null)
+    {
+        // PKHeX writes a Gen 2 name one character past the game's limit and overflows, so the Trainer cuts it first.
+        var game = new Game(BlankSaveFile.Get(version.Version));
+        game.Trainer.Name = trainerName ?? "PKHeXWeb";
+        return game;
+    }
 }
 
 public class GameNotLoadedException(string? path = null, Exception? innerException = null)

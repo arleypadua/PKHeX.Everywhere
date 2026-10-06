@@ -25,7 +25,7 @@ public class TrainerHandlerTests
             id = game.Trainer.Id.ToString(),
             name = game.Trainer.Name,
             maxNameLength = game.SaveFile.MaxStringLengthTrainer,
-            gender = game.Trainer.Gender == PKHeX.Facade.Gender.Female ? "female" : "male",
+            gender = game.Trainer.HasGender ? game.Trainer.Gender == PKHeX.Facade.Gender.Female ? "female" : "male" : null,
             money = game.Trainer.Money.IsSupported ? game.Trainer.Money.Amount : (uint?)null,
             battlePoints = game.BattlePoints.IsSupported(out var supported) ? supported.BattlePoints : (int?)null,
             rival = game.Trainer.RivalName,
@@ -35,6 +35,20 @@ public class TrainerHandlerTests
     [Fact]
     public void GetReturnsNullMoneyWhenTheSaveDoesNotSupportIt() =>
         Value(Dispatch(LegendsZA(), "trainer.get", "[]"))!["money"].Should().BeNull();
+
+    [Fact]
+    public void GetReturnsNullGenderForYellow() =>
+        Value(Dispatch(Loaded(SaveFilePath.Yellow), "trainer.get", "[]"))!["gender"].Should().BeNull();
+
+    [Theory]
+    [InlineData(GameVersion.GD)]
+    [InlineData(GameVersion.SI)]
+    public void GetReturnsNullGenderForGoldAndSilver(GameVersion version) =>
+        Value(Dispatch(Blank(version), "trainer.get", "[]"))!["gender"].Should().BeNull();
+
+    [Fact]
+    public void GetReturnsTheGenderOfCrystal() =>
+        Value(Dispatch(Loaded(SaveFilePath.Crystal), "trainer.get", "[]"))!["gender"]!.GetValue<string>().Should().Be("male");
 
     [Fact]
     public void GetReturnsNullBattlePointsWhenTheSaveHasNone() =>
@@ -71,6 +85,16 @@ public class TrainerHandlerTests
 
         Trainer(session)["gender"]!.GetValue<string>().Should().Be(expected);
     }
+
+    [Fact]
+    public void SetGenderFailsWithNotInGameForYellow() =>
+        Error(Dispatch(Loaded(SaveFilePath.Yellow), "trainer.setGender", Args("female"))).Should().Be("not-in-game");
+
+    [Theory]
+    [InlineData(GameVersion.GD)]
+    [InlineData(GameVersion.SI)]
+    public void SetGenderFailsWithNotInGameForGoldAndSilver(GameVersion version) =>
+        Error(Dispatch(Blank(version), "trainer.setGender", Args("female"))).Should().Be("not-in-game");
 
     [Theory]
     [SupportedSaveFiles]
@@ -137,6 +161,13 @@ public class TrainerHandlerTests
 
     private static System.Text.Json.Nodes.JsonNode Trainer(Session session) =>
         Value(Dispatch(session, "trainer.get", "[]"))!;
+
+    private static Session Blank(GameVersion version)
+    {
+        var session = new Session();
+        Dispatch(session, "game.loadBlank", Args((int)version));
+        return session;
+    }
 
     private static Session LegendsZA()
     {

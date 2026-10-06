@@ -56,13 +56,17 @@ function TrainerCard() {
             />
           ),
         },
-        {
-          key: 'gender',
-          label: 'Gender',
-          children: (
-            <TrainerGenderRadio value={trainer.gender} onChange={(gender) => edit(() => setGender(gender))} />
-          ),
-        },
+        ...(trainer.gender === null
+          ? []
+          : [
+              {
+                key: 'gender',
+                label: 'Gender',
+                children: (
+                  <TrainerGenderRadio value={trainer.gender} onChange={(gender) => edit(() => setGender(gender))} />
+                ),
+              },
+            ]),
         {
           key: 'cash',
           label: 'Cash',

@@ -196,3 +196,4 @@ virtual PKHeX.Facade.Box.<Clone>$() -> PKHeX.Facade.Box!
 virtual PKHeX.Facade.Box.EqualityContract.get -> System.Type!
 virtual PKHeX.Facade.Box.Equals(PKHeX.Facade.Box? other) -> bool
 virtual PKHeX.Facade.Box.PrintMembers(System.Text.StringBuilder! builder) -> bool
+PKHeX.Facade.Trainer.HasGender.get -> bool

@@ -1,4 +1,6 @@
 ﻿using AwesomeAssertions;
+using PKHeX.Core;
+using PKHeX.Facade.Repositories;
 using PKHeX.Facade.Tests.Base;
 
 namespace PKHeX.Facade.Tests;
@@ -25,6 +27,32 @@ public class TrainerTests
 
         game.Trainer.Id.Should().Be(new EntityId(tid, sid));
     }
+
+    [Theory]
+    [InlineData(GameVersion.RD, false)]
+    [InlineData(GameVersion.YW, false)]
+    [InlineData(GameVersion.GD, false)]
+    [InlineData(GameVersion.SI, false)]
+    [InlineData(GameVersion.C, true)]
+    [InlineData(GameVersion.E, true)]
+    public void HasGender_SaysWhetherTheGameHasATrainerGender(GameVersion version, bool expected) =>
+        Game.EmptyOf(GameVersionRepository.Instance.Get(version)).Trainer.HasGender.Should().Be(expected);
+
+    [Fact]
+    public void HasGender_IsFalseForPokemonStadium()
+    {
+        new Game(new SAV1Stadium()).Trainer.HasGender.Should().BeFalse();
+        new Game(new SAV2Stadium()).Trainer.HasGender.Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasGender_IsFalseForTheYellowFixture() =>
+        SaveFilePath.Load(SaveFilePath.Yellow).Trainer.HasGender.Should().BeFalse();
+
+    [Theory]
+    [SupportedSaveFiles]
+    public void HasGender_IsTrueForTheSupportedFixtures(string saveFile) =>
+        SaveFilePath.Load(saveFile).Trainer.HasGender.Should().BeTrue();
 
     [Theory]
     [SupportedSaveFiles]
