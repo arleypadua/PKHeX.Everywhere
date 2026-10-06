@@ -51,7 +51,7 @@ The one unsaved Pokémon the Session holds while the editor changes it. It is ad
 _Avoid_: working copy, scratch Pokémon
 
 **Trade**:
-Moving Pokémon between the loaded save and a partner save the Engine holds next to it, the way the games move them. Its route is a link trade between saves of the same format, the Time Capsule (Gen 1 and 2), Pal Park (Gen 3 to 4) or Poké Transfer (Gen 4 to 5). A preview refuses what the games refuse, and a commit with any refused Pokémon writes nothing.
+Moving Pokémon between the loaded save and a partner save the Engine holds next to it, the way the games move them. Its route is a link trade between saves of the same format, the Time Capsule (Gen 1 and 2), Pal Park (Gen 3 to 4) or Poké Transfer (Gen 4 to 5). A preview refuses what the games refuse, and a commit with any refused Pokémon writes nothing. The receiving game applies its trade rules on arrival, such as trade evolutions.
 _Avoid_: transfer, migration
 
 **Topic**:

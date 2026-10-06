@@ -51,7 +51,7 @@ public class TradeTests
 
         offered.Changes.Should().Contain(new TradeChange(TradeField.Moves, "Fly", null, TradeChangeReason.HmRemoved))
             .And.Contain(new TradeChange(TradeField.MetLocation, "Pallet Town", "Pal Park", TradeChangeReason.PalPark));
-        offered.SaveChanges.Should().ContainSingle(c => c.Kind == TradeSaveChangeKind.PokedexCaught && c.Species.Name == "Charizard");
+        offered.SaveChanges.Should().ContainSingle(c => c.Kind == TradeSaveChangeKind.PokedexCaught && c.Label == "Charizard");
     }
 
     [Fact]
@@ -131,6 +131,20 @@ public class TradeTests
         commit.Should().Throw<TradeRefusedException>().Which.Refused.Single().Reason.Should().Be(TradeRefusal.LastPartyMember);
         mine.ToByteArray().Should().Equal(mineBefore);
         partner.ToByteArray().Should().Equal(partnerBefore);
+    }
+
+    [Fact]
+    public void RotomLeavingPlatinumForgetsItsFormMove()
+    {
+        var rotom = new PK4 { Species = (ushort)Species.Rotom, Form = 1, CurrentLevel = 50, Move1 = (ushort)Move.Overheat, Move2 = (ushort)Move.Thunderbolt };
+        var platinum = new SAV4Pt();
+        platinum.SetBoxSlotAtIndex(rotom, 0, EntityImportSettings.None);
+
+        var offered = new Trade(new Game(platinum), SaveFilePath.Load(SaveFilePath.HgSs)).Preview(Send(Box(0))).Offers.Single();
+
+        offered.Arrives.Form.Form.Name.Should().Be("Normal");
+        offered.Arrives.Moves.Values.Select(slot => slot.Move.Name).Should().Equal("Thunderbolt", "(None)", "(None)", "(None)");
+        offered.Changes.Should().Contain(new TradeChange(TradeField.Moves, "Overheat", null, TradeChangeReason.FormReverted));
     }
 
     private static TradeOffer Send(params TradeSlot[] send) => new(send, []);

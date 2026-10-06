@@ -80,6 +80,7 @@ await engine.trade.close()
 
 - `send` handles point into the loaded save, and `receive` handles into the partner. `trade.partnerBoxes()` lists the partner's Pokémon.
 - Each offer shows the Pokémon as it is and as it arrives, the fields the move changes and why, and its legality in the destination game.
+- The receiving game applies its trade rules: trade evolutions, friendship reset to 70 in Generation 2 to 4, and Platinum's form reverts. `saveChanges` lists what changes in either save, such as a Griseous Orb returned to the sender's bag.
 - `commit` fails with `trade-refused`, changing nothing, while `preview` refuses any Pokémon in the offer. It returns both saves' bytes.
 
 ## Reacting to changes

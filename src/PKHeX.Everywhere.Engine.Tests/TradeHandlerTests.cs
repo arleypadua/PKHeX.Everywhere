@@ -133,7 +133,7 @@ public class TradeHandlerTests
 
         var offer = Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
 
-        offer["saveChanges"]!.ToJsonString().Should().Be("""[{"kind":"pokedexCaught","species":"Bulbasaur"}]""");
+        offer["saveChanges"]!.ToJsonString().Should().Be("""[{"kind":"pokedexCaught","save":"receiver","label":"Bulbasaur"}]""");
     }
 
     [Fact]
@@ -328,8 +328,153 @@ public class TradeHandlerTests
         Error(Dispatch(session, "trade.preview", Args(Send(PokemonHandle.Party(3))))).Should().Be("not-found");
     }
 
+    [Fact]
+    public void KadabraTradedOverALinkArrivesAsAlakazam()
+    {
+        var session = LoadedWith(SaveFilePath.Emerald, pk => pk.Species = (ushort)Species.Kadabra);
+        Open(session, SaveFilePath.FireRed);
+
+        var offer = Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
+
+        offer["arrives"]!["species"]!.GetValue<string>().Should().Be("Alakazam");
+        offer["arrives"]!["nickname"]!.GetValue<string>().Should().Be("ALAKAZAM");
+        offer["changes"]!.AsArray().Select(c => c!.ToJsonString()).Should().Contain(
+            """{"field":"species","before":"Kadabra","after":"Alakazam","reason":"tradeEvolution"}""",
+            """{"field":"nickname","before":"KADABRA","after":"ALAKAZAM","reason":"tradeEvolution"}""");
+    }
+
+    [Fact]
+    public void OnixHoldingAMetalCoatArrivesInGen2AsSteelixWithoutTheItem()
+    {
+        var session = LoadedWith(SaveFilePath.Crystal, pk => (pk.Species, pk.HeldItem) = ((ushort)Species.Onix, Gen2MetalCoat));
+        Open(session, SaveFilePath.Crystal);
+
+        var done = Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
+
+        var partner = Game.LoadFrom(Bytes(done["partner"]!), "crystal.sav");
+        var landed = partner.Trainer.PokemonBox.All[Index(partner, done["arrived"]![0]!["at"]!)];
+        landed.Species.Name.Should().Be("Steelix");
+        landed.Pkm.HeldItem.Should().Be(0);
+    }
+
+    [Fact]
+    public void TheItemATradeEvolutionUsesUpIsListed()
+    {
+        var session = LoadedWith(SaveFilePath.Crystal, pk => (pk.Species, pk.HeldItem) = ((ushort)Species.Onix, Gen2MetalCoat));
+        Open(session, SaveFilePath.Crystal);
+
+        var changes = Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!["changes"]!.AsArray().Select(c => c!.ToJsonString());
+
+        changes.Should().Contain("""{"field":"heldItem","before":"Metal Coat","after":null,"reason":"itemUsed"}""");
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Crystal, Species.Kadabra, "Kadabra")]
+    [InlineData(SaveFilePath.Crystal, Species.Machoke, "Machoke")]
+    [InlineData(SaveFilePath.Emerald, Species.Machoke, "Machoke")]
+    [InlineData(SaveFilePath.HgSs, Species.Machoke, "Machoke")]
+    [InlineData(SaveFilePath.HgSs, Species.Kadabra, "Alakazam")]
+    public void AnEverstoneStopsATradeEvolutionButKadabrasInGen4(string save, Species species, string arrives)
+    {
+        var session = LoadedWith(save, pk => (pk.Species, pk.HeldItem) = ((ushort)species, EverstoneIn(pk)));
+        Open(session, save);
+
+        Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!["arrives"]!["species"]!.GetValue<string>().Should().Be(arrives);
+    }
+
+    [Fact]
+    public void AnItemTradeEvolutionDoesntHappenThroughTheTimeCapsule()
+    {
+        var session = LoadedWith(SaveFilePath.Yellow, pk => (pk.Species, ((PK1)pk).CatchRate) = ((ushort)Species.Onix, Gen2MetalCoat));
+        Open(session, SaveFilePath.Crystal);
+
+        var offer = Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
+
+        offer["arrives"]!["species"]!.GetValue<string>().Should().Be("Onix");
+        offer["changes"]!.AsArray().Select(c => c!.ToJsonString()).Should().Contain("""{"field":"heldItem","before":null,"after":"Metal Coat","reason":"itemRemapped"}""");
+    }
+
+    [Fact]
+    public void APlainTradeEvolutionHappensThroughTheTimeCapsule()
+    {
+        var session = LoadedWith(SaveFilePath.Yellow, pk => pk.Species = (ushort)Species.Haunter);
+        Open(session, SaveFilePath.Crystal);
+
+        Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!["arrives"]!["species"]!.GetValue<string>().Should().Be("Gengar");
+    }
+
+    [Fact]
+    public void AGen3LinkTradeSetsFriendshipTo70()
+    {
+        var session = LoadedWith(SaveFilePath.Emerald, pk => pk.CurrentFriendship = 255);
+        Open(session, SaveFilePath.FireRed);
+
+        var done = Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
+
+        var partner = Game.LoadFrom(Bytes(done["partner"]!), "firered.sav");
+        partner.Trainer.PokemonBox.All[Index(partner, done["arrived"]![0]!["at"]!)].Friendship.Should().Be(70);
+    }
+
+    [Fact]
+    public void TheNewFriendshipIsListedAsReceived()
+    {
+        var session = LoadedWith(SaveFilePath.Emerald, pk => pk.CurrentFriendship = 255);
+        Open(session, SaveFilePath.FireRed);
+
+        Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!["changes"]!.ToJsonString()
+            .Should().Be("""[{"field":"friendship","before":"255","after":"70","reason":"received"}]""");
+    }
+
+    [Fact]
+    public void AnEggKeepsItsHatchCounter()
+    {
+        var session = LoadedWith(SaveFilePath.Emerald, pk => (pk.IsEgg, pk.CurrentFriendship) = (true, 5));
+        Open(session, SaveFilePath.FireRed);
+
+        Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!["changes"]!.AsArray().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GiratinaOriginLeavingPlatinumArrivesAlteredAndTheOrbGoesToTheSendersBag()
+    {
+        var session = new Session();
+        session.Load(new Game(Platinum(new PK4 { Species = (ushort)Species.Giratina, Form = 1, HeldItem = GriseousOrb, CurrentLevel = 50, Ability = (int)PKHeX.Core.Ability.Levitate })), "platinum.sav");
+        Open(session, SaveFilePath.HgSs);
+
+        var offer = Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
+        var done = Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
+
+        offer["arrives"]!["form"]!["name"]!.GetValue<string>().Should().Be("Altered");
+        offer["changes"]!.AsArray().Select(c => c!.ToJsonString()).Should().Contain(
+            """{"field":"form","before":"Origin","after":"Altered","reason":"formReverted"}""",
+            """{"field":"heldItem","before":"Griseous Orb","after":null,"reason":"formReverted"}""",
+            """{"field":"ability","before":"Levitate","after":"Pressure","reason":"formReverted"}""");
+        offer["saveChanges"]!.AsArray().Select(c => c!.ToJsonString()).Should().Contain("""{"kind":"itemReturned","save":"sender","label":"Griseous Orb"}""");
+        var mine = new Game(new SAV4Pt(Bytes(done["save"]!)));
+        mine.Trainer.Inventories.InventoryItems.Values.SelectMany(pouch => pouch.Items).Should().Contain(item => item.Id == GriseousOrb && item.Count == 1);
+        var partner = Game.LoadFrom(Bytes(done["partner"]!), "partner.dsv");
+        partner.Trainer.PokemonBox.All[Index(partner, done["arrived"]![0]!["at"]!)].Form.Form.Name.Should().Be("Altered");
+    }
+
+    [Fact]
+    public void ReceivingAFatefulArceusInPlatinumStartsTheArceusEvent()
+    {
+        var session = new Session();
+        session.Load(new Game(Platinum()), "platinum.sav");
+        Open(session, Edited(SaveFilePath.HgSs, pk => (pk.Species, pk.FatefulEncounter) = ((ushort)Species.Arceus, true)));
+
+        var offer = Preview(session, Receive(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
+        var done = Value(Dispatch(session, "trade.commit", Args(Receive(PokemonHandle.InBox(0, 0)))))!;
+
+        offer["saveChanges"]!.AsArray().Select(c => c!.ToJsonString()).Should().Contain("""{"kind":"eventVar","save":"receiver","label":"Arceus Event Hiker: In Oreburgh Mine"}""");
+        new SAV4Pt(Bytes(done["save"]!)).GetWork(86).Should().Be(1);
+    }
+
     private static JsonNode Open(Session session, string partner) =>
         Value(Dispatch(session, "trade.open", Args(Convert.ToBase64String(File.ReadAllBytes(partner)), "partner.sav", null!)))!;
+
+    private static JsonNode Open(Session session, byte[] partner) =>
+        Value(Dispatch(session, "trade.open", Args(Convert.ToBase64String(partner), "partner.sav", null!)))!;
 
     private static JsonNode Preview(Session session, object offer) => Value(Dispatch(session, "trade.preview", Args(offer)))!;
 
@@ -348,6 +493,38 @@ public class TradeHandlerTests
 
     private static int Index(Game game, JsonNode at) =>
         at["box"]!.GetValue<int>() * game.SaveFile.BoxSlotCount + at["slot"]!.GetValue<int>();
+
+    private const byte Gen2MetalCoat = 0x8F;
+    private const ushort GriseousOrb = 112;
+
+    private static int EverstoneIn(PKM pk) => pk.Format == 2 ? 0x70 : pk.Format == 3 ? 195 : 229;
+
+    private static Session LoadedWith(string saveFile, Action<PKM> firstBoxPokemon)
+    {
+        var session = new Session();
+        session.Load(Game.LoadFrom(Edited(saveFile, firstBoxPokemon), saveFile), saveFile);
+        return session;
+    }
+
+    private static byte[] Edited(string saveFile, Action<PKM> firstBoxPokemon)
+    {
+        var save = SaveUtil.GetSaveFile(File.ReadAllBytes(saveFile))!;
+        var pokemon = save.GetBoxSlotAtIndex(0);
+        var nicknamed = pokemon.IsNicknamed;
+        firstBoxPokemon(pokemon);
+        if (!nicknamed) pokemon.ClearNickname();
+        save.SetBoxSlotAtIndex(pokemon, 0, EntityImportSettings.None);
+        return save.Write().ToArray();
+    }
+
+    private static SAV4Pt Platinum(params PK4[] boxed)
+    {
+        // PKHeX can't write a blank Gen 4 save, which lacks the block footers, but writes a zeroed one.
+        var save = new SAV4Pt(new byte[SaveUtil.SIZE_G4RAW]);
+        for (var index = 0; index < boxed.Length; index++)
+            save.SetBoxSlotAtIndex(boxed[index], index, EntityImportSettings.None);
+        return save;
+    }
 
     private static byte[] Bytes(JsonNode exported) => Convert.FromBase64String(exported["bytes"]!.GetValue<string>());
 }

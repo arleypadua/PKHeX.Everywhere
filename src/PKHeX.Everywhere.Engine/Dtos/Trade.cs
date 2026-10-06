@@ -95,7 +95,10 @@ public enum TradeField
 /// </summary>
 /// <remarks>
 /// <c>hmRemoved</c>: Pal Park and Poké Transfer take away HM moves. <c>itemRemapped</c>: the item becomes another one in the destination game.
-/// <c>itemRemoved</c>: the destination game can't hold the item. The others name the route that made the change.
+/// <c>itemRemoved</c>: the destination game can't hold the item. <c>received</c>: a Generation 2, 3 or 4 game sets friendship to 70 on a Pokémon it receives by link trade.
+/// <c>tradeEvolution</c>: the destination game evolves the Pokémon on arrival. <c>itemUsed</c>: the evolution uses up the held item.
+/// <c>formReverted</c>: Platinum reverts Giratina, Shaymin and Rotom to their base form before a trade, and takes back the Griseous Orb.
+/// The others name the route that made the change.
 /// </remarks>
 public enum TradeChangeReason
 {
@@ -106,14 +109,33 @@ public enum TradeChangeReason
     TimeCapsule,
     PalPark,
     PokeTransfer,
+    Received,
+    TradeEvolution,
+    ItemUsed,
+    FormReverted,
 }
 
 /// <summary>
-/// What a trade changes in the destination save besides the Pokémon itself. <c>pokedexCaught</c>: the Pokédex registers the species as caught.
+/// What a trade changes in a save besides the Pokémon itself.
 /// </summary>
+/// <remarks>
+/// <c>pokedexCaught</c>: the Pokédex registers the species as caught. <c>itemReturned</c>: an item the Pokémon held goes back to the sender's bag.
+/// <c>eventVar</c>: the game sets an event variable, as Platinum does to start its Arceus event when it receives a Pokémon from a distribution.
+/// </remarks>
 public enum TradeSaveChangeKind
 {
     PokedexCaught,
+    ItemReturned,
+    EventVar,
+}
+
+/// <summary>
+/// A save in a trade: <c>sender</c> is the one the Pokémon leaves, <c>receiver</c> the one it arrives in.
+/// </summary>
+public enum TradeSide
+{
+    Sender,
+    Receiver,
 }
 
 /// <summary>
@@ -124,10 +146,11 @@ public enum TradeSaveChangeKind
 public record TradeChange(TradeField Field, string? Before, string? After, TradeChangeReason Reason);
 
 /// <summary>
-/// A change a trade makes to the destination save.
+/// A change a trade makes to a save.
 /// </summary>
-/// <param name="Species">The species the change is about.</param>
-public record TradeSaveChange(TradeSaveChangeKind Kind, string Species);
+/// <param name="Save">The save that changes.</param>
+/// <param name="Label">What changes, for display: the species caught, the item returned, or the event and its new value.</param>
+public record TradeSaveChange(TradeSaveChangeKind Kind, TradeSide Save, string Label);
 
 /// <summary>
 /// A Pokémon in the offer that can be traded, and what moving it changes.
@@ -135,7 +158,7 @@ public record TradeSaveChange(TradeSaveChangeKind Kind, string Species);
 /// <param name="From">The Pokémon as it is now. Its handle points to the save it leaves.</param>
 /// <param name="Arrives">The Pokémon as it will be in the other save. Its handle is the box slot it will land in.</param>
 /// <param name="Changes">The fields the move changes, in the order of <see cref="TradeField"/>. A move can show up once per move removed.</param>
-/// <param name="SaveChanges">What the move changes in the destination save.</param>
+/// <param name="SaveChanges">What the move changes in either save.</param>
 /// <param name="Legality">PKHeX's legality check of the Pokémon as it arrives, judged in the destination game.</param>
 public record OfferedPokemon(
     TradeDirection Direction,
@@ -225,11 +248,23 @@ public static class TradeMapping
             Trades.TradeChangeReason.TimeCapsule => TradeChangeReason.TimeCapsule,
             Trades.TradeChangeReason.PalPark => TradeChangeReason.PalPark,
             Trades.TradeChangeReason.PokeTransfer => TradeChangeReason.PokeTransfer,
+            Trades.TradeChangeReason.Received => TradeChangeReason.Received,
+            Trades.TradeChangeReason.TradeEvolution => TradeChangeReason.TradeEvolution,
+            Trades.TradeChangeReason.ItemUsed => TradeChangeReason.ItemUsed,
+            Trades.TradeChangeReason.FormReverted => TradeChangeReason.FormReverted,
             _ => throw new ArgumentOutOfRangeException(nameof(change), change.Reason, null),
         });
 
-    public static TradeSaveChange ToDto(this Trades.TradeSaveChange change) =>
-        new(TradeSaveChangeKind.PokedexCaught, change.Species.Name);
+    public static TradeSaveChange ToDto(this Trades.TradeSaveChange change) => new(
+        change.Kind switch
+        {
+            Trades.TradeSaveChangeKind.PokedexCaught => TradeSaveChangeKind.PokedexCaught,
+            Trades.TradeSaveChangeKind.ItemReturned => TradeSaveChangeKind.ItemReturned,
+            Trades.TradeSaveChangeKind.EventVar => TradeSaveChangeKind.EventVar,
+            _ => throw new ArgumentOutOfRangeException(nameof(change), change.Kind, null),
+        },
+        change.Save == Trades.TradeSide.Sender ? TradeSide.Sender : TradeSide.Receiver,
+        change.Label);
 
     public static TradeRoom ToDto(this Trades.TradeRoom room) => new(room.Mine, room.Partner);
 }
