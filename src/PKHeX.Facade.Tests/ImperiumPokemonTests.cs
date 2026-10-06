@@ -62,6 +62,34 @@ public class ImperiumPokemonTests
     }
 
     [Fact]
+    public void TheAbilityChoicesAreTheSpeciesAbilities()
+    {
+        var pokemon = At(Load(), Rapidash);
+
+        pokemon.Options().Locked.Should().NotContain(PokemonField.Ability);
+        pokemon.Options().Abilities.Select(ability => (Ability)ability.Id).Should().BeEquivalentTo([Ability.RunAway, Ability.PastelVeil, Ability.Anticipation]);
+    }
+
+    [Fact]
+    public void ChangingTheAbilitySurvivesExport()
+    {
+        var game = Load();
+        var ability = At(game, Rapidash).Pkm.Ability == (int)Ability.Anticipation ? Ability.RunAway : Ability.Anticipation;
+
+        At(game, Rapidash).Update(new PokemonPatch(Ability: (int)ability));
+
+        game.SaveAndReload(reloaded => At(reloaded, Rapidash).Pkm.Ability.Should().Be((int)ability));
+    }
+
+    [Fact]
+    public void AnAbilityTheSpeciesDoesntHaveIsRejected()
+    {
+        var act = () => At(Load(), Rapidash).Update(new PokemonPatch(Ability: (int)Ability.Levitate));
+
+        act.Should().Throw<InvalidPatchException>().Which.Field.Should().Be(nameof(PokemonPatch.Ability));
+    }
+
+    [Fact]
     public void EditsKeepTheBitsAroundTheFieldsTheyChange()
     {
         var save = new ImperiumSave(Fixture.ToArray());
