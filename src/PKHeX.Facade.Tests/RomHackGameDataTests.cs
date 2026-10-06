@@ -91,4 +91,12 @@ public class RomHackGameDataTests
     [InlineData(SaveFilePath.LetsGoPikachu, false)]
     public void StatsAreApproximateOnlyForTheHacks(string saveFile, bool approximate) =>
         SaveFilePath.Load(saveFile).GameData.StatsApproximate.Should().Be(approximate);
+
+    [Theory]
+    [InlineData(SaveFilePath.Emerald, true)]
+    [InlineData(SaveFilePath.Imperium, true)]
+    [InlineData(SaveFilePath.Unbound, false)]
+    [InlineData(SaveFilePath.HgSs, false)]
+    public void StoresAbilitySlotOnlyForGen3AndImperium(string saveFile, bool storesSlot) =>
+        SaveFilePath.Load(saveFile).GameData.StoresAbilitySlot.Should().Be(storesSlot);
 }

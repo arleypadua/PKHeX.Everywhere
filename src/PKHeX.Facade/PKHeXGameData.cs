@@ -58,6 +58,8 @@ public class PKHeXGameData : IGameDataSource
 
     public virtual bool StatsApproximate => false;
 
+    public virtual bool StoresAbilitySlot => _save.Generation == 3;
+
     // Mirrors PKHeX's editor: an origin game without its own location list borrows the save's, then the format's.
     internal static GameVersion MetLocationVersion(GameVersion origin, SaveFile save)
     {
