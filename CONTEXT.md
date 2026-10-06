@@ -39,7 +39,7 @@ A species a Save format defines that PKHeX has no id for, such as Unbound's Shad
 _Avoid_: custom species, fakemon
 
 **Locked field**:
-A Pokémon field the save can't change, such as nature on a Gen 3 save. The Game data source declares them, and the editor shows them disabled.
+A Pokémon field the save can't change, such as nature on an Unbound save. The Game data source declares them, and the editor shows them disabled.
 _Avoid_: read-only field, frozen field
 
 **Handle**:

@@ -213,7 +213,7 @@ public record MoveSlot(int Id, string Name, int Pp, int MaxPp, bool IsUnknown);
 /// </summary>
 /// <param name="Species">PKHeX species id. Must exist in the save's game.</param>
 /// <param name="Form">Form index. See <c>forms</c> in <c>pokemon.options()</c>.</param>
-/// <param name="Nature">PKHeX nature id from <c>game.natures()</c>. Rejected when <c>locked</c> in <c>pokemon.options()</c> has <c>nature</c>.</param>
+/// <param name="Nature">PKHeX nature id from <c>game.natures()</c>. Rejected when <c>locked</c> in <c>pokemon.options()</c> has <c>nature</c>. In Gen 3 and 4, where the nature comes from the PID, the Pokémon gets a new PID that keeps its gender, ability and shininess.</param>
 /// <param name="Ability">PKHeX ability id. See <c>abilities</c> in <c>pokemon.options()</c>.</param>
 /// <param name="HeldItem">PKHeX item id from <c>heldItems</c> in <c>pokemon.options()</c>.</param>
 /// <param name="Ball">PKHeX ball id from <c>game.balls()</c>.</param>
@@ -296,7 +296,7 @@ public record ItemChoice(int Id, string Name, bool IsUnknown);
 /// <param name="MetLocations">Locations of its origin game. Empty in Gen 1.</param>
 /// <param name="Moves">Moves it learns by level up at or below its current level, plus the legal moves it already knows, sorted by name.</param>
 /// <param name="HeldItems">The items the save can store as held items, as <c>game.heldItems()</c> lists them, plus the unknown item it already holds.</param>
-/// <param name="Locked">Fields the save can't change, such as <c>nature</c> in Gen 3 and 4, where it comes from the PID. Show them disabled. An update that changes one fails with <c>invalid-patch</c>.</param>
+/// <param name="Locked">Fields the save can't change, such as <c>nature</c> in Unbound and Radical Red, where it comes from the PID. Show them disabled. An update that changes one fails with <c>invalid-patch</c>.</param>
 public record PokemonOptions(Choice[] Species, Choice[] Abilities, Choice[] Forms, Choice[] MetLocations, Choice[] Moves, ItemChoice[] HeldItems, PokemonField[] Locked);
 
 /// <summary>

@@ -13,4 +13,4 @@ party/0/abilities 1 877567cecb03785a
 party/0/forms 0 e3b0c44298fc1c14
 party/0/metLocations 216 f22ba0856b43f48c
 party/0/moves 13 7d4e813766fd90cf
-party/0/locked Nature
+party/0/locked

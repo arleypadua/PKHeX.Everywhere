@@ -156,8 +156,7 @@ public partial class Pokemon
     private void ApplyNature(int id)
     {
         Require(Game.Options.Natures.Any(n => n.Id == id), nameof(PokemonPatch.Nature), $"Nature {id} isn't in this game.");
-        Require(Natures.ChangeAll((Nature)id), nameof(PokemonPatch.Nature),
-            $"Nature can't change in Pokémon {Version.Name}, as it is based on the PID.");
+        Require(Natures.ChangeAll((Nature)id), nameof(PokemonPatch.Nature), $"Nature {id} can't be stored in this game.");
     }
 
     private void ApplyAbility(int id)
