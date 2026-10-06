@@ -147,6 +147,18 @@ public class TradeTests
         offered.Changes.Should().Contain(new TradeChange(TradeField.Moves, "Overheat", null, TradeChangeReason.FormReverted));
     }
 
+    [Fact]
+    public void PlatinumRefusesATradeWhenItsBagCantTakeTheGriseousOrbBack()
+    {
+        var platinum = new SAV4Pt();
+        platinum.SetBoxSlotAtIndex(new PK4 { Species = (ushort)Species.Giratina, Form = 1, HeldItem = 112, CurrentLevel = 50 }, 0, EntityImportSettings.None);
+        var mine = new Game(platinum);
+        var pouch = mine.Trainer.Inventories.InventoryItems.Values.Single(pouch => pouch.Supports(mine.ItemRepository.GetGameItem(112)));
+        pouch.TrySet(112, (uint)pouch.MaxCountOf(112));
+
+        new Trade(mine, SaveFilePath.Load(SaveFilePath.HgSs)).Preview(Send(Box(0))).Refused.Single().Reason.Should().Be(TradeRefusal.BagFull);
+    }
+
     private static TradeOffer Send(params TradeSlot[] send) => new(send, []);
 
     private static TradeSlot Box(int index) => new(PokemonSource.Box, index);

@@ -14,8 +14,7 @@ internal static class TradeEffects
     private static readonly ushort[] RotomFormMoves =
         [(ushort)Move.Overheat, (ushort)Move.HydroPump, (ushort)Move.Blizzard, (ushort)Move.AirSlash, (ushort)Move.LeafStorm];
 
-    /// <returns>Whether it took a Griseous Orb, which goes back to the sender's bag.</returns>
-    public static bool RevertPlatinumForm(PKM pk)
+    public static bool RevertPlatinumFormTakingOrb(PKM pk)
     {
         var tookOrb = pk.HeldItem == GriseousOrb;
         if (tookOrb) pk.HeldItem = 0;

@@ -60,7 +60,7 @@ public enum TradeDirection
 /// <c>noRoute</c>: the games can't move Pokémon that way. <c>slotLocked</c>: its box slot is locked by the game, such as a battle team.
 /// <c>eggAcrossGenerations</c>: only link trades take eggs. <c>languageMismatch</c>: a Japanese Generation 1 or 2 Pokémon can't go to an international save, nor the other way.
 /// <c>speciesNotInGame</c>: the destination game doesn't have its species or form. <c>lastPartyMember</c>: the sending party must keep a Pokémon that isn't an egg.
-/// <c>noRoom</c>: the destination has no empty box slot left for it.
+/// <c>noRoom</c>: the destination has no empty box slot left for it. <c>bagFull</c>: Platinum can't put back the Griseous Orb it takes before a trade.
 /// </remarks>
 public enum TradeRefusal
 {
@@ -71,6 +71,7 @@ public enum TradeRefusal
     SpeciesNotInGame,
     LastPartyMember,
     NoRoom,
+    BagFull,
 }
 
 /// <summary>
@@ -219,6 +220,7 @@ public static class TradeMapping
         Trades.TradeRefusal.SpeciesNotInGame => TradeRefusal.SpeciesNotInGame,
         Trades.TradeRefusal.LastPartyMember => TradeRefusal.LastPartyMember,
         Trades.TradeRefusal.NoRoom => TradeRefusal.NoRoom,
+        Trades.TradeRefusal.BagFull => TradeRefusal.BagFull,
         _ => throw new ArgumentOutOfRangeException(nameof(refusal), refusal, null),
     };
 

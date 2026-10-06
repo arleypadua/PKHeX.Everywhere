@@ -908,7 +908,7 @@ export interface TradePreview {
 }
 
 /** Why a Pokémon can't be traded. */
-export type TradeRefusal = 'noRoute' | 'slotLocked' | 'eggAcrossGenerations' | 'languageMismatch' | 'speciesNotInGame' | 'lastPartyMember' | 'noRoom'
+export type TradeRefusal = 'noRoute' | 'slotLocked' | 'eggAcrossGenerations' | 'languageMismatch' | 'speciesNotInGame' | 'lastPartyMember' | 'noRoom' | 'bagFull'
 
 /** Both saves after `trade.commit`, ready to write back. */
 export interface TradeResult {

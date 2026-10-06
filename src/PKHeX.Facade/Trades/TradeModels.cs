@@ -25,6 +25,7 @@ public enum TradeRefusal
     SpeciesNotInGame,
     LastPartyMember,
     NoRoom,
+    BagFull,
 }
 
 public enum TradeField
