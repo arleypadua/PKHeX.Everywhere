@@ -20,8 +20,8 @@ public static class TradeHandlers
     public static TradeSummary Open(Session session, Game game, byte[] data, string? fileName = null, string? formatId = null)
     {
         fileName ??= DefaultFileName;
-        var partner = new Session.OpenTrade(GameHandlers.Read(data, fileName, formatId), fileName);
-        session.Trade = partner;
+        var partner = new Session.TradePartner(GameHandlers.LoadGame(data, fileName, formatId), fileName);
+        session.Partner = partner;
         return Summary(game, partner);
     }
 
@@ -30,7 +30,7 @@ public static class TradeHandlers
     /// </summary>
     [Query("trade.get", Topics.Trade, Topics.Box)]
     public static TradeSummary? Get(Session session) =>
-        session is { Game: { } game, Trade: { } partner } ? Summary(game, partner) : null;
+        session is { Game: { } game, Partner: { } partner } ? Summary(game, partner) : null;
 
     /// <summary>
     /// Lists the partner's party, then its boxed Pokémon in box and slot order. Handles point into the partner save.
@@ -38,7 +38,7 @@ public static class TradeHandlers
     [Query("trade.partnerBoxes", Topics.Trade)]
     public static PokemonSummary[] PartnerBoxes(Session session)
     {
-        var partner = RequirePartner(session).Partner;
+        var partner = RequirePartner(session).Save;
         return partner.Trainer.Party.Pokemons
             .Select((pokemon, slot) => pokemon.ToSummary(PokemonHandle.Party(slot)))
             .Concat(partner.Trainer.PokemonBox.Boxed().Select(boxed => boxed.Pokemon.ToSummary(PokemonSlots.BoxHandle(partner.SaveFile, boxed.Index))))
@@ -52,11 +52,11 @@ public static class TradeHandlers
     [Query("trade.preview", Topics.Trade, Topics.Party, Topics.Box)]
     public static TradePreview Preview(Session session, Game game, TradeOffer offer)
     {
-        var trade = Start(session, game);
+        var trade = TradeWith(session, game);
         var preview = trade.Preview(ToFacade(trade, offer));
         return new TradePreview(
             preview.Offers.Select(offered => ToDto(trade, offered)).ToArray(),
-            preview.Refused.Select(refused => new RefusedPokemon(refused.Direction.ToDto(), HandleOf(From(trade, refused.Direction), refused.From), refused.Reason.ToDto())).ToArray());
+            preview.Refused.Select(refused => new RefusedPokemon(refused.Direction.ToDto(), HandleOf(trade.From(refused.Direction), refused.From), refused.Reason.ToDto())).ToArray());
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public static class TradeHandlers
     [Command("trade.commit", Topics.Trade, Topics.Party, Topics.Box, Topics.Draft)]
     public static TradeResult Commit(Session session, Game game, TradeOffer offer)
     {
-        var trade = Start(session, game);
+        var trade = TradeWith(session, game);
         IReadOnlyList<Trades.TradeArrival> arrived;
         try
         {
@@ -77,43 +77,41 @@ public static class TradeHandlers
             throw new EngineException(ErrorCodes.TradeRefused, e.Message, e);
         }
 
-        if (offer.Send.Length > 0 && session.Draft?.From is not null) session.Draft = null;
+        if (session.Draft?.From is { } from && LeavesOrShifts(from, offer.Send)) session.Draft = null;
 
         var partner = RequirePartner(session);
         return new TradeResult(
             new ExportedSave(game.ToByteArray(), session.FileName ?? string.Empty),
-            new ExportedSave(partner.Partner.ToByteArray(), partner.FileName),
+            new ExportedSave(partner.Save.ToByteArray(), partner.FileName),
             arrived.Select(a => new TradedPokemon(
                 a.Direction.ToDto(),
                 new PokemonId(a.Pokemon.UniqueId.Value),
-                PokemonSlots.BoxHandle(To(trade, a.Direction).SaveFile, a.BoxIndex))).ToArray());
+                PokemonSlots.BoxHandle(trade.To(a.Direction).SaveFile, a.BoxIndex))).ToArray());
     }
 
     /// <summary>
     /// Closes the open trade, dropping the partner save. Closing with no trade open does nothing.
     /// </summary>
     [Command("trade.close", Topics.Trade)]
-    public static void Close(Session session) => session.Trade = null;
+    public static void Close(Session session) => session.Partner = null;
 
-    private static Session.OpenTrade RequirePartner(Session session) =>
-        session.Trade ?? throw new EngineException(ErrorCodes.NoTrade, "No trade is open. Open one with trade.open().");
+    private static Session.TradePartner RequirePartner(Session session) =>
+        session.Partner ?? throw new EngineException(ErrorCodes.NoTrade, "No trade is open. Open one with trade.open().");
 
-    private static Trades.Trade Start(Session session, Game game) => new(game, RequirePartner(session).Partner);
+    private static Trades.Trade TradeWith(Session session, Game game) => new(game, RequirePartner(session).Save);
 
-    private static TradeSummary Summary(Game game, Session.OpenTrade partner)
+    // Sending a party member moves the ones after it up a slot, so a draft of any of them would commit over another Pokémon.
+    private static bool LeavesOrShifts(PokemonHandle draft, PokemonHandle[] sent) =>
+        sent.Contains(draft) || (draft.Source == SlotSource.Party && sent.Any(at => at.Source == SlotSource.Party));
+
+    private static TradeSummary Summary(Game game, Session.TradePartner partner)
     {
-        var trade = new Trades.Trade(game, partner.Partner);
+        var trade = new Trades.Trade(game, partner.Save);
         return new TradeSummary(
-            partner.Partner.ToSummary(partner.FileName),
+            partner.Save.ToSummary(partner.FileName),
             new TradeRoutes(trade.SendRoute.ToDto(), trade.ReceiveRoute.ToDto()),
             trade.Room.ToDto());
     }
-
-    private static Game From(Trades.Trade trade, Trades.TradeDirection direction) =>
-        direction == Trades.TradeDirection.Send ? trade.Mine : trade.Partner;
-
-    private static Game To(Trades.Trade trade, Trades.TradeDirection direction) =>
-        direction == Trades.TradeDirection.Send ? trade.Partner : trade.Mine;
 
     private static Trades.TradeOffer ToFacade(Trades.Trade trade, TradeOffer offer) => new(
         offer.Send.Select(at => SlotOf(trade.Mine, at)).ToList(),
@@ -133,8 +131,8 @@ public static class TradeHandlers
 
     private static OfferedPokemon ToDto(Trades.Trade trade, Trades.TradedPokemon offered) => new(
         offered.Direction.ToDto(),
-        offered.Pokemon.ToSummary(HandleOf(From(trade, offered.Direction), offered.From)),
-        offered.Arrives.ToSummary(PokemonSlots.BoxHandle(To(trade, offered.Direction).SaveFile, offered.ArrivesAt)),
+        offered.Pokemon.ToSummary(HandleOf(trade.From(offered.Direction), offered.From)),
+        offered.Arrives.ToSummary(PokemonSlots.BoxHandle(trade.To(offered.Direction).SaveFile, offered.ArrivesAt)),
         offered.Changes.Select(change => change.ToDto()).ToArray(),
         offered.SaveChanges.Select(change => change.ToDto()).ToArray(),
         new Legality(offered.Legality.Valid, offered.Legality.Messages.ToArray()));

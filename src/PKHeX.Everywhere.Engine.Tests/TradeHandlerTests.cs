@@ -267,6 +267,30 @@ public class TradeHandlerTests
     }
 
     [Fact]
+    public void CommitKeepsADraftOfABoxSlotTheTradeLeavesAlone()
+    {
+        var session = Loaded(SaveFilePath.FireRed);
+        Open(session, SaveFilePath.Emerald);
+        Value(Dispatch(session, "pokemon.edit", Args(PokemonHandle.InBox(0, 1))));
+
+        Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.InBox(0, 0)))));
+
+        session.Draft.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void CommitDropsADraftOfAPartyMemberThatMovesUp()
+    {
+        var session = Loaded(SaveFilePath.Emerald);
+        Open(session, SaveFilePath.FireRed);
+        Value(Dispatch(session, "pokemon.edit", Args(PokemonHandle.Party(1))));
+
+        Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.Party(0)))));
+
+        session.Draft.Should().BeNull();
+    }
+
+    [Fact]
     public void CommitFailsWithTradeRefusedAndWritesNothing()
     {
         var session = Loaded(SaveFilePath.FireRed);

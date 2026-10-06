@@ -61,8 +61,8 @@ public class Trade(Game mine, Game partner)
             .ToList();
     }
 
-    private Game From(TradeDirection direction) => direction == TradeDirection.Send ? Mine : Partner;
-    private Game To(TradeDirection direction) => direction == TradeDirection.Send ? Partner : Mine;
+    public Game From(TradeDirection direction) => direction == TradeDirection.Send ? Mine : Partner;
+    public Game To(TradeDirection direction) => direction == TradeDirection.Send ? Partner : Mine;
 
     private void Plan(TradeDirection direction, IEnumerable<TradeSlot> slots, List<TradedPokemon> offers, List<RefusedPokemon> refused)
     {

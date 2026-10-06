@@ -39,10 +39,10 @@ public static class GameHandlers
     public static void Load(Session session, byte[] data, string? fileName = null, string? formatId = null)
     {
         fileName ??= DefaultFileName;
-        session.Load(Read(data, fileName, formatId), fileName);
+        session.Load(LoadGame(data, fileName, formatId), fileName);
     }
 
-    internal static Game Read(byte[] data, string fileName, string? formatId)
+    internal static Game LoadGame(byte[] data, string fileName, string? formatId)
     {
         var format = formatId is null
             ? null

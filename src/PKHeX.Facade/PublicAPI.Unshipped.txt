@@ -420,3 +420,5 @@ virtual PKHeX.Facade.Trades.TradedPokemon.<Clone>$() -> PKHeX.Facade.Trades.Trad
 virtual PKHeX.Facade.Trades.TradedPokemon.EqualityContract.get -> System.Type!
 virtual PKHeX.Facade.Trades.TradedPokemon.Equals(PKHeX.Facade.Trades.TradedPokemon? other) -> bool
 virtual PKHeX.Facade.Trades.TradedPokemon.PrintMembers(System.Text.StringBuilder! builder) -> bool
+PKHeX.Facade.Trades.Trade.From(PKHeX.Facade.Trades.TradeDirection direction) -> PKHeX.Facade.Game!
+PKHeX.Facade.Trades.Trade.To(PKHeX.Facade.Trades.TradeDirection direction) -> PKHeX.Facade.Game!

@@ -4,6 +4,7 @@ using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 using PKHeX.Facade.Events;
+using PKHeX.Facade.Trades;
 using PKHeX.Facade.Tests.Base;
 using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 
@@ -72,7 +73,7 @@ public class CommandTopicTests
         ["trade.preview"] = (game, _) => FirstBoxPokemon(game) is var (at, _) ? [Args(Offer(at))] : [],
         ["trade.open"] = (_, saveFile) => [TradePartner(saveFile)],
         // The partner is a copy of the save, so the trade is a link trade wherever the save has one.
-        ["trade.commit"] = (game, _) => game.Format is null && game.SaveFile is not SAV7b && FirstBoxPokemon(game) is var (at, _) ? [Args(Offer(at))] : [],
+        ["trade.commit"] = (game, _) => Trade.RouteBetween(game, game) is not null && FirstBoxPokemon(game) is var (at, _) ? [Args(Offer(at))] : [],
         ["trade.close"] = (_, _) => ["[]"],
         ["trainer.get"] = (_, _) => ["[]"],
         ["trainer.setName"] = (_, _) => [Args("Ash")],

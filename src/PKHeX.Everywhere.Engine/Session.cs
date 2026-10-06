@@ -20,7 +20,7 @@ public sealed class Session
     public string? FileName { get; private set; }
     internal IReadOnlyList<Encounter>? Encounters { get; set; }
     internal Draft? Draft { get; set; }
-    internal OpenTrade? Trade { get; set; }
+    internal TradePartner? Partner { get; set; }
 
     public event Action<string[]>? Changed;
     public event Action? GameChanged;
@@ -157,7 +157,7 @@ public sealed class Session
         _ => Topics.All,
     });
 
-    internal sealed record OpenTrade(Game Partner, string FileName);
+    internal sealed record TradePartner(Game Save, string FileName);
 
     private sealed record CommandScope(List<string> Written, List<IEngineEvent> Raised);
 }
