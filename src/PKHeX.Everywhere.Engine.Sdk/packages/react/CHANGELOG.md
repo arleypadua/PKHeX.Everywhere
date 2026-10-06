@@ -1,5 +1,17 @@
 # @pkhex-everywhere/react
 
+## 0.8.0
+
+### Patch Changes
+
+- Updated dependencies [c5cd974]
+- Updated dependencies [d03bb1c]
+- Updated dependencies [5bfab1b]
+- Updated dependencies [d8b8e64]
+- Updated dependencies [74c1996]
+- Updated dependencies [e6f46d6]
+  - @pkhex-everywhere/engine@0.8.0
+
 ## 0.7.2
 
 ### Patch Changes
