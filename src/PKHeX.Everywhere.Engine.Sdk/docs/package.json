@@ -17,6 +17,6 @@
     "typedoc-plugin-markdown": "^4.13.1"
   },
   "devDependencies": {
-    "wawesome": "^0.24.0"
+    "wawesome": "^0.25.0"
   }
 }
