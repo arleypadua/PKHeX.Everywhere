@@ -245,6 +245,10 @@ PKHeX.Facade.Trades.TradeChangeReason.ItemRemoved = 2 -> PKHeX.Facade.Trades.Tra
 PKHeX.Facade.Trades.TradeChangeReason.Link = 3 -> PKHeX.Facade.Trades.TradeChangeReason
 PKHeX.Facade.Trades.TradeChangeReason.PalPark = 5 -> PKHeX.Facade.Trades.TradeChangeReason
 PKHeX.Facade.Trades.TradeChangeReason.PokeTransfer = 6 -> PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeChangeReason.Received = 7 -> PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeChangeReason.TradeEvolution = 8 -> PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeChangeReason.ItemUsed = 9 -> PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeChangeReason.FormReverted = 10 -> PKHeX.Facade.Trades.TradeChangeReason
 PKHeX.Facade.Trades.TradeChangeReason.TimeCapsule = 4 -> PKHeX.Facade.Trades.TradeChangeReason
 PKHeX.Facade.Trades.TradeDirection
 PKHeX.Facade.Trades.TradeDirection.Receive = 1 -> PKHeX.Facade.Trades.TradeDirection
@@ -281,6 +285,7 @@ PKHeX.Facade.Trades.TradeRefusal.EggAcrossGenerations = 2 -> PKHeX.Facade.Trades
 PKHeX.Facade.Trades.TradeRefusal.LanguageMismatch = 3 -> PKHeX.Facade.Trades.TradeRefusal
 PKHeX.Facade.Trades.TradeRefusal.LastPartyMember = 5 -> PKHeX.Facade.Trades.TradeRefusal
 PKHeX.Facade.Trades.TradeRefusal.NoRoom = 6 -> PKHeX.Facade.Trades.TradeRefusal
+PKHeX.Facade.Trades.TradeRefusal.BagFull = 7 -> PKHeX.Facade.Trades.TradeRefusal
 PKHeX.Facade.Trades.TradeRefusal.NoRoute = 0 -> PKHeX.Facade.Trades.TradeRefusal
 PKHeX.Facade.Trades.TradeRefusal.SlotLocked = 1 -> PKHeX.Facade.Trades.TradeRefusal
 PKHeX.Facade.Trades.TradeRefusal.SpeciesNotInGame = 4 -> PKHeX.Facade.Trades.TradeRefusal
@@ -301,15 +306,22 @@ PKHeX.Facade.Trades.TradeRoute.PalPark = 2 -> PKHeX.Facade.Trades.TradeRoute
 PKHeX.Facade.Trades.TradeRoute.PokeTransfer = 3 -> PKHeX.Facade.Trades.TradeRoute
 PKHeX.Facade.Trades.TradeRoute.TimeCapsule = 1 -> PKHeX.Facade.Trades.TradeRoute
 PKHeX.Facade.Trades.TradeSaveChange
-PKHeX.Facade.Trades.TradeSaveChange.Deconstruct(out PKHeX.Facade.Trades.TradeSaveChangeKind Kind, out PKHeX.Facade.Repositories.SpeciesDefinition! Species) -> void
+PKHeX.Facade.Trades.TradeSaveChange.Deconstruct(out PKHeX.Facade.Trades.TradeSaveChangeKind Kind, out PKHeX.Facade.Trades.TradeSide Save, out string! Label) -> void
 PKHeX.Facade.Trades.TradeSaveChange.Kind.get -> PKHeX.Facade.Trades.TradeSaveChangeKind
 PKHeX.Facade.Trades.TradeSaveChange.Kind.init -> void
-PKHeX.Facade.Trades.TradeSaveChange.Species.get -> PKHeX.Facade.Repositories.SpeciesDefinition!
-PKHeX.Facade.Trades.TradeSaveChange.Species.init -> void
+PKHeX.Facade.Trades.TradeSaveChange.Label.get -> string!
+PKHeX.Facade.Trades.TradeSaveChange.Label.init -> void
+PKHeX.Facade.Trades.TradeSaveChange.Save.get -> PKHeX.Facade.Trades.TradeSide
+PKHeX.Facade.Trades.TradeSaveChange.Save.init -> void
 PKHeX.Facade.Trades.TradeSaveChange.TradeSaveChange(PKHeX.Facade.Trades.TradeSaveChange! original) -> void
-PKHeX.Facade.Trades.TradeSaveChange.TradeSaveChange(PKHeX.Facade.Trades.TradeSaveChangeKind Kind, PKHeX.Facade.Repositories.SpeciesDefinition! Species) -> void
+PKHeX.Facade.Trades.TradeSaveChange.TradeSaveChange(PKHeX.Facade.Trades.TradeSaveChangeKind Kind, PKHeX.Facade.Trades.TradeSide Save, string! Label) -> void
 PKHeX.Facade.Trades.TradeSaveChangeKind
 PKHeX.Facade.Trades.TradeSaveChangeKind.PokedexCaught = 0 -> PKHeX.Facade.Trades.TradeSaveChangeKind
+PKHeX.Facade.Trades.TradeSaveChangeKind.ItemReturned = 1 -> PKHeX.Facade.Trades.TradeSaveChangeKind
+PKHeX.Facade.Trades.TradeSaveChangeKind.EventVar = 2 -> PKHeX.Facade.Trades.TradeSaveChangeKind
+PKHeX.Facade.Trades.TradeSide
+PKHeX.Facade.Trades.TradeSide.Sender = 0 -> PKHeX.Facade.Trades.TradeSide
+PKHeX.Facade.Trades.TradeSide.Receiver = 1 -> PKHeX.Facade.Trades.TradeSide
 PKHeX.Facade.Trades.TradeSlot
 PKHeX.Facade.Trades.TradeSlot.Deconstruct(out PKHeX.Facade.Pokemons.PokemonSource Source, out int Index) -> void
 PKHeX.Facade.Trades.TradeSlot.Index.get -> int

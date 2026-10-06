@@ -397,7 +397,7 @@ export interface OfferedPokemon {
   arrives: PokemonSummary
   /** The fields the move changes, in the order of `TradeField`. A move can show up once per move removed. */
   changes: TradeChange[]
-  /** What the move changes in the destination save. */
+  /** What the move changes in either save. */
   saveChanges: TradeSaveChange[]
   /** PKHeX's legality check of the Pokémon as it arrives, judged in the destination game. */
   legality: Legality
@@ -883,7 +883,7 @@ export interface TradeChange {
 }
 
 /** Why a trade changes a field. */
-export type TradeChangeReason = 'hmRemoved' | 'itemRemapped' | 'itemRemoved' | 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer'
+export type TradeChangeReason = 'hmRemoved' | 'itemRemapped' | 'itemRemoved' | 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'received' | 'tradeEvolution' | 'itemUsed' | 'formReverted'
 
 /** Which way a Pokémon moves: `send` from the loaded save to the partner, `receive` from the partner to the loaded save. */
 export type TradeDirection = 'send' | 'receive'
@@ -908,7 +908,7 @@ export interface TradePreview {
 }
 
 /** Why a Pokémon can't be traded. */
-export type TradeRefusal = 'noRoute' | 'slotLocked' | 'eggAcrossGenerations' | 'languageMismatch' | 'speciesNotInGame' | 'lastPartyMember' | 'noRoom'
+export type TradeRefusal = 'noRoute' | 'slotLocked' | 'eggAcrossGenerations' | 'languageMismatch' | 'speciesNotInGame' | 'lastPartyMember' | 'noRoom' | 'bagFull'
 
 /** Both saves after `trade.commit`, ready to write back. */
 export interface TradeResult {
@@ -939,15 +939,20 @@ export interface TradeRoutes {
   receive: TradeRoute | null
 }
 
-/** A change a trade makes to the destination save. */
+/** A change a trade makes to a save. */
 export interface TradeSaveChange {
   kind: TradeSaveChangeKind
-  /** The species the change is about. */
-  species: string
+  /** The save that changes. */
+  save: TradeSide
+  /** What changes, for display: the species caught, the item returned, or the event and its new value. */
+  label: string
 }
 
-/** What a trade changes in the destination save besides the Pokémon itself. `pokedexCaught`: the Pokédex registers the species as caught. */
-export type TradeSaveChangeKind = 'pokedexCaught'
+/** What a trade changes in a save besides the Pokémon itself. */
+export type TradeSaveChangeKind = 'pokedexCaught' | 'itemReturned' | 'eventVar'
+
+/** A save in a trade: `sender` is the one the Pokémon leaves, `receiver` the one it arrives in. */
+export type TradeSide = 'sender' | 'receiver'
 
 /** The trade `trade.open` opened: the partner save, the routes between the saves and the room in each. */
 export interface TradeSummary {

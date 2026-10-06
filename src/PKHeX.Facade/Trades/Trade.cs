@@ -56,6 +56,9 @@ public class Trade(Game mine, Game partner)
         foreach (var arrived in preview.Offers.GroupBy(o => o.Direction))
             To(arrived.Key).Trainer.PokemonBox.Place(arrived.Select(o => (o.Arrives.Pkm, o.ArrivesAt)));
 
+        foreach (var offered in preview.Offers)
+            Apply(offered);
+
         return preview.Offers
             .Select(o => new TradeArrival(o.Direction, o.ArrivesAt, To(o.Direction).Trainer.PokemonBox.All[o.ArrivesAt]))
             .ToList();
@@ -71,21 +74,26 @@ public class Trade(Game mine, Game partner)
         var room = new Queue<int>(EmptyBoxSlots(to));
         var partyLeft = from.Trainer.Party.Pokemons.Count(p => !p.Pkm.IsEgg);
         var caught = new HashSet<Species>();
+        var arceusEventStarted = false;
+        var orbsReturned = 0;
 
         foreach (var slot in slots.Distinct())
         {
             var pokemon = PokemonAt(from, slot);
             var leavesParty = slot.Source == PokemonSource.Party && !pokemon.Pkm.IsEgg;
-            Pokemon? arrives = null;
+            var leaving = pokemon.Clone();
+            var tookOrb = route == TradeRoute.Link && from.SaveFile is SAV4Pt && TradeEffects.RevertPlatinumFormTakingOrb(leaving.Pkm);
+            Pokemon? converted = null;
             var refusal = route switch
             {
                 null => TradeRefusal.NoRoute,
                 _ when slot.Source == PokemonSource.Box && from.SaveFile.IsBoxSlotOverwriteProtected(slot.Index) => TradeRefusal.SlotLocked,
                 not TradeRoute.Link when pokemon.Pkm.IsEgg => TradeRefusal.EggAcrossGenerations,
                 _ when !IsLanguageCompatible(pokemon, to) => TradeRefusal.LanguageMismatch,
-                _ when Convert(pokemon, to, out arrives) is { } failed => failed,
+                _ when Convert(leaving, to, out converted) is { } failed => failed,
                 _ when leavesParty && partyLeft == 1 => TradeRefusal.LastPartyMember,
                 _ when room.Count == 0 => TradeRefusal.NoRoom,
+                _ when tookOrb && !BagHasRoom(from, TradeEffects.GriseousOrb, orbsReturned + 1) => TradeRefusal.BagFull,
                 _ => (TradeRefusal?)null,
             };
 
@@ -96,19 +104,81 @@ public class Trade(Game mine, Game partner)
             }
 
             if (leavesParty) partyLeft--;
-            var saveChanges = !arrives!.Pkm.IsEgg && to.SaveFile.HasPokeDex && !to.SaveFile.GetCaught(arrives.Pkm.Species) && caught.Add(arrives.Species.Species)
-                ? [new TradeSaveChange(TradeSaveChangeKind.PokedexCaught, arrives.Species)]
-                : Array.Empty<TradeSaveChange>();
+            if (tookOrb) orbsReturned++;
+            var received = converted!.Clone();
+            TradeEffects.Receive(received.Pkm, route!.Value);
+            var arrives = received.Clone();
+            TradeEffects.Evolve(arrives.Pkm, to, route.Value);
+
+            var changes = Changes(pokemon, leaving, TradeChangeReason.FormReverted)
+                .Concat(Changes(leaving, converted, route.Value))
+                .Concat(Changes(converted, received, TradeChangeReason.Received))
+                .Concat(Changes(received, arrives, TradeChangeReason.TradeEvolution, TradeChangeReason.ItemUsed))
+                .OrderBy(change => change.Field)
+                .ToList();
+
+            var saveChanges = new List<TradeSaveChange>();
+            if (tookOrb) saveChanges.Add(new TradeSaveChange(TradeSaveChangeKind.ItemReturned, TradeSide.Sender, from.ItemRepository.GetGameItem(TradeEffects.GriseousOrb).Name));
+            if (!arrives.Pkm.IsEgg && to.SaveFile.HasPokeDex && !to.SaveFile.GetCaught(arrives.Pkm.Species) && caught.Add(arrives.Species.Species))
+                saveChanges.Add(new TradeSaveChange(TradeSaveChangeKind.PokedexCaught, TradeSide.Receiver, arrives.Species.Name));
+            if (!arceusEventStarted && TradeEffects.StartsArceusEvent(arrives.Pkm, to))
+            {
+                arceusEventStarted = true;
+                saveChanges.Add(new TradeSaveChange(TradeSaveChangeKind.EventVar, TradeSide.Receiver, ArceusEventLabel(to)));
+            }
+
             offers.Add(new TradedPokemon(
                 direction,
                 slot,
                 pokemon,
                 room.Dequeue(),
                 arrives,
-                Changes(pokemon, arrives, route!.Value),
+                changes,
                 saveChanges,
                 LegalityIn(to, arrives)));
         }
+    }
+
+    private void Apply(TradedPokemon offered)
+    {
+        foreach (var change in offered.SaveChanges)
+        {
+            switch (change.Kind)
+            {
+                case TradeSaveChangeKind.ItemReturned:
+                    ReturnToBag(From(offered.Direction), TradeEffects.GriseousOrb);
+                    break;
+                case TradeSaveChangeKind.EventVar:
+                    ((SAV4Pt)To(offered.Direction).SaveFile).SetWork(TradeEffects.ArceusEventWork, 1);
+                    break;
+            }
+        }
+    }
+
+    // pret/pokeplatinum ScrCmd_TryRevertPartyPokemonForms refuses the trade when the bag can't take the orb back.
+    private static bool BagHasRoom(Game game, ushort item, int count)
+    {
+        if (PouchFor(game, item) is not { } pouch) return false;
+        var owned = pouch.Items.FirstOrDefault(owned => owned.Id == item);
+        return owned is null ? pouch.Items.Any(slot => slot.IsNone) && count <= pouch.MaxCountOf(item) : owned.Count + count <= pouch.MaxCountOf(item);
+    }
+
+    private static void ReturnToBag(Game game, ushort item)
+    {
+        var pouch = PouchFor(game, item)!;
+        var owned = pouch.Items.FirstOrDefault(owned => owned.Id == item)?.Count ?? 0;
+        pouch.TrySet(item, (uint)owned + 1);
+    }
+
+    private static Inventory? PouchFor(Game game, ushort item) =>
+        game.Trainer.Inventories.InventoryItems.Values.FirstOrDefault(pouch => pouch.Supports(game.ItemRepository.GetGameItem(item)));
+
+
+    private static string ArceusEventLabel(Game game)
+    {
+        var work = game.Events?.Work.FirstOrDefault(work => work.Index == TradeEffects.ArceusEventWork);
+        var state = work?.Options.FirstOrDefault(option => option.Value == 1);
+        return work is null || state is null ? "Arceus event" : $"{work.Name}: {state.Name}";
     }
 
     private static Pokemon PokemonAt(Game game, TradeSlot slot)
@@ -157,7 +227,7 @@ public class Trade(Game mine, Game partner)
         if (box.Count > 0) game.Trainer.PokemonBox.Remove(box);
     }
 
-    private static IReadOnlyList<TradeChange> Changes(Pokemon from, Pokemon arrives, TradeRoute route)
+    private static IEnumerable<TradeChange> Changes(Pokemon from, Pokemon arrives, TradeRoute route)
     {
         var reason = route switch
         {
@@ -166,6 +236,19 @@ public class Trade(Game mine, Game partner)
             TradeRoute.PalPark => TradeChangeReason.PalPark,
             _ => TradeChangeReason.PokeTransfer,
         };
+        // Pal Park and Poké Transfer only take away HM moves.
+        var forgotten = route is TradeRoute.PalPark or TradeRoute.PokeTransfer ? TradeChangeReason.HmRemoved : reason;
+        var item = HeldItem(arrives) is null ? TradeChangeReason.ItemRemoved : TradeChangeReason.ItemRemapped;
+        return Changes(from, arrives, reason, item, forgotten);
+    }
+
+    private static IEnumerable<TradeChange> Changes(
+        Pokemon from,
+        Pokemon arrives,
+        TradeChangeReason reason,
+        TradeChangeReason? itemReason = null,
+        TradeChangeReason? forgottenReason = null)
+    {
         var changes = new List<TradeChange>();
 
         void Compare(TradeField field, string? before, string? after, TradeChangeReason why)
@@ -175,13 +258,10 @@ public class Trade(Game mine, Game partner)
 
         Compare(TradeField.Species, from.Species.Name, arrives.Species.Name, reason);
         Compare(TradeField.Form, from.Form.Form.Name, arrives.Form.Form.Name, reason);
-        var item = HeldItem(arrives);
-        Compare(TradeField.HeldItem, HeldItem(from), item, item is null ? TradeChangeReason.ItemRemoved : TradeChangeReason.ItemRemapped);
+        Compare(TradeField.HeldItem, HeldItem(from), HeldItem(arrives), itemReason ?? reason);
 
         var (movesBefore, movesAfter) = (Moves(from), Moves(arrives));
-        // Pal Park and Poké Transfer only take away HM moves.
-        var forgotten = route is TradeRoute.PalPark or TradeRoute.PokeTransfer ? TradeChangeReason.HmRemoved : reason;
-        changes.AddRange(movesBefore.Except(movesAfter).Select(move => new TradeChange(TradeField.Moves, move, null, forgotten)));
+        changes.AddRange(movesBefore.Except(movesAfter).Select(move => new TradeChange(TradeField.Moves, move, null, forgottenReason ?? reason)));
         changes.AddRange(movesAfter.Except(movesBefore).Select(move => new TradeChange(TradeField.Moves, null, move, reason)));
 
         Compare(TradeField.MetLocation, MetLocation(from), MetLocation(arrives), reason);

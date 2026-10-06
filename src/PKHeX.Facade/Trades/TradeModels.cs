@@ -1,5 +1,4 @@
 using PKHeX.Facade.Pokemons;
-using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade.Trades;
 
@@ -26,6 +25,7 @@ public enum TradeRefusal
     SpeciesNotInGame,
     LastPartyMember,
     NoRoom,
+    BagFull,
 }
 
 public enum TradeField
@@ -51,11 +51,23 @@ public enum TradeChangeReason
     TimeCapsule,
     PalPark,
     PokeTransfer,
+    Received,
+    TradeEvolution,
+    ItemUsed,
+    FormReverted,
 }
 
 public enum TradeSaveChangeKind
 {
     PokedexCaught,
+    ItemReturned,
+    EventVar,
+}
+
+public enum TradeSide
+{
+    Sender,
+    Receiver,
 }
 
 /// <param name="Index">The party slot, or the box slot counted across every box.</param>
@@ -67,7 +79,8 @@ public record TradeRoom(int Mine, int Partner);
 
 public record TradeChange(TradeField Field, string? Before, string? After, TradeChangeReason Reason);
 
-public record TradeSaveChange(TradeSaveChangeKind Kind, SpeciesDefinition Species);
+/// <param name="Label">What changes, for display: the species caught, the item returned or the event and its new value.</param>
+public record TradeSaveChange(TradeSaveChangeKind Kind, TradeSide Save, string Label);
 
 /// <param name="ArrivesAt">The box slot, counted across every box, the Pokémon lands in.</param>
 public record TradedPokemon(
