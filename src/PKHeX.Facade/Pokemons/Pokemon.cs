@@ -58,6 +58,16 @@ public partial class Pokemon(PKM pokemon, Game game)
         }
     }
 
+    public int SpeciesIndex => pokemon switch
+    {
+        ISpeciesIndex stored => stored.SpeciesIndex,
+        G3PKM g3 => g3.SpeciesInternal,
+        PK1 pk1 => pk1.SpeciesInternal,
+        PK9 pk9 => pk9.SpeciesInternal,
+        PA9 pa9 => pa9.SpeciesInternal,
+        _ => pokemon.Species,
+    };
+
     public PokemonTypes Types => new(pokemon);
     public string Nickname => pokemon.Nickname;
 

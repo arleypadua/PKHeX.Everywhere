@@ -93,6 +93,8 @@ export interface DeclaredPage {
 export interface EditablePokemon {
   /** PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. Null when `isUnknown` is true. */
   species: number | null
+  /** The species as the save stores it, before any conversion: the game's internal index in Gen 1 to 3, Gen 9 and ROM hacks, and the National Pokédex number elsewhere. Use it to index the game's own tables, such as its sprites. */
+  speciesIndex: number
   /** Neither PKHeX nor the save knows the species, such as a ROM hack's egg slot. */
   isUnknown: boolean
   /** When false, show the fields read-only: `pokemon.update()` fails with `unknown-species`. */
@@ -423,6 +425,8 @@ export type PageLayout = 'standard' | 'empty'
 export interface PartyMember {
   /** The species' National Pokédex number, as PKHeX.Core numbers species, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. Null when neither PKHeX nor the save knows the species. */
   speciesId: number | null
+  /** The species as the save stores it, before any conversion: the game's internal index in Gen 1 to 3, Gen 9 and ROM hacks, and the National Pokédex number elsewhere. Use it to index the game's own tables, such as its sprites. */
+  speciesIndex: number
   species: string
   /** The Pokémon's current level. */
   level: number
@@ -647,6 +651,8 @@ export interface PokemonOptions {
 export interface PokemonOverview {
   /** PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. */
   speciesId: number
+  /** The species as the save stores it, before any conversion: the game's internal index in Gen 1 to 3, Gen 9 and ROM hacks, and the National Pokédex number elsewhere. Use it to index the game's own tables, such as its sprites. */
+  speciesIndex: number
   species: string
   /** Gender name, such as `Male`, `Female` or `Genderless`. */
   gender: string
@@ -726,6 +732,8 @@ export interface PokemonSummary {
   at: PokemonHandle
   /** PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. Null when `isUnknown` is true. */
   speciesId: number | null
+  /** The species as the save stores it, before any conversion: the game's internal index in Gen 1 to 3, Gen 9 and ROM hacks, and the National Pokédex number elsewhere. Use it to index the game's own tables, such as its sprites. */
+  speciesIndex: number
   /** Species name, or a name like `Unknown (#412)` when `isUnknown` is true. */
   species: string
   /** Neither PKHeX nor the save knows the species, such as a ROM hack's egg slot. Show a placeholder instead of a sprite. */

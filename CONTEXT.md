@@ -38,6 +38,10 @@ _Avoid_: unmapped, invalid
 A species a Save format defines that PKHeX has no id for, such as Unbound's Shadow Warrior. It has a name, and it has data (types, base stats, abilities, gender ratio, growth rate and catch rate) when we have a source for it. A hack species with data isn't Unknown, and the editor can change its Pokémon.
 _Avoid_: custom species, fakemon
 
+**Species index**:
+The species as the save stores it, before conversion to PKHeX's id: the internal index in Gen 1 to 3 and Gen 9, a ROM hack's own index, and the National Pokédex number elsewhere. Unknown species have one too. Clients use it to index the game's own tables, such as its sprites.
+_Avoid_: raw species, internal species
+
 **Locked field**:
 A Pokémon field the save can't change, such as nature on an Unbound save. The Game data source declares them, and the editor shows them disabled.
 _Avoid_: read-only field, frozen field

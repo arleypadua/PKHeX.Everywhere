@@ -51,6 +51,7 @@ public record PokemonForm(int Id, string Name);
 /// </summary>
 /// <param name="At">Where the Pokémon is.</param>
 /// <param name="SpeciesId">PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. Null when <c>isUnknown</c> is true.</param>
+/// <param name="SpeciesIndex">The species as the save stores it, before any conversion: the game's internal index in Gen 1 to 3, Gen 9 and ROM hacks, and the National Pokédex number elsewhere. Use it to index the game's own tables, such as its sprites.</param>
 /// <param name="Species">Species name, or a name like <c>Unknown (#412)</c> when <c>isUnknown</c> is true.</param>
 /// <param name="IsUnknown">Neither PKHeX nor the save knows the species, such as a ROM hack's egg slot. Show a placeholder instead of a sprite.</param>
 /// <param name="Editable">The Pokémon can be opened with <c>pokemon.edit()</c> and copied with <c>pokemon.clone()</c>. When false, show it read-only with <c>pokemon.details()</c>: editing it fails with <c>unknown-species</c>.</param>
@@ -59,6 +60,7 @@ public record PokemonSummary(
     PokemonId Id,
     PokemonHandle At,
     int? SpeciesId,
+    int SpeciesIndex,
     string Species,
     bool IsUnknown,
     bool Editable,
@@ -110,6 +112,7 @@ public enum PokemonHandler
 /// The editable fields of a Pokémon. Send changes back with <c>pokemon.update()</c> as a <see cref="PokemonPatch"/>.
 /// </summary>
 /// <param name="Species">PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. Null when <c>isUnknown</c> is true.</param>
+/// <param name="SpeciesIndex">The species as the save stores it, before any conversion: the game's internal index in Gen 1 to 3, Gen 9 and ROM hacks, and the National Pokédex number elsewhere. Use it to index the game's own tables, such as its sprites.</param>
 /// <param name="IsUnknown">Neither PKHeX nor the save knows the species, such as a ROM hack's egg slot.</param>
 /// <param name="Editable">When false, show the fields read-only: <c>pokemon.update()</c> fails with <c>unknown-species</c>.</param>
 /// <param name="Form">Form index within the species' forms. 0 is the default form.</param>
@@ -144,6 +147,7 @@ public enum PokemonHandler
 /// <param name="Legality">PKHeX's legality check of the Pokémon as it is now, or null when the save doesn't support <c>legality</c>. Always null from <c>pokemon.read</c>.</param>
 public record EditablePokemon(
     int? Species,
+    int SpeciesIndex,
     bool IsUnknown,
     bool Editable,
     int Form,
@@ -314,9 +318,10 @@ public enum PokemonField
 /// A short description of a Pokémon, sent with events such as <c>pokemonAdded</c> and <c>pokemonSaved</c>.
 /// </summary>
 /// <param name="SpeciesId">PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those.</param>
+/// <param name="SpeciesIndex">The species as the save stores it, before any conversion: the game's internal index in Gen 1 to 3, Gen 9 and ROM hacks, and the National Pokédex number elsewhere. Use it to index the game's own tables, such as its sprites.</param>
 /// <param name="Gender">Gender name, such as <c>Male</c>, <c>Female</c> or <c>Genderless</c>.</param>
 /// <param name="Ball">Name of the ball it was caught in.</param>
-public record PokemonOverview(int SpeciesId, string Species, string Gender, string Ball, int Level);
+public record PokemonOverview(int SpeciesId, int SpeciesIndex, string Species, string Gender, string Ball, int Level);
 
 public static class PokemonMapping
 {
@@ -327,6 +332,7 @@ public static class PokemonMapping
             new PokemonId(pokemon.UniqueId.Value),
             at,
             pokemon.IsUnknown ? null : pokemon.Species.Id,
+            pokemon.SpeciesIndex,
             pokemon.Species.Name,
             pokemon.IsUnknown,
             pokemon.IsEditable,
@@ -337,10 +343,11 @@ public static class PokemonMapping
     }
 
     public static PokemonOverview ToOverview(this Pokemon pokemon) =>
-        new(pokemon.Species.Id, pokemon.Species.Name, pokemon.Gender.Name, pokemon.Ball.Name, pokemon.Level);
+        new(pokemon.Species.Id, pokemon.SpeciesIndex, pokemon.Species.Name, pokemon.Gender.Name, pokemon.Ball.Name, pokemon.Level);
 
     public static EditablePokemon ToEditable(this PokemonDetails details) => new(
         details.IsUnknown ? null : details.Species,
+        details.SpeciesIndex,
         details.IsUnknown,
         details.IsEditable,
         details.Form,

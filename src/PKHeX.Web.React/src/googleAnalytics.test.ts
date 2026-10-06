@@ -23,8 +23,8 @@ function started() {
 }
 
 const party = [
-  { speciesId: 25, species: 'Pikachu', level: 12 },
-  { speciesId: 1, species: 'Bulbasaur', level: 5 },
+  { speciesId: 25, speciesIndex: 25, species: 'Pikachu', level: 12 },
+  { speciesId: 1, speciesIndex: 1, species: 'Bulbasaur', level: 5 },
 ]
 
 describe('Google Analytics', () => {
@@ -144,7 +144,7 @@ describe('Google Analytics', () => {
       type: 'pokemonAdded',
       at: { source: 'box', slot: 3, box: 1 },
       source,
-      pokemon: { speciesId: 63, species: 'Abra', gender: 'Male', ball: 'Poké Ball', level: 7 },
+      pokemon: { speciesId: 63, speciesIndex: 63, species: 'Abra', gender: 'Male', ball: 'Poké Ball', level: 7 },
     })
 
     expect(gtag).toHaveBeenCalledWith('event', name, {
@@ -163,7 +163,7 @@ describe('Google Analytics', () => {
     engine.emit({
       type: 'pokemonSaved',
       at: { source: 'party', slot: 0, box: null },
-      pokemon: { speciesId: 25, species: 'Pikachu', gender: 'Female', ball: 'Great Ball', level: 42 },
+      pokemon: { speciesId: 25, speciesIndex: 25, species: 'Pikachu', gender: 'Female', ball: 'Great Ball', level: 42 },
     })
 
     expect(gtag).toHaveBeenCalledWith('event', 'pokemon_saved', {

@@ -53,6 +53,7 @@ public partial class Pokemon
         HeldItemIsUnknown = HeldItem.IsUnknown,
         IsUnknown = IsUnknown,
         IsEditable = IsEditable,
+        SpeciesIndex = SpeciesIndex,
     };
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices())

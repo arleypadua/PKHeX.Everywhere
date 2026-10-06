@@ -7,6 +7,7 @@ const pikachu = {
   id: 'pikachu:1',
   at: { source: 'party', slot: 0, box: null },
   speciesId: 25,
+  speciesIndex: 25,
   species: 'Pikachu',
   isUnknown: false,
   editable: true,

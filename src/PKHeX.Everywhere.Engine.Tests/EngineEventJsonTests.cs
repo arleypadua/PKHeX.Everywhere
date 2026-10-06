@@ -80,7 +80,7 @@ public class EngineEventJsonTests
                 generationId = (int)game.Generation,
                 trainerGender = game.Trainer.Gender.Name,
                 boxCount = game.Trainer.PokemonBox.All.Count,
-                party = game.Trainer.Party.Pokemons.Select(p => new { speciesId = p.Species.Id, species = p.Species.Name, level = p.Level }),
+                party = game.Trainer.Party.Pokemons.Select(p => new { speciesId = p.Species.Id, speciesIndex = p.SpeciesIndex, species = p.Species.Name, level = p.Level }),
                 formatId = (string?)null,
             },
         };
@@ -107,6 +107,7 @@ public class EngineEventJsonTests
             pokemon = new
             {
                 speciesId = pokemon.Species.Id,
+                speciesIndex = pokemon.SpeciesIndex,
                 species = pokemon.Species.Name,
                 gender = pokemon.Gender.Name,
                 ball = pokemon.Ball.Name,
@@ -135,6 +136,7 @@ public class EngineEventJsonTests
             pokemon = new
             {
                 speciesId = pokemon.Species.Id,
+                speciesIndex = pokemon.SpeciesIndex,
                 species = pokemon.Species.Name,
                 gender = pokemon.Gender.Name,
                 ball = pokemon.Ball.Name,
