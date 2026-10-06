@@ -109,6 +109,20 @@ public class PokemonDescriptionPatchTests
     }
 
     [Fact]
+    public void ANatureFromThePidKeepsTheGenderOfAPokemonWithNoOriginGame()
+    {
+        var pokemon = SaveFilePath.Load(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Pkm.PersonalInfo.IsDualGender);
+        pokemon.Pkm.Version = 0;
+        var gender = pokemon.Gender;
+        var nature = pokemon.Pkm.Nature == Nature.Adamant ? Nature.Bold : Nature.Adamant;
+
+        pokemon.Update(new PokemonPatch(Nature: (int)nature));
+
+        pokemon.Details().Should().BeEquivalentTo(new { Nature = (int)nature, Gender = gender });
+        EntityGender.GetFromPIDAndRatio(pokemon.Pkm.PID, pokemon.Pkm.PersonalInfo.Gender).Should().Be(gender.ToByte());
+    }
+
+    [Fact]
     public void ChangingTheSpeciesRenamesAPokemonWithoutANickname()
     {
         var pokemon = Game.LoadFrom(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => !p.NicknameSet);

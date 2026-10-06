@@ -18,9 +18,9 @@ internal static class PkmEdits
         if (!PidHoldsGender(pkm)) return random.Rand32();
 
         var ratio = pkm.PersonalInfo.Gender;
-        var gen34 = pkm.Version.IsGen3() || pkm.Version.IsGen4();
+        var gen34 = pkm.Format is 3 or 4 || pkm.Version.IsGen3() || pkm.Version.IsGen4();
         var abilityBit = gen34 ? 0x0000_0001u : 0x0001_0000u;
-        var unown = pkm.Version.IsGen3() && pkm.Species == (int)Species.Unown;
+        var unown = (pkm.Format == 3 || pkm.Version.IsGen3()) && pkm.Species == (int)Species.Unown;
         while (true)
         {
             var pid = random.Rand32();
@@ -40,18 +40,18 @@ internal static class PkmEdits
         }
 
         if (pkm.IsShiny == shiny) return;
-        do pkm.PID = pkm.RandomPid(Util.Rand);
-        while (pkm.IsShiny != shiny);
+        pkm.RerollPid(pkm.Nature, shiny);
         if (pkm.Format >= 6) pkm.EncryptionConstant = pkm.PID;
     }
 
     // PKHeX's PKM.SetPIDNature makes a shiny Pokémon non-shiny.
-    public static void SetPidNature(this PKM pkm, Nature nature)
+    public static void SetPidNature(this PKM pkm, Nature nature) => pkm.RerollPid(nature, pkm.IsShiny);
+
+    private static void RerollPid(this PKM pkm, Nature nature, bool shiny)
     {
-        var shiny = pkm.IsShiny;
         do pkm.PID = pkm.RandomPid(Util.Rand, nature, shiny);
         while (pkm.IsShiny != shiny);
     }
 
-    private static bool PidHoldsGender(PKM pkm) => pkm.Version is not 0 and < GameVersion.X;
+    private static bool PidHoldsGender(PKM pkm) => pkm.Format is 3 or 4 || pkm.Version is not 0 and < GameVersion.X;
 }
