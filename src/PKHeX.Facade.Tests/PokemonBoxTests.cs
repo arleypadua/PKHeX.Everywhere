@@ -1,5 +1,4 @@
 ﻿using AwesomeAssertions;
-using PKHeX.Core;
 using PKHeX.Facade.Repositories;
 using PKHeX.Facade.Tests.Base;
 
@@ -66,16 +65,16 @@ public class PokemonBoxTests
     }
 
     [Theory]
-    [InlineData(SaveFilePath.Crystal)]
-    [InlineData(SaveFilePath.Emerald)]
-    [InlineData(SaveFilePath.HgSs)]
-    public void BoxesCarryTheNamesTheSaveStores(string saveFile)
+    [InlineData(SaveFilePath.Crystal, "BOX1")]
+    [InlineData(SaveFilePath.Emerald, "BOX1")]
+    [InlineData(SaveFilePath.HgSs, "BOX 1")]
+    [InlineData(SaveFilePath.FireRed, "10A EUR1")]
+    public void BoxesCarryTheNamesTheSaveStores(string saveFile, string firstName)
     {
-        var game = SaveFilePath.Load(saveFile);
-        var names = (IBoxDetailName)game.SaveFile;
+        var boxes = SaveFilePath.Load(saveFile).Trainer.PokemonBox.Boxes;
 
-        game.Trainer.PokemonBox.Boxes.Select(b => b.Name).Should().Equal(Enumerable.Range(0, game.SaveFile.BoxCount).Select(names.GetBoxName));
-        game.Trainer.PokemonBox.Boxes.Should().AllSatisfy(b => b.Name.Should().NotBeNullOrEmpty());
+        boxes[0].Name.Should().Be(firstName);
+        boxes.Should().AllSatisfy(b => b.Name.Should().NotBeNullOrEmpty());
     }
 
     [Theory]

@@ -42,7 +42,7 @@ public class BoxHandlerTests
 
     [Theory]
     [SupportedSaveFiles]
-    public void EveryBoxHandleGetReturnsIsInABoxListReports(string saveFile)
+    public void EveryBoxHandleFromGetIsInAListedBox(string saveFile)
     {
         var session = Loaded(saveFile);
         var slots = Value(Dispatch(session, "box.list", "[]"))!.AsArray()
