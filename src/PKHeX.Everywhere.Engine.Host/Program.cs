@@ -6,6 +6,7 @@ using PKHeX.Everywhere.Engine.PlugIns;
 using PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 using PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 using PKHeX.Everywhere.RomHacks.Expansion.Imperium;
+using PKHeX.Everywhere.RomHacks.Legacy;
 using PKHeX.Facade;
 
 [assembly: SupportedOSPlatform("browser")]
@@ -16,6 +17,7 @@ RuntimeCryptographyProvider.Md5 = new JsMd5Provider();
 SaveFormats.Register(new UnboundFormat());
 SaveFormats.Register(new RadicalRedFormat());
 SaveFormats.Register(new ImperiumFormat());
+SaveFormats.Register(new EmeraldLegacyFormat());
 
 _ = new PlugInHost(Session.Current);
 
