@@ -39,6 +39,25 @@ public class CommitTests
     }
 
     [Theory]
+    [SupportedSaveFiles(Except = [SaveFilePath.LetsGoEevee])] // its boxes hold only the party
+    [InlineData(SaveFilePath.Yellow)]
+    public void Export_AfterEditingOneBoxPokemonInPlace_LeavesEveryOtherSlotAsLoaded(string saveFile)
+    {
+        var original = SaveFilePath.Load(saveFile).SaveFile;
+        var game = SaveFilePath.Load(saveFile);
+        var (index, target) = game.Trainer.PokemonBox.Boxed().First(p => p.Pokemon.IsEditable);
+
+        target.ChangeNickname(EditedNickname);
+
+        game.SaveAndReload(reloaded =>
+        {
+            reloaded.SaveFile.GetBoxSlotAtIndex(index).Nickname.Should().Be(EditedNickname);
+            BoxSlots(reloaded.SaveFile).Where((_, i) => i != index).Should().Equal(BoxSlots(original).Where((_, i) => i != index));
+            PartySlots(reloaded.SaveFile).Should().Equal(PartySlots(original));
+        });
+    }
+
+    [Theory]
     [InlineData(SaveFilePath.LetsGoPikachu)]
     [InlineData(SaveFilePath.LetsGoEevee)]
     public void AddingFromFile_AdaptsThePokemonToTheSave(string saveFile)
@@ -62,6 +81,10 @@ public class CommitTests
         .Where(pkm => pkm.Species != 0)
         .Select(pkm => new Slot(pkm.Nickname, Hex(pkm), new LegalityAnalysis(pkm).Valid))
         .ToList();
+
+    private static List<string> BoxSlots(SaveFile save) => Enumerable.Range(0, save.SlotCount).Select(i => Hex(save.GetBoxSlotAtIndex(i))).ToList();
+
+    private static List<string> PartySlots(SaveFile save) => save.PartyData.Select(Hex).ToList();
 
     private static string Hex(PKM pkm) => Convert.ToHexString(pkm.Data);
 }

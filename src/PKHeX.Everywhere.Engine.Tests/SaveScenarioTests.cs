@@ -188,10 +188,6 @@ public class SaveScenarioTests
     // PKHeX rewrites the checksums and backups of some saves on any write, so for those the bytes to keep are the ones its writer gives.
     [Theory]
     [EverySave]
-    [KnownGap(SaveFilePath.Yellow, ExportRewritesUneditedPokemon)]
-    [KnownGap(SaveFilePath.FireRed, ExportRewritesUneditedPokemon)]
-    [KnownGap(SaveFilePath.LetsGoPikachu, ExportRewritesUneditedPokemon)]
-    [KnownGap(SaveFilePath.LetsGoEevee, ExportRewritesUneditedPokemon)]
     public void ExportingWithoutEditsReturnsTheSameBytes(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
         var save = SaveFilePath.Load(saveFile).SaveFile;
@@ -203,8 +199,6 @@ public class SaveScenarioTests
     });
 
     private static readonly string[] RewrittenByPKHeX = [SaveFilePath.Yellow, SaveFilePath.Crystal, SaveFilePath.FireRed, SaveFilePath.HgSs];
-
-    private const string ExportRewritesUneditedPokemon = "Export rewrites Pokémon nobody edited.";
 
     private static void PassesUnlessKnownGap(string? knownGap, Action scenario)
     {

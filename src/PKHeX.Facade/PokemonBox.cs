@@ -19,6 +19,7 @@ public class PokemonBox : IMutablePokemonCollection
     private readonly Game _game;
     private readonly PokemonParty _party;
     private IList<Pokemon> _pokemonList = default!;
+    private LoadedSlots _loaded = default!;
 
     public IDictionary<Species, List<Pokemon>> BySpecies { get; private set; } = default!;
     public IList<Pokemon> All => _pokemonList;
@@ -38,11 +39,14 @@ public class PokemonBox : IMutablePokemonCollection
     public void Commit()
     {
         for (var index = 0; index < _pokemonList.Count; index++)
-            if (!_game.SaveFile.IsBoxSlotOverwriteProtected(index))
+            if (_loaded.HasChanged(index, _pokemonList[index].Pkm) && !_game.SaveFile.IsBoxSlotOverwriteProtected(index))
                 _game.SaveFile.SetBoxSlotAtIndex(_pokemonList[index].Pkm, index, EntityImportSettings.None);
 
         foreach (var (index, pkm) in _party.BoxedMembers())
-            _game.SaveFile.SetBoxSlotAtIndex(pkm, index, EntityImportSettings.None);
+            if (_loaded.HasChanged(index, pkm))
+                _game.SaveFile.SetBoxSlotAtIndex(pkm, index, EntityImportSettings.None);
+
+        _loaded = new LoadedSlots(_pokemonList.Select(p => p.Pkm));
     }
 
     public bool AddOnEmptySlot(Pokemon pokemon) => AddOnEmptySlot(pokemon, out _);
@@ -71,6 +75,7 @@ public class PokemonBox : IMutablePokemonCollection
         _pokemonList = _game.SaveFile.BoxData
             .Select(p => new Pokemon(p, _game))
             .ToList();
+        _loaded = new LoadedSlots(_pokemonList.Select(p => p.Pkm));
 
         SharePartyMembers();
     }
