@@ -443,3 +443,8 @@ PKHeX.Facade.Pokemons.UnreadableReason.CombinedVersion = 1 -> PKHeX.Facade.Pokem
 PKHeX.Facade.Pokemons.UnreadableReason.UnsupportedVersion = 3 -> PKHeX.Facade.Pokemons.UnreadableReason
 PKHeX.Facade.Pokemons.UnreadableReason.WrongLength = 2 -> PKHeX.Facade.Pokemons.UnreadableReason
 static PKHeX.Facade.Pokemons.Pokemon.Read(byte[]! bytes, int version) -> PKHeX.Facade.Pokemons.PokemonDetails!
+PKHeX.Facade.Abstractions.ISpeciesIndex
+PKHeX.Facade.Abstractions.ISpeciesIndex.SpeciesIndex.get -> ushort
+PKHeX.Facade.Pokemons.Pokemon.SpeciesIndex.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.SpeciesIndex.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.SpeciesIndex.init -> void

@@ -419,6 +419,7 @@ public class UnboundSaveTests
         var unknown = Listed(session, UnknownSpecies);
         unknown["species"]!.GetValue<string>().Should().Be($"Unknown (#{EggSlot})");
         unknown["speciesId"].Should().BeNull();
+        unknown["speciesIndex"]!.GetValue<int>().Should().Be(EggSlot);
         unknown["isUnknown"]!.GetValue<bool>().Should().BeTrue();
         unknown["editable"]!.GetValue<bool>().Should().BeFalse();
 
@@ -436,6 +437,7 @@ public class UnboundSaveTests
 
         var details = Details(session, UnknownSpecies);
         details["species"].Should().BeNull();
+        details["speciesIndex"]!.GetValue<int>().Should().Be(EggSlot);
         details["isUnknown"]!.GetValue<bool>().Should().BeTrue();
         details["editable"]!.GetValue<bool>().Should().BeFalse();
         Details(session, PokemonHandle.Party(0))["editable"]!.GetValue<bool>().Should().BeTrue();
@@ -455,6 +457,7 @@ public class UnboundSaveTests
         var shadowWarrior = Listed(LoadedUnbound(WithShadowWarrior()), UnknownSpecies);
 
         shadowWarrior["speciesId"]!.GetValue<int>().Should().Be(ShadowWarriorId);
+        shadowWarrior["speciesIndex"]!.GetValue<int>().Should().Be(ShadowWarrior);
         shadowWarrior["species"]!.GetValue<string>().Should().Be("Shadow Warrior");
         shadowWarrior["isUnknown"]!.GetValue<bool>().Should().BeFalse();
         shadowWarrior["editable"]!.GetValue<bool>().Should().BeTrue();

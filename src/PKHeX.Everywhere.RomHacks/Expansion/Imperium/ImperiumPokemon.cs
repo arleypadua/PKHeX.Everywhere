@@ -1,5 +1,6 @@
 using PKHeX.Core;
 using PKHeX.Everywhere.RomHacks.Cfru;
+using PKHeX.Facade.Abstractions;
 using static System.Buffers.Binary.BinaryPrimitives;
 
 namespace PKHeX.Everywhere.RomHacks.Expansion.Imperium;
@@ -9,7 +10,7 @@ namespace PKHeX.Everywhere.RomHacks.Expansion.Imperium;
 /// It reports the Gen 9 context, so species, moves and forms resolve through PKHeX's national data.
 /// Every write keeps the bits around the field it changes, including the two flags only Imperium has.
 /// </summary>
-public sealed class ImperiumPokemon : PKM
+public sealed class ImperiumPokemon : PKM, ISpeciesIndex
 {
     public const int SizeParty = 100;
     public const int SizeStored = 80;

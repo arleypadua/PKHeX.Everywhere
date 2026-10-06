@@ -127,6 +127,7 @@ describe('entity hooks', () => {
   it('usePokemonDetails refreshes after update changes the Pokémon', async () => {
     let details: EditablePokemon = {
       species: 25,
+      speciesIndex: 25,
       isUnknown: false,
       editable: true,
       form: 0,
