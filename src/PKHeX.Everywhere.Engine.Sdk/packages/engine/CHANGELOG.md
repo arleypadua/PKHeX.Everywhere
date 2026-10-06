@@ -1,5 +1,19 @@
 # @pkhex-everywhere/engine
 
+## 0.8.0
+
+### Minor Changes
+
+- e6f46d6: `TrainerCard.gender` is now `null` for Red, Green, Blue, Yellow, Gold, Silver and Pokémon Stadium, which have no trainer gender, and `trainer.setGender` fails with `not-in-game` for them. `game.loadBlank` no longer throws for Gold, Silver and Crystal.
+
+### Patch Changes
+
+- c5cd974: New `box.list()` returns every box in the save, empty ones included, with its number, name and slot count. `name` is null when the save doesn't store box names, such as Generation 1 saves, Let's Go and ROM hacks.
+- d03bb1c: `game.export()` now writes back only the Pokémon that changed. Exporting a Yellow, FireRed or Let's Go save with no edits used to rewrite stored stats and checksums of Pokémon nobody touched.
+- 5bfab1b: Gen 3 and 4 saves no longer lock `nature`. `pokemon.update({ nature })` gives the Pokémon a new PID with that nature, keeping its gender, ability and shininess, and a Gen 3 Unown's letter.
+- d8b8e64: Emerald Imperium no longer locks `ability`. A Pokémon's ability choices are its species' abilities, the only ones the save can store.
+- 74c1996: Radical Red saves read Hakamo-o, which showed as Dhelmise. Red- and Blue-Striped Basculin no longer read as each other, and Ice and Shadow Rider Calyrex and Terastal Terapagos read as their form instead of the base form.
+
 ## 0.7.2
 
 ### Patch Changes
