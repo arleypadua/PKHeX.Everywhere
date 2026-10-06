@@ -20,6 +20,7 @@ public sealed class Session
     public string? FileName { get; private set; }
     internal IReadOnlyList<Encounter>? Encounters { get; set; }
     internal Draft? Draft { get; set; }
+    internal TradePartner? Partner { get; set; }
 
     public event Action<string[]>? Changed;
     public event Action? GameChanged;
@@ -155,6 +156,8 @@ public sealed class Session
         PokemonSource.Box => Topics.Box,
         _ => Topics.All,
     });
+
+    internal sealed record TradePartner(Game Save, string FileName);
 
     private sealed record CommandScope(List<string> Written, List<IEngineEvent> Raised);
 }

@@ -50,6 +50,10 @@ _Avoid_: pointer, reference
 The one unsaved Pokémon the Session holds while the editor changes it. It is addressed as a Handle with source `draft` and reaches the save only on commit. See [ADR 0005](docs/adr/0005-editing-goes-through-an-engine-held-draft-slot.md).
 _Avoid_: working copy, scratch Pokémon
 
+**Trade**:
+Moving Pokémon between the loaded save and a partner save the Engine holds next to it, the way the games move them. Its route is a link trade between saves of the same format, the Time Capsule (Gen 1 and 2), Pal Park (Gen 3 to 4) or Poké Transfer (Gen 4 to 5). A preview refuses what the games refuse, and a commit with any refused Pokémon writes nothing.
+_Avoid_: transfer, migration
+
 **Topic**:
 A hierarchical path, such as `party`, `box/3` or `inventory`, naming a part of the save that queries read and commands write. A Topic covers every path beneath it.
 _Avoid_: cache key, channel

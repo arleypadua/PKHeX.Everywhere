@@ -8,7 +8,7 @@ namespace PKHeX.Facade;
 public class PokemonParty(Game game) : IMutablePokemonCollection
 {
     private const int MaxPartySize = 6;
-    private readonly IList<PKM> _partyData = game.SaveFile.PartyData;
+    private IList<PKM> _partyData = game.SaveFile.PartyData;
     private SlotSnapshot _snapshot = new(game.SaveFile.PartyData);
     public IList<Pokemon> Pokemons => _partyData
         .Select(pkm => new Pokemon(pkm, game))
@@ -56,6 +56,14 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
     }
 
     internal void Replace(int slot, PKM pkm) => _partyData[slot] = pkm;
+
+    internal void Remove(IEnumerable<int> slots)
+    {
+        foreach (var slot in slots) _partyData[slot] = game.SaveFile.BlankPKM;
+        Commit();
+        _partyData = game.SaveFile.PartyData;
+        _snapshot = new SlotSnapshot(_partyData);
+    }
 
     public void AddOrUpdate(UniqueId id, Pokemon pokemon)
     {

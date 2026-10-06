@@ -388,6 +388,21 @@ export interface MoveSlot {
   isUnknown: boolean
 }
 
+/** A Pokémon in the offer that can be traded, and what moving it changes. */
+export interface OfferedPokemon {
+  direction: TradeDirection
+  /** The Pokémon as it is now. Its handle points to the save it leaves. */
+  from: PokemonSummary
+  /** The Pokémon as it will be in the other save. Its handle is the box slot it will land in. */
+  arrives: PokemonSummary
+  /** The fields the move changes, in the order of `TradeField`. A move can show up once per move removed. */
+  changes: TradeChange[]
+  /** What the move changes in the destination save. */
+  saveChanges: TradeSaveChange[]
+  /** PKHeX's legality check of the Pokémon as it arrives, judged in the destination game. */
+  legality: Legality
+}
+
 /** An item the trainer holds in a pouch. */
 export interface OwnedItem {
   /** The item's id in the save's own item list. From Generation 4 on, and in ROM hack saves, these are PKHeX.Core item ids; other Generation 1 to 3 saves use their game's own numbering. An unknown item gets an id of its own, which only means something to this save. */
@@ -742,6 +757,14 @@ export interface PublishedVersion {
   sdk: number
 }
 
+/** A Pokémon in the offer that can't be traded. */
+export interface RefusedPokemon {
+  direction: TradeDirection
+  /** Where it is, in the save it would leave. */
+  at: PokemonHandle
+  reason: TradeRefusal
+}
+
 /** A feature that relies on PKHeX knowing the save's game: the legality check in `pokemon.details()`, AutoLegality, the `encounters` calls, Showdown export, the `events` calls and plug-ins. Without `plugIns`, hooks don't run, `plugins.actions()` and `plugins.pages()` are empty, and `plugins.run()` and `plugins.pageModule()` fail with `not-supported`. */
 export type SaveCapability = 'legality' | 'autoLegality' | 'encounters' | 'showdown' | 'events' | 'plugIns'
 
@@ -847,6 +870,98 @@ export interface TicketsAndIslands {
   oldSeaMapNeedsConfirmation: boolean
   /** Flags for ferry access and the event islands. Empty outside Emerald. */
   islands: EventFlag[]
+}
+
+/** A field a trade changes. */
+export interface TradeChange {
+  field: TradeField
+  /** The value as the source game names it. Null when there was none, such as a move the Pokémon learns. */
+  before: string | null
+  /** The value as the destination game names it. Null when there is none, such as a removed move or item. */
+  after: string | null
+  reason: TradeChangeReason
+}
+
+/** Why a trade changes a field. */
+export type TradeChangeReason = 'hmRemoved' | 'itemRemapped' | 'itemRemoved' | 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer'
+
+/** Which way a Pokémon moves: `send` from the loaded save to the partner, `receive` from the partner to the loaded save. */
+export type TradeDirection = 'send' | 'receive'
+
+/** A field of a Pokémon that a trade can change. */
+export type TradeField = 'species' | 'form' | 'heldItem' | 'moves' | 'metLocation' | 'metLevel' | 'ball' | 'friendship' | 'nickname' | 'ability'
+
+/** The Pokémon to move. Each handle points to a party or box slot: in the loaded save for `send`, and in the partner for `receive`. */
+export interface TradeOffer {
+  /** Pokémon to move from the loaded save to the partner. */
+  send: PokemonHandle[]
+  /** Pokémon to move from the partner to the loaded save. */
+  receive: PokemonHandle[]
+}
+
+/** What `trade.commit` would do with an offer, returned by `trade.preview`. */
+export interface TradePreview {
+  /** The Pokémon that can be traded, sent ones first. */
+  offers: OfferedPokemon[]
+  /** The Pokémon that can't. `trade.commit` fails while any are left. */
+  refused: RefusedPokemon[]
+}
+
+/** Why a Pokémon can't be traded. */
+export type TradeRefusal = 'noRoute' | 'slotLocked' | 'eggAcrossGenerations' | 'languageMismatch' | 'speciesNotInGame' | 'lastPartyMember' | 'noRoom'
+
+/** Both saves after `trade.commit`, ready to write back. */
+export interface TradeResult {
+  /** The loaded save. */
+  save: ExportedSave
+  /** The partner save. */
+  partner: ExportedSave
+  /** Where each Pokémon landed, sent ones first. */
+  arrived: TradedPokemon[]
+}
+
+/** How many empty box slots each save has for Pokémon to arrive in. */
+export interface TradeRoom {
+  /** Empty box slots in the loaded save. */
+  mine: number
+  /** Empty box slots in the partner save. */
+  partner: number
+}
+
+/** How a Pokémon gets from one save to the other, as the games move it. */
+export type TradeRoute = 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer'
+
+/** The routes of an open trade. A null route means the games can't move Pokémon that way, and every Pokémon offered that way is refused with `noRoute`. Saves loaded with a ROM hack format and Let's Go saves have none. */
+export interface TradeRoutes {
+  /** From the loaded save to the partner. */
+  send: TradeRoute | null
+  /** From the partner to the loaded save. */
+  receive: TradeRoute | null
+}
+
+/** A change a trade makes to the destination save. */
+export interface TradeSaveChange {
+  kind: TradeSaveChangeKind
+  /** The species the change is about. */
+  species: string
+}
+
+/** What a trade changes in the destination save besides the Pokémon itself. `pokedexCaught`: the Pokédex registers the species as caught. */
+export type TradeSaveChangeKind = 'pokedexCaught'
+
+/** The trade `trade.open` opened: the partner save, the routes between the saves and the room in each. */
+export interface TradeSummary {
+  partner: SaveSummary
+  routes: TradeRoutes
+  room: TradeRoom
+}
+
+/** A Pokémon a trade moved. */
+export interface TradedPokemon {
+  direction: TradeDirection
+  id: PokemonId
+  /** The box slot it landed in: in the partner for `send`, in the loaded save for `receive`. */
+  at: PokemonHandle
 }
 
 /** The trainer's identity and currencies, returned by `trainer.get`. */

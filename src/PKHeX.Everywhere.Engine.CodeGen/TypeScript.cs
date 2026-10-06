@@ -29,18 +29,28 @@ public static class TypeScript
     }
 
     // A returned record's bytes become a Uint8Array only when the client can convert them, so the record must never reach JS any other way.
+    // That covers the records it holds bytes through, such as each save a trade returns.
     private static HashSet<Type> BinaryOutputs(Contract contract)
     {
         var inputs = contract.Calls.SelectMany(c => c.Parameters).Select(p => Nullable.GetUnderlyingType(p.Type) ?? p.Type).ToHashSet();
         return contract.Calls
             .Select(c => Nullable.GetUnderlyingType(c.ReturnType) ?? c.ReturnType)
-            .Where(t => Contract.IsObject(t) && BytesProperties(t).Any() && !inputs.Contains(t))
+            .Where(t => Contract.IsObject(t) && BytesPaths(t).Any() && !inputs.Contains(t))
+            .SelectMany(t => BytesHolders(t).Prepend(t))
             .ToHashSet();
     }
 
-    private static IEnumerable<string> BytesProperties(Type type) => TypeCollector.Properties(type)
-        .Where(p => p.PropertyType == typeof(byte[]))
-        .Select(p => JsonNamingPolicy.CamelCase.ConvertName(p.Name));
+    private static IEnumerable<string> BytesPaths(Type type) => TypeCollector.Properties(type).SelectMany(p =>
+    {
+        var name = JsonNamingPolicy.CamelCase.ConvertName(p.Name);
+        if (p.PropertyType == typeof(byte[])) return [name];
+        return Contract.IsObject(p.PropertyType) ? BytesPaths(p.PropertyType).Select(path => $"{name}.{path}") : [];
+    });
+
+    private static IEnumerable<Type> BytesHolders(Type type) => TypeCollector.Properties(type)
+        .Select(p => p.PropertyType)
+        .Where(t => Contract.IsObject(t) && BytesPaths(t).Any())
+        .SelectMany(t => BytesHolders(t).Prepend(t));
 
     private static string? Requirements(Call call, bool react)
     {
@@ -248,7 +258,7 @@ public static class TypeScript
     {
         var arguments = call.Parameters.Select((p, i) => Argument(call, i, types)).ToList();
         var invoke = $"invoke({Quote(call.Name)}, [{string.Join(", ", arguments)}])";
-        var bytes = types.IsBinaryOutput(call.ReturnType) ? BytesProperties(call.ReturnType).ToList() : [];
+        var bytes = types.IsBinaryOutput(call.ReturnType) ? BytesPaths(call.ReturnType).ToList() : [];
         if (bytes.Count > 0)
         {
             types.Helpers.Add("withBytes");
@@ -408,7 +418,7 @@ public static class TypeScript
             {
                 var rendered = binaryOutputs.Contains(type) && property.PropertyType == typeof(byte[])
                     ? "Uint8Array<ArrayBuffer>"
-                    : Render(property.PropertyType, _nullability.Create(property));
+                    : Render(property.PropertyType, _nullability.Create(property), binaryOutputs.Contains(type) ? Direction.Output : Direction.Nested);
                 var mark = optional.Contains(property.Name) && rendered.EndsWith(" | null") ? "?" : "";
                 sb.Append(docs.Comment(property, "  "));
                 sb.AppendLine($"  {JsonNamingPolicy.CamelCase.ConvertName(property.Name)}{mark}: {rendered}");

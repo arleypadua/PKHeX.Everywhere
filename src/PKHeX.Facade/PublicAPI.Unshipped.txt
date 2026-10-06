@@ -197,3 +197,228 @@ virtual PKHeX.Facade.Box.EqualityContract.get -> System.Type!
 virtual PKHeX.Facade.Box.Equals(PKHeX.Facade.Box? other) -> bool
 virtual PKHeX.Facade.Box.PrintMembers(System.Text.StringBuilder! builder) -> bool
 PKHeX.Facade.Trainer.HasGender.get -> bool
+PKHeX.Facade.Trades.RefusedPokemon
+PKHeX.Facade.Trades.RefusedPokemon.Deconstruct(out PKHeX.Facade.Trades.TradeDirection Direction, out PKHeX.Facade.Trades.TradeSlot! From, out PKHeX.Facade.Trades.TradeRefusal Reason) -> void
+PKHeX.Facade.Trades.RefusedPokemon.Direction.get -> PKHeX.Facade.Trades.TradeDirection
+PKHeX.Facade.Trades.RefusedPokemon.Direction.init -> void
+PKHeX.Facade.Trades.RefusedPokemon.From.get -> PKHeX.Facade.Trades.TradeSlot!
+PKHeX.Facade.Trades.RefusedPokemon.From.init -> void
+PKHeX.Facade.Trades.RefusedPokemon.Reason.get -> PKHeX.Facade.Trades.TradeRefusal
+PKHeX.Facade.Trades.RefusedPokemon.Reason.init -> void
+PKHeX.Facade.Trades.RefusedPokemon.RefusedPokemon(PKHeX.Facade.Trades.RefusedPokemon! original) -> void
+PKHeX.Facade.Trades.RefusedPokemon.RefusedPokemon(PKHeX.Facade.Trades.TradeDirection Direction, PKHeX.Facade.Trades.TradeSlot! From, PKHeX.Facade.Trades.TradeRefusal Reason) -> void
+PKHeX.Facade.Trades.Trade
+PKHeX.Facade.Trades.Trade.Commit(PKHeX.Facade.Trades.TradeOffer! offer) -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeArrival!>!
+PKHeX.Facade.Trades.Trade.Mine.get -> PKHeX.Facade.Game!
+PKHeX.Facade.Trades.Trade.Partner.get -> PKHeX.Facade.Game!
+PKHeX.Facade.Trades.Trade.Preview(PKHeX.Facade.Trades.TradeOffer! offer) -> PKHeX.Facade.Trades.TradePreview!
+PKHeX.Facade.Trades.Trade.ReceiveRoute.get -> PKHeX.Facade.Trades.TradeRoute?
+PKHeX.Facade.Trades.Trade.Room.get -> PKHeX.Facade.Trades.TradeRoom!
+PKHeX.Facade.Trades.Trade.SendRoute.get -> PKHeX.Facade.Trades.TradeRoute?
+PKHeX.Facade.Trades.Trade.Trade(PKHeX.Facade.Game! mine, PKHeX.Facade.Game! partner) -> void
+PKHeX.Facade.Trades.TradeArrival
+PKHeX.Facade.Trades.TradeArrival.BoxIndex.get -> int
+PKHeX.Facade.Trades.TradeArrival.BoxIndex.init -> void
+PKHeX.Facade.Trades.TradeArrival.Deconstruct(out PKHeX.Facade.Trades.TradeDirection Direction, out int BoxIndex, out PKHeX.Facade.Pokemons.Pokemon! Pokemon) -> void
+PKHeX.Facade.Trades.TradeArrival.Direction.get -> PKHeX.Facade.Trades.TradeDirection
+PKHeX.Facade.Trades.TradeArrival.Direction.init -> void
+PKHeX.Facade.Trades.TradeArrival.Pokemon.get -> PKHeX.Facade.Pokemons.Pokemon!
+PKHeX.Facade.Trades.TradeArrival.Pokemon.init -> void
+PKHeX.Facade.Trades.TradeArrival.TradeArrival(PKHeX.Facade.Trades.TradeArrival! original) -> void
+PKHeX.Facade.Trades.TradeArrival.TradeArrival(PKHeX.Facade.Trades.TradeDirection Direction, int BoxIndex, PKHeX.Facade.Pokemons.Pokemon! Pokemon) -> void
+PKHeX.Facade.Trades.TradeChange
+PKHeX.Facade.Trades.TradeChange.After.get -> string?
+PKHeX.Facade.Trades.TradeChange.After.init -> void
+PKHeX.Facade.Trades.TradeChange.Before.get -> string?
+PKHeX.Facade.Trades.TradeChange.Before.init -> void
+PKHeX.Facade.Trades.TradeChange.Deconstruct(out PKHeX.Facade.Trades.TradeField Field, out string? Before, out string? After, out PKHeX.Facade.Trades.TradeChangeReason Reason) -> void
+PKHeX.Facade.Trades.TradeChange.Field.get -> PKHeX.Facade.Trades.TradeField
+PKHeX.Facade.Trades.TradeChange.Field.init -> void
+PKHeX.Facade.Trades.TradeChange.Reason.get -> PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeChange.Reason.init -> void
+PKHeX.Facade.Trades.TradeChange.TradeChange(PKHeX.Facade.Trades.TradeChange! original) -> void
+PKHeX.Facade.Trades.TradeChange.TradeChange(PKHeX.Facade.Trades.TradeField Field, string? Before, string? After, PKHeX.Facade.Trades.TradeChangeReason Reason) -> void
+PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeChangeReason.HmRemoved = 0 -> PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeChangeReason.ItemRemapped = 1 -> PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeChangeReason.ItemRemoved = 2 -> PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeChangeReason.Link = 3 -> PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeChangeReason.PalPark = 5 -> PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeChangeReason.PokeTransfer = 6 -> PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeChangeReason.TimeCapsule = 4 -> PKHeX.Facade.Trades.TradeChangeReason
+PKHeX.Facade.Trades.TradeDirection
+PKHeX.Facade.Trades.TradeDirection.Receive = 1 -> PKHeX.Facade.Trades.TradeDirection
+PKHeX.Facade.Trades.TradeDirection.Send = 0 -> PKHeX.Facade.Trades.TradeDirection
+PKHeX.Facade.Trades.TradeField
+PKHeX.Facade.Trades.TradeField.Ability = 9 -> PKHeX.Facade.Trades.TradeField
+PKHeX.Facade.Trades.TradeField.Ball = 6 -> PKHeX.Facade.Trades.TradeField
+PKHeX.Facade.Trades.TradeField.Form = 1 -> PKHeX.Facade.Trades.TradeField
+PKHeX.Facade.Trades.TradeField.Friendship = 7 -> PKHeX.Facade.Trades.TradeField
+PKHeX.Facade.Trades.TradeField.HeldItem = 2 -> PKHeX.Facade.Trades.TradeField
+PKHeX.Facade.Trades.TradeField.MetLevel = 5 -> PKHeX.Facade.Trades.TradeField
+PKHeX.Facade.Trades.TradeField.MetLocation = 4 -> PKHeX.Facade.Trades.TradeField
+PKHeX.Facade.Trades.TradeField.Moves = 3 -> PKHeX.Facade.Trades.TradeField
+PKHeX.Facade.Trades.TradeField.Nickname = 8 -> PKHeX.Facade.Trades.TradeField
+PKHeX.Facade.Trades.TradeField.Species = 0 -> PKHeX.Facade.Trades.TradeField
+PKHeX.Facade.Trades.TradeOffer
+PKHeX.Facade.Trades.TradeOffer.Deconstruct(out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSlot!>! Send, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSlot!>! Receive) -> void
+PKHeX.Facade.Trades.TradeOffer.Receive.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSlot!>!
+PKHeX.Facade.Trades.TradeOffer.Receive.init -> void
+PKHeX.Facade.Trades.TradeOffer.Send.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSlot!>!
+PKHeX.Facade.Trades.TradeOffer.Send.init -> void
+PKHeX.Facade.Trades.TradeOffer.TradeOffer(PKHeX.Facade.Trades.TradeOffer! original) -> void
+PKHeX.Facade.Trades.TradeOffer.TradeOffer(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSlot!>! Send, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSlot!>! Receive) -> void
+PKHeX.Facade.Trades.TradePreview
+PKHeX.Facade.Trades.TradePreview.Deconstruct(out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradedPokemon!>! Offers, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.RefusedPokemon!>! Refused) -> void
+PKHeX.Facade.Trades.TradePreview.Offers.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradedPokemon!>!
+PKHeX.Facade.Trades.TradePreview.Offers.init -> void
+PKHeX.Facade.Trades.TradePreview.Refused.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.RefusedPokemon!>!
+PKHeX.Facade.Trades.TradePreview.Refused.init -> void
+PKHeX.Facade.Trades.TradePreview.TradePreview(PKHeX.Facade.Trades.TradePreview! original) -> void
+PKHeX.Facade.Trades.TradePreview.TradePreview(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradedPokemon!>! Offers, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.RefusedPokemon!>! Refused) -> void
+PKHeX.Facade.Trades.TradeRefusal
+PKHeX.Facade.Trades.TradeRefusal.EggAcrossGenerations = 2 -> PKHeX.Facade.Trades.TradeRefusal
+PKHeX.Facade.Trades.TradeRefusal.LanguageMismatch = 3 -> PKHeX.Facade.Trades.TradeRefusal
+PKHeX.Facade.Trades.TradeRefusal.LastPartyMember = 5 -> PKHeX.Facade.Trades.TradeRefusal
+PKHeX.Facade.Trades.TradeRefusal.NoRoom = 6 -> PKHeX.Facade.Trades.TradeRefusal
+PKHeX.Facade.Trades.TradeRefusal.NoRoute = 0 -> PKHeX.Facade.Trades.TradeRefusal
+PKHeX.Facade.Trades.TradeRefusal.SlotLocked = 1 -> PKHeX.Facade.Trades.TradeRefusal
+PKHeX.Facade.Trades.TradeRefusal.SpeciesNotInGame = 4 -> PKHeX.Facade.Trades.TradeRefusal
+PKHeX.Facade.Trades.TradeRefusedException
+PKHeX.Facade.Trades.TradeRefusedException.Refused.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.RefusedPokemon!>!
+PKHeX.Facade.Trades.TradeRefusedException.TradeRefusedException(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.RefusedPokemon!>! refused) -> void
+PKHeX.Facade.Trades.TradeRoom
+PKHeX.Facade.Trades.TradeRoom.Deconstruct(out int Mine, out int Partner) -> void
+PKHeX.Facade.Trades.TradeRoom.Mine.get -> int
+PKHeX.Facade.Trades.TradeRoom.Mine.init -> void
+PKHeX.Facade.Trades.TradeRoom.Partner.get -> int
+PKHeX.Facade.Trades.TradeRoom.Partner.init -> void
+PKHeX.Facade.Trades.TradeRoom.TradeRoom(PKHeX.Facade.Trades.TradeRoom! original) -> void
+PKHeX.Facade.Trades.TradeRoom.TradeRoom(int Mine, int Partner) -> void
+PKHeX.Facade.Trades.TradeRoute
+PKHeX.Facade.Trades.TradeRoute.Link = 0 -> PKHeX.Facade.Trades.TradeRoute
+PKHeX.Facade.Trades.TradeRoute.PalPark = 2 -> PKHeX.Facade.Trades.TradeRoute
+PKHeX.Facade.Trades.TradeRoute.PokeTransfer = 3 -> PKHeX.Facade.Trades.TradeRoute
+PKHeX.Facade.Trades.TradeRoute.TimeCapsule = 1 -> PKHeX.Facade.Trades.TradeRoute
+PKHeX.Facade.Trades.TradeSaveChange
+PKHeX.Facade.Trades.TradeSaveChange.Deconstruct(out PKHeX.Facade.Trades.TradeSaveChangeKind Kind, out PKHeX.Facade.Repositories.SpeciesDefinition! Species) -> void
+PKHeX.Facade.Trades.TradeSaveChange.Kind.get -> PKHeX.Facade.Trades.TradeSaveChangeKind
+PKHeX.Facade.Trades.TradeSaveChange.Kind.init -> void
+PKHeX.Facade.Trades.TradeSaveChange.Species.get -> PKHeX.Facade.Repositories.SpeciesDefinition!
+PKHeX.Facade.Trades.TradeSaveChange.Species.init -> void
+PKHeX.Facade.Trades.TradeSaveChange.TradeSaveChange(PKHeX.Facade.Trades.TradeSaveChange! original) -> void
+PKHeX.Facade.Trades.TradeSaveChange.TradeSaveChange(PKHeX.Facade.Trades.TradeSaveChangeKind Kind, PKHeX.Facade.Repositories.SpeciesDefinition! Species) -> void
+PKHeX.Facade.Trades.TradeSaveChangeKind
+PKHeX.Facade.Trades.TradeSaveChangeKind.PokedexCaught = 0 -> PKHeX.Facade.Trades.TradeSaveChangeKind
+PKHeX.Facade.Trades.TradeSlot
+PKHeX.Facade.Trades.TradeSlot.Deconstruct(out PKHeX.Facade.Pokemons.PokemonSource Source, out int Index) -> void
+PKHeX.Facade.Trades.TradeSlot.Index.get -> int
+PKHeX.Facade.Trades.TradeSlot.Index.init -> void
+PKHeX.Facade.Trades.TradeSlot.Source.get -> PKHeX.Facade.Pokemons.PokemonSource
+PKHeX.Facade.Trades.TradeSlot.Source.init -> void
+PKHeX.Facade.Trades.TradeSlot.TradeSlot(PKHeX.Facade.Pokemons.PokemonSource Source, int Index) -> void
+PKHeX.Facade.Trades.TradeSlot.TradeSlot(PKHeX.Facade.Trades.TradeSlot! original) -> void
+PKHeX.Facade.Trades.TradedPokemon
+PKHeX.Facade.Trades.TradedPokemon.Arrives.get -> PKHeX.Facade.Pokemons.Pokemon!
+PKHeX.Facade.Trades.TradedPokemon.Arrives.init -> void
+PKHeX.Facade.Trades.TradedPokemon.ArrivesAt.get -> int
+PKHeX.Facade.Trades.TradedPokemon.ArrivesAt.init -> void
+PKHeX.Facade.Trades.TradedPokemon.Changes.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeChange!>!
+PKHeX.Facade.Trades.TradedPokemon.Changes.init -> void
+PKHeX.Facade.Trades.TradedPokemon.Deconstruct(out PKHeX.Facade.Trades.TradeDirection Direction, out PKHeX.Facade.Trades.TradeSlot! From, out PKHeX.Facade.Pokemons.Pokemon! Pokemon, out int ArrivesAt, out PKHeX.Facade.Pokemons.Pokemon! Arrives, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeChange!>! Changes, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSaveChange!>! SaveChanges, out PKHeX.Facade.Pokemons.PokemonLegality! Legality) -> void
+PKHeX.Facade.Trades.TradedPokemon.Direction.get -> PKHeX.Facade.Trades.TradeDirection
+PKHeX.Facade.Trades.TradedPokemon.Direction.init -> void
+PKHeX.Facade.Trades.TradedPokemon.From.get -> PKHeX.Facade.Trades.TradeSlot!
+PKHeX.Facade.Trades.TradedPokemon.From.init -> void
+PKHeX.Facade.Trades.TradedPokemon.Legality.get -> PKHeX.Facade.Pokemons.PokemonLegality!
+PKHeX.Facade.Trades.TradedPokemon.Legality.init -> void
+PKHeX.Facade.Trades.TradedPokemon.Pokemon.get -> PKHeX.Facade.Pokemons.Pokemon!
+PKHeX.Facade.Trades.TradedPokemon.Pokemon.init -> void
+PKHeX.Facade.Trades.TradedPokemon.SaveChanges.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSaveChange!>!
+PKHeX.Facade.Trades.TradedPokemon.SaveChanges.init -> void
+PKHeX.Facade.Trades.TradedPokemon.TradedPokemon(PKHeX.Facade.Trades.TradeDirection Direction, PKHeX.Facade.Trades.TradeSlot! From, PKHeX.Facade.Pokemons.Pokemon! Pokemon, int ArrivesAt, PKHeX.Facade.Pokemons.Pokemon! Arrives, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeChange!>! Changes, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSaveChange!>! SaveChanges, PKHeX.Facade.Pokemons.PokemonLegality! Legality) -> void
+PKHeX.Facade.Trades.TradedPokemon.TradedPokemon(PKHeX.Facade.Trades.TradedPokemon! original) -> void
+override PKHeX.Facade.Trades.RefusedPokemon.Equals(object? obj) -> bool
+override PKHeX.Facade.Trades.RefusedPokemon.GetHashCode() -> int
+override PKHeX.Facade.Trades.RefusedPokemon.ToString() -> string!
+override PKHeX.Facade.Trades.TradeArrival.Equals(object? obj) -> bool
+override PKHeX.Facade.Trades.TradeArrival.GetHashCode() -> int
+override PKHeX.Facade.Trades.TradeArrival.ToString() -> string!
+override PKHeX.Facade.Trades.TradeChange.Equals(object? obj) -> bool
+override PKHeX.Facade.Trades.TradeChange.GetHashCode() -> int
+override PKHeX.Facade.Trades.TradeChange.ToString() -> string!
+override PKHeX.Facade.Trades.TradeOffer.Equals(object? obj) -> bool
+override PKHeX.Facade.Trades.TradeOffer.GetHashCode() -> int
+override PKHeX.Facade.Trades.TradeOffer.ToString() -> string!
+override PKHeX.Facade.Trades.TradePreview.Equals(object? obj) -> bool
+override PKHeX.Facade.Trades.TradePreview.GetHashCode() -> int
+override PKHeX.Facade.Trades.TradePreview.ToString() -> string!
+override PKHeX.Facade.Trades.TradeRoom.Equals(object? obj) -> bool
+override PKHeX.Facade.Trades.TradeRoom.GetHashCode() -> int
+override PKHeX.Facade.Trades.TradeRoom.ToString() -> string!
+override PKHeX.Facade.Trades.TradeSaveChange.Equals(object? obj) -> bool
+override PKHeX.Facade.Trades.TradeSaveChange.GetHashCode() -> int
+override PKHeX.Facade.Trades.TradeSaveChange.ToString() -> string!
+override PKHeX.Facade.Trades.TradeSlot.Equals(object? obj) -> bool
+override PKHeX.Facade.Trades.TradeSlot.GetHashCode() -> int
+override PKHeX.Facade.Trades.TradeSlot.ToString() -> string!
+override PKHeX.Facade.Trades.TradedPokemon.Equals(object? obj) -> bool
+override PKHeX.Facade.Trades.TradedPokemon.GetHashCode() -> int
+override PKHeX.Facade.Trades.TradedPokemon.ToString() -> string!
+static PKHeX.Facade.Trades.RefusedPokemon.operator !=(PKHeX.Facade.Trades.RefusedPokemon? left, PKHeX.Facade.Trades.RefusedPokemon? right) -> bool
+static PKHeX.Facade.Trades.RefusedPokemon.operator ==(PKHeX.Facade.Trades.RefusedPokemon? left, PKHeX.Facade.Trades.RefusedPokemon? right) -> bool
+static PKHeX.Facade.Trades.Trade.RouteBetween(PKHeX.Facade.Game! from, PKHeX.Facade.Game! to) -> PKHeX.Facade.Trades.TradeRoute?
+static PKHeX.Facade.Trades.TradeArrival.operator !=(PKHeX.Facade.Trades.TradeArrival? left, PKHeX.Facade.Trades.TradeArrival? right) -> bool
+static PKHeX.Facade.Trades.TradeArrival.operator ==(PKHeX.Facade.Trades.TradeArrival? left, PKHeX.Facade.Trades.TradeArrival? right) -> bool
+static PKHeX.Facade.Trades.TradeChange.operator !=(PKHeX.Facade.Trades.TradeChange? left, PKHeX.Facade.Trades.TradeChange? right) -> bool
+static PKHeX.Facade.Trades.TradeChange.operator ==(PKHeX.Facade.Trades.TradeChange? left, PKHeX.Facade.Trades.TradeChange? right) -> bool
+static PKHeX.Facade.Trades.TradeOffer.operator !=(PKHeX.Facade.Trades.TradeOffer? left, PKHeX.Facade.Trades.TradeOffer? right) -> bool
+static PKHeX.Facade.Trades.TradeOffer.operator ==(PKHeX.Facade.Trades.TradeOffer? left, PKHeX.Facade.Trades.TradeOffer? right) -> bool
+static PKHeX.Facade.Trades.TradePreview.operator !=(PKHeX.Facade.Trades.TradePreview? left, PKHeX.Facade.Trades.TradePreview? right) -> bool
+static PKHeX.Facade.Trades.TradePreview.operator ==(PKHeX.Facade.Trades.TradePreview? left, PKHeX.Facade.Trades.TradePreview? right) -> bool
+static PKHeX.Facade.Trades.TradeRoom.operator !=(PKHeX.Facade.Trades.TradeRoom? left, PKHeX.Facade.Trades.TradeRoom? right) -> bool
+static PKHeX.Facade.Trades.TradeRoom.operator ==(PKHeX.Facade.Trades.TradeRoom? left, PKHeX.Facade.Trades.TradeRoom? right) -> bool
+static PKHeX.Facade.Trades.TradeSaveChange.operator !=(PKHeX.Facade.Trades.TradeSaveChange? left, PKHeX.Facade.Trades.TradeSaveChange? right) -> bool
+static PKHeX.Facade.Trades.TradeSaveChange.operator ==(PKHeX.Facade.Trades.TradeSaveChange? left, PKHeX.Facade.Trades.TradeSaveChange? right) -> bool
+static PKHeX.Facade.Trades.TradeSlot.operator !=(PKHeX.Facade.Trades.TradeSlot? left, PKHeX.Facade.Trades.TradeSlot? right) -> bool
+static PKHeX.Facade.Trades.TradeSlot.operator ==(PKHeX.Facade.Trades.TradeSlot? left, PKHeX.Facade.Trades.TradeSlot? right) -> bool
+static PKHeX.Facade.Trades.TradedPokemon.operator !=(PKHeX.Facade.Trades.TradedPokemon? left, PKHeX.Facade.Trades.TradedPokemon? right) -> bool
+static PKHeX.Facade.Trades.TradedPokemon.operator ==(PKHeX.Facade.Trades.TradedPokemon? left, PKHeX.Facade.Trades.TradedPokemon? right) -> bool
+virtual PKHeX.Facade.Trades.RefusedPokemon.<Clone>$() -> PKHeX.Facade.Trades.RefusedPokemon!
+virtual PKHeX.Facade.Trades.RefusedPokemon.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Trades.RefusedPokemon.Equals(PKHeX.Facade.Trades.RefusedPokemon? other) -> bool
+virtual PKHeX.Facade.Trades.RefusedPokemon.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Trades.TradeArrival.<Clone>$() -> PKHeX.Facade.Trades.TradeArrival!
+virtual PKHeX.Facade.Trades.TradeArrival.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Trades.TradeArrival.Equals(PKHeX.Facade.Trades.TradeArrival? other) -> bool
+virtual PKHeX.Facade.Trades.TradeArrival.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Trades.TradeChange.<Clone>$() -> PKHeX.Facade.Trades.TradeChange!
+virtual PKHeX.Facade.Trades.TradeChange.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Trades.TradeChange.Equals(PKHeX.Facade.Trades.TradeChange? other) -> bool
+virtual PKHeX.Facade.Trades.TradeChange.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Trades.TradeOffer.<Clone>$() -> PKHeX.Facade.Trades.TradeOffer!
+virtual PKHeX.Facade.Trades.TradeOffer.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Trades.TradeOffer.Equals(PKHeX.Facade.Trades.TradeOffer? other) -> bool
+virtual PKHeX.Facade.Trades.TradeOffer.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Trades.TradePreview.<Clone>$() -> PKHeX.Facade.Trades.TradePreview!
+virtual PKHeX.Facade.Trades.TradePreview.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Trades.TradePreview.Equals(PKHeX.Facade.Trades.TradePreview? other) -> bool
+virtual PKHeX.Facade.Trades.TradePreview.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Trades.TradeRoom.<Clone>$() -> PKHeX.Facade.Trades.TradeRoom!
+virtual PKHeX.Facade.Trades.TradeRoom.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Trades.TradeRoom.Equals(PKHeX.Facade.Trades.TradeRoom? other) -> bool
+virtual PKHeX.Facade.Trades.TradeRoom.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Trades.TradeSaveChange.<Clone>$() -> PKHeX.Facade.Trades.TradeSaveChange!
+virtual PKHeX.Facade.Trades.TradeSaveChange.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Trades.TradeSaveChange.Equals(PKHeX.Facade.Trades.TradeSaveChange? other) -> bool
+virtual PKHeX.Facade.Trades.TradeSaveChange.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Trades.TradeSlot.<Clone>$() -> PKHeX.Facade.Trades.TradeSlot!
+virtual PKHeX.Facade.Trades.TradeSlot.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Trades.TradeSlot.Equals(PKHeX.Facade.Trades.TradeSlot? other) -> bool
+virtual PKHeX.Facade.Trades.TradeSlot.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Trades.TradedPokemon.<Clone>$() -> PKHeX.Facade.Trades.TradedPokemon!
+virtual PKHeX.Facade.Trades.TradedPokemon.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Trades.TradedPokemon.Equals(PKHeX.Facade.Trades.TradedPokemon? other) -> bool
+virtual PKHeX.Facade.Trades.TradedPokemon.PrintMembers(System.Text.StringBuilder! builder) -> bool
+PKHeX.Facade.Trades.Trade.From(PKHeX.Facade.Trades.TradeDirection direction) -> PKHeX.Facade.Game!
+PKHeX.Facade.Trades.Trade.To(PKHeX.Facade.Trades.TradeDirection direction) -> PKHeX.Facade.Game!
