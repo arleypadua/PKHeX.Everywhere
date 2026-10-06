@@ -30,20 +30,31 @@ public partial class Pokemon
     // The bytes always arrive encrypted, so they're decrypted outright: PKHeX's constructors guess from the data and can skip it.
     private static PKM Decrypted(byte[] bytes, Type type, GameVersionDefinition definition)
     {
-        PKM pkm = type == typeof(PK3) ? new PK3()
-            : type == typeof(PK4) ? new PK4()
-            : throw new UnreadablePokemonException(UnreadableReason.UnsupportedVersion, $"{definition.Name} doesn't keep Pokémon as PK3 or PK4.");
-
-        if (bytes.Length != pkm.SIZE_STORED && bytes.Length != pkm.SIZE_PARTY)
-            throw new UnreadablePokemonException(UnreadableReason.WrongLength, $"{definition.Name} keeps a Pokémon in {pkm.SIZE_STORED} or {pkm.SIZE_PARTY} bytes, got {bytes.Length}.");
-
         var data = bytes.ToArray();
-        if (pkm is PK3) PokeCrypto.Decrypt3(data);
-        else PokeCrypto.Decrypt45(data);
+        PKM pkm;
+        if (type == typeof(PK3))
+        {
+            pkm = RequireLength(new PK3(), data, definition);
+            PokeCrypto.Decrypt3(data);
+        }
+        else if (type == typeof(PK4))
+        {
+            pkm = RequireLength(new PK4(), data, definition);
+            PokeCrypto.Decrypt45(data);
+        }
+        else
+        {
+            throw new UnreadablePokemonException(UnreadableReason.UnsupportedVersion, $"{definition.Name} doesn't keep Pokémon as PK3 or PK4.");
+        }
 
         data.CopyTo(pkm.Data);
         return pkm;
     }
+
+    private static PKM RequireLength(PKM pkm, byte[] data, GameVersionDefinition definition) =>
+        data.Length == pkm.SIZE_STORED || data.Length == pkm.SIZE_PARTY
+            ? pkm
+            : throw new UnreadablePokemonException(UnreadableReason.WrongLength, $"{definition.Name} keeps a Pokémon in {pkm.SIZE_STORED} or {pkm.SIZE_PARTY} bytes, got {data.Length}.");
 }
 
 /// <summary>
