@@ -9,7 +9,7 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
 {
     private const int MaxPartySize = 6;
     private readonly IList<PKM> _partyData = game.SaveFile.PartyData;
-    private LoadedSlots _loaded = new(game.SaveFile.PartyData);
+    private SlotSnapshot _snapshot = new(game.SaveFile.PartyData);
     public IList<Pokemon> Pokemons => _partyData
         .Select(pkm => new Pokemon(pkm, game))
         .ToList();
@@ -26,17 +26,17 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
         if (game.SaveFile is SAV7b)
         {
             for (var i = 0; i < _partyData.Count; i++)
-                if (_loaded.HasChanged(i, _partyData[i]))
+                if (_snapshot.HasChanged(i, _partyData[i]))
                     game.SaveFile.SetPartySlotAtIndex(_partyData[i], i, EntityImportSettings.None);
         }
-        else if (Enumerable.Range(0, _partyData.Count).Any(i => _loaded.HasChanged(i, _partyData[i])))
+        else if (_snapshot.AnyChanged(_partyData))
         {
             var members = _partyData.Where(pkm => !Pokemon.IsBlank(pkm)).ToList();
             for (var i = 0; i < MaxPartySize; i++)
                 game.SaveFile.SetPartySlotAtIndex(i < members.Count ? members[i] : game.SaveFile.BlankPKM, i, EntityImportSettings.None);
         }
 
-        _loaded = new LoadedSlots(_partyData);
+        _snapshot = new SlotSnapshot(_partyData);
     }
 
     // Let's Go keeps party members in box storage, so each one also sits at a box index.

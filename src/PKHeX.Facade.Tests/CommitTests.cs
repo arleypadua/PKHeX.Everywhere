@@ -57,6 +57,17 @@ public class CommitTests
         });
     }
 
+    [Fact]
+    public void Export_AfterTurningAGen2BoxPokemonIntoAnEggInPlace_KeepsTheEgg()
+    {
+        var game = SaveFilePath.Load(SaveFilePath.Crystal);
+        var (index, target) = game.Trainer.PokemonBox.Boxed().First(p => !p.Pokemon.Pkm.IsEgg);
+
+        target.Pkm.IsEgg = true;
+
+        game.SaveAndReload(reloaded => reloaded.SaveFile.GetBoxSlotAtIndex(index).IsEgg.Should().BeTrue());
+    }
+
     [Theory]
     [InlineData(SaveFilePath.LetsGoPikachu)]
     [InlineData(SaveFilePath.LetsGoEevee)]
