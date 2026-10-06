@@ -99,6 +99,18 @@ describe('binary outputs', () => {
     expect(exported.bytes).toEqual(bytes)
   })
 
+  it('returns both saves of a trade as Uint8Arrays', async () => {
+    const { engine } = engineReturning({
+      save: { bytes: base64, fileName: 'firered.sav' },
+      partner: { bytes: base64, fileName: 'emerald.sav' },
+      arrived: [],
+    })
+
+    const done = await engine.trade.commit({ send: [], receive: [] })
+
+    expect(done).toEqual({ save: { bytes, fileName: 'firered.sav' }, partner: { bytes, fileName: 'emerald.sav' }, arrived: [] })
+  })
+
   it('returns the loaded file as a Uint8Array, or null without a save', async () => {
     expect((await engineReturning({ bytes: base64, fileName: 'a.sav', version: 'E' }).engine.game.file())?.bytes).toEqual(bytes)
     expect(await engineReturning(null).engine.game.file()).toBeNull()

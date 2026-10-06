@@ -13,12 +13,15 @@ export function fileNameOf(data: Binary): string | null {
   return typeof File !== 'undefined' && data instanceof File ? data.name : null
 }
 
-export function withBytes<T>(value: T, keys: readonly (keyof NonNullable<T>)[]): T {
+// A path such as `save.bytes` reaches bytes in a record the value holds.
+export function withBytes<T>(value: T, paths: readonly string[]): T {
   if (value == null) return value
-  const converted: Record<PropertyKey, unknown> = { ...value }
-  for (const key of keys) {
+  const converted: Record<string, unknown> = { ...value }
+  for (const path of paths) {
+    const [key, ...rest] = path.split('.')
     const encoded = converted[key]
-    if (typeof encoded === 'string') converted[key] = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0))
+    if (rest.length > 0) converted[key] = withBytes(encoded, [rest.join('.')])
+    else if (typeof encoded === 'string') converted[key] = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0))
   }
   return converted as T
 }

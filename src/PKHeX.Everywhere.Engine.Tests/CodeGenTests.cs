@@ -83,6 +83,10 @@ public class CodeGenTests
     }
 
     [Fact]
+    public void BytesInARecordAReturnedRecordHoldsAreUint8Arrays() =>
+        Client.Should().Contain("commit: async (offer) => withBytes(await invoke<TradeResult>('trade.commit', [offer]), ['save.bytes', 'partner.bytes']),");
+
+    [Fact]
     public void BytesNestedInAnInputStayBase64()
     {
         Types.Should().Contain("  file?: Base64 | null\n").And.Contain("export type Base64 = string\n");

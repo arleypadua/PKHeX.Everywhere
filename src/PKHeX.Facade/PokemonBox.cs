@@ -74,6 +74,20 @@ public class PokemonBox : IMutablePokemonCollection
         return true;
     }
 
+    internal void Remove(IEnumerable<int> indices)
+    {
+        foreach (var index in indices)
+            _game.SaveFile.SetBoxSlotAtIndex(_game.SaveFile.BlankPKM, index, EntityImportSettings.None);
+        PopulateFromSave();
+    }
+
+    internal void Place(IEnumerable<(PKM Pkm, int Index)> arrivals)
+    {
+        foreach (var (pkm, index) in arrivals)
+            _game.SaveFile.SetBoxSlotAtIndex(pkm, index);
+        PopulateFromSave();
+    }
+
     internal void SharePartyMembers()
     {
         foreach (var (index, pkm) in _party.BoxedMembers())

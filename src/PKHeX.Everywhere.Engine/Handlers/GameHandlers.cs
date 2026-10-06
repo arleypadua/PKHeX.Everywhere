@@ -39,13 +39,17 @@ public static class GameHandlers
     public static void Load(Session session, byte[] data, string? fileName = null, string? formatId = null)
     {
         fileName ??= DefaultFileName;
+        session.Load(Read(data, fileName, formatId), fileName);
+    }
+
+    internal static Game Read(byte[] data, string fileName, string? formatId)
+    {
         var format = formatId is null
             ? null
             : SaveFormats.Find(formatId) ?? throw new EngineException(ErrorCodes.NotFound, $"There is no save format '{formatId}'.");
-        Game game;
         try
         {
-            game = Game.LoadFrom(data, fileName, format);
+            return Game.LoadFrom(data, fileName, format);
         }
         catch (GameNotLoadedException e)
         {
@@ -58,8 +62,6 @@ public static class GameHandlers
                 Candidates = e.Candidates.Select(candidate => candidate.ToEntry()).ToArray(),
             };
         }
-
-        session.Load(game, fileName);
     }
 
     [Command("game.export", Topics.Party, Topics.Box)]
