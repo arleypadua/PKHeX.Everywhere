@@ -36,6 +36,11 @@ public interface IGameDataSource
     /// Whether computed stats may differ from the game's, because they use base stats the game may change.
     /// </summary>
     bool StatsApproximate { get; }
+
+    /// <summary>
+    /// Whether the save stores which of the species' abilities is active instead of an ability id, so a Pokémon can only have one of its species' abilities.
+    /// </summary>
+    bool StoresAbilitySlot => false;
 }
 
 public enum GameDataKind

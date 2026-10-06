@@ -35,6 +35,7 @@ PKHeX.Facade.Abstractions.IGameDataSource.Natures.get -> System.Collections.Gene
 PKHeX.Facade.Abstractions.IGameDataSource.OriginGames.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 PKHeX.Facade.Abstractions.IGameDataSource.Species.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 PKHeX.Facade.Abstractions.IGameDataSource.StatsApproximate.get -> bool
+PKHeX.Facade.Abstractions.IGameDataSource.StoresAbilitySlot.get -> bool
 PKHeX.Facade.Abstractions.ISaveFormat.GameData(PKHeX.Core.SaveFile! save) -> PKHeX.Facade.Abstractions.IGameDataSource!
 PKHeX.Facade.Game.GameData.get -> PKHeX.Facade.Abstractions.IGameDataSource!
 PKHeX.Facade.Inventory.CanSet(ushort itemId) -> bool

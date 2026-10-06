@@ -6,8 +6,7 @@ using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Everywhere.RomHacks.Expansion.Imperium;
 
-// Imperium stores the nature apart from the PID, so unlike CFRU's it can change. It stores only which of the species' abilities is active,
-// while the Facade offers any ability to a Pokémon of a later generation, so the ability stays locked.
+// Imperium stores the nature apart from the PID, so unlike CFRU's it can change.
 // Its map sections go past Emerald's, so met locations are named by number and locked, as Unbound's are.
 internal sealed class ImperiumGameData : IGameDataSource
 {
@@ -67,7 +66,9 @@ internal sealed class ImperiumGameData : IGameDataSource
         _ => null,
     };
 
-    public IReadOnlySet<PokemonField> Locked { get; } = new[] { PokemonField.Gender, PokemonField.Ability, PokemonField.MetLocation }.ToFrozenSet();
+    public IReadOnlySet<PokemonField> Locked { get; } = new[] { PokemonField.Gender, PokemonField.MetLocation }.ToFrozenSet();
 
     public bool StatsApproximate => true;
+
+    public bool StoresAbilitySlot => true;
 }
