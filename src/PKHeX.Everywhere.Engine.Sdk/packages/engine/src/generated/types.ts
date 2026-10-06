@@ -164,7 +164,7 @@ export interface EditablePokemon {
   calculatedCombatPower: number | null
   /** Always four slots. An empty slot has id 0. */
   moves: MoveSlot[]
-  /** PKHeX's legality check of the Pokémon as it is now, or null when the save doesn't support `legality`. */
+  /** PKHeX's legality check of the Pokémon as it is now, or null when the save doesn't support `legality`. Always null from `pokemon.read`. */
   legality: Legality | null
 }
 

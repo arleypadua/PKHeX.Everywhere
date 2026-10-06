@@ -23,5 +23,6 @@ public static class ErrorCodes
     public const string NotSupported = "not-supported";
     public const string NoTrade = "no-trade";
     public const string TradeRefused = "trade-refused";
+    public const string BadChecksum = "bad-checksum";
     public const string Unexpected = "unexpected";
 }

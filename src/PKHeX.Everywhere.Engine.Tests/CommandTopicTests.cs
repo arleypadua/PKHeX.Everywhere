@@ -57,6 +57,7 @@ public class CommandTopicTests
         ["party.get"] = (_, _) => ["[]"],
         ["party.showdown"] = (_, _) => ["[]"],
         ["pokemon.get"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At)),
+        ["pokemon.read"] = (_, _) => [Args(Convert.ToBase64String(new byte[100]), (int)GameVersion.E)],
         ["pokemon.showdown"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At)),
         ["pokemon.details"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At)),
         ["pokemon.options"] = (game, _) => PokemonsAndDraft(game).Select(p => Args(p.At)),

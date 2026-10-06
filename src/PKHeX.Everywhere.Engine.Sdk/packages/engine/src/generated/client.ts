@@ -5,7 +5,7 @@ import type { ActionPlacement, AddedPokemon, Badge, Binary, BoxEntry, CatalogNam
 
 export type Invoke = <T>(call: CallName, args: unknown[]) => Promise<T>
 
-export const queries = ['box.get', 'box.list', 'box.showdown', 'catalog.names', 'encounters.search', 'encounters.versions', 'events.flag', 'events.get', 'game.balls', 'game.blankVersions', 'game.formats', 'game.get', 'game.heldItems', 'game.languages', 'game.moves', 'game.natures', 'game.originGames', 'game.progress', 'game.types', 'game.version', 'inventory.get', 'party.get', 'party.showdown', 'plugins.actions', 'plugins.details', 'plugins.failures', 'plugins.installed', 'plugins.isSupported', 'plugins.pageModule', 'plugins.pages', 'plugins.setting', 'plugins.state', 'pokemon.details', 'pokemon.export', 'pokemon.get', 'pokemon.options', 'pokemon.showdown', 'species.list', 'trade.get', 'trade.partnerBoxes', 'trade.preview', 'trainer.badges', 'trainer.get'] as const
+export const queries = ['box.get', 'box.list', 'box.showdown', 'catalog.names', 'encounters.search', 'encounters.versions', 'events.flag', 'events.get', 'game.balls', 'game.blankVersions', 'game.formats', 'game.get', 'game.heldItems', 'game.languages', 'game.moves', 'game.natures', 'game.originGames', 'game.progress', 'game.types', 'game.version', 'inventory.get', 'party.get', 'party.showdown', 'plugins.actions', 'plugins.details', 'plugins.failures', 'plugins.installed', 'plugins.isSupported', 'plugins.pageModule', 'plugins.pages', 'plugins.setting', 'plugins.state', 'pokemon.details', 'pokemon.export', 'pokemon.get', 'pokemon.options', 'pokemon.read', 'pokemon.showdown', 'species.list', 'trade.get', 'trade.partnerBoxes', 'trade.preview', 'trainer.badges', 'trainer.get'] as const
 
 export const commands = ['box.addEncounter', 'box.addFromFile', 'events.giveTickets', 'events.setFlag', 'events.setWork', 'game.close', 'game.enableFormat', 'game.export', 'game.file', 'game.load', 'game.loadBlank', 'inventory.setItem', 'plugins.dismissFailure', 'plugins.newestCompatible', 'plugins.register', 'plugins.run', 'plugins.setEnabled', 'plugins.setHookEnabled', 'plugins.unregister', 'plugins.updateSetting', 'pokemon.addToBox', 'pokemon.clone', 'pokemon.commit', 'pokemon.edit', 'pokemon.setLevel', 'pokemon.update', 'trade.close', 'trade.commit', 'trade.open', 'trainer.setBadges', 'trainer.setBattlePoints', 'trainer.setGender', 'trainer.setMoney', 'trainer.setName'] as const
 
@@ -139,6 +139,13 @@ export interface EngineClient {
     get(at: PokemonHandle): Promise<PokemonSummary>
     /** Requires a loaded save; throws `no-save` otherwise. */
     options(at: PokemonHandle): Promise<PokemonOptions>
+    /**
+     * Reads one Gen 3 or Gen 4 Pokémon from bytes taken from a running game, without a loaded save. Nothing is written, and `legality` is null. Bytes that aren't a Pokémon, such as all zeros, an empty species or a Gen 3 bad egg, fail with `bad-checksum`.
+     *
+     * @param bytes The Pokémon as the game keeps it: encrypted and shuffled, in its party (100-byte PK3, 236-byte PK4) or box (80-byte PK3, 136-byte PK4) layout. Another length fails with `bad-arguments`.
+     * @param version The PKHeX game version id the bytes come from. A combined version, such as FireRed/LeafGreen, fails with `bad-arguments`, and a game outside Gen 3 and 4 with `not-supported`.
+     */
+    read(bytes: Binary, version: number): Promise<EditablePokemon>
     /** Requires a loaded save; throws `no-save` otherwise. */
     setLevel(at: PokemonHandle, level: number): Promise<void>
     /** Requires a loaded save; throws `no-save` otherwise. */
@@ -267,6 +274,7 @@ export function createClient(invoke: Invoke): EngineClient {
       export: async (at) => withBytes(await invoke<ExportedPokemon>('pokemon.export', [at]), ['bytes']),
       get: (at) => invoke('pokemon.get', [at]),
       options: (at) => invoke('pokemon.options', [at]),
+      read: async (bytes, version) => invoke('pokemon.read', [await toBase64(bytes), version]),
       setLevel: (at, level) => invoke('pokemon.setLevel', [at, level]),
       showdown: (at) => invoke('pokemon.showdown', [at]),
       update: (at, patch) => invoke('pokemon.update', [at, patch]),
