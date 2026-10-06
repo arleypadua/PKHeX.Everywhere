@@ -55,4 +55,41 @@ public class PokemonBoxTests
         partyMembers.Should().NotBeEmpty();
         game.Trainer.PokemonBox.Boxed().Select(p => p.Index).Should().NotIntersectWith(partyMembers);
     }
+
+    [Fact]
+    public void BoxesListsEveryYellowBoxWithoutNames()
+    {
+        var game = SaveFilePath.Load(SaveFilePath.Yellow);
+
+        game.Trainer.PokemonBox.Boxes.Should().Equal(Enumerable.Range(0, 12).Select(number => new Box(number, null, 20)));
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Crystal, "BOX1")]
+    [InlineData(SaveFilePath.Emerald, "BOX1")]
+    [InlineData(SaveFilePath.HgSs, "BOX 1")]
+    [InlineData(SaveFilePath.FireRed, "10A EUR1")]
+    public void BoxesCarryTheNamesTheSaveStores(string saveFile, string firstName)
+    {
+        var boxes = SaveFilePath.Load(saveFile).Trainer.PokemonBox.Boxes;
+
+        boxes[0].Name.Should().Be(firstName);
+        boxes.Should().AllSatisfy(b => b.Name.Should().NotBeNullOrEmpty());
+    }
+
+    [Theory]
+    [SupportedSaveFiles]
+    public void EveryBoxedPokemonIsInAListedBox(string saveFile)
+    {
+        var game = SaveFilePath.Load(saveFile);
+        var boxes = game.Trainer.PokemonBox.Boxes;
+
+        boxes.Select(b => b.Number).Should().Equal(Enumerable.Range(0, boxes.Count));
+        game.Trainer.PokemonBox.Boxed().Should().AllSatisfy(boxed =>
+        {
+            var number = boxed.Index / game.SaveFile.BoxSlotCount;
+            number.Should().BeLessThan(boxes.Count);
+            (boxed.Index % game.SaveFile.BoxSlotCount).Should().BeLessThan(boxes[number].Slots);
+        });
+    }
 }

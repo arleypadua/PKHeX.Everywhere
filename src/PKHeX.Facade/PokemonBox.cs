@@ -24,6 +24,18 @@ public class PokemonBox : IMutablePokemonCollection
     public IDictionary<Species, List<Pokemon>> BySpecies { get; private set; } = default!;
     public IList<Pokemon> All => _pokemonList;
 
+    public IReadOnlyList<Box> Boxes
+    {
+        get
+        {
+            var save = _game.SaveFile;
+            var names = save as IBoxDetailName;
+            return Enumerable.Range(0, save.BoxCount)
+                .Select(number => new Box(number, names?.GetBoxName(number), save.BoxSlotCount))
+                .ToList();
+        }
+    }
+
     public IEnumerable<(int Index, Pokemon Pokemon)> Boxed() => _pokemonList
         .Select((pokemon, index) => (index, pokemon))
         .Where(p => !p.pokemon.IsEmpty && !IsPartyMember(p.index));

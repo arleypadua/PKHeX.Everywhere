@@ -40,6 +40,16 @@ export type Base64 = string
 /** Bytes a call accepts. A `File` is a `Blob`, so it works too. */
 export type Binary = Uint8Array | ArrayBuffer | Blob
 
+/** A box in the save, as `box.list` lists it. Empty boxes are included. */
+export interface BoxEntry {
+  /** Zero-based box number, the same number a box `PokemonHandle` carries. */
+  box: number
+  /** The name the save stores for the box, or null when the save doesn't store box names, such as Generation 1 saves, Let's Go and ROM hacks. */
+  name: string | null
+  /** How many slots the box has. */
+  slots: number
+}
+
 /** A species or item id with its display name. */
 export interface CatalogName {
   id: number

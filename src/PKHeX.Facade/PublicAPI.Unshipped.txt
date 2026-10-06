@@ -176,3 +176,23 @@ virtual PKHeX.Facade.Badge.<Clone>$() -> PKHeX.Facade.Badge!
 virtual PKHeX.Facade.Badge.EqualityContract.get -> System.Type!
 virtual PKHeX.Facade.Badge.Equals(PKHeX.Facade.Badge? other) -> bool
 virtual PKHeX.Facade.Badge.PrintMembers(System.Text.StringBuilder! builder) -> bool
+PKHeX.Facade.Box
+PKHeX.Facade.Box.Box(PKHeX.Facade.Box! original) -> void
+PKHeX.Facade.Box.Box(int Number, string? Name, int Slots) -> void
+PKHeX.Facade.Box.Deconstruct(out int Number, out string? Name, out int Slots) -> void
+PKHeX.Facade.Box.Name.get -> string?
+PKHeX.Facade.Box.Name.init -> void
+PKHeX.Facade.Box.Number.get -> int
+PKHeX.Facade.Box.Number.init -> void
+PKHeX.Facade.Box.Slots.get -> int
+PKHeX.Facade.Box.Slots.init -> void
+PKHeX.Facade.PokemonBox.Boxes.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Box!>!
+override PKHeX.Facade.Box.Equals(object? obj) -> bool
+override PKHeX.Facade.Box.GetHashCode() -> int
+override PKHeX.Facade.Box.ToString() -> string!
+static PKHeX.Facade.Box.operator !=(PKHeX.Facade.Box? left, PKHeX.Facade.Box? right) -> bool
+static PKHeX.Facade.Box.operator ==(PKHeX.Facade.Box? left, PKHeX.Facade.Box? right) -> bool
+virtual PKHeX.Facade.Box.<Clone>$() -> PKHeX.Facade.Box!
+virtual PKHeX.Facade.Box.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Box.Equals(PKHeX.Facade.Box? other) -> bool
+virtual PKHeX.Facade.Box.PrintMembers(System.Text.StringBuilder! builder) -> bool

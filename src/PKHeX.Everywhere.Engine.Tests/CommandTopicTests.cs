@@ -20,6 +20,7 @@ public class CommandTopicTests
             ? []
             : [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes))],
         ["box.get"] = (_, _) => ["[]"],
+        ["box.list"] = (_, _) => ["[]"],
         ["box.showdown"] = (_, _) => ["[]"],
         ["catalog.names"] = (_, _) => [Args(new { speciesIds = new[] { 25 }, itemIds = new[] { 1 } })],
         ["encounters.search"] = (game, _) => [Args(game.GameVersionApproximation.Id, (int)Species.Abra)],
