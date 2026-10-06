@@ -1,5 +1,13 @@
 # @pkhex-everywhere/react
 
+## 0.8.1
+
+### Patch Changes
+
+- 45aa5c8: New `trade` calls move Pokémon between the loaded save and a partner save, the way link trades, the Time Capsule, Pal Park and Poké Transfer do. `trade.open()` loads the partner and reports the routes and empty box slots, `trade.preview()` shows what each Pokémon arrives as and refuses what the games refuse, and `trade.commit()` moves them and returns both saves. New `useTrade()` hook and `trade` topic.
+- Updated dependencies [45aa5c8]
+  - @pkhex-everywhere/engine@0.8.1
+
 ## 0.8.0
 
 ### Patch Changes
