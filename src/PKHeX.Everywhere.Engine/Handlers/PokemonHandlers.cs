@@ -20,6 +20,30 @@ public static class PokemonHandlers
     [Query("pokemon.details", Topics.Party, Topics.Box, Topics.Draft)]
     public static EditablePokemon Details(Session session, PokemonHandle at) => session.Find(at).Pokemon.Details().ToEditable();
 
+    /// <summary>
+    /// Reads one Gen 3 or Gen 4 Pokémon from bytes taken from a running game, without a loaded save. Nothing is written, and <c>legality</c> is null.
+    /// Bytes that aren't a Pokémon, such as all zeros, an empty species or a Gen 3 bad egg, fail with <c>bad-checksum</c>.
+    /// </summary>
+    /// <param name="bytes">The Pokémon as the game keeps it: encrypted and shuffled, in its party (100-byte PK3, 236-byte PK4) or box (80-byte PK3, 136-byte PK4) layout. Another length fails with <c>bad-arguments</c>.</param>
+    /// <param name="version">The PKHeX game version id the bytes come from. A combined version, such as FireRed/LeafGreen, fails with <c>bad-arguments</c>, and a game outside Gen 3 and 4 with <c>not-supported</c>.</param>
+    [Query("pokemon.read")]
+    public static EditablePokemon Read(byte[] bytes, int version)
+    {
+        try
+        {
+            return Pokemon.Read(bytes, version).ToEditable();
+        }
+        catch (UnreadablePokemonException e)
+        {
+            throw new EngineException(e.Reason switch
+            {
+                UnreadableReason.BadChecksum => ErrorCodes.BadChecksum,
+                UnreadableReason.UnsupportedVersion => ErrorCodes.NotSupported,
+                _ => ErrorCodes.BadArguments,
+            }, e.Message, e);
+        }
+    }
+
     [Requires(Requirement.Save)]
     [Query("pokemon.options", Topics.Party, Topics.Box, Topics.Draft)]
     public static Dtos.PokemonOptions Options(Session session, PokemonHandle at) => session.Find(at).Pokemon.Options().ToDto();

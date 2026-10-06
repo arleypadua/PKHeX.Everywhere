@@ -434,3 +434,12 @@ virtual PKHeX.Facade.Trades.TradedPokemon.Equals(PKHeX.Facade.Trades.TradedPokem
 virtual PKHeX.Facade.Trades.TradedPokemon.PrintMembers(System.Text.StringBuilder! builder) -> bool
 PKHeX.Facade.Trades.Trade.From(PKHeX.Facade.Trades.TradeDirection direction) -> PKHeX.Facade.Game!
 PKHeX.Facade.Trades.Trade.To(PKHeX.Facade.Trades.TradeDirection direction) -> PKHeX.Facade.Game!
+PKHeX.Facade.Pokemons.UnreadablePokemonException
+PKHeX.Facade.Pokemons.UnreadablePokemonException.Reason.get -> PKHeX.Facade.Pokemons.UnreadableReason
+PKHeX.Facade.Pokemons.UnreadablePokemonException.UnreadablePokemonException(PKHeX.Facade.Pokemons.UnreadableReason reason, string! message) -> void
+PKHeX.Facade.Pokemons.UnreadableReason
+PKHeX.Facade.Pokemons.UnreadableReason.BadChecksum = 0 -> PKHeX.Facade.Pokemons.UnreadableReason
+PKHeX.Facade.Pokemons.UnreadableReason.CombinedVersion = 1 -> PKHeX.Facade.Pokemons.UnreadableReason
+PKHeX.Facade.Pokemons.UnreadableReason.UnsupportedVersion = 3 -> PKHeX.Facade.Pokemons.UnreadableReason
+PKHeX.Facade.Pokemons.UnreadableReason.WrongLength = 2 -> PKHeX.Facade.Pokemons.UnreadableReason
+static PKHeX.Facade.Pokemons.Pokemon.Read(byte[]! bytes, int version) -> PKHeX.Facade.Pokemons.PokemonDetails!

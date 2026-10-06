@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 using PKHeX.Facade.Tests.Base;
@@ -143,6 +144,29 @@ public class PokemonHandlerTests
     public void SetLevelReturnsBadArgumentsForAMalformedHandle() =>
         Error(Dispatch(Loaded(SaveFilePath.HgSs), "pokemon.setLevel", """[{"source":"daycare","slot":0}, 42]"""))
             .Should().Be("bad-arguments");
+
+    [Fact]
+    public void ReadReturnsTheDetailsOfEncryptedBytesWithoutASave()
+    {
+        var session = Loaded(SaveFilePath.Emerald);
+        var details = Value(Dispatch(session, "pokemon.details", Args(PokemonHandle.Party(0))))!.AsObject();
+        details["legality"] = null;
+
+        var read = Value(Dispatch(new Session(), "pokemon.read", Args(EncryptedParty(session), (int)GameVersion.E)))!;
+
+        read.ToJsonString().Should().Be(details.ToJsonString());
+    }
+
+    [Theory]
+    [InlineData(100, (int)GameVersion.E, "bad-checksum")]
+    [InlineData(100, (int)GameVersion.FRLG, "bad-arguments")]
+    [InlineData(136, (int)GameVersion.E, "bad-arguments")]
+    [InlineData(100, (int)GameVersion.SW, "not-supported")]
+    public void ReadFailsWithTheCodeOfTheProblem(int length, int version, string code) =>
+        Error(Dispatch(new Session(), "pokemon.read", Args(Convert.ToBase64String(new byte[length]), version))).Should().Be(code);
+
+    private static string EncryptedParty(Session session) =>
+        Convert.ToBase64String(session.Game!.Trainer.Party.Pokemons[0].ToFile(encrypted: true).Bytes);
 
     private static int Level(Session session, PokemonHandle at) =>
         Value(Dispatch(session, "pokemon.get", Args(at)))!["level"]!.GetValue<int>();

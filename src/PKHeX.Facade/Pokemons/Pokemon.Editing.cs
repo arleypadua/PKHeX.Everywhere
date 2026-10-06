@@ -7,7 +7,9 @@ namespace PKHeX.Facade.Pokemons;
 
 public partial class Pokemon
 {
-    public PokemonDetails Details() => new(
+    public PokemonDetails Details() => Details(withLegality: true);
+
+    private PokemonDetails Details(bool withLegality) => new(
         Species.Id,
         Pkm.Form,
         Gender,
@@ -46,7 +48,7 @@ public partial class Pokemon
         Pkm is ICombatPower combatPower ? combatPower.Stat_CP : null,
         Pkm is PB7 pb7 ? pb7.CalcCP : null,
         Moves.Values.Select(move => new MoveSlot(move.Move.Id, move.Move.Name, move.PP.Current, move.PP.Max) { IsUnknown = move.Move.IsUnknown }).ToArray(),
-        Game.Supports(Capability.Legality) ? this.LegalityReport() : null)
+        withLegality && Game.Supports(Capability.Legality) ? this.LegalityReport() : null)
     {
         HeldItemIsUnknown = HeldItem.IsUnknown,
         IsUnknown = IsUnknown,

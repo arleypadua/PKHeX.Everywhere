@@ -141,7 +141,7 @@ public enum PokemonHandler
 /// <param name="CombatPower">Stored Combat Power. Null outside the Let's Go games.</param>
 /// <param name="CalculatedCombatPower">The Combat Power the game would calculate from the current stats. Null outside the Let's Go games.</param>
 /// <param name="Moves">Always four slots. An empty slot has id 0.</param>
-/// <param name="Legality">PKHeX's legality check of the Pokémon as it is now, or null when the save doesn't support <c>legality</c>.</param>
+/// <param name="Legality">PKHeX's legality check of the Pokémon as it is now, or null when the save doesn't support <c>legality</c>. Always null from <c>pokemon.read</c>.</param>
 public record EditablePokemon(
     int? Species,
     bool IsUnknown,
