@@ -1,4 +1,5 @@
 ﻿using AwesomeAssertions;
+using PKHeX.Core;
 using PKHeX.Facade.Repositories;
 using PKHeX.Facade.Tests.Base;
 
@@ -54,5 +55,42 @@ public class PokemonBoxTests
 
         partyMembers.Should().NotBeEmpty();
         game.Trainer.PokemonBox.Boxed().Select(p => p.Index).Should().NotIntersectWith(partyMembers);
+    }
+
+    [Fact]
+    public void BoxesListsEveryYellowBoxWithoutNames()
+    {
+        var game = SaveFilePath.Load(SaveFilePath.Yellow);
+
+        game.Trainer.PokemonBox.Boxes.Should().Equal(Enumerable.Range(0, 12).Select(number => new Box(number, null, 20)));
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Crystal)]
+    [InlineData(SaveFilePath.Emerald)]
+    [InlineData(SaveFilePath.HgSs)]
+    public void BoxesCarryTheNamesTheSaveStores(string saveFile)
+    {
+        var game = SaveFilePath.Load(saveFile);
+        var names = (IBoxDetailName)game.SaveFile;
+
+        game.Trainer.PokemonBox.Boxes.Select(b => b.Name).Should().Equal(Enumerable.Range(0, game.SaveFile.BoxCount).Select(names.GetBoxName));
+        game.Trainer.PokemonBox.Boxes.Should().AllSatisfy(b => b.Name.Should().NotBeNullOrEmpty());
+    }
+
+    [Theory]
+    [SupportedSaveFiles]
+    public void EveryBoxedPokemonIsInAListedBox(string saveFile)
+    {
+        var game = SaveFilePath.Load(saveFile);
+        var boxes = game.Trainer.PokemonBox.Boxes;
+
+        boxes.Select(b => b.Number).Should().Equal(Enumerable.Range(0, boxes.Count));
+        game.Trainer.PokemonBox.Boxed().Should().AllSatisfy(boxed =>
+        {
+            var number = boxed.Index / game.SaveFile.BoxSlotCount;
+            number.Should().BeLessThan(boxes.Count);
+            (boxed.Index % game.SaveFile.BoxSlotCount).Should().BeLessThan(boxes[number].Slots);
+        });
     }
 }

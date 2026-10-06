@@ -25,6 +25,38 @@ public class BoxHandlerTests
     }
 
     [Fact]
+    public void ListReturnsEveryYellowBoxWithItsSlotCount()
+    {
+        var boxes = Value(Dispatch(Loaded(SaveFilePath.Yellow), "box.list", "[]"))!.AsArray();
+
+        boxes.Select(b => b!.ToJsonString()).Should().Equal(Enumerable.Range(0, 12).Select(box => $$"""{"box":{{box}},"name":null,"slots":20}"""));
+    }
+
+    [Fact]
+    public void ListReturnsTheBoxNamesTheSaveStores()
+    {
+        var boxes = Value(Dispatch(Loaded(SaveFilePath.FireRed), "box.list", "[]"))!.AsArray();
+
+        boxes.Select(b => b!["name"]!.GetValue<string>()).Should().StartWith(["10A EUR1", "10A EUR2"]);
+    }
+
+    [Theory]
+    [SupportedSaveFiles]
+    public void EveryBoxHandleGetReturnsIsInABoxListReports(string saveFile)
+    {
+        var session = Loaded(saveFile);
+        var slots = Value(Dispatch(session, "box.list", "[]"))!.AsArray()
+            .ToDictionary(b => b!["box"]!.GetValue<int>(), b => b!["slots"]!.GetValue<int>());
+
+        Value(Dispatch(session, "box.get", "[]"))!.AsArray().Should().AllSatisfy(p =>
+        {
+            var box = p!["at"]!["box"]!.GetValue<int>();
+            slots.Should().ContainKey(box);
+            p["at"]!["slot"]!.GetValue<int>().Should().BeLessThan(slots[box]);
+        });
+    }
+
+    [Fact]
     public void GetFailsWithNoSaveWithoutALoadedSave() =>
         Error(Dispatch(new Session(), "box.get", "[]")).Should().Be("no-save");
 

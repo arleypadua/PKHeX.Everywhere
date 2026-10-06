@@ -12,6 +12,12 @@ public static class BoxHandlers
         .Select(boxed => boxed.Pokemon.ToSummary(PokemonSlots.BoxHandle(game.SaveFile, boxed.Index)))
         .ToArray();
 
+    /// <summary>
+    /// Lists every box in the save in order, empty ones included, with its name and slot count.
+    /// </summary>
+    [Query("box.list", Topics.Box)]
+    public static BoxEntry[] List(Game game) => game.Trainer.PokemonBox.Boxes.Select(box => box.ToEntry()).ToArray();
+
     [Query("box.showdown", Topics.Box)]
     public static string Showdown(Game game) => game.Trainer.PokemonBox.Showdown();
 
