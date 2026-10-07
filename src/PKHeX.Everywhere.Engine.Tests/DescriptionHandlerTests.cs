@@ -150,7 +150,7 @@ public class DescriptionHandlerTests
         var game = Game.EmptyOf(GameVersionRepository.Instance.Get(GameVersion.PLA));
         session.Load(game, "legends.sav");
         var file = new Pokemon(new PA8 { Species = (ushort)Species.Pikachu }, game).ToFile().Bytes;
-        var added = Value(Dispatch(session, "box.addFromFile", Args(Convert.ToBase64String(file))))!;
+        var added = Value(Dispatch(session, "box.addFromFile", Args(Convert.ToBase64String(file), null!)))!;
         Value(Dispatch(session, "pokemon.edit", $"[{added["at"]!.ToJsonString()}]"));
         Details(session, Draft)["isAlpha"]!.GetValue<bool>().Should().BeFalse();
 

@@ -8,6 +8,7 @@ namespace PKHeX.Everywhere.Engine.Dtos;
 /// <remarks>
 /// <c>link</c> trades between saves of the same format. <c>timeCapsule</c> goes either way between Generation 1 and 2.
 /// <c>palPark</c> goes from Generation 3 to 4, and <c>pokeTransfer</c> from Generation 4 to 5.
+/// <c>unofficial</c> is a route no game has, where PKHeX copies the fields the destination can hold.
 /// </remarks>
 public enum TransferRoute
 {
@@ -15,11 +16,12 @@ public enum TransferRoute
     TimeCapsule,
     PalPark,
     PokeTransfer,
+    Unofficial,
 }
 
 /// <summary>
-/// The routes of an open transfer. A null route means the games can't move Pokémon that way, and every Pokémon offered that way is refused with <c>noRoute</c>.
-/// Saves loaded with a ROM hack format and Let's Go saves have none.
+/// The routes of an open transfer. A null route means Pokémon can't move that way, and every Pokémon offered that way is refused with <c>noRoute</c>.
+/// Only saves loaded with a ROM hack format and Let's Go saves have no route.
 /// </summary>
 /// <param name="Send">From the loaded save to the partner.</param>
 /// <param name="Receive">From the partner to the loaded save.</param>
@@ -57,10 +59,11 @@ public enum TransferDirection
 /// Why a Pokémon can't be transferred.
 /// </summary>
 /// <remarks>
-/// <c>noRoute</c>: the games can't move Pokémon that way. <c>slotLocked</c>: its box slot is locked by the game, such as a battle team.
+/// <c>noRoute</c>: a save loaded with a ROM hack format or a Let's Go save is on either side. <c>slotLocked</c>: its box slot is locked by the game, such as a battle team.
 /// <c>eggAcrossGenerations</c>: only link trades take eggs. <c>languageMismatch</c>: a Japanese Generation 1 or 2 Pokémon can't go to an international save, nor the other way.
 /// <c>speciesNotInGame</c>: the destination game doesn't have its species or form. <c>lastPartyMember</c>: the sending party must keep a Pokémon that isn't an egg.
 /// <c>noRoom</c>: the destination has no empty box slot left for it. <c>bagFull</c>: Platinum can't put back the Griseous Orb it takes before a link trade.
+/// <c>conversionFailed</c>: PKHeX can't convert it to the destination's format.
 /// </remarks>
 public enum TransferRefusal
 {
@@ -72,11 +75,15 @@ public enum TransferRefusal
     LastPartyMember,
     NoRoom,
     BagFull,
+    ConversionFailed,
 }
 
 /// <summary>
 /// A field of a Pokémon that a transfer can change.
 /// </summary>
+/// <remarks>
+/// <c>shiny</c> is <c>True</c> or <c>False</c>, <c>trainerId</c> the ID the game shows, and <c>metDate</c> a date such as <c>2009-01-31</c>.
+/// </remarks>
 public enum TransferField
 {
     Species,
@@ -89,6 +96,15 @@ public enum TransferField
     Friendship,
     Nickname,
     Ability,
+    Level,
+    Nature,
+    Gender,
+    Shiny,
+    Language,
+    OriginalTrainer,
+    TrainerId,
+    OriginGame,
+    MetDate,
 }
 
 /// <summary>
@@ -99,6 +115,8 @@ public enum TransferField
 /// <c>itemRemoved</c>: the destination game can't hold the item. <c>received</c>: a Generation 2, 3 or 4 game sets friendship to 70 on a Pokémon it receives by link trade.
 /// <c>tradeEvolution</c>: the destination game evolves the Pokémon on arrival. <c>itemUsed</c>: the evolution uses up the held item.
 /// <c>formReverted</c>: Platinum reverts Giratina, Shaymin and Rotom to their base form before a link trade, and takes back the Griseous Orb.
+/// <c>notInGame</c>: on the unofficial route, the destination game doesn't have the move, item, ball or ability. A ball becomes a Poké Ball.
+/// <c>unofficial</c>: PKHeX changed it converting the Pokémon outside the games' routes, such as the move a Pokémon left with no moves learns.
 /// The others name the route that made the change.
 /// </remarks>
 public enum TransferChangeReason
@@ -114,6 +132,8 @@ public enum TransferChangeReason
     TradeEvolution,
     ItemUsed,
     FormReverted,
+    NotInGame,
+    Unofficial,
 }
 
 /// <summary>
@@ -156,6 +176,7 @@ public record TransferSaveChange(TransferSaveChangeKind Kind, TransferSide Save,
 /// <summary>
 /// A Pokémon in the offer that can be transferred, and what moving it changes.
 /// </summary>
+/// <param name="Route">How the Pokémon gets to the other save.</param>
 /// <param name="From">The Pokémon as it is now. Its handle points to the save it leaves.</param>
 /// <param name="Arrives">The Pokémon as it will be in the other save. Its handle is the box slot it will land in.</param>
 /// <param name="Changes">The fields the move changes, in the order of <see cref="TransferField"/>. A move can show up once per move removed.</param>
@@ -163,6 +184,7 @@ public record TransferSaveChange(TransferSaveChangeKind Kind, TransferSide Save,
 /// <param name="Legality">PKHeX's legality check of the Pokémon as it arrives, judged in the destination game.</param>
 public record OfferedPokemon(
     TransferDirection Direction,
+    TransferRoute Route,
     PokemonSummary From,
     PokemonSummary Arrives,
     TransferChange[] Changes,
@@ -198,13 +220,15 @@ public record TransferResult(ExportedSave Save, ExportedSave Partner, Transferre
 
 public static class TransferMapping
 {
-    public static TransferRoute? ToDto(this Transfers.TransferRoute? route) => route switch
+    public static TransferRoute? ToDto(this Transfers.TransferRoute? route) => route?.ToDto();
+
+    public static TransferRoute ToDto(this Transfers.TransferRoute route) => route switch
     {
-        null => null,
         Transfers.TransferRoute.Link => TransferRoute.Link,
         Transfers.TransferRoute.TimeCapsule => TransferRoute.TimeCapsule,
         Transfers.TransferRoute.PalPark => TransferRoute.PalPark,
         Transfers.TransferRoute.PokeTransfer => TransferRoute.PokeTransfer,
+        Transfers.TransferRoute.Unofficial => TransferRoute.Unofficial,
         _ => throw new ArgumentOutOfRangeException(nameof(route), route, null),
     };
 
@@ -221,6 +245,7 @@ public static class TransferMapping
         Transfers.TransferRefusal.LastPartyMember => TransferRefusal.LastPartyMember,
         Transfers.TransferRefusal.NoRoom => TransferRefusal.NoRoom,
         Transfers.TransferRefusal.BagFull => TransferRefusal.BagFull,
+        Transfers.TransferRefusal.ConversionFailed => TransferRefusal.ConversionFailed,
         _ => throw new ArgumentOutOfRangeException(nameof(refusal), refusal, null),
     };
 
@@ -237,6 +262,15 @@ public static class TransferMapping
             Transfers.TransferField.Friendship => TransferField.Friendship,
             Transfers.TransferField.Nickname => TransferField.Nickname,
             Transfers.TransferField.Ability => TransferField.Ability,
+            Transfers.TransferField.Level => TransferField.Level,
+            Transfers.TransferField.Nature => TransferField.Nature,
+            Transfers.TransferField.Gender => TransferField.Gender,
+            Transfers.TransferField.Shiny => TransferField.Shiny,
+            Transfers.TransferField.Language => TransferField.Language,
+            Transfers.TransferField.OriginalTrainer => TransferField.OriginalTrainer,
+            Transfers.TransferField.TrainerId => TransferField.TrainerId,
+            Transfers.TransferField.OriginGame => TransferField.OriginGame,
+            Transfers.TransferField.MetDate => TransferField.MetDate,
             _ => throw new ArgumentOutOfRangeException(nameof(change), change.Field, null),
         },
         change.Before,
@@ -254,6 +288,8 @@ public static class TransferMapping
             Transfers.TransferChangeReason.TradeEvolution => TransferChangeReason.TradeEvolution,
             Transfers.TransferChangeReason.ItemUsed => TransferChangeReason.ItemUsed,
             Transfers.TransferChangeReason.FormReverted => TransferChangeReason.FormReverted,
+            Transfers.TransferChangeReason.NotInGame => TransferChangeReason.NotInGame,
+            Transfers.TransferChangeReason.Unofficial => TransferChangeReason.Unofficial,
             _ => throw new ArgumentOutOfRangeException(nameof(change), change.Reason, null),
         });
 

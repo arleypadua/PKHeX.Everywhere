@@ -352,6 +352,20 @@ public static class PokemonMapping
             pokemon.Types.Ids.ToArray());
     }
 
+    public static PokemonPreview ToPreview(this Pokemon pokemon) => new(
+        pokemon.IsUnknown ? null : pokemon.Species.Id,
+        pokemon.SpeciesIndex,
+        pokemon.Species.Name,
+        pokemon.IsUnknown,
+        pokemon.IsEditable,
+        new PokemonForm(pokemon.Form.Form.Id, pokemon.Form.Form.Name),
+        pokemon.Nickname,
+        pokemon.Level,
+        pokemon.IsShiny,
+        pokemon.Gender.ToDto(),
+        pokemon.Egg.IsEgg,
+        pokemon.Types.Ids.ToArray());
+
     public static PokemonOverview ToOverview(this Pokemon pokemon) =>
         new(pokemon.Species.Id, pokemon.SpeciesIndex, pokemon.Species.Name, pokemon.Gender.Name, pokemon.Ball.Name, pokemon.Level);
 

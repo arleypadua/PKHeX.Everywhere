@@ -117,8 +117,9 @@ public class TransferHandlerTests
         var session = Loaded(SaveFilePath.Emerald);
         var transfer = Open(session, SaveFilePath.HgSs);
 
-        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"palPark","receive":null}""");
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"palPark","receive":"unofficial"}""");
         var offer = Preview(session, Send(PokemonHandle.InBox(0, 5)))["offers"]![0]!;
+        offer["route"]!.GetValue<string>().Should().Be("palPark");
         offer["from"]!["species"]!.GetValue<string>().Should().Be("Charizard");
         var changes = offer["changes"]!.AsArray().Select(c => c!.ToJsonString()).ToList();
         changes.Should().Contain("""{"field":"moves","before":"Fly","after":null,"reason":"hmRemoved"}""");
@@ -137,12 +138,25 @@ public class TransferHandlerTests
     }
 
     [Fact]
-    public void HeartGoldToEmeraldHasNoRoute()
+    public void HeartGoldToEmeraldTakesTheUnofficialRoute()
     {
         var session = Loaded(SaveFilePath.HgSs);
         var transfer = Open(session, SaveFilePath.Emerald);
 
-        transfer["routes"]!.ToJsonString().Should().Be("""{"send":null,"receive":"palPark"}""");
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"unofficial","receive":"palPark"}""");
+        var offer = Preview(session, Send(PokemonHandle.Party(0)))["offers"]![0]!;
+        offer["route"]!.GetValue<string>().Should().Be("unofficial");
+        offer["changes"]!.AsArray().Select(c => c!["reason"]!.GetValue<string>()).Should().OnlyContain(reason => reason == "unofficial" || reason == "notInGame");
+        EntityConverter.AllowIncompatibleConversion.Should().Be(EntityCompatibilitySetting.DisallowIncompatible);
+    }
+
+    [Fact]
+    public void ALetsGoSaveHasNoRoutes()
+    {
+        var session = Loaded(SaveFilePath.LetsGoPikachu);
+        var transfer = Open(session, SaveFilePath.Emerald);
+
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":null,"receive":null}""");
         Preview(session, Send(PokemonHandle.InBox(0, 0)))["refused"]![0]!["reason"]!.GetValue<string>().Should().Be("noRoute");
     }
 

@@ -131,6 +131,7 @@ public static class TransferHandlers
 
     private static OfferedPokemon ToDto(Transfers.Transfer transfer, Transfers.TransferredPokemon offered) => new(
         offered.Direction.ToDto(),
+        offered.Route.ToDto(),
         offered.Pokemon.ToSummary(HandleOf(transfer.From(offered.Direction), offered.From)),
         offered.Arrives.ToSummary(PokemonSlots.BoxHandle(transfer.To(offered.Direction).SaveFile, offered.ArrivesAt)),
         offered.Changes.Select(change => change.ToDto()).ToArray(),

@@ -3,6 +3,12 @@
 /** Where a plug-in action shows up: `quick` on the home page with no target, `pokemon` in the Pokémon editor, `pokemonStats` on the editor's stats tab. */
 export type ActionPlacement = 'quick' | 'pokemon' | 'pokemonStats'
 
+/** How `box.addFromFile` adds a Pokémon file. */
+export interface AddFromFileOptions {
+  /** Add a Pokémon no game can move into the loaded save, converted as `box.previewFile` shows. Without it, such a file fails with `conversion-failed`. */
+  allowUnofficial: boolean
+}
+
 /** An item the pouch can hold that the trainer doesn't have yet. */
 export interface AddableItem {
   /** The item's id in the save's own item list. From Generation 4 on, and in ROM hack saves, these are PKHeX.Core item ids; other Generation 1 to 3 saves use their game's own numbering. */
@@ -256,6 +262,18 @@ export interface ExportedSave {
   fileName: string
 }
 
+/** A Pokémon file as `box.addFromFile` would add it to the loaded save, returned by `box.previewFile`. */
+export interface FilePreview {
+  /** The Pokémon as it would arrive in the loaded save. */
+  pokemon: PokemonPreview
+  /** No game can move this Pokémon into the loaded save. `box.addFromFile` needs `allowUnofficial` to add it. */
+  unofficial: boolean
+  /** The fields the conversion changes, in the order of `TransferField`. */
+  changes: TransferChange[]
+  /** PKHeX's legality check of the Pokémon as it would arrive, judged in the loaded save. Null when the save has no legality check, such as a ROM hack's. */
+  legality: Legality | null
+}
+
 /** A save format `game.load()` can load a save with, returned by `game.formats()`. */
 export interface FormatEntry {
   /** The format's id, to pass to `game.load()` as `formatId`. */
@@ -409,6 +427,8 @@ export interface MoveSlot {
 /** A Pokémon in the offer that can be transferred, and what moving it changes. */
 export interface OfferedPokemon {
   direction: TransferDirection
+  /** How the Pokémon gets to the other save. */
+  route: TransferRoute
   /** The Pokémon as it is now. Its handle points to the save it leaves. */
   from: PokemonSummary
   /** The Pokémon as it will be in the other save. Its handle is the box slot it will land in. */
@@ -734,6 +754,29 @@ export interface PokemonPatch {
   moves?: number[] | null
 }
 
+/** A `PokemonSummary` without `id` and `at`, for a Pokémon that isn't in a slot. */
+export interface PokemonPreview {
+  /** PKHeX species id, which is the National Pokédex number. Null when `isUnknown` is true. */
+  speciesId: number | null
+  /** The species as the save stores it: the game's internal index in Gen 1 to 3, Gen 9 and ROM hacks, and the National Pokédex number elsewhere. */
+  speciesIndex: number
+  /** Species name, or a name like `Unknown (#412)` when `isUnknown` is true. */
+  species: string
+  /** Neither PKHeX nor the save knows the species. Show a placeholder instead of a sprite. */
+  isUnknown: boolean
+  /** The Pokémon could be opened with `pokemon.edit()` once added. */
+  editable: boolean
+  form: PokemonForm
+  /** The species name when the Pokémon has no nickname. */
+  nickname: string
+  level: number
+  isShiny: boolean
+  gender: PokemonGender
+  isEgg: boolean
+  /** Type ids, named by `game.types()`. One entry for a single-type Pokémon. */
+  types: number[]
+}
+
 /** Fires when an edited or cloned Pokémon is written to the save: by `pokemon.commit` back to its slot, or by `pokemon.addToBox` to the first empty box slot. */
 export interface PokemonSaved {
   type: 'pokemonSaved'
@@ -933,13 +976,13 @@ export interface TransferChange {
 }
 
 /** Why a transfer changes a field. */
-export type TransferChangeReason = 'hmRemoved' | 'itemRemapped' | 'itemRemoved' | 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'received' | 'tradeEvolution' | 'itemUsed' | 'formReverted'
+export type TransferChangeReason = 'hmRemoved' | 'itemRemapped' | 'itemRemoved' | 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'received' | 'tradeEvolution' | 'itemUsed' | 'formReverted' | 'notInGame' | 'unofficial'
 
 /** Which way a Pokémon moves: `send` from the loaded save to the partner, `receive` from the partner to the loaded save. */
 export type TransferDirection = 'send' | 'receive'
 
 /** A field of a Pokémon that a transfer can change. */
-export type TransferField = 'species' | 'form' | 'heldItem' | 'moves' | 'metLocation' | 'metLevel' | 'ball' | 'friendship' | 'nickname' | 'ability'
+export type TransferField = 'species' | 'form' | 'heldItem' | 'moves' | 'metLocation' | 'metLevel' | 'ball' | 'friendship' | 'nickname' | 'ability' | 'level' | 'nature' | 'gender' | 'shiny' | 'language' | 'originalTrainer' | 'trainerId' | 'originGame' | 'metDate'
 
 /** The Pokémon to move. Each handle points to a party or box slot: in the loaded save for `send`, and in the partner for `receive`. */
 export interface TransferOffer {
@@ -958,7 +1001,7 @@ export interface TransferPreview {
 }
 
 /** Why a Pokémon can't be transferred. */
-export type TransferRefusal = 'noRoute' | 'slotLocked' | 'eggAcrossGenerations' | 'languageMismatch' | 'speciesNotInGame' | 'lastPartyMember' | 'noRoom' | 'bagFull'
+export type TransferRefusal = 'noRoute' | 'slotLocked' | 'eggAcrossGenerations' | 'languageMismatch' | 'speciesNotInGame' | 'lastPartyMember' | 'noRoom' | 'bagFull' | 'conversionFailed'
 
 /** Both saves after `transfer.commit`, ready to write back. */
 export interface TransferResult {
@@ -979,9 +1022,9 @@ export interface TransferRoom {
 }
 
 /** How a Pokémon gets from one save to the other, as the games move it. */
-export type TransferRoute = 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer'
+export type TransferRoute = 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'unofficial'
 
-/** The routes of an open transfer. A null route means the games can't move Pokémon that way, and every Pokémon offered that way is refused with `noRoute`. Saves loaded with a ROM hack format and Let's Go saves have none. */
+/** The routes of an open transfer. A null route means Pokémon can't move that way, and every Pokémon offered that way is refused with `noRoute`. Only saves loaded with a ROM hack format and Let's Go saves have no route. */
 export interface TransferRoutes {
   /** From the loaded save to the partner. */
   send: TransferRoute | null
