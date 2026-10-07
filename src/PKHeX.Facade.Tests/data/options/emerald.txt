@@ -6,23 +6,23 @@ originGames 7 06bf6ed8c6fa0345
 moves 354 138e4a22a94496bf
 species 387 f03a135af772d6bd
 items 377 8cd65c202ee87fda
-locations 216 28f7c232ef22d3e5
-eggLocations 216 28f7c232ef22d3e5
+locations 216 5e34b6e3f4c0f6db
+eggLocations 216 5e34b6e3f4c0f6db
 party/0/species 3 fe5fc754c7939430
 party/0/abilities 1 845f1004383dfd92
 party/0/forms 0 e3b0c44298fc1c14
-party/0/metLocations 216 28f7c232ef22d3e5
+party/0/metLocations 216 5e34b6e3f4c0f6db
 party/0/moves 3 502703294df990c3
 party/0/locked
 party/1/species 5 c459fb7ad24b6a98
 party/1/abilities 1 22e184f5db775056
 party/1/forms 0 e3b0c44298fc1c14
-party/1/metLocations 216 28f7c232ef22d3e5
+party/1/metLocations 216 5e34b6e3f4c0f6db
 party/1/moves 2 588e1190535eb8b1
 party/1/locked
 party/2/species 2 c62477852ec356e6
 party/2/abilities 1 452f28cb6700dcbf
 party/2/forms 0 e3b0c44298fc1c14
-party/2/metLocations 216 28f7c232ef22d3e5
+party/2/metLocations 216 5e34b6e3f4c0f6db
 party/2/moves 2 69fc0f055a44f523
 party/2/locked
