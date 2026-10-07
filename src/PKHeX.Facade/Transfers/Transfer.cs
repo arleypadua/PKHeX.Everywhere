@@ -20,13 +20,12 @@ public class Transfer(Game mine, Game partner)
 
     public static TransferRoute? RouteBetween(Game from, Game to)
     {
-        if (from.Format is not null || to.Format is not null) return null;
-
-        var (source, target) = (from.SaveFile.PKMType, to.SaveFile.PKMType);
-        // Let's Go keeps its party in box storage, and taking a member out of it isn't handled.
-        if (source == typeof(PB7) || target == typeof(PB7)) return null;
-        return OfficialRoute(source, target) ?? TransferRoute.Unofficial;
+        if (!HasRoutes(from) || !HasRoutes(to)) return null;
+        return OfficialRoute(from.SaveFile.PKMType, to.SaveFile.PKMType) ?? TransferRoute.Unofficial;
     }
+
+    // Let's Go keeps its party in box storage, and taking a member out of it isn't handled.
+    private static bool HasRoutes(Game game) => game.Format is null && game.SaveFile.PKMType != typeof(PB7);
 
     /// <summary>
     /// Converts a Pokémon from a file into <paramref name="to"/> as a transfer would, writing nothing.
@@ -39,14 +38,15 @@ public class Transfer(Game mine, Game partner)
         var unofficial = refusal == TransferRefusal.ConversionFailed;
         if (unofficial)
         {
-            refusal = to.Format is not null || to.SaveFile.PKMType == typeof(PB7) ? TransferRefusal.ConversionFailed
+            refusal = !HasRoutes(to) ? TransferRefusal.ConversionFailed
                 : pokemon.Pkm.IsEgg ? TransferRefusal.EggAcrossGenerations
+                : !IsLanguageCompatible(pokemon, to) ? TransferRefusal.LanguageMismatch
                 : TransferConversion.Convert(pokemon, to, unofficial: true, out arrives);
         }
 
         if (refusal is { } reason) throw new PokemonRefusedException(reason);
 
-        var route = unofficial ? TransferRoute.Unofficial : OfficialRoute(pokemon.Pkm.GetType(), to.SaveFile.PKMType) ?? TransferRoute.Unofficial;
+        var route = OfficialRoute(pokemon.Pkm.GetType(), to.SaveFile.PKMType) ?? TransferRoute.Unofficial;
         return new PokemonImport(arrives!, unofficial, Changes(pokemon, arrives!, route).OrderBy(change => change.Field).ToList());
     }
 
@@ -322,7 +322,7 @@ public class Transfer(Game mine, Game partner)
     private static string? OriginGame(Pokemon pokemon) => IsGameBoy(pokemon) ? null : GameInfo.GetVersionName(pokemon.Pkm.Version);
 
     // Gen 1 stores no met data and Gen 2 only for Pokémon caught in Crystal, which leaves the fields at 0.
-    private static bool HasNoMetData(Pokemon pokemon) => pokemon.Pkm.Format <= 2 && pokemon.MetConditions.Location.Id == 0 && pokemon.MetConditions.Level == 0;
+    private static bool HasNoMetData(Pokemon pokemon) => IsGameBoy(pokemon) && pokemon.MetConditions.Location.Id == 0 && pokemon.MetConditions.Level == 0;
 
     // PKHeX can't name the met location of a Pokémon from an earlier generation, such as Pal Park on a Gen 3 Pokémon in Gen 4.
     private static string? MetLocation(Pokemon pokemon) => HasNoMetData(pokemon)
