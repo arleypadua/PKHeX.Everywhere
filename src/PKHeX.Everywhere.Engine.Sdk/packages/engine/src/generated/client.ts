@@ -140,11 +140,11 @@ export interface EngineClient {
     /** Requires a loaded save; throws `no-save` otherwise. */
     options(at: PokemonHandle): Promise<PokemonOptions>
     /**
-     * Reads one Gen 3 or Gen 4 Pokémon from bytes taken from a running game, without a loaded save. Nothing is written, and `legality` is null. Bytes that aren't a Pokémon, such as all zeros, an empty species or a Gen 3 bad egg, fail with `bad-checksum`.
+     * Reads one Gen 3 or Gen 4 Pokémon from bytes taken from a running game, without a loaded save. Nothing is written, and `legality` is null. Bytes that aren't a Pokémon, such as all zeros, an empty species or a Gen 3 bad egg, fail with `bad-checksum`. From party bytes, `level` is the level the game stores and shows. Box bytes have no level, so theirs comes from the Pokémon's EXP.
      *
      * @param bytes The Pokémon as the game keeps it: encrypted and shuffled, in its party (100-byte PK3, 236-byte PK4) or box (80-byte PK3, 136-byte PK4) layout. Another length fails with `bad-arguments`.
      * @param version The PKHeX game version id the bytes come from. A combined version, such as FireRed/LeafGreen, fails with `bad-arguments`, and a game outside Gen 3 and 4 with `not-supported`.
-     * @param formatId The id of a ROM hack's format, from `game.formats()` or `game.version()`, such as `unbound`. The bytes are then read in the hack's party layout and match what `pokemon.details` returns for the Pokémon in the hack's save. Only party bytes are accepted. `version` must be the format's base game, such as FireRed for Unbound, or the read fails with `bad-arguments`. An unknown or disabled id fails with `not-found`, and `pkhex` with `not-supported`.
+     * @param formatId The id of a ROM hack's format, from `game.formats()` or `game.version()`, such as `unbound`. The bytes are then read in the hack's party layout, as `pokemon.details` reads the Pokémon in the hack's save. Only party bytes are accepted. `version` must be the format's base game, such as FireRed for Unbound, or the read fails with `bad-arguments`. An unknown or disabled id fails with `not-found`, and `pkhex` with `not-supported`.
      */
     read(bytes: Binary, version: number, formatId?: string | null): Promise<EditablePokemon>
     /** Requires a loaded save; throws `no-save` otherwise. */

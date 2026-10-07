@@ -23,11 +23,12 @@ public static class PokemonHandlers
     /// <summary>
     /// Reads one Gen 3 or Gen 4 Pokémon from bytes taken from a running game, without a loaded save. Nothing is written, and <c>legality</c> is null.
     /// Bytes that aren't a Pokémon, such as all zeros, an empty species or a Gen 3 bad egg, fail with <c>bad-checksum</c>.
+    /// From party bytes, <c>level</c> is the level the game stores and shows. Box bytes have no level, so theirs comes from the Pokémon's EXP.
     /// </summary>
     /// <param name="bytes">The Pokémon as the game keeps it: encrypted and shuffled, in its party (100-byte PK3, 236-byte PK4) or box (80-byte PK3, 136-byte PK4) layout. Another length fails with <c>bad-arguments</c>.</param>
     /// <param name="version">The PKHeX game version id the bytes come from. A combined version, such as FireRed/LeafGreen, fails with <c>bad-arguments</c>, and a game outside Gen 3 and 4 with <c>not-supported</c>.</param>
     /// <param name="formatId">
-    /// The id of a ROM hack's format, from <c>game.formats()</c> or <c>game.version()</c>, such as <c>unbound</c>. The bytes are then read in the hack's party layout and match what <c>pokemon.details</c> returns for the Pokémon in the hack's save.
+    /// The id of a ROM hack's format, from <c>game.formats()</c> or <c>game.version()</c>, such as <c>unbound</c>. The bytes are then read in the hack's party layout, as <c>pokemon.details</c> reads the Pokémon in the hack's save.
     /// Only party bytes are accepted. <c>version</c> must be the format's base game, such as FireRed for Unbound, or the read fails with <c>bad-arguments</c>.
     /// An unknown or disabled id fails with <c>not-found</c>, and <c>pkhex</c> with <c>not-supported</c>.
     /// </param>
