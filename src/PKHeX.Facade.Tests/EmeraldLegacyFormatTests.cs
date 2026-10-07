@@ -16,8 +16,10 @@ public class EmeraldLegacyFormatTests
         new SaveFormatDescription(_format.Id, _format.Name, _format.BaseGame)
             .Should().Be(new SaveFormatDescription("emerald-legacy", "Pokémon Emerald Legacy", GameVersion.E));
 
+    // Legacy keeps Emerald's event system, so it supports Events and nothing else: everything else PKHeX
+    // would infer from the base game (legality, encounters, Showdown) is wrong for a hack.
     [Fact]
-    public void SupportsNoCapabilities() => _format.Capabilities.Should().BeEmpty();
+    public void SupportsOnlyEvents() => _format.Capabilities.Should().Equal(Capability.Events);
 
     [Fact]
     public void DetectsALegacySaveAsAPossibleMatch() =>
