@@ -11,34 +11,34 @@ using static PKHeX.Everywhere.Engine.Tests.EngineResults;
 namespace PKHeX.Everywhere.Engine.Tests;
 
 // A preview judges legality under the destination's ParseSettings, which are global, so no other test runs meanwhile.
-[CollectionDefinition(nameof(TradeHandlerTests), DisableParallelization = true)]
-public class TradeCollection;
+[CollectionDefinition(nameof(TransferHandlerTests), DisableParallelization = true)]
+public class TransferCollection;
 
-[Collection(nameof(TradeHandlerTests))]
-public class TradeHandlerTests
+[Collection(nameof(TransferHandlerTests))]
+public class TransferHandlerTests
 {
     [Fact]
     public void OpenReportsThePartnerTheRoutesAndTheEmptyBoxSlots()
     {
         var session = Loaded(SaveFilePath.FireRed);
 
-        var trade = Open(session, SaveFilePath.Emerald);
+        var transfer = Open(session, SaveFilePath.Emerald);
 
-        trade["partner"]!["version"]!.GetValue<string>().Should().Be("Emerald");
-        trade["partner"]!["fileName"]!.GetValue<string>().Should().Be("partner.sav");
-        trade["routes"]!.ToJsonString().Should().Be("""{"send":"link","receive":"link"}""");
-        trade["room"]!.ToJsonString().Should().Be("""{"mine":63,"partner":7}""");
+        transfer["partner"]!["version"]!.GetValue<string>().Should().Be("Emerald");
+        transfer["partner"]!["fileName"]!.GetValue<string>().Should().Be("partner.sav");
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"link","receive":"link"}""");
+        transfer["room"]!.ToJsonString().Should().Be("""{"mine":63,"partner":7}""");
     }
 
     [Fact]
-    public void GetReturnsTheOpenTradeOrNull()
+    public void GetReturnsTheOpenTransferOrNull()
     {
         var session = Loaded(SaveFilePath.FireRed);
-        Value(Dispatch(session, "trade.get", "[]")).Should().BeNull();
+        Value(Dispatch(session, "transfer.get", "[]")).Should().BeNull();
 
         Open(session, SaveFilePath.Emerald);
 
-        Value(Dispatch(session, "trade.get", "[]"))!["routes"]!["send"]!.GetValue<string>().Should().Be("link");
+        Value(Dispatch(session, "transfer.get", "[]"))!["routes"]!["send"]!.GetValue<string>().Should().Be("link");
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class TradeHandlerTests
         var session = Loaded(SaveFilePath.FireRed);
         Open(session, SaveFilePath.Emerald);
 
-        var theirs = Value(Dispatch(session, "trade.partnerBoxes", "[]"))!.AsArray();
+        var theirs = Value(Dispatch(session, "transfer.partnerBoxes", "[]"))!.AsArray();
 
         theirs.Select(p => p!["species"]!.GetValue<string>()).Should().StartWith(["Torchic", "Wurmple", "Wingull", "Bulbasaur"]);
         theirs[0]!["at"]!["source"]!.GetValue<string>().Should().Be("party");
@@ -75,12 +75,12 @@ public class TradeHandlerTests
     }
 
     [Fact]
-    public void YellowToCrystalIsATimeCapsuleTrade()
+    public void YellowToCrystalIsATimeCapsuleTransfer()
     {
         var session = Loaded(SaveFilePath.Yellow);
-        var trade = Open(session, SaveFilePath.Crystal);
+        var transfer = Open(session, SaveFilePath.Crystal);
 
-        trade["routes"]!.ToJsonString().Should().Be("""{"send":"timeCapsule","receive":"timeCapsule"}""");
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"timeCapsule","receive":"timeCapsule"}""");
         var offer = Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
         offer["arrives"]!["species"]!.GetValue<string>().Should().Be("Bulbasaur");
         offer["changes"]!.AsArray().Select(c => c!["reason"]!.GetValue<string>()).Should().OnlyContain(r => r == "timeCapsule" || r == "itemRemapped");
@@ -115,9 +115,9 @@ public class TradeHandlerTests
     public void EmeraldToHeartGoldIsPalParkWhichRemovesHmMoves()
     {
         var session = Loaded(SaveFilePath.Emerald);
-        var trade = Open(session, SaveFilePath.HgSs);
+        var transfer = Open(session, SaveFilePath.HgSs);
 
-        trade["routes"]!.ToJsonString().Should().Be("""{"send":"palPark","receive":null}""");
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"palPark","receive":null}""");
         var offer = Preview(session, Send(PokemonHandle.InBox(0, 5)))["offers"]![0]!;
         offer["from"]!["species"]!.GetValue<string>().Should().Be("Charizard");
         var changes = offer["changes"]!.AsArray().Select(c => c!.ToJsonString()).ToList();
@@ -140,9 +140,9 @@ public class TradeHandlerTests
     public void HeartGoldToEmeraldHasNoRoute()
     {
         var session = Loaded(SaveFilePath.HgSs);
-        var trade = Open(session, SaveFilePath.Emerald);
+        var transfer = Open(session, SaveFilePath.Emerald);
 
-        trade["routes"]!.ToJsonString().Should().Be("""{"send":null,"receive":"palPark"}""");
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":null,"receive":"palPark"}""");
         Preview(session, Send(PokemonHandle.InBox(0, 0)))["refused"]![0]!["reason"]!.GetValue<string>().Should().Be("noRoute");
     }
 
@@ -196,7 +196,7 @@ public class TradeHandlerTests
         Open(session, SaveFilePath.Emerald);
         var charizard = session.Game!.Trainer.PokemonBox.All[0];
 
-        var done = Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
+        var done = Value(Dispatch(session, "transfer.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
 
         var arrived = done["arrived"]![0]!;
         arrived["direction"]!.GetValue<string>().Should().Be("send");
@@ -208,7 +208,7 @@ public class TradeHandlerTests
         landed.Pkm.Data.ToArray().Should().Equal(charizard.Pkm.Data.ToArray());
         landed.Legality().Valid.Should().BeTrue();
         Value(Dispatch(session, "box.get", "[]"))!.AsArray().Should().NotContain(p => p!["at"]!.ToJsonString() == """{"source":"box","slot":0,"box":0}""");
-        Value(Dispatch(session, "trade.partnerBoxes", "[]"))!.AsArray().Should().Contain(p => p!["at"]!.ToJsonString() == arrived["at"]!.ToJsonString());
+        Value(Dispatch(session, "transfer.partnerBoxes", "[]"))!.AsArray().Should().Contain(p => p!["at"]!.ToJsonString() == arrived["at"]!.ToJsonString());
     }
 
     [Fact]
@@ -217,7 +217,7 @@ public class TradeHandlerTests
         var session = Loaded(SaveFilePath.Emerald);
         Open(session, SaveFilePath.HgSs);
 
-        var done = Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.InBox(0, 5)))))!;
+        var done = Value(Dispatch(session, "transfer.commit", Args(Send(PokemonHandle.InBox(0, 5)))))!;
 
         var partner = Game.LoadFrom(Bytes(done["partner"]!), "partner.dsv");
         var landed = partner.Trainer.PokemonBox.All[Index(partner, done["arrived"]![0]!["at"]!)];
@@ -234,7 +234,7 @@ public class TradeHandlerTests
         var session = Loaded(SaveFilePath.Yellow);
         Open(session, SaveFilePath.Crystal);
 
-        var done = Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
+        var done = Value(Dispatch(session, "transfer.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
 
         Game.LoadFrom(Bytes(done["save"]!), "yellow.sav").Trainer.PokemonBox.Boxed().Should().NotContain(p => p.Pokemon.Species.Name == "Bulbasaur");
         Game.LoadFrom(Bytes(done["partner"]!), "crystal.sav").Trainer.PokemonBox.Boxed().Should().Contain(p => p.Pokemon.Species.Name == "Bulbasaur");
@@ -246,7 +246,7 @@ public class TradeHandlerTests
         var session = Loaded(SaveFilePath.Emerald);
         Open(session, SaveFilePath.FireRed);
 
-        var done = Value(Dispatch(session, "trade.commit", Args(Receive(PokemonHandle.InBox(0, 1)))))!;
+        var done = Value(Dispatch(session, "transfer.commit", Args(Receive(PokemonHandle.InBox(0, 1)))))!;
 
         var arrived = done["arrived"]![0]!;
         arrived["direction"]!.GetValue<string>().Should().Be("receive");
@@ -260,20 +260,20 @@ public class TradeHandlerTests
         var session = Loaded(SaveFilePath.Emerald);
         Open(session, SaveFilePath.FireRed);
 
-        var done = Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.Party(0)))))!;
+        var done = Value(Dispatch(session, "transfer.commit", Args(Send(PokemonHandle.Party(0)))))!;
 
         Value(Dispatch(session, "party.get", "[]"))!.AsArray().Select(p => p!["species"]!.GetValue<string>()).Should().Equal("Wurmple", "Wingull");
         Game.LoadFrom(Bytes(done["save"]!), "emerald.sav").Trainer.Party.Pokemons.Select(p => p.Species.Name).Should().Equal("Wurmple", "Wingull");
     }
 
     [Fact]
-    public void CommitKeepsADraftOfABoxSlotTheTradeLeavesAlone()
+    public void CommitKeepsADraftOfABoxSlotTheTransferLeavesAlone()
     {
         var session = Loaded(SaveFilePath.FireRed);
         Open(session, SaveFilePath.Emerald);
         Value(Dispatch(session, "pokemon.edit", Args(PokemonHandle.InBox(0, 1))));
 
-        Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.InBox(0, 0)))));
+        Value(Dispatch(session, "transfer.commit", Args(Send(PokemonHandle.InBox(0, 0)))));
 
         session.Draft.Should().NotBeNull();
     }
@@ -285,23 +285,23 @@ public class TradeHandlerTests
         Open(session, SaveFilePath.FireRed);
         Value(Dispatch(session, "pokemon.edit", Args(PokemonHandle.Party(1))));
 
-        Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.Party(0)))));
+        Value(Dispatch(session, "transfer.commit", Args(Send(PokemonHandle.Party(0)))));
 
         session.Draft.Should().BeNull();
     }
 
     [Fact]
-    public void CommitFailsWithTradeRefusedAndWritesNothing()
+    public void CommitFailsWithTransferRefusedAndWritesNothing()
     {
         var session = Loaded(SaveFilePath.FireRed);
         Open(session, SaveFilePath.Emerald);
         var before = Dispatch(session, "box.get", "[]");
-        var theirsBefore = Dispatch(session, "trade.partnerBoxes", "[]");
+        var theirsBefore = Dispatch(session, "transfer.partnerBoxes", "[]");
 
-        Error(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.InBox(0, 0), PokemonHandle.Party(0))))).Should().Be("trade-refused");
+        Error(Dispatch(session, "transfer.commit", Args(Send(PokemonHandle.InBox(0, 0), PokemonHandle.Party(0))))).Should().Be("transfer-refused");
 
         Dispatch(session, "box.get", "[]").Should().Be(before);
-        Dispatch(session, "trade.partnerBoxes", "[]").Should().Be(theirsBefore);
+        Dispatch(session, "transfer.partnerBoxes", "[]").Should().Be(theirsBefore);
     }
 
     [Fact]
@@ -310,14 +310,14 @@ public class TradeHandlerTests
         var session = Loaded(SaveFilePath.FireRed);
         Open(session, SaveFilePath.Emerald);
 
-        Value(Dispatch(session, "trade.close", "[]"));
+        Value(Dispatch(session, "transfer.close", "[]"));
 
-        Error(Dispatch(session, "trade.partnerBoxes", "[]")).Should().Be("no-trade");
+        Error(Dispatch(session, "transfer.partnerBoxes", "[]")).Should().Be("no-transfer");
     }
 
     [Fact]
-    public void PreviewFailsWithNoTradeWhenNoneIsOpen() =>
-        Error(Dispatch(Loaded(SaveFilePath.FireRed), "trade.preview", Args(Send(PokemonHandle.InBox(0, 0))))).Should().Be("no-trade");
+    public void PreviewFailsWithNoTransferWhenNoneIsOpen() =>
+        Error(Dispatch(Loaded(SaveFilePath.FireRed), "transfer.preview", Args(Send(PokemonHandle.InBox(0, 0))))).Should().Be("no-transfer");
 
     [Fact]
     public void PreviewFailsWithNotFoundForAnEmptySlot()
@@ -325,7 +325,7 @@ public class TradeHandlerTests
         var session = Loaded(SaveFilePath.FireRed);
         Open(session, SaveFilePath.Emerald);
 
-        Error(Dispatch(session, "trade.preview", Args(Send(PokemonHandle.Party(3))))).Should().Be("not-found");
+        Error(Dispatch(session, "transfer.preview", Args(Send(PokemonHandle.Party(3))))).Should().Be("not-found");
     }
 
     [Fact]
@@ -349,7 +349,7 @@ public class TradeHandlerTests
         var session = LoadedWith(SaveFilePath.Crystal, pk => (pk.Species, pk.HeldItem) = ((ushort)Species.Onix, Gen2MetalCoat));
         Open(session, SaveFilePath.Crystal);
 
-        var done = Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
+        var done = Value(Dispatch(session, "transfer.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
 
         var partner = Game.LoadFrom(Bytes(done["partner"]!), "crystal.sav");
         var landed = partner.Trainer.PokemonBox.All[Index(partner, done["arrived"]![0]!["at"]!)];
@@ -409,7 +409,7 @@ public class TradeHandlerTests
         var session = LoadedWith(SaveFilePath.Emerald, pk => pk.CurrentFriendship = 255);
         Open(session, SaveFilePath.FireRed);
 
-        var done = Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
+        var done = Value(Dispatch(session, "transfer.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
 
         var partner = Game.LoadFrom(Bytes(done["partner"]!), "firered.sav");
         partner.Trainer.PokemonBox.All[Index(partner, done["arrived"]![0]!["at"]!)].Friendship.Should().Be(70);
@@ -442,7 +442,7 @@ public class TradeHandlerTests
         Open(session, SaveFilePath.HgSs);
 
         var offer = Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
-        var done = Value(Dispatch(session, "trade.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
+        var done = Value(Dispatch(session, "transfer.commit", Args(Send(PokemonHandle.InBox(0, 0)))))!;
 
         offer["arrives"]!["form"]!["name"]!.GetValue<string>().Should().Be("Altered");
         offer["changes"]!.AsArray().Select(c => c!.ToJsonString()).Should().Contain(
@@ -464,19 +464,19 @@ public class TradeHandlerTests
         Open(session, Edited(SaveFilePath.HgSs, pk => (pk.Species, pk.FatefulEncounter) = ((ushort)Species.Arceus, true)));
 
         var offer = Preview(session, Receive(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
-        var done = Value(Dispatch(session, "trade.commit", Args(Receive(PokemonHandle.InBox(0, 0)))))!;
+        var done = Value(Dispatch(session, "transfer.commit", Args(Receive(PokemonHandle.InBox(0, 0)))))!;
 
         offer["saveChanges"]!.AsArray().Select(c => c!.ToJsonString()).Should().Contain("""{"kind":"eventVar","save":"receiver","label":"Arceus Event Hiker: In Oreburgh Mine"}""");
         new SAV4Pt(Bytes(done["save"]!)).GetWork(86).Should().Be(1);
     }
 
     private static JsonNode Open(Session session, string partner) =>
-        Value(Dispatch(session, "trade.open", Args(Convert.ToBase64String(File.ReadAllBytes(partner)), "partner.sav", null!)))!;
+        Value(Dispatch(session, "transfer.open", Args(Convert.ToBase64String(File.ReadAllBytes(partner)), "partner.sav", null!)))!;
 
     private static JsonNode Open(Session session, byte[] partner) =>
-        Value(Dispatch(session, "trade.open", Args(Convert.ToBase64String(partner), "partner.sav", null!)))!;
+        Value(Dispatch(session, "transfer.open", Args(Convert.ToBase64String(partner), "partner.sav", null!)))!;
 
-    private static JsonNode Preview(Session session, object offer) => Value(Dispatch(session, "trade.preview", Args(offer)))!;
+    private static JsonNode Preview(Session session, object offer) => Value(Dispatch(session, "transfer.preview", Args(offer)))!;
 
     private static object Send(params PokemonHandle[] send) => new { send = send.Select(Handle), receive = Array.Empty<object>() };
 

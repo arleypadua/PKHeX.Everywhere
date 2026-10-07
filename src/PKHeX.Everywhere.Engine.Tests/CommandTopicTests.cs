@@ -4,7 +4,7 @@ using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 using PKHeX.Facade.Events;
-using PKHeX.Facade.Trades;
+using PKHeX.Facade.Transfers;
 using PKHeX.Facade.Tests.Base;
 using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 
@@ -69,13 +69,13 @@ public class CommandTopicTests
         ["pokemon.clone"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
         ["pokemon.addToBox"] = (_, _) => ["[]"],
         ["species.list"] = (_, _) => ["[]"],
-        ["trade.get"] = (_, _) => ["[]"],
-        ["trade.partnerBoxes"] = (_, _) => ["[]"],
-        ["trade.preview"] = (game, _) => FirstBoxPokemon(game) is var (at, _) ? [Args(Offer(at))] : [],
-        ["trade.open"] = (_, saveFile) => [TradePartner(saveFile)],
-        // The partner is a copy of the save, so the trade is a link trade wherever the save has one.
-        ["trade.commit"] = (game, _) => Trade.RouteBetween(game, game) is not null && FirstBoxPokemon(game) is var (at, _) ? [Args(Offer(at))] : [],
-        ["trade.close"] = (_, _) => ["[]"],
+        ["transfer.get"] = (_, _) => ["[]"],
+        ["transfer.partnerBoxes"] = (_, _) => ["[]"],
+        ["transfer.preview"] = (game, _) => FirstBoxPokemon(game) is var (at, _) ? [Args(Offer(at))] : [],
+        ["transfer.open"] = (_, saveFile) => [TransferPartner(saveFile)],
+        // The partner is a copy of the save, so the transfer is a link trade wherever the save has one.
+        ["transfer.commit"] = (game, _) => Transfer.RouteBetween(game, game) is not null && FirstBoxPokemon(game) is var (at, _) ? [Args(Offer(at))] : [],
+        ["transfer.close"] = (_, _) => ["[]"],
         ["trainer.get"] = (_, _) => ["[]"],
         ["trainer.setName"] = (_, _) => [Args("Ash")],
         ["trainer.setGender"] = (game, _) => game.Trainer.HasGender ? [Args(game.Trainer.Gender == PKHeX.Facade.Gender.Female ? "male" : "female")] : [],
@@ -110,7 +110,7 @@ public class CommandTopicTests
         {
             var session = new Session();
             session.Load(SaveFilePath.Load(saveFile), saveFile);
-            OpenDraftAndTrade(session, saveFile);
+            OpenDraftAndTransfer(session, saveFile);
             var queries = Queries
                 .SelectMany(q => SampleArgs[q.Name](session.Game!, saveFile).Select(a => (Call: q.Name, Args: a, q.Topics)))
                 .ToList();
@@ -131,15 +131,15 @@ public class CommandTopicTests
         }
     }
 
-    // A draft and a trade are open before each command, so the draft and trade calls have one to work on and the other commands show they leave them alone.
-    private static void OpenDraftAndTrade(Session session, string saveFile)
+    // A draft and a transfer are open before each command, so the draft and transfer calls have one to work on and the other commands show they leave them alone.
+    private static void OpenDraftAndTransfer(Session session, string saveFile)
     {
         EngineResults.Value(Dispatch(session, "pokemon.edit", Args(PokemonHandle.Party(0))));
         EngineResults.Value(Dispatch(session, "pokemon.update", Args(PokemonHandle.Draft(), new { nickname = "Drafty" })));
-        EngineResults.Value(Dispatch(session, "trade.open", TradePartner(saveFile)));
+        EngineResults.Value(Dispatch(session, "transfer.open", TransferPartner(saveFile)));
     }
 
-    private static string TradePartner(string saveFile) =>
+    private static string TransferPartner(string saveFile) =>
         Args(Convert.ToBase64String(File.ReadAllBytes(saveFile)), "partner.sav", SaveFilePath.FormatOf(saveFile)?.Id!);
 
     private static object Offer(PokemonHandle send) => new

@@ -226,243 +226,243 @@ virtual PKHeX.Facade.Box.EqualityContract.get -> System.Type!
 virtual PKHeX.Facade.Box.Equals(PKHeX.Facade.Box? other) -> bool
 virtual PKHeX.Facade.Box.PrintMembers(System.Text.StringBuilder! builder) -> bool
 PKHeX.Facade.Trainer.HasGender.get -> bool
-PKHeX.Facade.Trades.RefusedPokemon
-PKHeX.Facade.Trades.RefusedPokemon.Deconstruct(out PKHeX.Facade.Trades.TradeDirection Direction, out PKHeX.Facade.Trades.TradeSlot! From, out PKHeX.Facade.Trades.TradeRefusal Reason) -> void
-PKHeX.Facade.Trades.RefusedPokemon.Direction.get -> PKHeX.Facade.Trades.TradeDirection
-PKHeX.Facade.Trades.RefusedPokemon.Direction.init -> void
-PKHeX.Facade.Trades.RefusedPokemon.From.get -> PKHeX.Facade.Trades.TradeSlot!
-PKHeX.Facade.Trades.RefusedPokemon.From.init -> void
-PKHeX.Facade.Trades.RefusedPokemon.Reason.get -> PKHeX.Facade.Trades.TradeRefusal
-PKHeX.Facade.Trades.RefusedPokemon.Reason.init -> void
-PKHeX.Facade.Trades.RefusedPokemon.RefusedPokemon(PKHeX.Facade.Trades.RefusedPokemon! original) -> void
-PKHeX.Facade.Trades.RefusedPokemon.RefusedPokemon(PKHeX.Facade.Trades.TradeDirection Direction, PKHeX.Facade.Trades.TradeSlot! From, PKHeX.Facade.Trades.TradeRefusal Reason) -> void
-PKHeX.Facade.Trades.Trade
-PKHeX.Facade.Trades.Trade.Commit(PKHeX.Facade.Trades.TradeOffer! offer) -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeArrival!>!
-PKHeX.Facade.Trades.Trade.Mine.get -> PKHeX.Facade.Game!
-PKHeX.Facade.Trades.Trade.Partner.get -> PKHeX.Facade.Game!
-PKHeX.Facade.Trades.Trade.Preview(PKHeX.Facade.Trades.TradeOffer! offer) -> PKHeX.Facade.Trades.TradePreview!
-PKHeX.Facade.Trades.Trade.ReceiveRoute.get -> PKHeX.Facade.Trades.TradeRoute?
-PKHeX.Facade.Trades.Trade.Room.get -> PKHeX.Facade.Trades.TradeRoom!
-PKHeX.Facade.Trades.Trade.SendRoute.get -> PKHeX.Facade.Trades.TradeRoute?
-PKHeX.Facade.Trades.Trade.Trade(PKHeX.Facade.Game! mine, PKHeX.Facade.Game! partner) -> void
-PKHeX.Facade.Trades.TradeArrival
-PKHeX.Facade.Trades.TradeArrival.BoxIndex.get -> int
-PKHeX.Facade.Trades.TradeArrival.BoxIndex.init -> void
-PKHeX.Facade.Trades.TradeArrival.Deconstruct(out PKHeX.Facade.Trades.TradeDirection Direction, out int BoxIndex, out PKHeX.Facade.Pokemons.Pokemon! Pokemon) -> void
-PKHeX.Facade.Trades.TradeArrival.Direction.get -> PKHeX.Facade.Trades.TradeDirection
-PKHeX.Facade.Trades.TradeArrival.Direction.init -> void
-PKHeX.Facade.Trades.TradeArrival.Pokemon.get -> PKHeX.Facade.Pokemons.Pokemon!
-PKHeX.Facade.Trades.TradeArrival.Pokemon.init -> void
-PKHeX.Facade.Trades.TradeArrival.TradeArrival(PKHeX.Facade.Trades.TradeArrival! original) -> void
-PKHeX.Facade.Trades.TradeArrival.TradeArrival(PKHeX.Facade.Trades.TradeDirection Direction, int BoxIndex, PKHeX.Facade.Pokemons.Pokemon! Pokemon) -> void
-PKHeX.Facade.Trades.TradeChange
-PKHeX.Facade.Trades.TradeChange.After.get -> string?
-PKHeX.Facade.Trades.TradeChange.After.init -> void
-PKHeX.Facade.Trades.TradeChange.Before.get -> string?
-PKHeX.Facade.Trades.TradeChange.Before.init -> void
-PKHeX.Facade.Trades.TradeChange.Deconstruct(out PKHeX.Facade.Trades.TradeField Field, out string? Before, out string? After, out PKHeX.Facade.Trades.TradeChangeReason Reason) -> void
-PKHeX.Facade.Trades.TradeChange.Field.get -> PKHeX.Facade.Trades.TradeField
-PKHeX.Facade.Trades.TradeChange.Field.init -> void
-PKHeX.Facade.Trades.TradeChange.Reason.get -> PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeChange.Reason.init -> void
-PKHeX.Facade.Trades.TradeChange.TradeChange(PKHeX.Facade.Trades.TradeChange! original) -> void
-PKHeX.Facade.Trades.TradeChange.TradeChange(PKHeX.Facade.Trades.TradeField Field, string? Before, string? After, PKHeX.Facade.Trades.TradeChangeReason Reason) -> void
-PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeChangeReason.HmRemoved = 0 -> PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeChangeReason.ItemRemapped = 1 -> PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeChangeReason.ItemRemoved = 2 -> PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeChangeReason.Link = 3 -> PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeChangeReason.PalPark = 5 -> PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeChangeReason.PokeTransfer = 6 -> PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeChangeReason.Received = 7 -> PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeChangeReason.TradeEvolution = 8 -> PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeChangeReason.ItemUsed = 9 -> PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeChangeReason.FormReverted = 10 -> PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeChangeReason.TimeCapsule = 4 -> PKHeX.Facade.Trades.TradeChangeReason
-PKHeX.Facade.Trades.TradeDirection
-PKHeX.Facade.Trades.TradeDirection.Receive = 1 -> PKHeX.Facade.Trades.TradeDirection
-PKHeX.Facade.Trades.TradeDirection.Send = 0 -> PKHeX.Facade.Trades.TradeDirection
-PKHeX.Facade.Trades.TradeField
-PKHeX.Facade.Trades.TradeField.Ability = 9 -> PKHeX.Facade.Trades.TradeField
-PKHeX.Facade.Trades.TradeField.Ball = 6 -> PKHeX.Facade.Trades.TradeField
-PKHeX.Facade.Trades.TradeField.Form = 1 -> PKHeX.Facade.Trades.TradeField
-PKHeX.Facade.Trades.TradeField.Friendship = 7 -> PKHeX.Facade.Trades.TradeField
-PKHeX.Facade.Trades.TradeField.HeldItem = 2 -> PKHeX.Facade.Trades.TradeField
-PKHeX.Facade.Trades.TradeField.MetLevel = 5 -> PKHeX.Facade.Trades.TradeField
-PKHeX.Facade.Trades.TradeField.MetLocation = 4 -> PKHeX.Facade.Trades.TradeField
-PKHeX.Facade.Trades.TradeField.Moves = 3 -> PKHeX.Facade.Trades.TradeField
-PKHeX.Facade.Trades.TradeField.Nickname = 8 -> PKHeX.Facade.Trades.TradeField
-PKHeX.Facade.Trades.TradeField.Species = 0 -> PKHeX.Facade.Trades.TradeField
-PKHeX.Facade.Trades.TradeOffer
-PKHeX.Facade.Trades.TradeOffer.Deconstruct(out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSlot!>! Send, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSlot!>! Receive) -> void
-PKHeX.Facade.Trades.TradeOffer.Receive.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSlot!>!
-PKHeX.Facade.Trades.TradeOffer.Receive.init -> void
-PKHeX.Facade.Trades.TradeOffer.Send.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSlot!>!
-PKHeX.Facade.Trades.TradeOffer.Send.init -> void
-PKHeX.Facade.Trades.TradeOffer.TradeOffer(PKHeX.Facade.Trades.TradeOffer! original) -> void
-PKHeX.Facade.Trades.TradeOffer.TradeOffer(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSlot!>! Send, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSlot!>! Receive) -> void
-PKHeX.Facade.Trades.TradePreview
-PKHeX.Facade.Trades.TradePreview.Deconstruct(out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradedPokemon!>! Offers, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.RefusedPokemon!>! Refused) -> void
-PKHeX.Facade.Trades.TradePreview.Offers.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradedPokemon!>!
-PKHeX.Facade.Trades.TradePreview.Offers.init -> void
-PKHeX.Facade.Trades.TradePreview.Refused.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.RefusedPokemon!>!
-PKHeX.Facade.Trades.TradePreview.Refused.init -> void
-PKHeX.Facade.Trades.TradePreview.TradePreview(PKHeX.Facade.Trades.TradePreview! original) -> void
-PKHeX.Facade.Trades.TradePreview.TradePreview(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradedPokemon!>! Offers, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.RefusedPokemon!>! Refused) -> void
-PKHeX.Facade.Trades.TradeRefusal
-PKHeX.Facade.Trades.TradeRefusal.EggAcrossGenerations = 2 -> PKHeX.Facade.Trades.TradeRefusal
-PKHeX.Facade.Trades.TradeRefusal.LanguageMismatch = 3 -> PKHeX.Facade.Trades.TradeRefusal
-PKHeX.Facade.Trades.TradeRefusal.LastPartyMember = 5 -> PKHeX.Facade.Trades.TradeRefusal
-PKHeX.Facade.Trades.TradeRefusal.NoRoom = 6 -> PKHeX.Facade.Trades.TradeRefusal
-PKHeX.Facade.Trades.TradeRefusal.BagFull = 7 -> PKHeX.Facade.Trades.TradeRefusal
-PKHeX.Facade.Trades.TradeRefusal.NoRoute = 0 -> PKHeX.Facade.Trades.TradeRefusal
-PKHeX.Facade.Trades.TradeRefusal.SlotLocked = 1 -> PKHeX.Facade.Trades.TradeRefusal
-PKHeX.Facade.Trades.TradeRefusal.SpeciesNotInGame = 4 -> PKHeX.Facade.Trades.TradeRefusal
-PKHeX.Facade.Trades.TradeRefusedException
-PKHeX.Facade.Trades.TradeRefusedException.Refused.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.RefusedPokemon!>!
-PKHeX.Facade.Trades.TradeRefusedException.TradeRefusedException(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.RefusedPokemon!>! refused) -> void
-PKHeX.Facade.Trades.TradeRoom
-PKHeX.Facade.Trades.TradeRoom.Deconstruct(out int Mine, out int Partner) -> void
-PKHeX.Facade.Trades.TradeRoom.Mine.get -> int
-PKHeX.Facade.Trades.TradeRoom.Mine.init -> void
-PKHeX.Facade.Trades.TradeRoom.Partner.get -> int
-PKHeX.Facade.Trades.TradeRoom.Partner.init -> void
-PKHeX.Facade.Trades.TradeRoom.TradeRoom(PKHeX.Facade.Trades.TradeRoom! original) -> void
-PKHeX.Facade.Trades.TradeRoom.TradeRoom(int Mine, int Partner) -> void
-PKHeX.Facade.Trades.TradeRoute
-PKHeX.Facade.Trades.TradeRoute.Link = 0 -> PKHeX.Facade.Trades.TradeRoute
-PKHeX.Facade.Trades.TradeRoute.PalPark = 2 -> PKHeX.Facade.Trades.TradeRoute
-PKHeX.Facade.Trades.TradeRoute.PokeTransfer = 3 -> PKHeX.Facade.Trades.TradeRoute
-PKHeX.Facade.Trades.TradeRoute.TimeCapsule = 1 -> PKHeX.Facade.Trades.TradeRoute
-PKHeX.Facade.Trades.TradeSaveChange
-PKHeX.Facade.Trades.TradeSaveChange.Deconstruct(out PKHeX.Facade.Trades.TradeSaveChangeKind Kind, out PKHeX.Facade.Trades.TradeSide Save, out string! Label) -> void
-PKHeX.Facade.Trades.TradeSaveChange.Kind.get -> PKHeX.Facade.Trades.TradeSaveChangeKind
-PKHeX.Facade.Trades.TradeSaveChange.Kind.init -> void
-PKHeX.Facade.Trades.TradeSaveChange.Label.get -> string!
-PKHeX.Facade.Trades.TradeSaveChange.Label.init -> void
-PKHeX.Facade.Trades.TradeSaveChange.Save.get -> PKHeX.Facade.Trades.TradeSide
-PKHeX.Facade.Trades.TradeSaveChange.Save.init -> void
-PKHeX.Facade.Trades.TradeSaveChange.TradeSaveChange(PKHeX.Facade.Trades.TradeSaveChange! original) -> void
-PKHeX.Facade.Trades.TradeSaveChange.TradeSaveChange(PKHeX.Facade.Trades.TradeSaveChangeKind Kind, PKHeX.Facade.Trades.TradeSide Save, string! Label) -> void
-PKHeX.Facade.Trades.TradeSaveChangeKind
-PKHeX.Facade.Trades.TradeSaveChangeKind.PokedexCaught = 0 -> PKHeX.Facade.Trades.TradeSaveChangeKind
-PKHeX.Facade.Trades.TradeSaveChangeKind.ItemReturned = 1 -> PKHeX.Facade.Trades.TradeSaveChangeKind
-PKHeX.Facade.Trades.TradeSaveChangeKind.EventVar = 2 -> PKHeX.Facade.Trades.TradeSaveChangeKind
-PKHeX.Facade.Trades.TradeSide
-PKHeX.Facade.Trades.TradeSide.Sender = 0 -> PKHeX.Facade.Trades.TradeSide
-PKHeX.Facade.Trades.TradeSide.Receiver = 1 -> PKHeX.Facade.Trades.TradeSide
-PKHeX.Facade.Trades.TradeSlot
-PKHeX.Facade.Trades.TradeSlot.Deconstruct(out PKHeX.Facade.Pokemons.PokemonSource Source, out int Index) -> void
-PKHeX.Facade.Trades.TradeSlot.Index.get -> int
-PKHeX.Facade.Trades.TradeSlot.Index.init -> void
-PKHeX.Facade.Trades.TradeSlot.Source.get -> PKHeX.Facade.Pokemons.PokemonSource
-PKHeX.Facade.Trades.TradeSlot.Source.init -> void
-PKHeX.Facade.Trades.TradeSlot.TradeSlot(PKHeX.Facade.Pokemons.PokemonSource Source, int Index) -> void
-PKHeX.Facade.Trades.TradeSlot.TradeSlot(PKHeX.Facade.Trades.TradeSlot! original) -> void
-PKHeX.Facade.Trades.TradedPokemon
-PKHeX.Facade.Trades.TradedPokemon.Arrives.get -> PKHeX.Facade.Pokemons.Pokemon!
-PKHeX.Facade.Trades.TradedPokemon.Arrives.init -> void
-PKHeX.Facade.Trades.TradedPokemon.ArrivesAt.get -> int
-PKHeX.Facade.Trades.TradedPokemon.ArrivesAt.init -> void
-PKHeX.Facade.Trades.TradedPokemon.Changes.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeChange!>!
-PKHeX.Facade.Trades.TradedPokemon.Changes.init -> void
-PKHeX.Facade.Trades.TradedPokemon.Deconstruct(out PKHeX.Facade.Trades.TradeDirection Direction, out PKHeX.Facade.Trades.TradeSlot! From, out PKHeX.Facade.Pokemons.Pokemon! Pokemon, out int ArrivesAt, out PKHeX.Facade.Pokemons.Pokemon! Arrives, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeChange!>! Changes, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSaveChange!>! SaveChanges, out PKHeX.Facade.Pokemons.PokemonLegality! Legality) -> void
-PKHeX.Facade.Trades.TradedPokemon.Direction.get -> PKHeX.Facade.Trades.TradeDirection
-PKHeX.Facade.Trades.TradedPokemon.Direction.init -> void
-PKHeX.Facade.Trades.TradedPokemon.From.get -> PKHeX.Facade.Trades.TradeSlot!
-PKHeX.Facade.Trades.TradedPokemon.From.init -> void
-PKHeX.Facade.Trades.TradedPokemon.Legality.get -> PKHeX.Facade.Pokemons.PokemonLegality!
-PKHeX.Facade.Trades.TradedPokemon.Legality.init -> void
-PKHeX.Facade.Trades.TradedPokemon.Pokemon.get -> PKHeX.Facade.Pokemons.Pokemon!
-PKHeX.Facade.Trades.TradedPokemon.Pokemon.init -> void
-PKHeX.Facade.Trades.TradedPokemon.SaveChanges.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSaveChange!>!
-PKHeX.Facade.Trades.TradedPokemon.SaveChanges.init -> void
-PKHeX.Facade.Trades.TradedPokemon.TradedPokemon(PKHeX.Facade.Trades.TradeDirection Direction, PKHeX.Facade.Trades.TradeSlot! From, PKHeX.Facade.Pokemons.Pokemon! Pokemon, int ArrivesAt, PKHeX.Facade.Pokemons.Pokemon! Arrives, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeChange!>! Changes, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Trades.TradeSaveChange!>! SaveChanges, PKHeX.Facade.Pokemons.PokemonLegality! Legality) -> void
-PKHeX.Facade.Trades.TradedPokemon.TradedPokemon(PKHeX.Facade.Trades.TradedPokemon! original) -> void
-override PKHeX.Facade.Trades.RefusedPokemon.Equals(object? obj) -> bool
-override PKHeX.Facade.Trades.RefusedPokemon.GetHashCode() -> int
-override PKHeX.Facade.Trades.RefusedPokemon.ToString() -> string!
-override PKHeX.Facade.Trades.TradeArrival.Equals(object? obj) -> bool
-override PKHeX.Facade.Trades.TradeArrival.GetHashCode() -> int
-override PKHeX.Facade.Trades.TradeArrival.ToString() -> string!
-override PKHeX.Facade.Trades.TradeChange.Equals(object? obj) -> bool
-override PKHeX.Facade.Trades.TradeChange.GetHashCode() -> int
-override PKHeX.Facade.Trades.TradeChange.ToString() -> string!
-override PKHeX.Facade.Trades.TradeOffer.Equals(object? obj) -> bool
-override PKHeX.Facade.Trades.TradeOffer.GetHashCode() -> int
-override PKHeX.Facade.Trades.TradeOffer.ToString() -> string!
-override PKHeX.Facade.Trades.TradePreview.Equals(object? obj) -> bool
-override PKHeX.Facade.Trades.TradePreview.GetHashCode() -> int
-override PKHeX.Facade.Trades.TradePreview.ToString() -> string!
-override PKHeX.Facade.Trades.TradeRoom.Equals(object? obj) -> bool
-override PKHeX.Facade.Trades.TradeRoom.GetHashCode() -> int
-override PKHeX.Facade.Trades.TradeRoom.ToString() -> string!
-override PKHeX.Facade.Trades.TradeSaveChange.Equals(object? obj) -> bool
-override PKHeX.Facade.Trades.TradeSaveChange.GetHashCode() -> int
-override PKHeX.Facade.Trades.TradeSaveChange.ToString() -> string!
-override PKHeX.Facade.Trades.TradeSlot.Equals(object? obj) -> bool
-override PKHeX.Facade.Trades.TradeSlot.GetHashCode() -> int
-override PKHeX.Facade.Trades.TradeSlot.ToString() -> string!
-override PKHeX.Facade.Trades.TradedPokemon.Equals(object? obj) -> bool
-override PKHeX.Facade.Trades.TradedPokemon.GetHashCode() -> int
-override PKHeX.Facade.Trades.TradedPokemon.ToString() -> string!
-static PKHeX.Facade.Trades.RefusedPokemon.operator !=(PKHeX.Facade.Trades.RefusedPokemon? left, PKHeX.Facade.Trades.RefusedPokemon? right) -> bool
-static PKHeX.Facade.Trades.RefusedPokemon.operator ==(PKHeX.Facade.Trades.RefusedPokemon? left, PKHeX.Facade.Trades.RefusedPokemon? right) -> bool
-static PKHeX.Facade.Trades.Trade.RouteBetween(PKHeX.Facade.Game! from, PKHeX.Facade.Game! to) -> PKHeX.Facade.Trades.TradeRoute?
-static PKHeX.Facade.Trades.TradeArrival.operator !=(PKHeX.Facade.Trades.TradeArrival? left, PKHeX.Facade.Trades.TradeArrival? right) -> bool
-static PKHeX.Facade.Trades.TradeArrival.operator ==(PKHeX.Facade.Trades.TradeArrival? left, PKHeX.Facade.Trades.TradeArrival? right) -> bool
-static PKHeX.Facade.Trades.TradeChange.operator !=(PKHeX.Facade.Trades.TradeChange? left, PKHeX.Facade.Trades.TradeChange? right) -> bool
-static PKHeX.Facade.Trades.TradeChange.operator ==(PKHeX.Facade.Trades.TradeChange? left, PKHeX.Facade.Trades.TradeChange? right) -> bool
-static PKHeX.Facade.Trades.TradeOffer.operator !=(PKHeX.Facade.Trades.TradeOffer? left, PKHeX.Facade.Trades.TradeOffer? right) -> bool
-static PKHeX.Facade.Trades.TradeOffer.operator ==(PKHeX.Facade.Trades.TradeOffer? left, PKHeX.Facade.Trades.TradeOffer? right) -> bool
-static PKHeX.Facade.Trades.TradePreview.operator !=(PKHeX.Facade.Trades.TradePreview? left, PKHeX.Facade.Trades.TradePreview? right) -> bool
-static PKHeX.Facade.Trades.TradePreview.operator ==(PKHeX.Facade.Trades.TradePreview? left, PKHeX.Facade.Trades.TradePreview? right) -> bool
-static PKHeX.Facade.Trades.TradeRoom.operator !=(PKHeX.Facade.Trades.TradeRoom? left, PKHeX.Facade.Trades.TradeRoom? right) -> bool
-static PKHeX.Facade.Trades.TradeRoom.operator ==(PKHeX.Facade.Trades.TradeRoom? left, PKHeX.Facade.Trades.TradeRoom? right) -> bool
-static PKHeX.Facade.Trades.TradeSaveChange.operator !=(PKHeX.Facade.Trades.TradeSaveChange? left, PKHeX.Facade.Trades.TradeSaveChange? right) -> bool
-static PKHeX.Facade.Trades.TradeSaveChange.operator ==(PKHeX.Facade.Trades.TradeSaveChange? left, PKHeX.Facade.Trades.TradeSaveChange? right) -> bool
-static PKHeX.Facade.Trades.TradeSlot.operator !=(PKHeX.Facade.Trades.TradeSlot? left, PKHeX.Facade.Trades.TradeSlot? right) -> bool
-static PKHeX.Facade.Trades.TradeSlot.operator ==(PKHeX.Facade.Trades.TradeSlot? left, PKHeX.Facade.Trades.TradeSlot? right) -> bool
-static PKHeX.Facade.Trades.TradedPokemon.operator !=(PKHeX.Facade.Trades.TradedPokemon? left, PKHeX.Facade.Trades.TradedPokemon? right) -> bool
-static PKHeX.Facade.Trades.TradedPokemon.operator ==(PKHeX.Facade.Trades.TradedPokemon? left, PKHeX.Facade.Trades.TradedPokemon? right) -> bool
-virtual PKHeX.Facade.Trades.RefusedPokemon.<Clone>$() -> PKHeX.Facade.Trades.RefusedPokemon!
-virtual PKHeX.Facade.Trades.RefusedPokemon.EqualityContract.get -> System.Type!
-virtual PKHeX.Facade.Trades.RefusedPokemon.Equals(PKHeX.Facade.Trades.RefusedPokemon? other) -> bool
-virtual PKHeX.Facade.Trades.RefusedPokemon.PrintMembers(System.Text.StringBuilder! builder) -> bool
-virtual PKHeX.Facade.Trades.TradeArrival.<Clone>$() -> PKHeX.Facade.Trades.TradeArrival!
-virtual PKHeX.Facade.Trades.TradeArrival.EqualityContract.get -> System.Type!
-virtual PKHeX.Facade.Trades.TradeArrival.Equals(PKHeX.Facade.Trades.TradeArrival? other) -> bool
-virtual PKHeX.Facade.Trades.TradeArrival.PrintMembers(System.Text.StringBuilder! builder) -> bool
-virtual PKHeX.Facade.Trades.TradeChange.<Clone>$() -> PKHeX.Facade.Trades.TradeChange!
-virtual PKHeX.Facade.Trades.TradeChange.EqualityContract.get -> System.Type!
-virtual PKHeX.Facade.Trades.TradeChange.Equals(PKHeX.Facade.Trades.TradeChange? other) -> bool
-virtual PKHeX.Facade.Trades.TradeChange.PrintMembers(System.Text.StringBuilder! builder) -> bool
-virtual PKHeX.Facade.Trades.TradeOffer.<Clone>$() -> PKHeX.Facade.Trades.TradeOffer!
-virtual PKHeX.Facade.Trades.TradeOffer.EqualityContract.get -> System.Type!
-virtual PKHeX.Facade.Trades.TradeOffer.Equals(PKHeX.Facade.Trades.TradeOffer? other) -> bool
-virtual PKHeX.Facade.Trades.TradeOffer.PrintMembers(System.Text.StringBuilder! builder) -> bool
-virtual PKHeX.Facade.Trades.TradePreview.<Clone>$() -> PKHeX.Facade.Trades.TradePreview!
-virtual PKHeX.Facade.Trades.TradePreview.EqualityContract.get -> System.Type!
-virtual PKHeX.Facade.Trades.TradePreview.Equals(PKHeX.Facade.Trades.TradePreview? other) -> bool
-virtual PKHeX.Facade.Trades.TradePreview.PrintMembers(System.Text.StringBuilder! builder) -> bool
-virtual PKHeX.Facade.Trades.TradeRoom.<Clone>$() -> PKHeX.Facade.Trades.TradeRoom!
-virtual PKHeX.Facade.Trades.TradeRoom.EqualityContract.get -> System.Type!
-virtual PKHeX.Facade.Trades.TradeRoom.Equals(PKHeX.Facade.Trades.TradeRoom? other) -> bool
-virtual PKHeX.Facade.Trades.TradeRoom.PrintMembers(System.Text.StringBuilder! builder) -> bool
-virtual PKHeX.Facade.Trades.TradeSaveChange.<Clone>$() -> PKHeX.Facade.Trades.TradeSaveChange!
-virtual PKHeX.Facade.Trades.TradeSaveChange.EqualityContract.get -> System.Type!
-virtual PKHeX.Facade.Trades.TradeSaveChange.Equals(PKHeX.Facade.Trades.TradeSaveChange? other) -> bool
-virtual PKHeX.Facade.Trades.TradeSaveChange.PrintMembers(System.Text.StringBuilder! builder) -> bool
-virtual PKHeX.Facade.Trades.TradeSlot.<Clone>$() -> PKHeX.Facade.Trades.TradeSlot!
-virtual PKHeX.Facade.Trades.TradeSlot.EqualityContract.get -> System.Type!
-virtual PKHeX.Facade.Trades.TradeSlot.Equals(PKHeX.Facade.Trades.TradeSlot? other) -> bool
-virtual PKHeX.Facade.Trades.TradeSlot.PrintMembers(System.Text.StringBuilder! builder) -> bool
-virtual PKHeX.Facade.Trades.TradedPokemon.<Clone>$() -> PKHeX.Facade.Trades.TradedPokemon!
-virtual PKHeX.Facade.Trades.TradedPokemon.EqualityContract.get -> System.Type!
-virtual PKHeX.Facade.Trades.TradedPokemon.Equals(PKHeX.Facade.Trades.TradedPokemon? other) -> bool
-virtual PKHeX.Facade.Trades.TradedPokemon.PrintMembers(System.Text.StringBuilder! builder) -> bool
-PKHeX.Facade.Trades.Trade.From(PKHeX.Facade.Trades.TradeDirection direction) -> PKHeX.Facade.Game!
-PKHeX.Facade.Trades.Trade.To(PKHeX.Facade.Trades.TradeDirection direction) -> PKHeX.Facade.Game!
+PKHeX.Facade.Transfers.RefusedPokemon
+PKHeX.Facade.Transfers.RefusedPokemon.Deconstruct(out PKHeX.Facade.Transfers.TransferDirection Direction, out PKHeX.Facade.Transfers.TransferSlot! From, out PKHeX.Facade.Transfers.TransferRefusal Reason) -> void
+PKHeX.Facade.Transfers.RefusedPokemon.Direction.get -> PKHeX.Facade.Transfers.TransferDirection
+PKHeX.Facade.Transfers.RefusedPokemon.Direction.init -> void
+PKHeX.Facade.Transfers.RefusedPokemon.From.get -> PKHeX.Facade.Transfers.TransferSlot!
+PKHeX.Facade.Transfers.RefusedPokemon.From.init -> void
+PKHeX.Facade.Transfers.RefusedPokemon.Reason.get -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Transfers.RefusedPokemon.Reason.init -> void
+PKHeX.Facade.Transfers.RefusedPokemon.RefusedPokemon(PKHeX.Facade.Transfers.RefusedPokemon! original) -> void
+PKHeX.Facade.Transfers.RefusedPokemon.RefusedPokemon(PKHeX.Facade.Transfers.TransferDirection Direction, PKHeX.Facade.Transfers.TransferSlot! From, PKHeX.Facade.Transfers.TransferRefusal Reason) -> void
+PKHeX.Facade.Transfers.Transfer
+PKHeX.Facade.Transfers.Transfer.Commit(PKHeX.Facade.Transfers.TransferOffer! offer) -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferArrival!>!
+PKHeX.Facade.Transfers.Transfer.Mine.get -> PKHeX.Facade.Game!
+PKHeX.Facade.Transfers.Transfer.Partner.get -> PKHeX.Facade.Game!
+PKHeX.Facade.Transfers.Transfer.Preview(PKHeX.Facade.Transfers.TransferOffer! offer) -> PKHeX.Facade.Transfers.TransferPreview!
+PKHeX.Facade.Transfers.Transfer.ReceiveRoute.get -> PKHeX.Facade.Transfers.TransferRoute?
+PKHeX.Facade.Transfers.Transfer.Room.get -> PKHeX.Facade.Transfers.TransferRoom!
+PKHeX.Facade.Transfers.Transfer.SendRoute.get -> PKHeX.Facade.Transfers.TransferRoute?
+PKHeX.Facade.Transfers.Transfer.Transfer(PKHeX.Facade.Game! mine, PKHeX.Facade.Game! partner) -> void
+PKHeX.Facade.Transfers.TransferArrival
+PKHeX.Facade.Transfers.TransferArrival.BoxIndex.get -> int
+PKHeX.Facade.Transfers.TransferArrival.BoxIndex.init -> void
+PKHeX.Facade.Transfers.TransferArrival.Deconstruct(out PKHeX.Facade.Transfers.TransferDirection Direction, out int BoxIndex, out PKHeX.Facade.Pokemons.Pokemon! Pokemon) -> void
+PKHeX.Facade.Transfers.TransferArrival.Direction.get -> PKHeX.Facade.Transfers.TransferDirection
+PKHeX.Facade.Transfers.TransferArrival.Direction.init -> void
+PKHeX.Facade.Transfers.TransferArrival.Pokemon.get -> PKHeX.Facade.Pokemons.Pokemon!
+PKHeX.Facade.Transfers.TransferArrival.Pokemon.init -> void
+PKHeX.Facade.Transfers.TransferArrival.TransferArrival(PKHeX.Facade.Transfers.TransferArrival! original) -> void
+PKHeX.Facade.Transfers.TransferArrival.TransferArrival(PKHeX.Facade.Transfers.TransferDirection Direction, int BoxIndex, PKHeX.Facade.Pokemons.Pokemon! Pokemon) -> void
+PKHeX.Facade.Transfers.TransferChange
+PKHeX.Facade.Transfers.TransferChange.After.get -> string?
+PKHeX.Facade.Transfers.TransferChange.After.init -> void
+PKHeX.Facade.Transfers.TransferChange.Before.get -> string?
+PKHeX.Facade.Transfers.TransferChange.Before.init -> void
+PKHeX.Facade.Transfers.TransferChange.Deconstruct(out PKHeX.Facade.Transfers.TransferField Field, out string? Before, out string? After, out PKHeX.Facade.Transfers.TransferChangeReason Reason) -> void
+PKHeX.Facade.Transfers.TransferChange.Field.get -> PKHeX.Facade.Transfers.TransferField
+PKHeX.Facade.Transfers.TransferChange.Field.init -> void
+PKHeX.Facade.Transfers.TransferChange.Reason.get -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChange.Reason.init -> void
+PKHeX.Facade.Transfers.TransferChange.TransferChange(PKHeX.Facade.Transfers.TransferChange! original) -> void
+PKHeX.Facade.Transfers.TransferChange.TransferChange(PKHeX.Facade.Transfers.TransferField Field, string? Before, string? After, PKHeX.Facade.Transfers.TransferChangeReason Reason) -> void
+PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.HmRemoved = 0 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.ItemRemapped = 1 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.ItemRemoved = 2 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.Link = 3 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.PalPark = 5 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.PokeTransfer = 6 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.Received = 7 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.TradeEvolution = 8 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.ItemUsed = 9 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.FormReverted = 10 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.TimeCapsule = 4 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferDirection
+PKHeX.Facade.Transfers.TransferDirection.Receive = 1 -> PKHeX.Facade.Transfers.TransferDirection
+PKHeX.Facade.Transfers.TransferDirection.Send = 0 -> PKHeX.Facade.Transfers.TransferDirection
+PKHeX.Facade.Transfers.TransferField
+PKHeX.Facade.Transfers.TransferField.Ability = 9 -> PKHeX.Facade.Transfers.TransferField
+PKHeX.Facade.Transfers.TransferField.Ball = 6 -> PKHeX.Facade.Transfers.TransferField
+PKHeX.Facade.Transfers.TransferField.Form = 1 -> PKHeX.Facade.Transfers.TransferField
+PKHeX.Facade.Transfers.TransferField.Friendship = 7 -> PKHeX.Facade.Transfers.TransferField
+PKHeX.Facade.Transfers.TransferField.HeldItem = 2 -> PKHeX.Facade.Transfers.TransferField
+PKHeX.Facade.Transfers.TransferField.MetLevel = 5 -> PKHeX.Facade.Transfers.TransferField
+PKHeX.Facade.Transfers.TransferField.MetLocation = 4 -> PKHeX.Facade.Transfers.TransferField
+PKHeX.Facade.Transfers.TransferField.Moves = 3 -> PKHeX.Facade.Transfers.TransferField
+PKHeX.Facade.Transfers.TransferField.Nickname = 8 -> PKHeX.Facade.Transfers.TransferField
+PKHeX.Facade.Transfers.TransferField.Species = 0 -> PKHeX.Facade.Transfers.TransferField
+PKHeX.Facade.Transfers.TransferOffer
+PKHeX.Facade.Transfers.TransferOffer.Deconstruct(out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>! Send, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>! Receive) -> void
+PKHeX.Facade.Transfers.TransferOffer.Receive.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>!
+PKHeX.Facade.Transfers.TransferOffer.Receive.init -> void
+PKHeX.Facade.Transfers.TransferOffer.Send.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>!
+PKHeX.Facade.Transfers.TransferOffer.Send.init -> void
+PKHeX.Facade.Transfers.TransferOffer.TransferOffer(PKHeX.Facade.Transfers.TransferOffer! original) -> void
+PKHeX.Facade.Transfers.TransferOffer.TransferOffer(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>! Send, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>! Receive) -> void
+PKHeX.Facade.Transfers.TransferPreview
+PKHeX.Facade.Transfers.TransferPreview.Deconstruct(out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferredPokemon!>! Offers, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.RefusedPokemon!>! Refused) -> void
+PKHeX.Facade.Transfers.TransferPreview.Offers.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferredPokemon!>!
+PKHeX.Facade.Transfers.TransferPreview.Offers.init -> void
+PKHeX.Facade.Transfers.TransferPreview.Refused.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.RefusedPokemon!>!
+PKHeX.Facade.Transfers.TransferPreview.Refused.init -> void
+PKHeX.Facade.Transfers.TransferPreview.TransferPreview(PKHeX.Facade.Transfers.TransferPreview! original) -> void
+PKHeX.Facade.Transfers.TransferPreview.TransferPreview(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferredPokemon!>! Offers, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.RefusedPokemon!>! Refused) -> void
+PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Transfers.TransferRefusal.EggAcrossGenerations = 2 -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Transfers.TransferRefusal.LanguageMismatch = 3 -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Transfers.TransferRefusal.LastPartyMember = 5 -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Transfers.TransferRefusal.NoRoom = 6 -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Transfers.TransferRefusal.BagFull = 7 -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Transfers.TransferRefusal.NoRoute = 0 -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Transfers.TransferRefusal.SlotLocked = 1 -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Transfers.TransferRefusal.SpeciesNotInGame = 4 -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Transfers.TransferRefusedException
+PKHeX.Facade.Transfers.TransferRefusedException.Refused.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.RefusedPokemon!>!
+PKHeX.Facade.Transfers.TransferRefusedException.TransferRefusedException(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.RefusedPokemon!>! refused) -> void
+PKHeX.Facade.Transfers.TransferRoom
+PKHeX.Facade.Transfers.TransferRoom.Deconstruct(out int Mine, out int Partner) -> void
+PKHeX.Facade.Transfers.TransferRoom.Mine.get -> int
+PKHeX.Facade.Transfers.TransferRoom.Mine.init -> void
+PKHeX.Facade.Transfers.TransferRoom.Partner.get -> int
+PKHeX.Facade.Transfers.TransferRoom.Partner.init -> void
+PKHeX.Facade.Transfers.TransferRoom.TransferRoom(PKHeX.Facade.Transfers.TransferRoom! original) -> void
+PKHeX.Facade.Transfers.TransferRoom.TransferRoom(int Mine, int Partner) -> void
+PKHeX.Facade.Transfers.TransferRoute
+PKHeX.Facade.Transfers.TransferRoute.Link = 0 -> PKHeX.Facade.Transfers.TransferRoute
+PKHeX.Facade.Transfers.TransferRoute.PalPark = 2 -> PKHeX.Facade.Transfers.TransferRoute
+PKHeX.Facade.Transfers.TransferRoute.PokeTransfer = 3 -> PKHeX.Facade.Transfers.TransferRoute
+PKHeX.Facade.Transfers.TransferRoute.TimeCapsule = 1 -> PKHeX.Facade.Transfers.TransferRoute
+PKHeX.Facade.Transfers.TransferSaveChange
+PKHeX.Facade.Transfers.TransferSaveChange.Deconstruct(out PKHeX.Facade.Transfers.TransferSaveChangeKind Kind, out PKHeX.Facade.Transfers.TransferSide Save, out string! Label) -> void
+PKHeX.Facade.Transfers.TransferSaveChange.Kind.get -> PKHeX.Facade.Transfers.TransferSaveChangeKind
+PKHeX.Facade.Transfers.TransferSaveChange.Kind.init -> void
+PKHeX.Facade.Transfers.TransferSaveChange.Label.get -> string!
+PKHeX.Facade.Transfers.TransferSaveChange.Label.init -> void
+PKHeX.Facade.Transfers.TransferSaveChange.Save.get -> PKHeX.Facade.Transfers.TransferSide
+PKHeX.Facade.Transfers.TransferSaveChange.Save.init -> void
+PKHeX.Facade.Transfers.TransferSaveChange.TransferSaveChange(PKHeX.Facade.Transfers.TransferSaveChange! original) -> void
+PKHeX.Facade.Transfers.TransferSaveChange.TransferSaveChange(PKHeX.Facade.Transfers.TransferSaveChangeKind Kind, PKHeX.Facade.Transfers.TransferSide Save, string! Label) -> void
+PKHeX.Facade.Transfers.TransferSaveChangeKind
+PKHeX.Facade.Transfers.TransferSaveChangeKind.PokedexCaught = 0 -> PKHeX.Facade.Transfers.TransferSaveChangeKind
+PKHeX.Facade.Transfers.TransferSaveChangeKind.ItemReturned = 1 -> PKHeX.Facade.Transfers.TransferSaveChangeKind
+PKHeX.Facade.Transfers.TransferSaveChangeKind.EventVar = 2 -> PKHeX.Facade.Transfers.TransferSaveChangeKind
+PKHeX.Facade.Transfers.TransferSide
+PKHeX.Facade.Transfers.TransferSide.Sender = 0 -> PKHeX.Facade.Transfers.TransferSide
+PKHeX.Facade.Transfers.TransferSide.Receiver = 1 -> PKHeX.Facade.Transfers.TransferSide
+PKHeX.Facade.Transfers.TransferSlot
+PKHeX.Facade.Transfers.TransferSlot.Deconstruct(out PKHeX.Facade.Pokemons.PokemonSource Source, out int Index) -> void
+PKHeX.Facade.Transfers.TransferSlot.Index.get -> int
+PKHeX.Facade.Transfers.TransferSlot.Index.init -> void
+PKHeX.Facade.Transfers.TransferSlot.Source.get -> PKHeX.Facade.Pokemons.PokemonSource
+PKHeX.Facade.Transfers.TransferSlot.Source.init -> void
+PKHeX.Facade.Transfers.TransferSlot.TransferSlot(PKHeX.Facade.Pokemons.PokemonSource Source, int Index) -> void
+PKHeX.Facade.Transfers.TransferSlot.TransferSlot(PKHeX.Facade.Transfers.TransferSlot! original) -> void
+PKHeX.Facade.Transfers.TransferredPokemon
+PKHeX.Facade.Transfers.TransferredPokemon.Arrives.get -> PKHeX.Facade.Pokemons.Pokemon!
+PKHeX.Facade.Transfers.TransferredPokemon.Arrives.init -> void
+PKHeX.Facade.Transfers.TransferredPokemon.ArrivesAt.get -> int
+PKHeX.Facade.Transfers.TransferredPokemon.ArrivesAt.init -> void
+PKHeX.Facade.Transfers.TransferredPokemon.Changes.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferChange!>!
+PKHeX.Facade.Transfers.TransferredPokemon.Changes.init -> void
+PKHeX.Facade.Transfers.TransferredPokemon.Deconstruct(out PKHeX.Facade.Transfers.TransferDirection Direction, out PKHeX.Facade.Transfers.TransferSlot! From, out PKHeX.Facade.Pokemons.Pokemon! Pokemon, out int ArrivesAt, out PKHeX.Facade.Pokemons.Pokemon! Arrives, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferChange!>! Changes, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSaveChange!>! SaveChanges, out PKHeX.Facade.Pokemons.PokemonLegality! Legality) -> void
+PKHeX.Facade.Transfers.TransferredPokemon.Direction.get -> PKHeX.Facade.Transfers.TransferDirection
+PKHeX.Facade.Transfers.TransferredPokemon.Direction.init -> void
+PKHeX.Facade.Transfers.TransferredPokemon.From.get -> PKHeX.Facade.Transfers.TransferSlot!
+PKHeX.Facade.Transfers.TransferredPokemon.From.init -> void
+PKHeX.Facade.Transfers.TransferredPokemon.Legality.get -> PKHeX.Facade.Pokemons.PokemonLegality!
+PKHeX.Facade.Transfers.TransferredPokemon.Legality.init -> void
+PKHeX.Facade.Transfers.TransferredPokemon.Pokemon.get -> PKHeX.Facade.Pokemons.Pokemon!
+PKHeX.Facade.Transfers.TransferredPokemon.Pokemon.init -> void
+PKHeX.Facade.Transfers.TransferredPokemon.SaveChanges.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSaveChange!>!
+PKHeX.Facade.Transfers.TransferredPokemon.SaveChanges.init -> void
+PKHeX.Facade.Transfers.TransferredPokemon.TransferredPokemon(PKHeX.Facade.Transfers.TransferDirection Direction, PKHeX.Facade.Transfers.TransferSlot! From, PKHeX.Facade.Pokemons.Pokemon! Pokemon, int ArrivesAt, PKHeX.Facade.Pokemons.Pokemon! Arrives, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferChange!>! Changes, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSaveChange!>! SaveChanges, PKHeX.Facade.Pokemons.PokemonLegality! Legality) -> void
+PKHeX.Facade.Transfers.TransferredPokemon.TransferredPokemon(PKHeX.Facade.Transfers.TransferredPokemon! original) -> void
+override PKHeX.Facade.Transfers.RefusedPokemon.Equals(object? obj) -> bool
+override PKHeX.Facade.Transfers.RefusedPokemon.GetHashCode() -> int
+override PKHeX.Facade.Transfers.RefusedPokemon.ToString() -> string!
+override PKHeX.Facade.Transfers.TransferArrival.Equals(object? obj) -> bool
+override PKHeX.Facade.Transfers.TransferArrival.GetHashCode() -> int
+override PKHeX.Facade.Transfers.TransferArrival.ToString() -> string!
+override PKHeX.Facade.Transfers.TransferChange.Equals(object? obj) -> bool
+override PKHeX.Facade.Transfers.TransferChange.GetHashCode() -> int
+override PKHeX.Facade.Transfers.TransferChange.ToString() -> string!
+override PKHeX.Facade.Transfers.TransferOffer.Equals(object? obj) -> bool
+override PKHeX.Facade.Transfers.TransferOffer.GetHashCode() -> int
+override PKHeX.Facade.Transfers.TransferOffer.ToString() -> string!
+override PKHeX.Facade.Transfers.TransferPreview.Equals(object? obj) -> bool
+override PKHeX.Facade.Transfers.TransferPreview.GetHashCode() -> int
+override PKHeX.Facade.Transfers.TransferPreview.ToString() -> string!
+override PKHeX.Facade.Transfers.TransferRoom.Equals(object? obj) -> bool
+override PKHeX.Facade.Transfers.TransferRoom.GetHashCode() -> int
+override PKHeX.Facade.Transfers.TransferRoom.ToString() -> string!
+override PKHeX.Facade.Transfers.TransferSaveChange.Equals(object? obj) -> bool
+override PKHeX.Facade.Transfers.TransferSaveChange.GetHashCode() -> int
+override PKHeX.Facade.Transfers.TransferSaveChange.ToString() -> string!
+override PKHeX.Facade.Transfers.TransferSlot.Equals(object? obj) -> bool
+override PKHeX.Facade.Transfers.TransferSlot.GetHashCode() -> int
+override PKHeX.Facade.Transfers.TransferSlot.ToString() -> string!
+override PKHeX.Facade.Transfers.TransferredPokemon.Equals(object? obj) -> bool
+override PKHeX.Facade.Transfers.TransferredPokemon.GetHashCode() -> int
+override PKHeX.Facade.Transfers.TransferredPokemon.ToString() -> string!
+static PKHeX.Facade.Transfers.RefusedPokemon.operator !=(PKHeX.Facade.Transfers.RefusedPokemon? left, PKHeX.Facade.Transfers.RefusedPokemon? right) -> bool
+static PKHeX.Facade.Transfers.RefusedPokemon.operator ==(PKHeX.Facade.Transfers.RefusedPokemon? left, PKHeX.Facade.Transfers.RefusedPokemon? right) -> bool
+static PKHeX.Facade.Transfers.Transfer.RouteBetween(PKHeX.Facade.Game! from, PKHeX.Facade.Game! to) -> PKHeX.Facade.Transfers.TransferRoute?
+static PKHeX.Facade.Transfers.TransferArrival.operator !=(PKHeX.Facade.Transfers.TransferArrival? left, PKHeX.Facade.Transfers.TransferArrival? right) -> bool
+static PKHeX.Facade.Transfers.TransferArrival.operator ==(PKHeX.Facade.Transfers.TransferArrival? left, PKHeX.Facade.Transfers.TransferArrival? right) -> bool
+static PKHeX.Facade.Transfers.TransferChange.operator !=(PKHeX.Facade.Transfers.TransferChange? left, PKHeX.Facade.Transfers.TransferChange? right) -> bool
+static PKHeX.Facade.Transfers.TransferChange.operator ==(PKHeX.Facade.Transfers.TransferChange? left, PKHeX.Facade.Transfers.TransferChange? right) -> bool
+static PKHeX.Facade.Transfers.TransferOffer.operator !=(PKHeX.Facade.Transfers.TransferOffer? left, PKHeX.Facade.Transfers.TransferOffer? right) -> bool
+static PKHeX.Facade.Transfers.TransferOffer.operator ==(PKHeX.Facade.Transfers.TransferOffer? left, PKHeX.Facade.Transfers.TransferOffer? right) -> bool
+static PKHeX.Facade.Transfers.TransferPreview.operator !=(PKHeX.Facade.Transfers.TransferPreview? left, PKHeX.Facade.Transfers.TransferPreview? right) -> bool
+static PKHeX.Facade.Transfers.TransferPreview.operator ==(PKHeX.Facade.Transfers.TransferPreview? left, PKHeX.Facade.Transfers.TransferPreview? right) -> bool
+static PKHeX.Facade.Transfers.TransferRoom.operator !=(PKHeX.Facade.Transfers.TransferRoom? left, PKHeX.Facade.Transfers.TransferRoom? right) -> bool
+static PKHeX.Facade.Transfers.TransferRoom.operator ==(PKHeX.Facade.Transfers.TransferRoom? left, PKHeX.Facade.Transfers.TransferRoom? right) -> bool
+static PKHeX.Facade.Transfers.TransferSaveChange.operator !=(PKHeX.Facade.Transfers.TransferSaveChange? left, PKHeX.Facade.Transfers.TransferSaveChange? right) -> bool
+static PKHeX.Facade.Transfers.TransferSaveChange.operator ==(PKHeX.Facade.Transfers.TransferSaveChange? left, PKHeX.Facade.Transfers.TransferSaveChange? right) -> bool
+static PKHeX.Facade.Transfers.TransferSlot.operator !=(PKHeX.Facade.Transfers.TransferSlot? left, PKHeX.Facade.Transfers.TransferSlot? right) -> bool
+static PKHeX.Facade.Transfers.TransferSlot.operator ==(PKHeX.Facade.Transfers.TransferSlot? left, PKHeX.Facade.Transfers.TransferSlot? right) -> bool
+static PKHeX.Facade.Transfers.TransferredPokemon.operator !=(PKHeX.Facade.Transfers.TransferredPokemon? left, PKHeX.Facade.Transfers.TransferredPokemon? right) -> bool
+static PKHeX.Facade.Transfers.TransferredPokemon.operator ==(PKHeX.Facade.Transfers.TransferredPokemon? left, PKHeX.Facade.Transfers.TransferredPokemon? right) -> bool
+virtual PKHeX.Facade.Transfers.RefusedPokemon.<Clone>$() -> PKHeX.Facade.Transfers.RefusedPokemon!
+virtual PKHeX.Facade.Transfers.RefusedPokemon.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Transfers.RefusedPokemon.Equals(PKHeX.Facade.Transfers.RefusedPokemon? other) -> bool
+virtual PKHeX.Facade.Transfers.RefusedPokemon.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Transfers.TransferArrival.<Clone>$() -> PKHeX.Facade.Transfers.TransferArrival!
+virtual PKHeX.Facade.Transfers.TransferArrival.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Transfers.TransferArrival.Equals(PKHeX.Facade.Transfers.TransferArrival? other) -> bool
+virtual PKHeX.Facade.Transfers.TransferArrival.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Transfers.TransferChange.<Clone>$() -> PKHeX.Facade.Transfers.TransferChange!
+virtual PKHeX.Facade.Transfers.TransferChange.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Transfers.TransferChange.Equals(PKHeX.Facade.Transfers.TransferChange? other) -> bool
+virtual PKHeX.Facade.Transfers.TransferChange.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Transfers.TransferOffer.<Clone>$() -> PKHeX.Facade.Transfers.TransferOffer!
+virtual PKHeX.Facade.Transfers.TransferOffer.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Transfers.TransferOffer.Equals(PKHeX.Facade.Transfers.TransferOffer? other) -> bool
+virtual PKHeX.Facade.Transfers.TransferOffer.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Transfers.TransferPreview.<Clone>$() -> PKHeX.Facade.Transfers.TransferPreview!
+virtual PKHeX.Facade.Transfers.TransferPreview.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Transfers.TransferPreview.Equals(PKHeX.Facade.Transfers.TransferPreview? other) -> bool
+virtual PKHeX.Facade.Transfers.TransferPreview.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Transfers.TransferRoom.<Clone>$() -> PKHeX.Facade.Transfers.TransferRoom!
+virtual PKHeX.Facade.Transfers.TransferRoom.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Transfers.TransferRoom.Equals(PKHeX.Facade.Transfers.TransferRoom? other) -> bool
+virtual PKHeX.Facade.Transfers.TransferRoom.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Transfers.TransferSaveChange.<Clone>$() -> PKHeX.Facade.Transfers.TransferSaveChange!
+virtual PKHeX.Facade.Transfers.TransferSaveChange.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Transfers.TransferSaveChange.Equals(PKHeX.Facade.Transfers.TransferSaveChange? other) -> bool
+virtual PKHeX.Facade.Transfers.TransferSaveChange.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Transfers.TransferSlot.<Clone>$() -> PKHeX.Facade.Transfers.TransferSlot!
+virtual PKHeX.Facade.Transfers.TransferSlot.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Transfers.TransferSlot.Equals(PKHeX.Facade.Transfers.TransferSlot? other) -> bool
+virtual PKHeX.Facade.Transfers.TransferSlot.PrintMembers(System.Text.StringBuilder! builder) -> bool
+virtual PKHeX.Facade.Transfers.TransferredPokemon.<Clone>$() -> PKHeX.Facade.Transfers.TransferredPokemon!
+virtual PKHeX.Facade.Transfers.TransferredPokemon.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Transfers.TransferredPokemon.Equals(PKHeX.Facade.Transfers.TransferredPokemon? other) -> bool
+virtual PKHeX.Facade.Transfers.TransferredPokemon.PrintMembers(System.Text.StringBuilder! builder) -> bool
+PKHeX.Facade.Transfers.Transfer.From(PKHeX.Facade.Transfers.TransferDirection direction) -> PKHeX.Facade.Game!
+PKHeX.Facade.Transfers.Transfer.To(PKHeX.Facade.Transfers.TransferDirection direction) -> PKHeX.Facade.Game!
 PKHeX.Facade.Pokemons.UnreadablePokemonException
 PKHeX.Facade.Pokemons.UnreadablePokemonException.Reason.get -> PKHeX.Facade.Pokemons.UnreadableReason
 PKHeX.Facade.Pokemons.UnreadablePokemonException.UnreadablePokemonException(PKHeX.Facade.Pokemons.UnreadableReason reason, string! message) -> void

@@ -1,8 +1,8 @@
 using PKHeX.Core;
 
-namespace PKHeX.Facade.Trades;
+namespace PKHeX.Facade.Transfers;
 
-internal static class TradeEffects
+internal static class TransferEffects
 {
     public const ushort GriseousOrb = 112;
     private const ushort Everstone = 229;
@@ -37,15 +37,15 @@ internal static class TradeEffects
         return tookOrb;
     }
 
-    public static void Receive(PKM pk, TradeRoute route)
+    public static void Receive(PKM pk, TransferRoute route)
     {
-        if (route == TradeRoute.Link && pk.Context is EntityContext.Gen2 or EntityContext.Gen3 or EntityContext.Gen4 && !pk.IsEgg)
+        if (route == TransferRoute.Link && pk.Context is EntityContext.Gen2 or EntityContext.Gen3 or EntityContext.Gen4 && !pk.IsEgg)
             pk.CurrentFriendship = ReceivedFriendship;
     }
 
-    public static void Evolve(PKM pk, Game to, TradeRoute route)
+    public static void Evolve(PKM pk, Game to, TransferRoute route)
     {
-        if (pk.IsEgg || route is not (TradeRoute.Link or TradeRoute.TimeCapsule)) return;
+        if (pk.IsEgg || route is not (TransferRoute.Link or TransferRoute.TimeCapsule)) return;
 
         var context = pk.Context;
         var held = ItemConverter.GetItemDisplay(pk.HeldItem, context);
@@ -57,7 +57,7 @@ internal static class TradeEffects
             if (evolution.Method is not (EvolutionType.Trade or EvolutionType.TradeHeldItem)) continue;
 
             var item = RequiredItem(evolution, pk.Species, context);
-            if (item is not null && (route == TradeRoute.TimeCapsule || item != held)) continue;
+            if (item is not null && (route == TransferRoute.TimeCapsule || item != held)) continue;
 
             var form = evolution.GetDestinationForm(pk.Form);
             if (!to.SaveFile.Personal.IsPresentInGame(evolution.Species, form)) return;

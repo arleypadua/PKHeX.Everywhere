@@ -63,29 +63,29 @@ await engine.pokemon.commit()
 - `pokemon.clone(at)` opens a draft with no slot. `commit` fails on it with `no-slot`; use `pokemon.addToBox` instead.
 - Loading or closing a save drops the draft.
 
-## Trading between saves
+## Transferring between saves
 
-`trade.open` loads a partner save next to the loaded one. Pokémon move between them the way the games move them: a link trade between saves of the same format, the Time Capsule between Generation 1 and 2, Pal Park from Generation 3 to 4 and Poké Transfer from Generation 4 to 5.
+`transfer.open` loads a partner save next to the loaded one. Pokémon move between them the way the games move them: a link trade between saves of the same format, the Time Capsule between Generation 1 and 2, Pal Park from Generation 3 to 4 and Poké Transfer from Generation 4 to 5.
 
 ```ts
-const trade = await engine.trade.open(partnerFile)
-trade.routes // { send: 'palPark', receive: null }
+const transfer = await engine.transfer.open(partnerFile)
+transfer.routes // { send: 'palPark', receive: null }
 
 const offer = { send: [boxed], receive: [] }
-const { offers, refused } = await engine.trade.preview(offer)
+const { offers, refused } = await engine.transfer.preview(offer)
 
-const { save, partner, arrived } = await engine.trade.commit(offer)
-await engine.trade.close()
+const { save, partner, arrived } = await engine.transfer.commit(offer)
+await engine.transfer.close()
 ```
 
-- `send` handles point into the loaded save, and `receive` handles into the partner. `trade.partnerBoxes()` lists the partner's Pokémon.
+- `send` handles point into the loaded save, and `receive` handles into the partner. `transfer.partnerBoxes()` lists the partner's Pokémon.
 - Each offer shows the Pokémon as it is and as it arrives, the fields the move changes and why, and its legality in the destination game.
 - The receiving game applies its trade rules: trade evolutions, friendship reset to 70 in Generation 2 to 4, and Platinum's form reverts. `saveChanges` lists what changes in either save, such as a Griseous Orb returned to the sender's bag.
-- `commit` fails with `trade-refused`, changing nothing, while `preview` refuses any Pokémon in the offer. It returns both saves' bytes.
+- `commit` fails with `transfer-refused`, changing nothing, while `preview` refuses any Pokémon in the offer. It returns both saves' bytes.
 
 ## Reacting to changes
 
-`engine.subscribe(topics, callback)` calls back when a command changes something under those topics. Topics are `game`, `party`, `box`, `inventory`, `events`, `trainer`, `draft`, `plugins`, `trade`, or `*` for everything:
+`engine.subscribe(topics, callback)` calls back when a command changes something under those topics. Topics are `game`, `party`, `box`, `inventory`, `events`, `trainer`, `draft`, `plugins`, `transfer`, or `*` for everything:
 
 ```ts
 const stop = engine.subscribe(['party'], async () => {

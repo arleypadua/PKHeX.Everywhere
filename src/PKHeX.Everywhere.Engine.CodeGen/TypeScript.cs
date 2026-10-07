@@ -29,7 +29,7 @@ public static class TypeScript
     }
 
     // A returned record's bytes become a Uint8Array only when the client can convert them, so the record must never reach JS any other way.
-    // That covers the records it holds bytes through, such as each save a trade returns.
+    // That covers the records it holds bytes through, such as each save a transfer returns.
     private static HashSet<Type> BinaryOutputs(Contract contract)
     {
         var inputs = contract.Calls.SelectMany(c => c.Parameters).Select(p => Nullable.GetUnderlyingType(p.Type) ?? p.Type).ToHashSet();

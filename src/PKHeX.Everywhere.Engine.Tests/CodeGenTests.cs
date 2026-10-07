@@ -84,7 +84,7 @@ public class CodeGenTests
 
     [Fact]
     public void BytesInARecordAReturnedRecordHoldsAreUint8Arrays() =>
-        Client.Should().Contain("commit: async (offer) => withBytes(await invoke<TradeResult>('trade.commit', [offer]), ['save.bytes', 'partner.bytes']),");
+        Client.Should().Contain("commit: async (offer) => withBytes(await invoke<TransferResult>('transfer.commit', [offer]), ['save.bytes', 'partner.bytes']),");
 
     [Fact]
     public void BytesNestedInAnInputStayBase64()
