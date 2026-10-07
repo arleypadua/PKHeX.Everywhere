@@ -32,10 +32,6 @@ internal sealed record EmeraldLegacyBlockLarge(Memory<byte> Raw) : ISaveBlock3La
 
     private const int OFS_BerryBlenderRecord = 0xB24;
 
-    /// <summary>
-    /// Max RPM for 2, 3 and 4 players. Each value unit represents 0.01 RPM. Value 0 if no record.
-    /// </summary>
-    /// <remarks>2 players: index 0, 3 players: index 1, 4 players: index 2</remarks>
     public const int BerryBlenderRPMRecordCount = 3;
 
     private Span<byte> GetBlenderRPMSpan(int index)
@@ -167,7 +163,6 @@ internal sealed record EmeraldLegacyBlockLarge(Memory<byte> Raw) : ISaveBlock3La
 
     public const int WonderNewsOffset = 0x3394;
 
-    // RAM Script
     private Span<byte> MysterySpan => Data.Slice(0x3738, MysteryEvent3.SIZE);
     public Gen3MysteryData MysteryData
     {
@@ -191,7 +186,6 @@ internal sealed record EmeraldLegacyBlockLarge(Memory<byte> Raw) : ISaveBlock3La
 
     private const int OFS_TrainerHillRecord = 0x3728;
 
-    /** Each value unit represents 1/60th of a second. Value 0 if no record. */
     public uint GetTrainerHillRecord(TrainerHillMode3E mode) => ReadUInt32LittleEndian(Data[(OFS_TrainerHillRecord + ((byte)mode * 4))..]);
     public void SetTrainerHillRecord(TrainerHillMode3E mode, uint value) => WriteUInt32LittleEndian(Data[(OFS_TrainerHillRecord + ((byte)mode * 4))..], value);
 

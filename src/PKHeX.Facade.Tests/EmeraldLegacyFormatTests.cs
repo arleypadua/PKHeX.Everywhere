@@ -30,7 +30,6 @@ public class EmeraldLegacyFormatTests
         _format.Detect(withTrailer).Should().Be(SaveFormatMatch.Possible);
     }
 
-    // The regression that matters: a vanilla Emerald save must never be offered as Emerald Legacy.
     [Theory]
     [InlineData(SaveFilePath.Emerald)]
     [InlineData(SaveFilePath.FireRed)]

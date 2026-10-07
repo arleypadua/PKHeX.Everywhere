@@ -53,7 +53,7 @@ public static class SaveFilePath
     public const string Unbound = "./data/save/unbound.sav"; // Unbound 2.0
     public const string RadicalRed = "./data/save/radicalred.sav";
     public const string Imperium = "./data/save/imperium.sav"; // Emerald Imperium 1.3
-    public const string EmeraldLegacy = "./data/save/emerald-legacy.sav"; // Pokémon Emerald Legacy
+    public const string EmeraldLegacy = "./data/save/emerald-legacy.sav";
     public const string UnboundUnknownSpecies = "./data/save/unbound-unknown-species.sav"; // Shadow Warrior in box 23, slot 19
 
     public static IReadOnlyList<string> All { get; } =
