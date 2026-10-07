@@ -10,7 +10,7 @@ namespace PKHeX.Everywhere.RomHacks.Expansion.Imperium;
 /// It reports the Gen 9 context, so species, moves and forms resolve through PKHeX's national data.
 /// Every write keeps the bits around the field it changes, including the two flags only Imperium has.
 /// </summary>
-public sealed class ImperiumPokemon : PKM, ISpeciesIndex
+public sealed class ImperiumPokemon : PKM, ISpeciesIndex, IHeldItemIndex
 {
     public const int SizeParty = 100;
     public const int SizeStored = 80;

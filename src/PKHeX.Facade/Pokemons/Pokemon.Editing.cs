@@ -54,6 +54,7 @@ public partial class Pokemon
         IsUnknown = IsUnknown,
         IsEditable = IsEditable,
         SpeciesIndex = SpeciesIndex,
+        HeldItemIndex = HeldItemIndex,
     };
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices())
@@ -412,7 +413,7 @@ public partial class Pokemon
     {
         var held = HeldItem;
         return Game.Options.HeldItems
-            .Select(item => new ItemDefinition((ushort)item.Id, item.Name))
+            .Select(item => new ItemDefinition((ushort)item.Id, item.Name) { Index = Game.GameData.ItemIndex(item.Id) })
             .Concat(held.IsUnknown ? [held] : [])
             .ToArray();
     }

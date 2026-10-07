@@ -66,6 +66,8 @@ internal sealed class ImperiumGameData : IGameDataSource
         _ => null,
     };
 
+    public int ItemIndex(int item) => _save.ItemMap.ToIndex((ushort)item) ?? 0;
+
     public IReadOnlySet<PokemonField> Locked { get; } = new[] { PokemonField.Gender, PokemonField.MetLocation }.ToFrozenSet();
 
     public bool StatsApproximate => true;

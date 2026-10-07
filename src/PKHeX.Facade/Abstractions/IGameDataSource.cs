@@ -28,6 +28,11 @@ public interface IGameDataSource
     string? NameOf(GameDataKind kind, int id);
 
     /// <summary>
+    /// The value the save stores for an item id, such as a ROM hack's own index. A save that stores the id itself returns it unchanged.
+    /// </summary>
+    int ItemIndex(int item) => item;
+
+    /// <summary>
     /// The Pokémon fields the save can't change.
     /// </summary>
     IReadOnlySet<PokemonField> Locked { get; }

@@ -72,6 +72,8 @@ internal sealed class CfruGameData : IGameDataSource
         _ => null,
     };
 
+    public int ItemIndex(int item) => _itemMap.ToIndex((ushort)item) ?? 0;
+
     public IReadOnlySet<PokemonField> Locked { get; }
 
     public bool StatsApproximate => true;

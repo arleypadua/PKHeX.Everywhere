@@ -454,3 +454,12 @@ PKHeX.Facade.Pokemons.UnreadableReason.UnsupportedFormat = 5 -> PKHeX.Facade.Pok
 PKHeX.Facade.Repositories.SpeciesRepository.FindKnown(ushort id) -> PKHeX.Facade.Repositories.SpeciesDefinition?
 static PKHeX.Facade.Game.EmptyOf(PKHeX.Facade.Abstractions.ISaveFormat! format) -> PKHeX.Facade.Game?
 static PKHeX.Facade.Pokemons.Pokemon.Read(byte[]! bytes, int version, PKHeX.Facade.Abstractions.ISaveFormat! format) -> PKHeX.Facade.Pokemons.PokemonDetails!
+PKHeX.Facade.Abstractions.IGameDataSource.ItemIndex(int item) -> int
+PKHeX.Facade.Abstractions.IHeldItemIndex
+PKHeX.Facade.Abstractions.IHeldItemIndex.HeldItemIndex.get -> ushort
+PKHeX.Facade.Inventory.Item.Index.get -> int
+PKHeX.Facade.Pokemons.Pokemon.HeldItemIndex.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.HeldItemIndex.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.HeldItemIndex.init -> void
+PKHeX.Facade.Repositories.ItemDefinition.Index.get -> int
+PKHeX.Facade.Repositories.ItemDefinition.Index.init -> void

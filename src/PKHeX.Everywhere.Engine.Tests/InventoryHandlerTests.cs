@@ -26,8 +26,8 @@ public class InventoryHandlerTests
             .Select(i => new
             {
                 name = i.Type,
-                items = i.AllExceptNone().Select(item => new { id = item.Id, name = item.Name, count = item.Count, maxCount = i.MaxCountOf(item.Id), isUnknown = item.IsUnknown }),
-                addable = i.CurrentSupportedItems.Select(item => new { id = item.Id, name = item.Name, maxCount = i.MaxCountOf(item.Id) }),
+                items = i.AllExceptNone().Select(item => new { id = item.Id, index = item.Index, name = item.Name, count = item.Count, maxCount = i.MaxCountOf(item.Id), isUnknown = item.IsUnknown }),
+                addable = i.CurrentSupportedItems.Select(item => new { id = item.Id, index = item.Index, name = item.Name, maxCount = i.MaxCountOf(item.Id) }),
             });
         pouches.ToJsonString().Should().Be(JsonSerializer.Serialize(expected));
         pouches.AsArray().Should().NotBeEmpty();
