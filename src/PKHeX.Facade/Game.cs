@@ -140,6 +140,9 @@ public class Game
         game.Trainer.Name = trainerName ?? "PKHeXWeb";
         return game;
     }
+
+    /// <returns>An empty save in the format, or null when the format can't make one.</returns>
+    public static Game? EmptyOf(ISaveFormat format) => format.Blank() is { } save ? new Game(save, format) : null;
 }
 
 public class GameNotLoadedException(string? path = null, Exception? innerException = null)

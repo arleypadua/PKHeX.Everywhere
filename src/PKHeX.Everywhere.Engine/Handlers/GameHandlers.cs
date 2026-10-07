@@ -1,5 +1,6 @@
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Everywhere.Engine.Handlers;
@@ -44,9 +45,7 @@ public static class GameHandlers
 
     internal static Game LoadGame(byte[] data, string fileName, string? formatId)
     {
-        var format = formatId is null
-            ? null
-            : SaveFormats.Find(formatId) ?? throw new EngineException(ErrorCodes.NotFound, $"There is no save format '{formatId}'.");
+        var format = formatId is null ? null : FindFormat(formatId);
         try
         {
             return Game.LoadFrom(data, fileName, format);
@@ -63,6 +62,9 @@ public static class GameHandlers
             };
         }
     }
+
+    internal static ISaveFormat FindFormat(string id) =>
+        SaveFormats.Find(id) ?? throw new EngineException(ErrorCodes.NotFound, $"There is no save format '{id}'.");
 
     [Command("game.export", Topics.Party, Topics.Box)]
     public static ExportedSave Export(Session session, Game game)

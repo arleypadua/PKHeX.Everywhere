@@ -1,4 +1,5 @@
 using PKHeX.Core;
+using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Repositories;
 
 namespace PKHeX.Facade.Pokemons;
@@ -22,6 +23,30 @@ public partial class Pokemon
         var pkm = Decrypted(bytes, game.SaveFile.PKMType, definition);
 
         if (!pkm.ChecksumValid || !pkm.Valid || pkm is PK3 { FlagIsBadEgg: true } || IsBlank(pkm) || !game.SpeciesRepository.Knows(pkm.Species))
+            throw new UnreadablePokemonException(UnreadableReason.BadChecksum, "The bytes aren't a Pokémon.");
+
+        return new Pokemon(pkm, game).Details(withLegality: false);
+    }
+
+    /// <summary>
+    /// Reads one Pokémon as a game in the Save format keeps it in its party in memory, with the format's species, items and moves.
+    /// Nothing is written to a save, and the details hold no legality report.
+    /// </summary>
+    /// <exception cref="UnreadablePokemonException">The bytes or the version can't be read as a Pokémon of the format.</exception>
+    public static PokemonDetails Read(byte[] bytes, int version, ISaveFormat format)
+    {
+        var game = Game.EmptyOf(format)
+            ?? throw new UnreadablePokemonException(UnreadableReason.UnsupportedFormat, $"{format.Name} can't read a Pokémon without a save.");
+
+        if (version != (int)format.BaseGame)
+            throw new UnreadablePokemonException(UnreadableReason.NotTheBaseGame, $"{format.Name} runs on version {(int)format.BaseGame}, not {version}.");
+
+        var save = game.SaveFile;
+        if (bytes.Length != save.SIZE_PARTY)
+            throw new UnreadablePokemonException(UnreadableReason.WrongLength, $"{format.Name} keeps a party Pokémon in {save.SIZE_PARTY} bytes, got {bytes.Length}.");
+
+        var pkm = save.GetPartySlot(bytes);
+        if (!pkm.ChecksumValid || !pkm.Valid || IsBlank(pkm))
             throw new UnreadablePokemonException(UnreadableReason.BadChecksum, "The bytes aren't a Pokémon.");
 
         return new Pokemon(pkm, game).Details(withLegality: false);
@@ -67,6 +92,8 @@ public enum UnreadableReason
     CombinedVersion,
     WrongLength,
     UnsupportedVersion,
+    NotTheBaseGame,
+    UnsupportedFormat,
 }
 
 public class UnreadablePokemonException(UnreadableReason reason, string message) : Exception(message)

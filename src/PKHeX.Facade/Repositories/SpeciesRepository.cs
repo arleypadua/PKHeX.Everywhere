@@ -28,6 +28,8 @@ public class SpeciesRepository
             : new SpeciesDefinition(species, _game.GameData.NameOf(GameDataKind.Species, (int)species) ?? $"Unknown ({(int)species})");
     }
 
+    public SpeciesDefinition? FindKnown(ushort id) => id != 0 && Knows(id) ? Get((Species)id) : null;
+
     internal bool Knows(ushort id) => Find(id) is not null || _species.ContainsKey((Species)id);
 
     public IImmutableList<SpeciesDefinition> GetEvolutionsFrom(SpeciesDefinition definition, byte form = 0) => Find(definition.ShortId) is null ? [] :
