@@ -7,6 +7,8 @@ export type ActionPlacement = 'quick' | 'pokemon' | 'pokemonStats'
 export interface AddableItem {
   /** The item's id in the save's own item list. From Generation 4 on, and in ROM hack saves, these are PKHeX.Core item ids; other Generation 1 to 3 saves use their game's own numbering. */
   id: number
+  /** The item as the save stores it, before any conversion: the ROM hack's own index in hack saves, and the same value as `id` elsewhere. Use it to index the game's own tables, such as its item icons. */
+  index: number
   name: string
   /** The highest count `inventory.setItem` accepts for this item in this pouch. */
   maxCount: number
@@ -110,6 +112,8 @@ export interface EditablePokemon {
   ability: number
   /** PKHeX item id. 0 means no item. See `heldItems` in `pokemon.options()`. */
   heldItem: number
+  /** The item as the save stores it, before any conversion: the ROM hack's own index in hack saves, and the same value as `heldItem` elsewhere. Use it to index the game's own tables, such as its item icons. 0 means no item. */
+  heldItemIndex: number
   /** True when the Pokémon holds an item PKHeX has no id for, such as a ROM hack's own item. `heldItem` is then an id of its own, named in `heldItems` in `pokemon.options()`, and the item stays until `heldItem` is set to another item or 0. */
   heldItemIsUnknown: boolean
   /** PKHeX ball id. See `game.balls()`. */
@@ -348,6 +352,8 @@ export interface ItemChanged {
 export interface ItemChoice {
   /** PKHeX item id. 0 means no item. */
   id: number
+  /** The item as the save stores it, before any conversion: the ROM hack's own index in hack saves, and the same value as `id` elsewhere. Use it to index the game's own tables, such as its item icons. 0 means no item. */
+  index: number
   name: string
   /** True for an item PKHeX has no id for, such as a ROM hack's own item. Only the Pokémon already holding it is offered it. */
   isUnknown: boolean
@@ -411,6 +417,8 @@ export interface OfferedPokemon {
 export interface OwnedItem {
   /** The item's id in the save's own item list. From Generation 4 on, and in ROM hack saves, these are PKHeX.Core item ids; other Generation 1 to 3 saves use their game's own numbering. An unknown item gets an id of its own, which only means something to this save. */
   id: number
+  /** The item as the save stores it, before any conversion: the ROM hack's own index in hack saves, and the same value as `id` elsewhere. Use it to index the game's own tables, such as its item icons. */
+  index: number
   name: string
   /** How many the trainer holds. */
   count: number

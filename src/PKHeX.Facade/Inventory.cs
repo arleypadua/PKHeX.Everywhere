@@ -129,6 +129,7 @@ public class Inventory : IEnumerable<Inventory.Item>
 
         public bool IsNone => Id == ItemDefinition.None;
         public bool IsUnknown => Definition.IsUnknown;
+        public int Index => Definition.Index;
         public ItemDefinition Definition => _itemFetcher(Id);
         
         public override string ToString() => $"{Name} x{Count}";

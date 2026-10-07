@@ -48,6 +48,7 @@ public record PokemonDetails(
     public bool IsUnknown { get; init; }
     public bool IsEditable { get; init; }
     public int SpeciesIndex { get; init; }
+    public int HeldItemIndex { get; init; }
 }
 
 public record StatValues(int Health, int Attack, int Defense, int SpecialAttack, int SpecialDefense, int Speed);

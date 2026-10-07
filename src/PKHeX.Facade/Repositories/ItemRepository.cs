@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using PKHeX.Core;
 using PKHeX.Facade.Abstractions;
+using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Facade.Repositories;
 
@@ -24,12 +25,14 @@ public class ItemRepository
     internal ItemRepository(IGameDataSource data)
     {
         _data = data;
-        _gameItems = data.Items.ToDictionary(item => (ushort)item.Id, item => new ItemDefinition((ushort)item.Id, item.Name));
+        _gameItems = data.Items.ToDictionary(item => (ushort)item.Id, Define);
     }
+
+    internal ItemDefinition Define(Choice item) => new((ushort)item.Id, item.Name) { Index = _data.ItemIndex(item.Id) };
 
     public ISet<ItemDefinition> GameItems => _gameItems.Values.ToHashSet();
     public ItemDefinition GetGameItem(ushort id) => _gameItems.GetValueOrDefault(id)
-        ?? (_data.NameOf(GameDataKind.Item, id) is { } name ? new ItemDefinition(id, name) { IsUnknown = true } : ItemDefinition.Unknown(id));
+        ?? (_data.NameOf(GameDataKind.Item, id) is { } name ? Define(new Choice(id, name)) with { IsUnknown = true } : ItemDefinition.Unknown(id));
     public ItemDefinition? GetGameItemByName(string name) => _gameItems.Values
         .FirstOrDefault(i => i.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 
@@ -50,6 +53,17 @@ public record ItemDefinition(ushort Id, string Name)
     /// An item the save stores that PKHeX has no id for, named by the save's Game data source. Unlike <see cref="Unknown"/>, which only names an id missing from the game's list.
     /// </summary>
     public bool IsUnknown { get; init; }
+
+    /// <summary>
+    /// The item as the save stores it, such as a ROM hack's own index. The same as <see cref="Id"/> for a save that stores PKHeX's ids or its game's own.
+    /// </summary>
+    public int Index { get; init; } = Id;
+
+    // Index describes how one save stores the item, so a hack save's item still equals the same item built from its id and name.
+    public virtual bool Equals(ItemDefinition? other) =>
+        other is not null && EqualityContract == other.EqualityContract && Id == other.Id && Name == other.Name && IsUnknown == other.IsUnknown;
+
+    public override int GetHashCode() => HashCode.Combine(EqualityContract, Id, Name, IsUnknown);
 
     public static ItemDefinition Unknown(ushort id) => new(id, $"Unknown Item {id}");
 }

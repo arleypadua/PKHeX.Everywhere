@@ -119,6 +119,7 @@ public enum PokemonHandler
 /// <param name="Nature">PKHeX nature id. See <c>game.natures()</c>.</param>
 /// <param name="Ability">PKHeX ability id, or 0 in games without abilities.</param>
 /// <param name="HeldItem">PKHeX item id. 0 means no item. See <c>heldItems</c> in <c>pokemon.options()</c>.</param>
+/// <param name="HeldItemIndex">The item as the save stores it, before any conversion: the ROM hack's own index in hack saves, and the same value as <c>heldItem</c> elsewhere. Use it to index the game's own tables, such as its item icons. 0 means no item.</param>
 /// <param name="HeldItemIsUnknown">True when the Pokémon holds an item PKHeX has no id for, such as a ROM hack's own item. <c>heldItem</c> is then an id of its own, named in <c>heldItems</c> in <c>pokemon.options()</c>, and the item stays until <c>heldItem</c> is set to another item or 0.</param>
 /// <param name="Ball">PKHeX ball id. See <c>game.balls()</c>.</param>
 /// <param name="Friendship">Friendship with the current handler, 0 to 255.</param>
@@ -155,6 +156,7 @@ public record EditablePokemon(
     int Nature,
     int Ability,
     int HeldItem,
+    int HeldItemIndex,
     bool HeldItemIsUnknown,
     int Ball,
     int Friendship,
@@ -288,8 +290,9 @@ public record Choice(int Id, string Name);
 /// An item a Pokémon can hold.
 /// </summary>
 /// <param name="Id">PKHeX item id. 0 means no item.</param>
+/// <param name="Index">The item as the save stores it, before any conversion: the ROM hack's own index in hack saves, and the same value as <c>id</c> elsewhere. Use it to index the game's own tables, such as its item icons. 0 means no item.</param>
 /// <param name="IsUnknown">True for an item PKHeX has no id for, such as a ROM hack's own item. Only the Pokémon already holding it is offered it.</param>
-public record ItemChoice(int Id, string Name, bool IsUnknown);
+public record ItemChoice(int Id, int Index, string Name, bool IsUnknown);
 
 /// <summary>
 /// The values a specific Pokémon can take for the fields whose choices depend on it.
@@ -355,6 +358,7 @@ public static class PokemonMapping
         details.Nature,
         details.Ability,
         details.HeldItem,
+        details.HeldItemIndex,
         details.HeldItemIsUnknown,
         details.Ball,
         details.Friendship,
@@ -458,7 +462,7 @@ public static class PokemonMapping
         options.Forms.ToChoices(),
         options.MetLocations.ToChoices(),
         options.Moves.ToChoices(),
-        options.HeldItems.Select(item => new ItemChoice(item.Id, item.Name, item.IsUnknown)).ToArray(),
+        options.HeldItems.Select(item => new ItemChoice(item.Id, item.Index, item.Name, item.IsUnknown)).ToArray(),
         options.Locked.Order().Select(ToDto).ToArray());
 
     private static PokemonField ToDto(Facade.Pokemons.PokemonField field) => field switch

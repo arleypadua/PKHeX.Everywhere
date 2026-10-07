@@ -125,6 +125,8 @@ public partial class Pokemon(PKM pokemon, Game game)
         set => pokemon.HeldItem = value.Id;
     }
 
+    public int HeldItemIndex => pokemon is IHeldItemIndex stored ? stored.HeldItemIndex : pokemon.HeldItem;
+
     public AbilityDefinition Ability
     {
         get => AbilityRepository.Instance.Get(pokemon.Ability);
