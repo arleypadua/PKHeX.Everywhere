@@ -1,5 +1,11 @@
 # @pkhex-everywhere/engine
 
+## 0.15.0
+
+### Minor Changes
+
+- c9c1738: Ship `notices.json`, which lists the licence, version and source of every third-party component in `_framework/`. Import it as `@pkhex-everywhere/engine/notices.json`.
+
 ## 0.14.0
 
 ### Minor Changes
