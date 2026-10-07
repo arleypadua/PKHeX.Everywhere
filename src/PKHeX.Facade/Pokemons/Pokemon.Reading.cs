@@ -7,15 +7,15 @@ namespace PKHeX.Facade.Pokemons;
 public partial class Pokemon
 {
     /// <summary>
-    /// Reads one Gen 3 or Gen 4 Pokémon as its game keeps it in memory: encrypted and shuffled, in its party or box layout.
+    /// Reads one Gen 3, 4 or 5 Pokémon as its game keeps it in memory: encrypted and shuffled, in its party or box layout.
     /// Nothing is written to a save, and the details hold no legality report.
     /// Party bytes read at the level the game stores in them, box bytes at the level their EXP gives.
     /// </summary>
     /// <exception cref="UnreadablePokemonException">The bytes or the version can't be read as a Pokémon.</exception>
     public static PokemonDetails Read(byte[] bytes, int version)
     {
-        if (version is < 0 or > byte.MaxValue || ((GameVersion)version).Generation is not (3 or 4))
-            throw new UnreadablePokemonException(UnreadableReason.UnsupportedVersion, $"Version {version} isn't a Gen 3 or Gen 4 game.");
+        if (version is < 0 or > byte.MaxValue || ((GameVersion)version).Generation is not (3 or 4 or 5))
+            throw new UnreadablePokemonException(UnreadableReason.UnsupportedVersion, $"Version {version} isn't a Gen 3, 4 or 5 game.");
 
         var definition = GameVersionRepository.Instance.FindBlank(version)
             ?? throw new UnreadablePokemonException(UnreadableReason.CombinedVersion, $"Version {version} isn't a single game.");
@@ -75,9 +75,14 @@ public partial class Pokemon
             pkm = RequireLength(new PK4(), data, definition);
             PokeCrypto.Decrypt45(data);
         }
+        else if (type == typeof(PK5))
+        {
+            pkm = RequireLength(new PK5(), data, definition);
+            PokeCrypto.Decrypt45(data);
+        }
         else
         {
-            throw new UnreadablePokemonException(UnreadableReason.UnsupportedVersion, $"{definition.Name} doesn't keep Pokémon as PK3 or PK4.");
+            throw new UnreadablePokemonException(UnreadableReason.UnsupportedVersion, $"{definition.Name} doesn't keep Pokémon as PK3, PK4 or PK5.");
         }
 
         data.CopyTo(pkm.Data);
