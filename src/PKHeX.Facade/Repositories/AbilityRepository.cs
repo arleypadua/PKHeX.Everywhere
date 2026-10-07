@@ -19,6 +19,9 @@ public class AbilityRepository
         ?? AbilityDefinition.None;
     
     public List<AbilityDefinition> All => _abilities.Values.ToList();
+
+    public static AbilityDefinition GetAbility(int id) => Instance._abilities.GetValueOrDefault(id)
+        ?? AbilityDefinition.Unknown(id);
 }
 
 public record AbilityDefinition(int Id, string Name)
@@ -26,4 +29,6 @@ public record AbilityDefinition(int Id, string Name)
     public Ability Ability => (Ability)Id;
     
     public static readonly AbilityDefinition None = new((int)Ability.None, "(None)");
+
+    public static AbilityDefinition Unknown(int id) => new(id, $"Unknown Ability {id}");
 }

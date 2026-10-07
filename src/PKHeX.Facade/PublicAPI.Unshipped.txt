@@ -494,3 +494,25 @@ PKHeX.Facade.Repositories.ItemDefinition.Index.get -> int
 PKHeX.Facade.Repositories.ItemDefinition.Index.init -> void
 ~override PKHeX.Facade.Abstractions.EventLabel.Equals(object obj) -> bool
 ~override PKHeX.Facade.Abstractions.EventLabel.ToString() -> string
+PKHeX.Facade.Repositories.NatureDefinition
+PKHeX.Facade.Repositories.NatureDefinition.Deconstruct(out int Id, out string! Name) -> void
+PKHeX.Facade.Repositories.NatureDefinition.Id.get -> int
+PKHeX.Facade.Repositories.NatureDefinition.Id.init -> void
+PKHeX.Facade.Repositories.NatureDefinition.Name.get -> string!
+PKHeX.Facade.Repositories.NatureDefinition.Name.init -> void
+PKHeX.Facade.Repositories.NatureDefinition.NatureDefinition(PKHeX.Facade.Repositories.NatureDefinition! original) -> void
+PKHeX.Facade.Repositories.NatureDefinition.NatureDefinition(int Id, string! Name) -> void
+PKHeX.Facade.Repositories.NatureRepository
+override PKHeX.Facade.Repositories.NatureDefinition.Equals(object? obj) -> bool
+override PKHeX.Facade.Repositories.NatureDefinition.GetHashCode() -> int
+override PKHeX.Facade.Repositories.NatureDefinition.ToString() -> string!
+static PKHeX.Facade.Repositories.AbilityDefinition.Unknown(int id) -> PKHeX.Facade.Repositories.AbilityDefinition!
+static PKHeX.Facade.Repositories.AbilityRepository.GetAbility(int id) -> PKHeX.Facade.Repositories.AbilityDefinition!
+static PKHeX.Facade.Repositories.NatureDefinition.Unknown(int id) -> PKHeX.Facade.Repositories.NatureDefinition!
+static PKHeX.Facade.Repositories.NatureDefinition.operator !=(PKHeX.Facade.Repositories.NatureDefinition? left, PKHeX.Facade.Repositories.NatureDefinition? right) -> bool
+static PKHeX.Facade.Repositories.NatureDefinition.operator ==(PKHeX.Facade.Repositories.NatureDefinition? left, PKHeX.Facade.Repositories.NatureDefinition? right) -> bool
+static PKHeX.Facade.Repositories.NatureRepository.GetNature(int id) -> PKHeX.Facade.Repositories.NatureDefinition!
+virtual PKHeX.Facade.Repositories.NatureDefinition.<Clone>$() -> PKHeX.Facade.Repositories.NatureDefinition!
+virtual PKHeX.Facade.Repositories.NatureDefinition.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Repositories.NatureDefinition.Equals(PKHeX.Facade.Repositories.NatureDefinition? other) -> bool
+virtual PKHeX.Facade.Repositories.NatureDefinition.PrintMembers(System.Text.StringBuilder! builder) -> bool
