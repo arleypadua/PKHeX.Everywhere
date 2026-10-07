@@ -11,7 +11,8 @@ PKHeX.Web also opens saves from these ROM hacks:
 - Emerald Imperium
 - Pokémon Emerald Legacy
 
-ROM hack support is experimental. Keep a backup of your save.
+ROM hack support is experimental. Keep a backup of your save. Emerald Legacy has only been tried against one
+save, so it stays off until you turn it on with `?enableFormat=emerald-legacy`.
 
 ## PKHeX.Web
 The PKHeX Web version ([pkhex-web.github.io](https://pkhex-web.github.io)) provides a user-friendly interface accessible via any web browser.
