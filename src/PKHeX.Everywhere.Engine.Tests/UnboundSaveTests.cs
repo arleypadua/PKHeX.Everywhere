@@ -588,10 +588,11 @@ public class UnboundSaveTests
         var heldItem = details["heldItem"]!.GetValue<int>();
 
         details["heldItemIsUnknown"]!.GetValue<bool>().Should().BeTrue();
+        details["heldItemIndex"]!.GetValue<int>().Should().Be(640);
         Value(Dispatch(session, "pokemon.options", Args(HoldsUnknownItem)))!["heldItems"]!.AsArray()
             .Where(item => item!["isUnknown"]!.GetValue<bool>())
-            .Select(item => (item!["id"]!.GetValue<int>(), item["name"]!.GetValue<string>()))
-            .Should().Equal((heldItem, "Unknown item #640"));
+            .Select(item => (item!["id"]!.GetValue<int>(), item["index"]!.GetValue<int>(), item["name"]!.GetValue<string>()))
+            .Should().Equal((heldItem, 640, "Unknown item #640"));
     }
 
     [Fact]
@@ -651,9 +652,13 @@ public class UnboundSaveTests
     [InlineData("Items", 79, 92)]
     [InlineData("TMHMs", 444, 1)]
     [InlineData("Berries", 174, 4)]
-    public void AnUnknownBagItemIsListedWithTheOtherItems(string pouch, int index, int count) =>
-        Owned(Pouch(LoadedUnbound(), pouch)).Should().ContainSingle(owned => owned.Name == $"Unknown item #{index}")
-            .Which.Count.Should().Be(count);
+    public void AnUnknownBagItemIsListedWithTheOtherItems(string pouch, int index, int count)
+    {
+        var unknown = Pouch(LoadedUnbound(), pouch)["items"]!.AsArray().Single(owned => owned!["name"]!.GetValue<string>() == $"Unknown item #{index}")!;
+
+        unknown["count"]!.GetValue<int>().Should().Be(count);
+        unknown["index"]!.GetValue<int>().Should().Be(index);
+    }
 
     [Fact]
     public void OwnedItemsSayWhetherTheyAreUnknownAndUnknownOnesHaveDistinctIds()

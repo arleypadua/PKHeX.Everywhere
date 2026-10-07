@@ -144,8 +144,9 @@ export interface EngineClient {
      *
      * @param bytes The Pokémon as the game keeps it: encrypted and shuffled, in its party (100-byte PK3, 236-byte PK4) or box (80-byte PK3, 136-byte PK4) layout. Another length fails with `bad-arguments`.
      * @param version The PKHeX game version id the bytes come from. A combined version, such as FireRed/LeafGreen, fails with `bad-arguments`, and a game outside Gen 3 and 4 with `not-supported`.
+     * @param formatId The id of a ROM hack's format, from `game.formats()` or `game.version()`, such as `unbound`. The bytes are then read in the hack's party layout and match what `pokemon.details` returns for the Pokémon in the hack's save. Only party bytes are accepted. `version` must be the format's base game, such as FireRed for Unbound, or the read fails with `bad-arguments`. An unknown or disabled id fails with `not-found`, and `pkhex` with `not-supported`.
      */
-    read(bytes: Binary, version: number): Promise<EditablePokemon>
+    read(bytes: Binary, version: number, formatId?: string | null): Promise<EditablePokemon>
     /** Requires a loaded save; throws `no-save` otherwise. */
     setLevel(at: PokemonHandle, level: number): Promise<void>
     /** Requires a loaded save; throws `no-save` otherwise. */
@@ -274,7 +275,7 @@ export function createClient(invoke: Invoke): EngineClient {
       export: async (at) => withBytes(await invoke<ExportedPokemon>('pokemon.export', [at]), ['bytes']),
       get: (at) => invoke('pokemon.get', [at]),
       options: (at) => invoke('pokemon.options', [at]),
-      read: async (bytes, version) => invoke('pokemon.read', [await toBase64(bytes), version]),
+      read: async (bytes, version, formatId) => invoke('pokemon.read', [await toBase64(bytes), version, formatId]),
       setLevel: (at, level) => invoke('pokemon.setLevel', [at, level]),
       showdown: (at) => invoke('pokemon.showdown', [at]),
       update: (at, patch) => invoke('pokemon.update', [at, patch]),

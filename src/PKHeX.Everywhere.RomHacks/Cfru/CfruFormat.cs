@@ -15,8 +15,12 @@ public abstract class CfruFormat : ISaveFormat
 
     protected abstract bool FireRedMetLocations { get; }
 
+    protected abstract uint Signature { get; }
+
     public IGameDataSource GameData(SaveFile save) => new CfruGameData((CfruSave)save, FireRedMetLocations);
 
     public abstract SaveFormatMatch Detect(ReadOnlySpan<byte> data);
     public abstract SaveFile Load(byte[] data);
+
+    public SaveFile Blank() => Load(CfruSave.Blank(Signature));
 }

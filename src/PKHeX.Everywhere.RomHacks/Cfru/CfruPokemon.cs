@@ -8,7 +8,7 @@ namespace PKHeX.Everywhere.RomHacks.Cfru;
 /// A Pokémon from a CFRU save, held in the vanilla Gen 3 party layout with hack indices for species, moves and items.
 /// It reports the Gen 9 context, so species, moves and forms resolve through PKHeX's national data.
 /// </summary>
-public abstract class CfruPokemon : PKM, IGigantamax, IFormArgument, ISpeciesIndex
+public abstract class CfruPokemon : PKM, IGigantamax, IFormArgument, ISpeciesIndex, IHeldItemIndex
 {
     public const int SizeParty = 100;
     public const int SizeStored = 80;

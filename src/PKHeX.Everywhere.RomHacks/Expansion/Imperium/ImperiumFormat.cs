@@ -31,6 +31,8 @@ public sealed class ImperiumFormat : ISaveFormat
     // 2.0 changes the layout and isn't released, so it's refused.
     public SaveFile Load(byte[] data) => Matches(data, ImperiumSave.ChunkLengths) ? new ImperiumSave(data) : throw new GameNotLoadedException();
 
+    public SaveFile Blank() => new ImperiumSave(ImperiumSave.Blank());
+
     private static bool Matches(ReadOnlySpan<byte> data, int[] checksumLengths)
     {
         if (!FileSizes.Contains(data.Length)) return false;

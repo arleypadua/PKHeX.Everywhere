@@ -13,6 +13,11 @@ public interface ISaveFormat
 
     SaveFormatMatch Detect(ReadOnlySpan<byte> data);
     SaveFile Load(byte[] data);
+
+    /// <summary>
+    /// An empty save in the format, to read its Pokémon and name its species and items without a loaded save. Null when the format can't make one.
+    /// </summary>
+    SaveFile? Blank() => null;
 }
 
 public enum SaveFormatMatch

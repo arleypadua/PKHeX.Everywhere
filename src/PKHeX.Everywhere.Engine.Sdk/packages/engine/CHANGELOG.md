@@ -1,5 +1,12 @@
 # @pkhex-everywhere/engine
 
+## 0.12.0
+
+### Minor Changes
+
+- c4eb3f1: New `heldItemIndex` on `EditablePokemon`, and `index` on `OwnedItem`, `AddableItem` and `ItemChoice`: the item as the save stores it, such as a ROM hack's own index. It's set for unknown items too, so it can index the game's own tables, such as its item icons.
+- d03fb4d: `pokemon.read(bytes, version, formatId?)` and `catalog.names({ speciesIds, itemIds, formatId? })` take an optional ROM hack format id, such as `unbound`. With it, `pokemon.read` reads the hack's party bytes as `pokemon.details()` shows them in the hack's save, and `catalog.names` names the hack's own species and items.
+
 ## 0.11.0
 
 ### Minor Changes

@@ -42,6 +42,10 @@ _Avoid_: custom species, fakemon
 The species as the save stores it, before conversion to PKHeX's id: the internal index in Gen 1 to 3 and Gen 9, a ROM hack's own index, and the National Pokédex number elsewhere. Unknown species have one too. Clients use it to index the game's own tables, such as its sprites.
 _Avoid_: raw species, internal species
 
+**Item index**:
+The item as the save stores it, before conversion to PKHeX's id: a ROM hack's own index, and the item id elsewhere. Unknown items have one too. Clients use it to index the game's own tables, such as its item icons.
+_Avoid_: raw item, internal item
+
 **Locked field**:
 A Pokémon field the save can't change, such as nature on an Unbound save. The Game data source declares them, and the editor shows them disabled.
 _Avoid_: read-only field, frozen field
