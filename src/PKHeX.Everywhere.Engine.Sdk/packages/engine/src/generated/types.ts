@@ -52,7 +52,7 @@ export interface BoxEntry {
   slots: number
 }
 
-/** A species or item id with its display name. */
+/** A species, item, ability or nature id with its display name. */
 export interface CatalogName {
   id: number
   name: string
@@ -64,16 +64,24 @@ export interface CatalogNames {
   species: CatalogName[]
   /** One entry per requested item id, in order. */
   items: CatalogName[]
+  /** One entry per requested ability id, in order. An id PKHeX doesn't know is named `Unknown Ability {id}`. */
+  abilities: CatalogName[]
+  /** One entry per requested nature id, in order. An id PKHeX doesn't know is named `Unknown Nature {id}`. */
+  natures: CatalogName[]
 }
 
-/** The species and item ids `catalog.names` should name. It doesn't need a loaded save. */
+/** The species, item, ability and nature ids `catalog.names` should name. It doesn't need a loaded save. */
 export interface CatalogNamesRequest {
   /** National Pokédex numbers, as PKHeX.Core numbers species. With a `FormatId`, also the ids `species.list` gives the hack's own species. */
   speciesIds: number[]
   /** PKHeX.Core item ids, which follow the Generation 4 and later numbering. Generation 1 to 3 saves number their pouch items differently. */
   itemIds: number[]
-  /** The id of a ROM hack's format from `game.formats()`, such as `unbound`, to name the hack's own species and items, as `species.list` and `pokemon.options()` do with its save loaded. An unknown or disabled id fails with `not-found`, and `pkhex` with `not-supported`. */
+  /** The id of a ROM hack's format from `game.formats()`, such as `unbound`, to name the hack's own species and items, as `species.list` and `pokemon.options()` do with its save loaded. Abilities and natures are named the same with or without it. An unknown or disabled id fails with `not-found`, and `pkhex` with `not-supported`. */
   formatId?: string | null
+  /** PKHeX.Core ability ids, as `pokemon.read` returns in `ability`. Not the ability slot. Leave out to name none. */
+  abilityIds?: number[] | null
+  /** PKHeX.Core nature ids, 0 (Hardy) to 24, as `pokemon.read` returns in `nature`. Leave out to name none. */
+  natureIds?: number[] | null
 }
 
 /** An id and its display name. The id space depends on the list, such as nature ids from `game.natures()`. */

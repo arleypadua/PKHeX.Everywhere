@@ -15,7 +15,9 @@ public static class CatalogHandlers
 
         return new(
             request.SpeciesIds.Select(species).OfType<SpeciesDefinition>().Select(definition => definition.ToCatalogName()).ToArray(),
-            request.ItemIds.Select(id => item(id).ToCatalogName()).ToArray());
+            request.ItemIds.Select(id => item(id).ToCatalogName()).ToArray(),
+            (request.AbilityIds ?? []).Select(id => AbilityRepository.GetAbility(id).ToCatalogName()).ToArray(),
+            (request.NatureIds ?? []).Select(id => NatureRepository.GetNature(id).ToCatalogName()).ToArray());
     }
 
     private static Game EmptyOf(string formatId) => Game.EmptyOf(GameHandlers.FindFormat(formatId))
