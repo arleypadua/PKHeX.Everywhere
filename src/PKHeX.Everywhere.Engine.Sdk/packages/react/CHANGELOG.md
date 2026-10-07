@@ -1,5 +1,21 @@
 # @pkhex-everywhere/react
 
+## 0.17.0
+
+### Minor Changes
+
+- 881c351: The `trade` namespace is now `transfer`. `trade.*` calls become `transfer.*`, `useTrade` becomes `useTransfer`, every `Trade*` type becomes `Transfer*`, `TradedPokemon` becomes `TransferredPokemon`, the `trade` topic becomes `transfer`, and the `trade-refused` and `no-trade` errors become `transfer-refused` and `no-transfer`. The `link` route and the `link` and `tradeEvolution` change reasons keep their names.
+- 2251534: Transfers take the new `unofficial` route between any two saves no game connects, such as Platinum to Ruby. It strips the moves, item, ball and ability the destination doesn't have, with the reason `notInGame`, and reports every other change with the reason `unofficial`. Each offer has a `route`, `TransferField` gains `level`, `nature`, `gender`, `shiny`, `language`, `originalTrainer`, `trainerId`, `originGame` and `metDate`, and a Pokémon PKHeX can't convert is refused with `conversionFailed`. `noRoute` is left for ROM hack formats and Let's Go.
+  
+  `box.previewFile(bytes)` shows how a Pokémon file would arrive, with `unofficial: true` when no game can move it. `box.addFromFile(bytes, { allowUnofficial: true })` adds such a file; without the option it still fails with `conversion-failed`.
+
+### Patch Changes
+
+- Updated dependencies [1572d36]
+- Updated dependencies [881c351]
+- Updated dependencies [2251534]
+  - @pkhex-everywhere/engine@0.17.0
+
 ## 0.16.0
 
 ### Patch Changes
