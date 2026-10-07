@@ -1,4 +1,5 @@
 node_modules/
 dist/
 packages/engine/_framework/
+packages/engine/notices.json
 .packs/

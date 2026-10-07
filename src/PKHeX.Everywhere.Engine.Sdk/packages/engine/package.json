@@ -25,11 +25,13 @@
       "source": "./src/vite.ts",
       "types": "./dist/vite.d.ts",
       "default": "./dist/vite.js"
-    }
+    },
+    "./notices.json": "./notices.json"
   },
   "files": [
     "dist",
     "_framework",
+    "notices.json",
     "CHANGELOG.md"
   ],
   "publishConfig": {
