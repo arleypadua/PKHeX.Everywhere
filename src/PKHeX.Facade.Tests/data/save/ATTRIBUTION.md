@@ -5,3 +5,8 @@
 `unbound-unknown-species.sav` is `unbound.sav` with the Pokémon in box 23, slot 19 changed to species index 706 (Shadow Warrior), which PKHeX has no species for.
 
 `imperium.sav` (Emerald Imperium 1.3) is `Emerald Imperium 1.3.sav` from [Dynamic-Calc-Decomps](https://github.com/hzla/Dynamic-Calc-Decomps) by hzla, copied unchanged from `cypress/fixtures/saves` at commit `bebf34ffe8827089b355e7534df48ba95eecc3c6` (blob `fa56843dfd9c229fc53bcae3b8e8b6fd99791d5c`). That repository has no license.
+
+`emerald-legacy.sav` (Pokémon Emerald Legacy) was contributed by a player of the hack and anonymised:
+every trainer name in it, including the ones in its Pokémon and its trainer name records, was replaced
+with a same-length placeholder, and the sector checksums were recomputed. Ids and PIDs are untouched,
+since a Gen 3 Pokémon's substructures are encrypted with its PID and OT id.

@@ -9,6 +9,7 @@ PKHeX.Web also opens saves from these ROM hacks:
 - Pokémon Unbound
 - Pokémon Radical Red
 - Emerald Imperium
+- Pokémon Emerald Legacy
 
 ROM hack support is experimental. Keep a backup of your save.
 

@@ -6,6 +6,7 @@ using PKHeX.Facade.Abstractions;
 using PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 using PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 using PKHeX.Everywhere.RomHacks.Expansion.Imperium;
+using PKHeX.Everywhere.RomHacks.Legacy;
 using Xunit.Sdk;
 using static System.Buffers.Binary.BinaryPrimitives;
 
@@ -52,6 +53,7 @@ public static class SaveFilePath
     public const string Unbound = "./data/save/unbound.sav"; // Unbound 2.0
     public const string RadicalRed = "./data/save/radicalred.sav";
     public const string Imperium = "./data/save/imperium.sav"; // Emerald Imperium 1.3
+    public const string EmeraldLegacy = "./data/save/emerald-legacy.sav"; // Pokémon Emerald Legacy
     public const string UnboundUnknownSpecies = "./data/save/unbound-unknown-species.sav"; // Shadow Warrior in box 23, slot 19
 
     public static IReadOnlyList<string> All { get; } =
@@ -71,8 +73,13 @@ public static class SaveFilePath
 
     public static Game Load(string path) => Game.LoadFrom(File.ReadAllBytes(path), path, FormatOf(path));
 
-    // Radical Red only possibly matches its format, so loading it without a choice asks for one.
-    public static ISaveFormat? FormatOf(string path) => path == RadicalRed ? new RadicalRedFormat() : null;
+    // Radical Red and Emerald Legacy only possibly match their formats, so loading one without a choice asks for one.
+    public static ISaveFormat? FormatOf(string path) => path switch
+    {
+        RadicalRed => new RadicalRedFormat(),
+        EmeraldLegacy => new EmeraldLegacyFormat(),
+        _ => null,
+    };
 
     public static string PathFrom(GameVersion version) => version switch
     {
@@ -95,5 +102,6 @@ internal static class RomHackFormats
         SaveFormats.Register(new UnboundFormat());
         SaveFormats.Register(new RadicalRedFormat());
         SaveFormats.Register(new ImperiumFormat());
+        SaveFormats.Register(new EmeraldLegacyFormat());
     }
 }
