@@ -1,5 +1,16 @@
 # @pkhex-everywhere/react
 
+## 0.18.0
+
+### Minor Changes
+
+- db3c07e: A transfer to an older game keeps a copy of the Pokémon, so a later transfer forward restores what the older game dropped. Each offer has `keepsCopy`, and `transfer.commit` returns a `keptCopy` for each Pokémon that moved to an older game. Pass stored copies in the offer's new `keptCopies`: a copy with the Pokémon's `identityKey` puts back its ball, met data, origin game, ribbons and ability, with the new reason `restored`. `PokemonSummary` and `PokemonPreview` gain `identityKey`, built from the PID, trainer ID and secret ID, and null in Gen 1 and 2.
+
+### Patch Changes
+
+- Updated dependencies [db3c07e]
+  - @pkhex-everywhere/engine@0.18.0
+
 ## 0.17.0
 
 ### Minor Changes
