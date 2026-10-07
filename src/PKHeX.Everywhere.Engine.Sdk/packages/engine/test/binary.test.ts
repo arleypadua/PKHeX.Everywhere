@@ -25,7 +25,7 @@ describe('binary inputs', () => {
 
     await engine.box.addFromFile(input())
 
-    expect(argsOf(calls)).toEqual([base64])
+    expect(argsOf(calls)).toEqual([base64, null])
   })
 
   it('converts every binary parameter', async () => {

@@ -65,11 +65,11 @@ await engine.pokemon.commit()
 
 ## Transferring between saves
 
-`transfer.open` loads a partner save next to the loaded one. Pokémon move between them the way the games move them: a link trade between saves of the same format, the Time Capsule between Generation 1 and 2, Pal Park from Generation 3 to 4 and Poké Transfer from Generation 4 to 5.
+`transfer.open` loads a partner save next to the loaded one. Pokémon move between them the way the games move them: a link trade between saves of the same format, the Time Capsule between Generation 1 and 2, Pal Park from Generation 3 to 4 and Poké Transfer from Generation 4 to 5. Any other pair takes the `unofficial` route, where PKHeX copies the fields the destination can hold.
 
 ```ts
 const transfer = await engine.transfer.open(partnerFile)
-transfer.routes // { send: 'palPark', receive: null }
+transfer.routes // { send: 'palPark', receive: 'unofficial' }
 
 const offer = { send: [boxed], receive: [] }
 const { offers, refused } = await engine.transfer.preview(offer)
@@ -82,6 +82,16 @@ await engine.transfer.close()
 - Each offer shows the Pokémon as it is and as it arrives, the fields the move changes and why, and its legality in the destination game.
 - The receiving game applies its trade rules: trade evolutions, friendship reset to 70 in Generation 2 to 4, and Platinum's form reverts. `saveChanges` lists what changes in either save, such as a Griseous Orb returned to the sender's bag.
 - `commit` fails with `transfer-refused`, changing nothing, while `preview` refuses any Pokémon in the offer. It returns both saves' bytes.
+- On the `unofficial` route, the moves, held item, ball and ability the destination game doesn't have are removed, with the reason `notInGame`. A ball becomes a Poké Ball, and a Pokémon left with no moves learns its first level-up move. Every other change has the reason `unofficial`.
+- Saves loaded with a ROM hack format and Let's Go saves have no route, and their Pokémon are refused with `noRoute`.
+
+`box.previewFile` shows how `box.addFromFile` would add a Pokémon file. A file no game can move into the save comes back with `unofficial: true`, and `addFromFile` fails on it with `conversion-failed` unless you pass `allowUnofficial`:
+
+```ts
+const preview = await engine.box.previewFile(file)
+if (preview.unofficial && !(await confirm(preview.changes))) return
+await engine.box.addFromFile(file, { allowUnofficial: preview.unofficial })
+```
 
 ## Reacting to changes
 

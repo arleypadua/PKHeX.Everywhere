@@ -8,6 +8,7 @@ public enum TransferRoute
     TimeCapsule,
     PalPark,
     PokeTransfer,
+    Unofficial,
 }
 
 public enum TransferDirection
@@ -26,6 +27,7 @@ public enum TransferRefusal
     LastPartyMember,
     NoRoom,
     BagFull,
+    ConversionFailed,
 }
 
 public enum TransferField
@@ -40,6 +42,15 @@ public enum TransferField
     Friendship,
     Nickname,
     Ability,
+    Level,
+    Nature,
+    Gender,
+    Shiny,
+    Language,
+    OriginalTrainer,
+    TrainerId,
+    OriginGame,
+    MetDate,
 }
 
 public enum TransferChangeReason
@@ -55,6 +66,8 @@ public enum TransferChangeReason
     TradeEvolution,
     ItemUsed,
     FormReverted,
+    NotInGame,
+    Unofficial,
 }
 
 public enum TransferSaveChangeKind
@@ -85,6 +98,7 @@ public record TransferSaveChange(TransferSaveChangeKind Kind, TransferSide Save,
 /// <param name="ArrivesAt">The box slot, counted across every box, the Pokémon lands in.</param>
 public record TransferredPokemon(
     TransferDirection Direction,
+    TransferRoute Route,
     TransferSlot From,
     Pokemon Pokemon,
     int ArrivesAt,
@@ -99,6 +113,20 @@ public record TransferPreview(IReadOnlyList<TransferredPokemon> Offers, IReadOnl
 
 /// <param name="BoxIndex">The box slot, counted across every box, the Pokémon landed in.</param>
 public record TransferArrival(TransferDirection Direction, int BoxIndex, Pokemon Pokemon);
+
+/// <param name="Unofficial">No game can move the Pokémon into the save, so PKHeX copied the fields the save can hold.</param>
+public record PokemonImport(Pokemon Arrives, bool Unofficial, IReadOnlyList<TransferChange> Changes)
+{
+    /// <summary>
+    /// PKHeX's legality check of the Pokémon as it arrives, judged in the save. Null when the save has no legality check, such as a ROM hack's.
+    /// </summary>
+    public PokemonLegality? Legality() => Arrives.Game.Supports(Capability.Legality) ? Transfer.LegalityIn(Arrives.Game, Arrives) : null;
+}
+
+public class PokemonRefusedException(TransferRefusal reason) : Exception($"The Pokémon can't be moved into the save: {reason}.")
+{
+    public TransferRefusal Reason { get; } = reason;
+}
 
 public class TransferRefusedException(IReadOnlyList<RefusedPokemon> refused)
     : Exception($"{refused.Count} Pokémon in the offer can't be transferred: {string.Join(", ", refused.Select(r => r.Reason).Distinct())}.")

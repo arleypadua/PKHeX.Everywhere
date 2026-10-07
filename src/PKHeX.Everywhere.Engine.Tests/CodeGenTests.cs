@@ -67,7 +67,7 @@ public class CodeGenTests
     public void BinaryParametersTakeAnyBinaryInput()
     {
         Client.Should().Contain("load(data: Binary, fileName?: string | null, formatId?: string | null): Promise<void>")
-            .And.Contain("addFromFile(bytes: Binary): Promise<AddedPokemon>")
+            .And.Contain("addFromFile(bytes: Binary, options?: AddFromFileOptions | null): Promise<AddedPokemon>")
             .And.Contain("isSupported(assembly: Binary): Promise<boolean>")
             .And.Contain("register(assembly: Binary, stored: PlugInState | null): Promise<InstalledPlugIn>")
             .And.Contain("load: async (data, fileName, formatId) => invoke('game.load', [await toBase64(data), fileName ?? fileNameOf(data), formatId]),");

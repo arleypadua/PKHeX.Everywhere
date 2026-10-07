@@ -4,6 +4,7 @@ using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Facade.Tests;
 
+[Collection(nameof(TransferTests))]
 public class PokemonConversionTests
 {
     [Fact]

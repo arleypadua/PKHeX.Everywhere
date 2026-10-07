@@ -19,8 +19,11 @@ public class CommandTopicTests
         // A hack Pokémon's file is in the hack's format, which PKHeX can't read back.
         ["box.addFromFile"] = (game, saveFile) => saveFile is SaveFilePath.Unbound or SaveFilePath.RadicalRed or SaveFilePath.Imperium
             ? []
-            : [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes))],
+            : [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes), null!)],
         ["box.get"] = (_, _) => ["[]"],
+        ["box.previewFile"] = (game, saveFile) => saveFile is SaveFilePath.Unbound or SaveFilePath.RadicalRed or SaveFilePath.Imperium
+            ? []
+            : [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes))],
         ["box.list"] = (_, _) => ["[]"],
         ["box.showdown"] = (_, _) => ["[]"],
         ["catalog.names"] = (_, _) => [Args(new { speciesIds = new[] { 25 }, itemIds = new[] { 1 } })],

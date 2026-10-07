@@ -105,7 +105,7 @@ internal static class TransferEffects
     }
 
     // Gen 3 works the ability out from the species, so only later formats store it.
-    private static void RefreshAbility(PKM pk)
+    public static void RefreshAbility(PKM pk)
     {
         if (pk.Format < 4) return;
 

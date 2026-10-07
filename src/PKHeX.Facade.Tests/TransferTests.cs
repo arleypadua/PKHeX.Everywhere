@@ -15,8 +15,8 @@ public class TransferTests
     [Theory]
     [InlineData(SaveFilePath.FireRed, SaveFilePath.Emerald, TransferRoute.Link, TransferRoute.Link)]
     [InlineData(SaveFilePath.Yellow, SaveFilePath.Crystal, TransferRoute.TimeCapsule, TransferRoute.TimeCapsule)]
-    [InlineData(SaveFilePath.Emerald, SaveFilePath.HgSs, TransferRoute.PalPark, null)]
-    [InlineData(SaveFilePath.Crystal, SaveFilePath.Emerald, null, null)]
+    [InlineData(SaveFilePath.Emerald, SaveFilePath.HgSs, TransferRoute.PalPark, TransferRoute.Unofficial)]
+    [InlineData(SaveFilePath.Crystal, SaveFilePath.Emerald, TransferRoute.Unofficial, TransferRoute.Unofficial)]
     [InlineData(SaveFilePath.Unbound, SaveFilePath.FireRed, null, null)]
     [InlineData(SaveFilePath.LetsGoPikachu, SaveFilePath.LetsGoEevee, null, null)]
     public void RoutesFollowTheGames(string mine, string partner, TransferRoute? send, TransferRoute? receive)
@@ -25,6 +25,14 @@ public class TransferTests
 
         (transfer.SendRoute, transfer.ReceiveRoute).Should().Be((send, receive));
     }
+
+    [Theory]
+    [InlineData(GameVersion.Pt, GameVersion.R, TransferRoute.Unofficial)]
+    [InlineData(GameVersion.R, GameVersion.Pt, TransferRoute.PalPark)]
+    [InlineData(GameVersion.B, GameVersion.Pt, TransferRoute.Unofficial)]
+    [InlineData(GameVersion.C, GameVersion.E, TransferRoute.Unofficial)]
+    public void EveryOtherPairTakesTheUnofficialRoute(GameVersion from, GameVersion to, TransferRoute route) =>
+        Transfer.RouteBetween(Blank(from), Blank(to)).Should().Be(route);
 
     [Fact]
     public void RoomCountsTheEmptyBoxSlots() =>
@@ -158,6 +166,141 @@ public class TransferTests
 
         new Transfer(mine, SaveFilePath.Load(SaveFilePath.HgSs)).Preview(Send(Box(0))).Refused.Single().Reason.Should().Be(TransferRefusal.BagFull);
     }
+
+    [Fact]
+    public void AnUnofficialTransferStripsTheMovesTheDestinationDoesntHave()
+    {
+        var gengar = new PK4 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowClaw, Move2 = (ushort)Move.ShadowBall };
+
+        var offered = PlatinumToRuby(gengar).Offers.Single();
+
+        offered.Arrives.Pkm.Should().BeOfType<PK3>();
+        Moves(offered.Arrives).Should().Equal("Shadow Ball");
+        offered.Changes.Should().Contain(new TransferChange(TransferField.Moves, "Shadow Claw", null, TransferChangeReason.NotInGame));
+    }
+
+    [Fact]
+    public void ABallTheDestinationDoesntHaveBecomesAPokeBall()
+    {
+        var gengar = new PK4 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowBall, Ball = (byte)Ball.Dusk };
+
+        var offered = PlatinumToRuby(gengar).Offers.Single();
+
+        offered.Arrives.Ball.Name.Should().Be("Poké Ball");
+        offered.Changes.Should().Contain(new TransferChange(TransferField.Ball, "Dusk Ball", "Poké Ball", TransferChangeReason.NotInGame));
+    }
+
+    [Fact]
+    public void APokemonLeftWithNoMovesLearnsItsFirstLevelUpMove()
+    {
+        var gengar = new PK4 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowClaw, Move2 = (ushort)Move.OminousWind };
+
+        var offered = PlatinumToRuby(gengar).Offers.Single();
+
+        Moves(offered.Arrives).Should().Equal("Hypnosis");
+        offered.Changes.Should().Contain(new TransferChange(TransferField.Moves, null, "Hypnosis", TransferChangeReason.Unofficial));
+    }
+
+    [Fact]
+    public void AnUnofficialTransferReportsTheOriginAndMetDate()
+    {
+        var gengar = new PK4 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowBall, MetDate = new DateOnly(2009, 1, 1) };
+
+        var changes = PlatinumToRuby(gengar).Offers.Single().Changes;
+
+        changes.Should().Contain(new TransferChange(TransferField.MetDate, "2009-01-01", null, TransferChangeReason.Unofficial));
+    }
+
+    [Fact]
+    public void AnUnofficialTransferStillRefusesASpeciesTheDestinationDoesntHave() =>
+        PlatinumToRuby(new PK4 { Species = (ushort)Species.Lucario, CurrentLevel = 50, Move1 = (ushort)Move.AuraSphere })
+            .Refused.Single().Reason.Should().Be(TransferRefusal.SpeciesNotInGame);
+
+    [Fact]
+    public void AnUnofficialTransferRefusesAnEgg() =>
+        PlatinumToRuby(new PK4 { Species = (ushort)Species.Gastly, CurrentLevel = 1, Move1 = (ushort)Move.Lick, IsEgg = true })
+            .Refused.Single().Reason.Should().Be(TransferRefusal.EggAcrossGenerations);
+
+    [Fact]
+    public void AnUnofficialCommitMovesThePokemon()
+    {
+        var (mine, partner) = PlatinumAndRuby(new PK4 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowClaw, Move2 = (ushort)Move.ShadowBall });
+
+        var arrived = new Transfer(mine, partner).Commit(Send(Box(0))).Single();
+
+        arrived.Pokemon.Species.Name.Should().Be("Gengar");
+        Moves(arrived.Pokemon).Should().Equal("Shadow Ball");
+        EntityConverter.AllowIncompatibleConversion.Should().Be(EntityCompatibilitySetting.DisallowIncompatible);
+    }
+
+    [Fact]
+    public void TheIncompatibleConversionSettingIsRestored()
+    {
+        var gengar = new PK4 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowBall };
+        var (mine, partner) = PlatinumAndRuby(gengar, gengar.Clone());
+
+        new Transfer(mine, partner).Preview(Send(Box(0)));
+        EntityConverter.AllowIncompatibleConversion.Should().Be(EntityCompatibilitySetting.DisallowIncompatible);
+
+        var throwing = () => new Transfer(mine, partner).Commit(Send(Box(0), Box(1), Box(2)));
+        throwing.Should().Throw<ArgumentOutOfRangeException>();
+        EntityConverter.AllowIncompatibleConversion.Should().Be(EntityCompatibilitySetting.DisallowIncompatible);
+    }
+
+    [Fact]
+    public void AFileWithNoOfficialRouteArrivesUnofficially()
+    {
+        var emerald = Blank(GameVersion.E);
+        var gengar = new Pokemon(new PK4 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowClaw, Move2 = (ushort)Move.ShadowBall }, Blank(GameVersion.Pt));
+
+        var import = Transfer.Import(gengar, emerald);
+
+        import.Unofficial.Should().BeTrue();
+        import.Arrives.Pkm.Should().BeOfType<PK3>();
+        import.Changes.Should().Contain(new TransferChange(TransferField.Moves, "Shadow Claw", null, TransferChangeReason.NotInGame));
+        emerald.Trainer.PokemonBox.All.Should().OnlyContain(pokemon => pokemon.IsEmpty);
+        EntityConverter.AllowIncompatibleConversion.Should().Be(EntityCompatibilitySetting.DisallowIncompatible);
+    }
+
+    [Fact]
+    public void AFileAnOfficialConversionTakesIsntUnofficial()
+    {
+        var emerald = SaveFilePath.Load(SaveFilePath.Emerald);
+        var hgss = SaveFilePath.Load(SaveFilePath.HgSs);
+
+        var import = Transfer.Import(emerald.Trainer.Party.Pokemons.First(), hgss);
+
+        import.Unofficial.Should().BeFalse();
+        import.Arrives.Pkm.Should().BeOfType<PK4>();
+    }
+
+    [Fact]
+    public void AFileOfASpeciesTheSaveDoesntHaveIsRefused()
+    {
+        var lucario = new Pokemon(new PK4 { Species = (ushort)Species.Lucario, CurrentLevel = 50, Move1 = (ushort)Move.AuraSphere }, Blank(GameVersion.Pt));
+
+        var import = () => Transfer.Import(lucario, Blank(GameVersion.E));
+
+        import.Should().Throw<PokemonRefusedException>().Which.Reason.Should().Be(TransferRefusal.SpeciesNotInGame);
+        EntityConverter.AllowIncompatibleConversion.Should().Be(EntityCompatibilitySetting.DisallowIncompatible);
+    }
+
+    private static TransferPreview PlatinumToRuby(PK4 pokemon)
+    {
+        var (mine, partner) = PlatinumAndRuby(pokemon);
+        return new Transfer(mine, partner).Preview(Send(Box(0)));
+    }
+
+    private static (Game Platinum, Game Ruby) PlatinumAndRuby(params PK4[] boxed)
+    {
+        var platinum = new SAV4Pt();
+        for (var i = 0; i < boxed.Length; i++) platinum.SetBoxSlotAtIndex(boxed[i], i, EntityImportSettings.None);
+        return (new Game(platinum), Blank(GameVersion.R));
+    }
+
+    private static Game Blank(GameVersion version) => new(BlankSaveFile.Get(version));
+
+    private static List<string> Moves(Pokemon pokemon) => pokemon.Moves.Values.Select(slot => slot.Move).Where(move => move.Id != 0).Select(move => move.Name).ToList();
 
     private static TransferOffer Send(params TransferSlot[] send) => new(send, []);
 

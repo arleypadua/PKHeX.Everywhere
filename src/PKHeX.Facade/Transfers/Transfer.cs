@@ -20,11 +20,38 @@ public class Transfer(Game mine, Game partner)
 
     public static TransferRoute? RouteBetween(Game from, Game to)
     {
-        if (from.Format is not null || to.Format is not null) return null;
+        if (!HasRoutes(from) || !HasRoutes(to)) return null;
+        return OfficialRoute(from.SaveFile.PKMType, to.SaveFile.PKMType) ?? TransferRoute.Unofficial;
+    }
 
-        var (source, target) = (from.SaveFile.PKMType, to.SaveFile.PKMType);
-        // Let's Go keeps its party in box storage, and taking a member out of it isn't handled.
-        if (source == typeof(PB7) || target == typeof(PB7)) return null;
+    // Let's Go keeps its party in box storage, and taking a member out of it isn't handled.
+    private static bool HasRoutes(Game game) => game.Format is null && game.SaveFile.PKMType != typeof(PB7);
+
+    /// <summary>
+    /// Converts a Pokémon from a file into <paramref name="to"/> as a transfer would, writing nothing.
+    /// It takes the unofficial route only when PKHeX has no conversion of its own.
+    /// </summary>
+    /// <exception cref="PokemonRefusedException">The Pokémon can't be moved into the save.</exception>
+    public static PokemonImport Import(Pokemon pokemon, Game to)
+    {
+        var refusal = TransferConversion.Convert(pokemon, to, unofficial: false, out var arrives);
+        var unofficial = refusal == TransferRefusal.ConversionFailed;
+        if (unofficial)
+        {
+            refusal = !HasRoutes(to) ? TransferRefusal.ConversionFailed
+                : pokemon.Pkm.IsEgg ? TransferRefusal.EggAcrossGenerations
+                : !IsLanguageCompatible(pokemon, to) ? TransferRefusal.LanguageMismatch
+                : TransferConversion.Convert(pokemon, to, unofficial: true, out arrives);
+        }
+
+        if (refusal is { } reason) throw new PokemonRefusedException(reason);
+
+        var route = OfficialRoute(pokemon.Pkm.GetType(), to.SaveFile.PKMType) ?? TransferRoute.Unofficial;
+        return new PokemonImport(arrives!, unofficial, Changes(pokemon, arrives!, route).OrderBy(change => change.Field).ToList());
+    }
+
+    private static TransferRoute? OfficialRoute(Type source, Type target)
+    {
         if (source == target) return TransferRoute.Link;
         if (IsGameBoy(source) && IsGameBoy(target)) return TransferRoute.TimeCapsule;
         if (source == typeof(PK3) && target == typeof(PK4)) return TransferRoute.PalPark;
@@ -90,7 +117,7 @@ public class Transfer(Game mine, Game partner)
                 _ when slot.Source == PokemonSource.Box && from.SaveFile.IsBoxSlotOverwriteProtected(slot.Index) => TransferRefusal.SlotLocked,
                 not TransferRoute.Link when pokemon.Pkm.IsEgg => TransferRefusal.EggAcrossGenerations,
                 _ when !IsLanguageCompatible(pokemon, to) => TransferRefusal.LanguageMismatch,
-                _ when Convert(leaving, to, out converted) is { } failed => failed,
+                _ when TransferConversion.Convert(leaving, to, route == TransferRoute.Unofficial, out converted) is { } failed => failed,
                 _ when leavesParty && partyLeft == 1 => TransferRefusal.LastPartyMember,
                 _ when room.Count == 0 => TransferRefusal.NoRoom,
                 _ when tookOrb && !BagHasRoom(from, TransferEffects.GriseousOrb, orbsReturned + 1) => TransferRefusal.BagFull,
@@ -129,6 +156,7 @@ public class Transfer(Game mine, Game partner)
 
             offers.Add(new TransferredPokemon(
                 direction,
+                route.Value,
                 slot,
                 pokemon,
                 room.Dequeue(),
@@ -204,20 +232,6 @@ public class Transfer(Game mine, Game partner)
     private static bool IsLanguageCompatible(Pokemon pokemon, Game to) =>
         to.SaveFile is not ILangDeviantSave save || EntityConverter.IsCompatibleGB(to.SaveFile.BlankPKM, save.Japanese, pokemon.Pkm.Japanese);
 
-    private static TransferRefusal? Convert(Pokemon pokemon, Game to, out Pokemon? arrives)
-    {
-        arrives = null;
-        var converted = EntityConverter.ConvertToType(pokemon.Pkm.Clone(), to.SaveFile.PKMType, out var result);
-        if (converted is null)
-            return result is EntityConverterResult.IncompatibleSpecies or EntityConverterResult.IncompatibleForm
-                ? TransferRefusal.SpeciesNotInGame
-                : TransferRefusal.NoRoute;
-
-        to.SaveFile.AdaptToSaveFile(converted, isParty: false);
-        arrives = new Pokemon(converted, to);
-        return to.IsAwareOf(arrives) ? null : TransferRefusal.SpeciesNotInGame;
-    }
-
     private static void Remove(Game game, IReadOnlyList<TransferSlot> slots)
     {
         var party = slots.Where(s => s.Source == PokemonSource.Party).Select(s => s.Index).ToList();
@@ -229,6 +243,18 @@ public class Transfer(Game mine, Game partner)
 
     private static IEnumerable<TransferChange> Changes(Pokemon from, Pokemon arrives, TransferRoute route)
     {
+        if (route == TransferRoute.Unofficial)
+        {
+            return Changes(from, arrives, (field, before, after) => field switch
+            {
+                TransferField.Moves or TransferField.HeldItem when after is null => TransferChangeReason.NotInGame,
+                TransferField.HeldItem => TransferChangeReason.ItemRemapped,
+                TransferField.Ball when before is not null && !TransferConversion.HasBall(arrives.Game, from.Pkm.Ball) => TransferChangeReason.NotInGame,
+                TransferField.Ability when before is not null && !TransferConversion.CanHaveAbility(arrives.Pkm, from.Pkm.Ability) => TransferChangeReason.NotInGame,
+                _ => TransferChangeReason.Unofficial,
+            });
+        }
+
         var reason = route switch
         {
             TransferRoute.Link => TransferChangeReason.Link,
@@ -236,45 +262,67 @@ public class Transfer(Game mine, Game partner)
             TransferRoute.PalPark => TransferChangeReason.PalPark,
             _ => TransferChangeReason.PokeTransfer,
         };
-        // Pal Park and Poké Transfer only take away HM moves.
-        var forgotten = route is TransferRoute.PalPark or TransferRoute.PokeTransfer ? TransferChangeReason.HmRemoved : reason;
-        var item = HeldItem(arrives) is null ? TransferChangeReason.ItemRemoved : TransferChangeReason.ItemRemapped;
-        return Changes(from, arrives, reason, item, forgotten);
+        return Changes(from, arrives, (field, _, after) => field switch
+        {
+            TransferField.HeldItem => after is null ? TransferChangeReason.ItemRemoved : TransferChangeReason.ItemRemapped,
+            // Pal Park and Poké Transfer only take away HM moves.
+            TransferField.Moves when after is null && route is TransferRoute.PalPark or TransferRoute.PokeTransfer => TransferChangeReason.HmRemoved,
+            _ => reason,
+        });
     }
 
-    private static IEnumerable<TransferChange> Changes(
-        Pokemon from,
-        Pokemon arrives,
-        TransferChangeReason reason,
-        TransferChangeReason? itemReason = null,
-        TransferChangeReason? forgottenReason = null)
+    private static IEnumerable<TransferChange> Changes(Pokemon from, Pokemon arrives, TransferChangeReason reason, TransferChangeReason? itemReason = null) =>
+        Changes(from, arrives, (field, _, _) => field == TransferField.HeldItem ? itemReason ?? reason : reason);
+
+    private static IEnumerable<TransferChange> Changes(Pokemon from, Pokemon arrives, Func<TransferField, string?, string?, TransferChangeReason> why)
     {
         var changes = new List<TransferChange>();
 
-        void Compare(TransferField field, string? before, string? after, TransferChangeReason why)
+        void Compare(TransferField field, string? before, string? after)
         {
-            if (before != after) changes.Add(new TransferChange(field, before, after, why));
+            if (before != after) changes.Add(new TransferChange(field, before, after, why(field, before, after)));
         }
 
-        Compare(TransferField.Species, from.Species.Name, arrives.Species.Name, reason);
-        Compare(TransferField.Form, from.Form.Form.Name, arrives.Form.Form.Name, reason);
-        Compare(TransferField.HeldItem, HeldItem(from), HeldItem(arrives), itemReason ?? reason);
+        Compare(TransferField.Species, from.Species.Name, arrives.Species.Name);
+        Compare(TransferField.Form, from.Form.Form.Name, arrives.Form.Form.Name);
+        Compare(TransferField.HeldItem, HeldItem(from), HeldItem(arrives));
 
         var (movesBefore, movesAfter) = (Moves(from), Moves(arrives));
-        changes.AddRange(movesBefore.Except(movesAfter).Select(move => new TransferChange(TransferField.Moves, move, null, forgottenReason ?? reason)));
-        changes.AddRange(movesAfter.Except(movesBefore).Select(move => new TransferChange(TransferField.Moves, null, move, reason)));
+        changes.AddRange(movesBefore.Except(movesAfter).Select(move => new TransferChange(TransferField.Moves, move, null, why(TransferField.Moves, move, null))));
+        changes.AddRange(movesAfter.Except(movesBefore).Select(move => new TransferChange(TransferField.Moves, null, move, why(TransferField.Moves, null, move))));
 
-        Compare(TransferField.MetLocation, MetLocation(from), MetLocation(arrives), reason);
-        Compare(TransferField.MetLevel, MetLevel(from), MetLevel(arrives), reason);
-        Compare(TransferField.Ball, from.Ball.Name, arrives.Ball.Name, reason);
-        Compare(TransferField.Friendship, from.Pkm is PK1 ? null : from.Friendship.ToString(), arrives.Pkm is PK1 ? null : arrives.Friendship.ToString(), reason);
-        Compare(TransferField.Nickname, from.Nickname, arrives.Nickname, reason);
-        Compare(TransferField.Ability, from.Ability.Name, arrives.Ability.Name, reason);
+        Compare(TransferField.MetLocation, MetLocation(from), MetLocation(arrives));
+        Compare(TransferField.MetLevel, MetLevel(from), MetLevel(arrives));
+        Compare(TransferField.Ball, Ball(from), Ball(arrives));
+        Compare(TransferField.Friendship, from.Pkm is PK1 ? null : from.Friendship.ToString(), arrives.Pkm is PK1 ? null : arrives.Friendship.ToString());
+        Compare(TransferField.Nickname, from.Nickname, arrives.Nickname);
+        Compare(TransferField.Ability, Ability(from), Ability(arrives));
+        Compare(TransferField.Level, from.Level.ToString(), arrives.Level.ToString());
+        Compare(TransferField.Nature, Nature(from), Nature(arrives));
+        Compare(TransferField.Gender, from.Gender.ToString(), arrives.Gender.ToString());
+        Compare(TransferField.Shiny, from.IsShiny.ToString(), arrives.IsShiny.ToString());
+        Compare(TransferField.Language, Language(from), Language(arrives));
+        Compare(TransferField.OriginalTrainer, from.Pkm.OriginalTrainerName, arrives.Pkm.OriginalTrainerName);
+        Compare(TransferField.TrainerId, from.Pkm.DisplayTID.ToString(), arrives.Pkm.DisplayTID.ToString());
+        Compare(TransferField.OriginGame, OriginGame(from), OriginGame(arrives));
+        Compare(TransferField.MetDate, from.Pkm.MetDate?.ToString("yyyy-MM-dd"), arrives.Pkm.MetDate?.ToString("yyyy-MM-dd"));
         return changes;
     }
 
+    private static bool IsGameBoy(Pokemon pokemon) => pokemon.Pkm.Format <= 2;
+
+    private static string? Ball(Pokemon pokemon) => IsGameBoy(pokemon) ? null : pokemon.Ball.Name;
+
+    private static string? Ability(Pokemon pokemon) => IsGameBoy(pokemon) ? null : pokemon.Ability.Name;
+
+    private static string? Nature(Pokemon pokemon) => IsGameBoy(pokemon) ? null : pokemon.Pkm.Nature.ToString();
+
+    private static string? Language(Pokemon pokemon) => IsGameBoy(pokemon) ? null : ((LanguageID)pokemon.Pkm.Language).ToString();
+
+    private static string? OriginGame(Pokemon pokemon) => IsGameBoy(pokemon) ? null : GameInfo.GetVersionName(pokemon.Pkm.Version);
+
     // Gen 1 stores no met data and Gen 2 only for Pokémon caught in Crystal, which leaves the fields at 0.
-    private static bool HasNoMetData(Pokemon pokemon) => pokemon.Pkm.Format <= 2 && pokemon.MetConditions.Location.Id == 0 && pokemon.MetConditions.Level == 0;
+    private static bool HasNoMetData(Pokemon pokemon) => IsGameBoy(pokemon) && pokemon.MetConditions.Location.Id == 0 && pokemon.MetConditions.Level == 0;
 
     // PKHeX can't name the met location of a Pokémon from an earlier generation, such as Pal Park on a Gen 3 Pokémon in Gen 4.
     private static string? MetLocation(Pokemon pokemon) => HasNoMetData(pokemon)
@@ -294,7 +342,7 @@ public class Transfer(Game mine, Game partner)
         .ToList();
 
     // ParseSettings is global. Gen 1 and 2 need the destination's cartridge rules, and nothing else sets them, so the defaults come back after.
-    private static PokemonLegality LegalityIn(Game destination, Pokemon arrival)
+    internal static PokemonLegality LegalityIn(Game destination, Pokemon arrival)
     {
         ParseSettings.InitFromSaveFileData(destination.SaveFile);
         try
