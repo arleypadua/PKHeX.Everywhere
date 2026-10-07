@@ -2,10 +2,6 @@ using PKHeX.Core;
 
 namespace PKHeX.Everywhere.RomHacks.Legacy;
 
-/// <summary>
-/// A Pokémon Emerald Legacy save. It is an Emerald save whose SaveBlock1 the hack lays out differently,
-/// so it reuses Emerald's small block and entity model and only swaps in its own large block.
-/// </summary>
 internal sealed class EmeraldLegacySave : SAV3, IDaycareRandomState<uint>
 {
     private const int LargeBlockSize = 0x3D98; // sizeof(SaveBlock1); Emerald's is 0x3D88

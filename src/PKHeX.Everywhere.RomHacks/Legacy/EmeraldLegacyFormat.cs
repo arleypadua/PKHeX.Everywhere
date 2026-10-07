@@ -74,10 +74,10 @@ public sealed class EmeraldLegacyFormat : ISaveFormat
         large = [];
         var best = -1;
         Span<int> bestOffsets = stackalloc int[SectorsPerSlot];
+        Span<int> offsets = stackalloc int[SectorsPerSlot];
 
         for (var slot = 0; slot < 2; slot++)
         {
-            Span<int> offsets = stackalloc int[SectorsPerSlot];
             var seen = 0;
             for (var index = 0; index < SectorsPerSlot; index++)
             {

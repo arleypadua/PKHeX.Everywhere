@@ -60,7 +60,7 @@ public class EmeraldLegacySaveTests
     {
         var pouch = Load().SaveFile.Inventory.Pouches.First(p => p.Type == InventoryType.Items);
         pouch.Items.Length.Should().Be(120);
-        pouch.MaxCount.Should().Be(99); // the hack leaves MAX_BAG_ITEM_CAPACITY alone
+        pouch.MaxCount.Should().Be(99);
     }
 
     [Fact]
@@ -75,13 +75,6 @@ public class EmeraldLegacySaveTests
         reloaded.Trainer.Inventories[nameof(InventoryType.Berries)]
             .AllExceptNone().First(i => i.Definition.Id == berry.Definition.Id)
             .Count.Should().Be(42);
-    }
-
-    // Sector bytes are data below 0xFF4; 0xFF6 is the checksum the export recomputes.
-    private static bool IsDataOrChecksum(int index)
-    {
-        var within = index & 0xFFF;
-        return within < 0xFF4 || within == 0xFF6 || within == 0xFF7;
     }
 
     [Fact]
