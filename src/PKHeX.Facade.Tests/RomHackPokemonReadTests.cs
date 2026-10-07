@@ -19,6 +19,19 @@ public class RomHackPokemonReadTests
             Pokemon.Read(PartyBytes(pokemon.Pkm), (int)format.BaseGame, format).Should().BeEquivalentTo(pokemon.Details()));
     }
 
+    [Theory]
+    [InlineData(SaveFilePath.Unbound, "unbound")]
+    [InlineData(SaveFilePath.Imperium, "emerald-imperium")]
+    public void ReadsAPartyPokemonAtTheLevelItsGameStores(string saveFile, string formatId)
+    {
+        var format = SaveFormats.Find(formatId)!;
+        var pkm = Game.LoadFrom(File.ReadAllBytes(saveFile), saveFile, format).Trainer.Party.Pokemons[0].Pkm;
+        var stored = (byte)((pkm.CurrentLevel % 100) + 1);
+        pkm.Stat_Level = stored;
+
+        Pokemon.Read(PartyBytes(pkm), (int)format.BaseGame, format).Level.Should().Be(stored);
+    }
+
     [Fact]
     public void RejectsACorruptedImperiumByte()
     {

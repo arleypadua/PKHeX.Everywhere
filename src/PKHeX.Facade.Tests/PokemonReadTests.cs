@@ -22,6 +22,30 @@ public class PokemonReadTests
     }
 
     [Theory]
+    [InlineData(SaveFilePath.Emerald, GameVersion.E)]
+    [InlineData(SaveFilePath.HgSs, GameVersion.SS)]
+    public void ReadsAPartyPokemonAtTheLevelItsGameStores(string saveFile, GameVersion version)
+    {
+        var pkm = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0].Pkm;
+        var stored = (byte)((pkm.CurrentLevel % 100) + 1);
+        pkm.Stat_Level = stored;
+
+        Pokemon.Read(Encrypted(pkm, party: true), (int)version).Level.Should().Be(stored);
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Emerald, GameVersion.E)]
+    [InlineData(SaveFilePath.HgSs, GameVersion.SS)]
+    public void ReadsABoxPokemonAtTheLevelItsExperienceGives(string saveFile, GameVersion version)
+    {
+        var pkm = Game.LoadFrom(saveFile).Trainer.Party.Pokemons[0].Pkm;
+        var level = pkm.CurrentLevel;
+        pkm.Stat_Level = (byte)((level % 100) + 1);
+
+        Pokemon.Read(Encrypted(pkm, party: false), (int)version).Level.Should().Be(level);
+    }
+
+    [Theory]
     [InlineData(SaveFilePath.Emerald, GameVersion.E, true)]
     [InlineData(SaveFilePath.Emerald, GameVersion.E, false)]
     [InlineData(SaveFilePath.HgSs, GameVersion.SS, true)]

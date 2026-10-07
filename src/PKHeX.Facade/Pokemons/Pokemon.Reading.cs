@@ -9,6 +9,7 @@ public partial class Pokemon
     /// <summary>
     /// Reads one Gen 3 or Gen 4 Pokémon as its game keeps it in memory: encrypted and shuffled, in its party or box layout.
     /// Nothing is written to a save, and the details hold no legality report.
+    /// Party bytes read at the level the game stores in them, box bytes at the level their EXP gives.
     /// </summary>
     /// <exception cref="UnreadablePokemonException">The bytes or the version can't be read as a Pokémon.</exception>
     public static PokemonDetails Read(byte[] bytes, int version)
@@ -25,12 +26,12 @@ public partial class Pokemon
         if (!pkm.ChecksumValid || !pkm.Valid || pkm is PK3 { FlagIsBadEgg: true } || IsBlank(pkm) || !game.SpeciesRepository.Knows(pkm.Species))
             throw new UnreadablePokemonException(UnreadableReason.BadChecksum, "The bytes aren't a Pokémon.");
 
-        return new Pokemon(pkm, game).Details(withLegality: false);
+        return ReadDetails(pkm, game, party: bytes.Length == pkm.SIZE_PARTY);
     }
 
     /// <summary>
     /// Reads one Pokémon as a game in the Save format keeps it in its party in memory, with the format's species, items and moves.
-    /// Nothing is written to a save, and the details hold no legality report.
+    /// Nothing is written to a save, and the details hold no legality report. The level is the one the game stores in the party bytes.
     /// </summary>
     /// <exception cref="UnreadablePokemonException">The bytes or the version can't be read as a Pokémon of the format.</exception>
     public static PokemonDetails Read(byte[] bytes, int version, ISaveFormat format)
@@ -49,7 +50,14 @@ public partial class Pokemon
         if (!pkm.ChecksumValid || !pkm.Valid || IsBlank(pkm))
             throw new UnreadablePokemonException(UnreadableReason.BadChecksum, "The bytes aren't a Pokémon.");
 
-        return new Pokemon(pkm, game).Details(withLegality: false);
+        return ReadDetails(pkm, game, party: true);
+    }
+
+    // A randomizer can change a species' growth rate, so the EXP-derived level may not be the one the game shows.
+    private static PokemonDetails ReadDetails(PKM pkm, Game game, bool party)
+    {
+        var details = new Pokemon(pkm, game).Details(withLegality: false);
+        return party ? details with { Level = pkm.Stat_Level } : details;
     }
 
     // The bytes always arrive encrypted, so they're decrypted outright: PKHeX's constructors guess from the data and can skip it.
