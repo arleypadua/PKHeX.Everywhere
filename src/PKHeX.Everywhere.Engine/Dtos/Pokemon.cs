@@ -56,6 +56,7 @@ public record PokemonForm(int Id, string Name);
 /// <param name="IsUnknown">Neither PKHeX nor the save knows the species, such as a ROM hack's egg slot. Show a placeholder instead of a sprite.</param>
 /// <param name="Editable">The Pokémon can be opened with <c>pokemon.edit()</c> and copied with <c>pokemon.clone()</c>. When false, show it read-only with <c>pokemon.details()</c>: editing it fails with <c>unknown-species</c>.</param>
 /// <param name="Nickname">The species name when the Pokémon has no nickname.</param>
+/// <param name="Types">Type ids, named by <c>game.types()</c>. One entry for a single-type Pokémon.</param>
 public record PokemonSummary(
     PokemonId Id,
     PokemonHandle At,
@@ -67,7 +68,10 @@ public record PokemonSummary(
     PokemonForm Form,
     string Nickname,
     int Level,
-    bool IsShiny);
+    bool IsShiny,
+    PokemonGender Gender,
+    bool IsEgg,
+    int[] Types);
 
 /// <summary>
 /// A Pokémon just added to a box.
@@ -342,7 +346,10 @@ public static class PokemonMapping
             new PokemonForm(form.Id, form.Name),
             pokemon.Nickname,
             pokemon.Level,
-            pokemon.IsShiny);
+            pokemon.IsShiny,
+            pokemon.Gender.ToDto(),
+            pokemon.Egg.IsEgg,
+            pokemon.Types.Ids.ToArray());
     }
 
     public static PokemonOverview ToOverview(this Pokemon pokemon) =>

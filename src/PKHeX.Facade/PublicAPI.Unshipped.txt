@@ -516,3 +516,4 @@ virtual PKHeX.Facade.Repositories.NatureDefinition.<Clone>$() -> PKHeX.Facade.Re
 virtual PKHeX.Facade.Repositories.NatureDefinition.EqualityContract.get -> System.Type!
 virtual PKHeX.Facade.Repositories.NatureDefinition.Equals(PKHeX.Facade.Repositories.NatureDefinition? other) -> bool
 virtual PKHeX.Facade.Repositories.NatureDefinition.PrintMembers(System.Text.StringBuilder! builder) -> bool
+PKHeX.Facade.Pokemons.PokemonTypes.Ids.get -> System.Collections.Generic.IReadOnlyList<int>!

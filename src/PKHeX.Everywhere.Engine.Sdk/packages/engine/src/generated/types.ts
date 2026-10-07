@@ -763,6 +763,10 @@ export interface PokemonSummary {
   nickname: string
   level: number
   isShiny: boolean
+  gender: PokemonGender
+  isEgg: boolean
+  /** Type ids, named by `game.types()`. One entry for a single-type Pokémon. */
+  types: number[]
 }
 
 /** One bag pouch in the save, returned by `inventory.get`. */

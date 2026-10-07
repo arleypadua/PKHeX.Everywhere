@@ -25,7 +25,7 @@ public partial class Pokemon
         Nickname,
         Level,
         PID,
-        Types.HasSecondary ? [Types.Type1, Types.Type2] : [Types.Type1],
+        Types.Ids,
         Flags.IsInfected,
         Flags.IsCured,
         Owner.TID,

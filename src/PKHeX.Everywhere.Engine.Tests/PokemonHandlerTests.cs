@@ -24,6 +24,21 @@ public class PokemonHandlerTests
 
     [Theory]
     [SupportedSaveFiles]
+    public void GetHasTheGenderEggFlagAndTypesOfTheDetails(string saveFile)
+    {
+        var session = Loaded(saveFile);
+        session.Game!.Trainer.Party.Pokemons[0].Egg.IsEgg = true;
+
+        var pokemon = Value(Dispatch(session, "pokemon.get", Args(PokemonHandle.Party(0))))!;
+
+        var details = Value(Dispatch(session, "pokemon.details", Args(PokemonHandle.Party(0))))!;
+        pokemon["isEgg"]!.GetValue<bool>().Should().BeTrue();
+        foreach (var field in new[] { "gender", "isEgg", "types" })
+            pokemon[field]!.ToJsonString().Should().Be(details[field]!.ToJsonString());
+    }
+
+    [Theory]
+    [SupportedSaveFiles]
     public void SetLevelChangesAPartyPokemonInTheSave(string saveFile)
     {
         var session = Loaded(saveFile);
