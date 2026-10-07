@@ -38,6 +38,15 @@ public sealed class ImperiumSave : SaveFile
         Box = 0;
     }
 
+    internal static byte[] Blank()
+    {
+        var data = new byte[0x20000];
+        for (var sector = 0; sector < SectorCount; sector++)
+            WriteUInt16LittleEndian(data.AsSpan((sector * SectorSize) + 0xFF4), (ushort)sector);
+
+        return data;
+    }
+
     private Span<byte> Sector(int id) => Data.Slice(_sectors[id], SectorSize);
 
     // SaveBlock1 runs on across sectors 1 to 4, so a run of slots can start in one sector and end in the next.

@@ -26,19 +26,25 @@ public static class PokemonHandlers
     /// </summary>
     /// <param name="bytes">The Pokémon as the game keeps it: encrypted and shuffled, in its party (100-byte PK3, 236-byte PK4) or box (80-byte PK3, 136-byte PK4) layout. Another length fails with <c>bad-arguments</c>.</param>
     /// <param name="version">The PKHeX game version id the bytes come from. A combined version, such as FireRed/LeafGreen, fails with <c>bad-arguments</c>, and a game outside Gen 3 and 4 with <c>not-supported</c>.</param>
+    /// <param name="formatId">
+    /// The id of a ROM hack's format, from <c>game.formats()</c> or <c>game.version()</c>, such as <c>unbound</c>. The bytes are then read in the hack's party layout and match what <c>pokemon.details</c> returns for the Pokémon in the hack's save.
+    /// Only party bytes are accepted. <c>version</c> must be the format's base game, such as FireRed for Unbound, or the read fails with <c>bad-arguments</c>.
+    /// An unknown or disabled id fails with <c>not-found</c>, and <c>pkhex</c> with <c>not-supported</c>.
+    /// </param>
     [Query("pokemon.read")]
-    public static EditablePokemon Read(byte[] bytes, int version)
+    public static EditablePokemon Read(byte[] bytes, int version, string? formatId = null)
     {
         try
         {
-            return Pokemon.Read(bytes, version).ToEditable();
+            var details = formatId is null ? Pokemon.Read(bytes, version) : Pokemon.Read(bytes, version, GameHandlers.FindFormat(formatId));
+            return details.ToEditable();
         }
         catch (UnreadablePokemonException e)
         {
             throw new EngineException(e.Reason switch
             {
                 UnreadableReason.BadChecksum => ErrorCodes.BadChecksum,
-                UnreadableReason.UnsupportedVersion => ErrorCodes.NotSupported,
+                UnreadableReason.UnsupportedVersion or UnreadableReason.UnsupportedFormat => ErrorCodes.NotSupported,
                 _ => ErrorCodes.BadArguments,
             }, e.Message, e);
         }

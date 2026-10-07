@@ -152,7 +152,7 @@ public class PokemonHandlerTests
         var details = Value(Dispatch(session, "pokemon.details", Args(PokemonHandle.Party(0))))!.AsObject();
         details["legality"] = null;
 
-        var read = Value(Dispatch(new Session(), "pokemon.read", Args(EncryptedParty(session), (int)GameVersion.E)))!;
+        var read = Value(Dispatch(new Session(), "pokemon.read", Args(EncryptedParty(session), (int)GameVersion.E, null!)))!;
 
         read.ToJsonString().Should().Be(details.ToJsonString());
     }
@@ -163,7 +163,7 @@ public class PokemonHandlerTests
     [InlineData(136, (int)GameVersion.E, "bad-arguments")]
     [InlineData(100, (int)GameVersion.SW, "not-supported")]
     public void ReadFailsWithTheCodeOfTheProblem(int length, int version, string code) =>
-        Error(Dispatch(new Session(), "pokemon.read", Args(Convert.ToBase64String(new byte[length]), version))).Should().Be(code);
+        Error(Dispatch(new Session(), "pokemon.read", Args(Convert.ToBase64String(new byte[length]), version, null!))).Should().Be(code);
 
     private static string EncryptedParty(Session session) =>
         Convert.ToBase64String(session.Game!.Trainer.Party.Pokemons[0].ToFile(encrypted: true).Bytes);

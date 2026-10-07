@@ -10,6 +10,8 @@ public sealed class UnboundFormat : CfruFormat
 
     protected override bool FireRedMetLocations => false;
 
+    protected override uint Signature => UnboundSave.Signatures[0];
+
     public override SaveFormatMatch Detect(ReadOnlySpan<byte> data) =>
         CfruSave.FindActiveSlot(data, UnboundSave.Signatures) is null ? SaveFormatMatch.No : SaveFormatMatch.Certain;
 

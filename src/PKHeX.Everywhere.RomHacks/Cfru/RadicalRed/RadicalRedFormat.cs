@@ -14,6 +14,8 @@ public sealed class RadicalRedFormat : CfruFormat
     // Radical Red keeps FireRed's map. RomHackGameDataTests confirms the fixture's Pokémon were met where they live in FireRed.
     protected override bool FireRedMetLocations => true;
 
+    protected override uint Signature => RadicalRedSave.Signatures[0];
+
     public override SaveFormatMatch Detect(ReadOnlySpan<byte> data)
     {
         if (CfruSave.FindActiveSlot(data, RadicalRedSave.Signatures) is not { } slot) return SaveFormatMatch.No;

@@ -43,6 +43,20 @@ public abstract class CfruSave : SaveFile
         Box = 0;
     }
 
+    // One slot whose sectors are in order and hold nothing, which reads as a save with no Pokémon.
+    internal static byte[] Blank(uint signature)
+    {
+        var data = new byte[FileSizes[0]];
+        for (var sector = 0; sector < SectorCount; sector++)
+        {
+            var footer = data.AsSpan((sector * SectorSize) + 0xFF4);
+            WriteUInt16LittleEndian(footer, (ushort)sector);
+            WriteUInt32LittleEndian(footer[4..], signature);
+        }
+
+        return data;
+    }
+
     public static int? FindActiveSlot(ReadOnlySpan<byte> data, IReadOnlyCollection<uint> signatures)
     {
         if (!FileSizes.Contains(data.Length)) return null;

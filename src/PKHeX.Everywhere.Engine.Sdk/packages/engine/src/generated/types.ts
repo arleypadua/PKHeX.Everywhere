@@ -70,6 +70,8 @@ export interface CatalogNamesRequest {
   speciesIds: number[]
   /** PKHeX.Core item ids, which follow the Generation 4 and later numbering. Generation 1 to 3 saves number their pouch items differently. */
   itemIds: number[]
+  /** The id of a ROM hack's format from `game.formats()`, such as `unbound`, to name the hack's own species and items, as `species.list` and `pokemon.options()` do with its save loaded. An unknown or disabled id fails with `not-found`, and `pkhex` with `not-supported`. */
+  formatId?: string | null
 }
 
 /** An id and its display name. The id space depends on the list, such as nature ids from `game.natures()`. */
