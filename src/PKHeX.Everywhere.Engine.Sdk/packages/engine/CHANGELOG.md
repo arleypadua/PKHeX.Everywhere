@@ -1,5 +1,12 @@
 # @pkhex-everywhere/engine
 
+## 0.13.0
+
+### Minor Changes
+
+- 47ae851: A save format can now name its own event flags and work values, and Emerald Legacy does: it supports `Events`, and `events.flags()` and `events.work()` label what the hack means rather than what Emerald means. Legacy's larger trainer flag range moves everything from `SYSTEM_FLAGS` up by `0x60`, so the first badge is flag `0x8C7` rather than Emerald's `0x867`.
+- ee36074: New save format `emerald-legacy` opens Pokémon Emerald Legacy saves. It keeps Emerald's signature, so a save it recognises is a possible match and `game.load` asks for a choice between it and PKHeX's own detection. Like the other ROM hacks it supports no capabilities.
+
 ## 0.12.0
 
 ### Minor Changes
