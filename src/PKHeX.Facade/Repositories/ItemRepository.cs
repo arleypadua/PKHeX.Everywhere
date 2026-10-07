@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using PKHeX.Core;
 using PKHeX.Facade.Abstractions;
+using PKHeX.Facade.Pokemons;
 
 namespace PKHeX.Facade.Repositories;
 
@@ -24,12 +25,14 @@ public class ItemRepository
     internal ItemRepository(IGameDataSource data)
     {
         _data = data;
-        _gameItems = data.Items.ToDictionary(item => (ushort)item.Id, item => new ItemDefinition((ushort)item.Id, item.Name) { Index = data.ItemIndex(item.Id) });
+        _gameItems = data.Items.ToDictionary(item => (ushort)item.Id, Define);
     }
+
+    internal ItemDefinition Define(Choice item) => new((ushort)item.Id, item.Name) { Index = _data.ItemIndex(item.Id) };
 
     public ISet<ItemDefinition> GameItems => _gameItems.Values.ToHashSet();
     public ItemDefinition GetGameItem(ushort id) => _gameItems.GetValueOrDefault(id)
-        ?? (_data.NameOf(GameDataKind.Item, id) is { } name ? new ItemDefinition(id, name) { IsUnknown = true, Index = _data.ItemIndex(id) } : ItemDefinition.Unknown(id));
+        ?? (_data.NameOf(GameDataKind.Item, id) is { } name ? Define(new Choice(id, name)) with { IsUnknown = true } : ItemDefinition.Unknown(id));
     public ItemDefinition? GetGameItemByName(string name) => _gameItems.Values
         .FirstOrDefault(i => i.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 

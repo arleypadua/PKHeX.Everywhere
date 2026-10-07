@@ -413,7 +413,7 @@ public partial class Pokemon
     {
         var held = HeldItem;
         return Game.Options.HeldItems
-            .Select(item => new ItemDefinition((ushort)item.Id, item.Name) { Index = Game.GameData.ItemIndex(item.Id) })
+            .Select(Game.ItemRepository.Define)
             .Concat(held.IsUnknown ? [held] : [])
             .ToArray();
     }
