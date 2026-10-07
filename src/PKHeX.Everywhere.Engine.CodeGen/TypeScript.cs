@@ -29,28 +29,42 @@ public static class TypeScript
     }
 
     // A returned record's bytes become a Uint8Array only when the client can convert them, so the record must never reach JS any other way.
-    // That covers the records it holds bytes through, such as each save a transfer returns.
-    private static HashSet<Type> BinaryOutputs(Contract contract)
+    // That covers the records it holds bytes through, such as each save a transfer returns. A record a call takes keeps its bytes as Base64,
+    // and so do the records it holds, unless a call also returns them inside another record: then the client encodes them back on the way in.
+    private static BinaryRecords BinaryOutputs(Contract contract)
     {
         var inputs = contract.Calls.SelectMany(c => c.Parameters).Select(p => Nullable.GetUnderlyingType(p.Type) ?? p.Type).ToHashSet();
-        return contract.Calls
+        var outputs = contract.Calls
             .Select(c => Nullable.GetUnderlyingType(c.ReturnType) ?? c.ReturnType)
-            .Where(t => Contract.IsObject(t) && BytesPaths(t).Any() && !inputs.Contains(t))
-            .SelectMany(t => BytesHolders(t).Prepend(t))
+            .Where(t => Contract.IsObject(t) && BytesPaths(t, inputs).Any() && !inputs.Contains(t))
+            .SelectMany(t => BytesHolders(t, inputs).Prepend(t))
             .ToHashSet();
+        return new BinaryRecords(outputs, inputs);
     }
 
-    private static IEnumerable<string> BytesPaths(Type type) => TypeCollector.Properties(type).SelectMany(p =>
+    private sealed record BinaryRecords(HashSet<Type> Outputs, HashSet<Type> Inputs)
     {
-        var name = JsonNamingPolicy.CamelCase.ConvertName(p.Name);
-        if (p.PropertyType == typeof(byte[])) return [name];
-        return Contract.IsObject(p.PropertyType) ? BytesPaths(p.PropertyType).Select(path => $"{name}.{path}") : [];
-    });
+        public IEnumerable<string> OutputPaths(Type type) => BytesPaths(type, Inputs);
 
-    private static IEnumerable<Type> BytesHolders(Type type) => TypeCollector.Properties(type)
-        .Select(p => p.PropertyType)
-        .Where(t => Contract.IsObject(t) && BytesPaths(t).Any())
-        .SelectMany(t => BytesHolders(t).Prepend(t));
+        public IEnumerable<string> InputPaths(Type type) => Objects(type).SelectMany(p => Outputs.Contains(p.Type)
+            ? OutputPaths(p.Type).Select(path => $"{p.Name}.{path}")
+            : InputPaths(p.Type).Select(path => $"{p.Name}.{path}"));
+    }
+
+    // An array is crossed as if it were its element: the client converts each one.
+    private static IEnumerable<(string Name, Type Type)> Objects(Type type) => TypeCollector.Properties(type)
+        .Select(p => (Name: JsonNamingPolicy.CamelCase.ConvertName(p.Name), Type: TypeCollector.ElementType(p.PropertyType, null)?.Element ?? p.PropertyType))
+        .Where(p => Contract.IsObject(p.Type));
+
+    private static IEnumerable<string> BytesPaths(Type type, HashSet<Type> inputs) => TypeCollector.Properties(type)
+        .Where(p => p.PropertyType == typeof(byte[]))
+        .Select(p => JsonNamingPolicy.CamelCase.ConvertName(p.Name))
+        .Concat(Objects(type).Where(p => !inputs.Contains(p.Type)).SelectMany(p => BytesPaths(p.Type, inputs).Select(path => $"{p.Name}.{path}")));
+
+    private static IEnumerable<Type> BytesHolders(Type type, HashSet<Type> inputs) => Objects(type)
+        .Select(p => p.Type)
+        .Where(t => !inputs.Contains(t) && BytesPaths(t, inputs).Any())
+        .SelectMany(t => BytesHolders(t, inputs).Prepend(t));
 
     private static string? Requirements(Call call, bool react)
     {
@@ -258,7 +272,7 @@ public static class TypeScript
     {
         var arguments = call.Parameters.Select((p, i) => Argument(call, i, types)).ToList();
         var invoke = $"invoke({Quote(call.Name)}, [{string.Join(", ", arguments)}])";
-        var bytes = types.IsBinaryOutput(call.ReturnType) ? BytesPaths(call.ReturnType).ToList() : [];
+        var bytes = types.IsBinaryOutput(call.ReturnType) ? types.Records.OutputPaths(call.ReturnType).ToList() : [];
         if (bytes.Count > 0)
         {
             types.Helpers.Add("withBytes");
@@ -286,6 +300,13 @@ public static class TypeScript
             return $"{parameter.Name} ?? fileNameOf({call.Parameters[index - 1].Name})";
         }
 
+        var type = Nullable.GetUnderlyingType(parameter.Type) ?? parameter.Type;
+        if (Contract.IsObject(type) && types.Records.InputPaths(type).ToList() is { Count: > 0 } paths)
+        {
+            types.Helpers.Add("withBase64");
+            return $"await withBase64({parameter.Name}, [{string.Join(", ", paths.Select(Quote))}])";
+        }
+
         return parameter.Name;
     }
 
@@ -310,11 +331,12 @@ public static class TypeScript
     private enum Direction
     {
         Nested,
+        NestedInput,
         Input,
         Output,
     }
 
-    private sealed class TypeCollector(HashSet<Type> binaryOutputs, Docs docs)
+    private sealed class TypeCollector(BinaryRecords binary, Docs docs)
     {
         private const string Binary = "Binary";
         private const string Base64 = "Base64";
@@ -326,7 +348,9 @@ public static class TypeScript
 
         public HashSet<string> Helpers { get; } = [];
 
-        public bool IsBinaryOutput(Type type) => binaryOutputs.Contains(type);
+        public BinaryRecords Records => binary;
+
+        public bool IsBinaryOutput(Type type) => binary.Outputs.Contains(type);
 
         public string Render(Type type, NullabilityInfo? info, Direction direction = Direction.Nested)
         {
@@ -366,12 +390,12 @@ public static class TypeScript
 
             if (ElementType(type, info) is var (element, elementInfo))
             {
-                var rendered = Render(element, elementInfo);
+                var rendered = Render(element, elementInfo, direction);
                 return rendered.Contains('|') ? $"({rendered})[]" : $"{rendered}[]";
             }
 
-            if (binaryOutputs.Contains(type) && direction != Direction.Output)
-                throw new InvalidOperationException($"{type.Name} carries bytes and is returned by a call, so it can only reach JS as that call's result.");
+            if (IsBinaryOutput(type) && direction == Direction.Nested)
+                throw new InvalidOperationException($"{type.Name} carries bytes and is returned by a call, so it can only reach JS as that call's result or in a call's input.");
 
             if (Contract.IsBranded(type) || Contract.IsObject(type)) return Register(type);
 
@@ -416,9 +440,9 @@ public static class TypeScript
             if (Contract.IsEvent(type)) sb.AppendLine($"  type: {Quote(JsonNamingPolicy.CamelCase.ConvertName(type.Name))}");
             foreach (var property in Properties(type))
             {
-                var rendered = binaryOutputs.Contains(type) && property.PropertyType == typeof(byte[])
+                var rendered = IsBinaryOutput(type) && property.PropertyType == typeof(byte[])
                     ? "Uint8Array<ArrayBuffer>"
-                    : Render(property.PropertyType, _nullability.Create(property), binaryOutputs.Contains(type) ? Direction.Output : Direction.Nested);
+                    : Render(property.PropertyType, _nullability.Create(property), PropertyDirection(type));
                 var mark = optional.Contains(property.Name) && rendered.EndsWith(" | null") ? "?" : "";
                 sb.Append(docs.Comment(property, "  "));
                 sb.AppendLine($"  {JsonNamingPolicy.CamelCase.ConvertName(property.Name)}{mark}: {rendered}");
@@ -427,6 +451,11 @@ public static class TypeScript
             sb.AppendLine("}");
             return sb.ToString();
         }
+
+        private Direction PropertyDirection(Type type) =>
+            IsBinaryOutput(type) ? Direction.Output
+            : binary.Inputs.Contains(type) && binary.InputPaths(type).Any() ? Direction.NestedInput
+            : Direction.Nested;
 
         // The JSON reader passes null for a missing property, so a nullable constructor parameter with a default can be left out.
         private static HashSet<string> OptionalParameters(Type type) => type
@@ -442,7 +471,7 @@ public static class TypeScript
             .Where(p => p.GetMethod?.IsPublic == true && p.GetIndexParameters().Length == 0)
             .DistinctBy(p => p.Name);
 
-        private static (Type, NullabilityInfo?)? ElementType(Type type, NullabilityInfo? info)
+        public static (Type Element, NullabilityInfo? Info)? ElementType(Type type, NullabilityInfo? info)
         {
             if (type.IsArray) return (type.GetElementType()!, info?.ElementType);
             if (type == typeof(string)) return null;

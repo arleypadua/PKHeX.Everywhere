@@ -86,7 +86,8 @@ public static class TransferHandlers
             arrived.Select(a => new TransferredPokemon(
                 a.Direction.ToDto(),
                 new PokemonId(a.Pokemon.UniqueId.Value),
-                PokemonSlots.BoxHandle(transfer.To(a.Direction).SaveFile, a.BoxIndex))).ToArray());
+                PokemonSlots.BoxHandle(transfer.To(a.Direction).SaveFile, a.BoxIndex),
+                a.KeptCopy.ToDto())).ToArray());
     }
 
     /// <summary>
@@ -115,7 +116,8 @@ public static class TransferHandlers
 
     private static Transfers.TransferOffer ToFacade(Transfers.Transfer transfer, TransferOffer offer) => new(
         offer.Send.Select(at => SlotOf(transfer.Mine, at)).ToList(),
-        offer.Receive.Select(at => SlotOf(transfer.Partner, at)).ToList());
+        offer.Receive.Select(at => SlotOf(transfer.Partner, at)).ToList(),
+        offer.KeptCopies?.Select(copy => copy.ToFacade()).ToList());
 
     private static Transfers.TransferSlot SlotOf(Game game, PokemonHandle at)
     {
@@ -136,5 +138,6 @@ public static class TransferHandlers
         offered.Arrives.ToSummary(PokemonSlots.BoxHandle(transfer.To(offered.Direction).SaveFile, offered.ArrivesAt)),
         offered.Changes.Select(change => change.ToDto()).ToArray(),
         offered.SaveChanges.Select(change => change.ToDto()).ToArray(),
-        new Legality(offered.Legality.Valid, offered.Legality.Messages.ToArray()));
+        new Legality(offered.Legality.Valid, offered.Legality.Messages.ToArray()),
+        offered.KeptCopy is not null);
 }

@@ -83,8 +83,18 @@ public class CodeGenTests
     }
 
     [Fact]
-    public void BytesInARecordAReturnedRecordHoldsAreUint8Arrays() =>
-        Client.Should().Contain("commit: async (offer) => withBytes(await invoke<TransferResult>('transfer.commit', [offer]), ['save.bytes', 'partner.bytes']),");
+    public void BytesInRecordsAReturnedRecordHoldsAreUint8Arrays()
+    {
+        Client.Should().Contain("withBytes(await invoke<TransferResult>('transfer.commit', [await withBase64(offer, ['keptCopies.bytes'])]), ['save.bytes', 'partner.bytes', 'arrived.keptCopy.bytes'])");
+        Types.Should().MatchRegex(@"export interface KeptCopy {\n(.*\n)*?  bytes: Uint8Array<ArrayBuffer>\n");
+    }
+
+    [Fact]
+    public void ReturnedRecordsAnInputHoldsAreEncodedBack()
+    {
+        Client.Should().Contain("preview: async (offer) => invoke('transfer.preview', [await withBase64(offer, ['keptCopies.bytes'])]),");
+        Types.Should().Contain("  keptCopies?: KeptCopy[] | null\n");
+    }
 
     [Fact]
     public void BytesNestedInAnInputStayBase64()

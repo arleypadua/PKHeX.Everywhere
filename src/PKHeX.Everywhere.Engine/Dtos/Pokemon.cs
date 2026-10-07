@@ -57,6 +57,7 @@ public record PokemonForm(int Id, string Name);
 /// <param name="Editable">The Pokémon can be opened with <c>pokemon.edit()</c> and copied with <c>pokemon.clone()</c>. When false, show it read-only with <c>pokemon.details()</c>: editing it fails with <c>unknown-species</c>.</param>
 /// <param name="Nickname">The species name when the Pokémon has no nickname.</param>
 /// <param name="Types">Type ids, named by <c>game.types()</c>. One entry for a single-type Pokémon.</param>
+/// <param name="IdentityKey">The same for this Pokémon in every game it moves to: its PID, trainer ID and secret ID. Null in Gen 1 and 2.</param>
 public record PokemonSummary(
     PokemonId Id,
     PokemonHandle At,
@@ -71,7 +72,8 @@ public record PokemonSummary(
     bool IsShiny,
     PokemonGender Gender,
     bool IsEgg,
-    int[] Types);
+    int[] Types,
+    string? IdentityKey);
 
 /// <summary>
 /// A Pokémon just added to a box.
@@ -349,7 +351,8 @@ public static class PokemonMapping
             pokemon.IsShiny,
             pokemon.Gender.ToDto(),
             pokemon.Egg.IsEgg,
-            pokemon.Types.Ids.ToArray());
+            pokemon.Types.Ids.ToArray(),
+            pokemon.IdentityKey);
     }
 
     public static PokemonPreview ToPreview(this Pokemon pokemon) => new(
@@ -364,7 +367,8 @@ public static class PokemonMapping
         pokemon.IsShiny,
         pokemon.Gender.ToDto(),
         pokemon.Egg.IsEgg,
-        pokemon.Types.Ids.ToArray());
+        pokemon.Types.Ids.ToArray(),
+        pokemon.IdentityKey);
 
     public static PokemonOverview ToOverview(this Pokemon pokemon) =>
         new(pokemon.Species.Id, pokemon.SpeciesIndex, pokemon.Species.Name, pokemon.Gender.Name, pokemon.Ball.Name, pokemon.Level);

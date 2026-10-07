@@ -393,6 +393,16 @@ export interface ItemHandle {
   itemId: number
 }
 
+/** A Pokémon as it was before a transfer to an older game, to restore what that game dropped. Store it and pass it in `keptCopies` when the Pokémon moves to a newer game again. */
+export interface KeptCopy {
+  /** The Pokémon's `identityKey`. */
+  identityKey: string
+  /** The generation of the game it left. */
+  generation: number
+  /** The Pokémon as it was in that game, in the bytes `pokemon.export` writes. */
+  bytes: Uint8Array<ArrayBuffer>
+}
+
 /** The result of PKHeX's legality check on a Pokémon. */
 export interface Legality {
   /** True when PKHeX finds nothing illegal. */
@@ -439,6 +449,8 @@ export interface OfferedPokemon {
   saveChanges: TransferSaveChange[]
   /** PKHeX's legality check of the Pokémon as it arrives, judged in the destination game. */
   legality: Legality
+  /** `transfer.commit` returns a kept copy of this Pokémon. */
+  keepsCopy: boolean
 }
 
 /** An item the trainer holds in a pouch. */
@@ -775,6 +787,8 @@ export interface PokemonPreview {
   isEgg: boolean
   /** Type ids, named by `game.types()`. One entry for a single-type Pokémon. */
   types: number[]
+  /** The same for this Pokémon in every game it moves to: its PID, trainer ID and secret ID. Null in Gen 1 and 2. */
+  identityKey: string | null
 }
 
 /** Fires when an edited or cloned Pokémon is written to the save: by `pokemon.commit` back to its slot, or by `pokemon.addToBox` to the first empty box slot. */
@@ -810,6 +824,8 @@ export interface PokemonSummary {
   isEgg: boolean
   /** Type ids, named by `game.types()`. One entry for a single-type Pokémon. */
   types: number[]
+  /** The same for this Pokémon in every game it moves to: its PID, trainer ID and secret ID. Null in Gen 1 and 2. */
+  identityKey: string | null
 }
 
 /** One bag pouch in the save, returned by `inventory.get`. */
@@ -976,7 +992,7 @@ export interface TransferChange {
 }
 
 /** Why a transfer changes a field. */
-export type TransferChangeReason = 'hmRemoved' | 'itemRemapped' | 'itemRemoved' | 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'received' | 'tradeEvolution' | 'itemUsed' | 'formReverted' | 'notInGame' | 'unofficial'
+export type TransferChangeReason = 'hmRemoved' | 'itemRemapped' | 'itemRemoved' | 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'received' | 'tradeEvolution' | 'itemUsed' | 'formReverted' | 'notInGame' | 'unofficial' | 'restored'
 
 /** Which way a Pokémon moves: `send` from the loaded save to the partner, `receive` from the partner to the loaded save. */
 export type TransferDirection = 'send' | 'receive'
@@ -990,6 +1006,8 @@ export interface TransferOffer {
   send: PokemonHandle[]
   /** Pokémon to move from the partner to the loaded save. */
   receive: PokemonHandle[]
+  /** Copies `transfer.commit` returned from earlier transfers to older games. A copy restores what an older game dropped from the offered Pokémon with its `identityKey`. Copies that apply to none are ignored. */
+  keptCopies?: KeptCopy[] | null
 }
 
 /** What `transfer.commit` would do with an offer, returned by `transfer.preview`. */
@@ -1060,6 +1078,8 @@ export interface TransferredPokemon {
   id: PokemonId
   /** The box slot it landed in: in the partner for `send`, in the loaded save for `receive`. */
   at: PokemonHandle
+  /** The Pokémon as it was before it moved to an older game. Null when it didn't. Store it to pass in a later transfer's `keptCopies`. */
+  keptCopy: KeptCopy | null
 }
 
 /** A game version with its display name. */

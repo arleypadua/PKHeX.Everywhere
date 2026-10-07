@@ -85,6 +85,14 @@ await engine.transfer.close()
 - On the `unofficial` route, the moves, held item, ball and ability the destination game doesn't have are removed, with the reason `notInGame`. A ball becomes a Poké Ball, and a Pokémon left with no moves learns its first level-up move. Every other change has the reason `unofficial`.
 - Saves loaded with a ROM hack format and Let's Go saves have no route, and their Pokémon are refused with `noRoute`.
 
+An older game drops what it can't hold, such as a Gen 4 ball, met data and ribbons. When a Pokémon moves to an older game, its offer has `keepsCopy: true` and `commit` returns a `keptCopy` of it as it was. Store the copy, keyed by the Pokémon's `identityKey`, and pass it in `keptCopies` when the Pokémon moves forward again. The engine puts back the ball, met data, origin game, ribbons and ability, with the reason `restored`, and keeps the level, moves, nickname and held item the Pokémon has now:
+
+```ts
+const keptCopies = chosen.flatMap((p) => copies.get(p.identityKey) ?? [])
+const result = await engine.transfer.commit({ send, receive: [], keptCopies })
+for (const { keptCopy } of result.arrived) if (keptCopy) copies.keep(keptCopy)
+```
+
 `box.previewFile` shows how `box.addFromFile` would add a Pokémon file. A file no game can move into the save comes back with `unofficial: true`, and `addFromFile` fails on it with `conversion-failed` unless you pass `allowUnofficial`:
 
 ```ts
