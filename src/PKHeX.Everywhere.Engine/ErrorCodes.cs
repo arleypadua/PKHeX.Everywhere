@@ -21,8 +21,8 @@ public static class ErrorCodes
     public const string BadArguments = "bad-arguments";
     public const string PlugInFailed = "plugin-failed";
     public const string NotSupported = "not-supported";
-    public const string NoTrade = "no-trade";
-    public const string TradeRefused = "trade-refused";
+    public const string NoTransfer = "no-transfer";
+    public const string TransferRefused = "transfer-refused";
     public const string BadChecksum = "bad-checksum";
     public const string Unexpected = "unexpected";
 }

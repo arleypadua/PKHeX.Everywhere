@@ -11,5 +11,5 @@ public static class Topics
     public const string Trainer = "trainer";
     public const string Draft = "draft";
     public const string PlugIns = "plugins";
-    public const string Trade = "trade";
+    public const string Transfer = "transfer";
 }

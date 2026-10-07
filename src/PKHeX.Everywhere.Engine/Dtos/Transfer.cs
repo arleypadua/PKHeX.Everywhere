@@ -1,0 +1,272 @@
+using Transfers = PKHeX.Facade.Transfers;
+
+namespace PKHeX.Everywhere.Engine.Dtos;
+
+/// <summary>
+/// How a Pokémon gets from one save to the other, as the games move it.
+/// </summary>
+/// <remarks>
+/// <c>link</c> trades between saves of the same format. <c>timeCapsule</c> goes either way between Generation 1 and 2.
+/// <c>palPark</c> goes from Generation 3 to 4, and <c>pokeTransfer</c> from Generation 4 to 5.
+/// </remarks>
+public enum TransferRoute
+{
+    Link,
+    TimeCapsule,
+    PalPark,
+    PokeTransfer,
+}
+
+/// <summary>
+/// The routes of an open transfer. A null route means the games can't move Pokémon that way, and every Pokémon offered that way is refused with <c>noRoute</c>.
+/// Saves loaded with a ROM hack format and Let's Go saves have none.
+/// </summary>
+/// <param name="Send">From the loaded save to the partner.</param>
+/// <param name="Receive">From the partner to the loaded save.</param>
+public record TransferRoutes(TransferRoute? Send, TransferRoute? Receive);
+
+/// <summary>
+/// How many empty box slots each save has for Pokémon to arrive in.
+/// </summary>
+/// <param name="Mine">Empty box slots in the loaded save.</param>
+/// <param name="Partner">Empty box slots in the partner save.</param>
+public record TransferRoom(int Mine, int Partner);
+
+/// <summary>
+/// The transfer <c>transfer.open</c> opened: the partner save, the routes between the saves and the room in each.
+/// </summary>
+public record TransferSummary(SaveSummary Partner, TransferRoutes Routes, TransferRoom Room);
+
+/// <summary>
+/// The Pokémon to move. Each handle points to a party or box slot: in the loaded save for <c>send</c>, and in the partner for <c>receive</c>.
+/// </summary>
+/// <param name="Send">Pokémon to move from the loaded save to the partner.</param>
+/// <param name="Receive">Pokémon to move from the partner to the loaded save.</param>
+public record TransferOffer(PokemonHandle[] Send, PokemonHandle[] Receive);
+
+/// <summary>
+/// Which way a Pokémon moves: <c>send</c> from the loaded save to the partner, <c>receive</c> from the partner to the loaded save.
+/// </summary>
+public enum TransferDirection
+{
+    Send,
+    Receive,
+}
+
+/// <summary>
+/// Why a Pokémon can't be transferred.
+/// </summary>
+/// <remarks>
+/// <c>noRoute</c>: the games can't move Pokémon that way. <c>slotLocked</c>: its box slot is locked by the game, such as a battle team.
+/// <c>eggAcrossGenerations</c>: only link trades take eggs. <c>languageMismatch</c>: a Japanese Generation 1 or 2 Pokémon can't go to an international save, nor the other way.
+/// <c>speciesNotInGame</c>: the destination game doesn't have its species or form. <c>lastPartyMember</c>: the sending party must keep a Pokémon that isn't an egg.
+/// <c>noRoom</c>: the destination has no empty box slot left for it. <c>bagFull</c>: Platinum can't put back the Griseous Orb it takes before a link trade.
+/// </remarks>
+public enum TransferRefusal
+{
+    NoRoute,
+    SlotLocked,
+    EggAcrossGenerations,
+    LanguageMismatch,
+    SpeciesNotInGame,
+    LastPartyMember,
+    NoRoom,
+    BagFull,
+}
+
+/// <summary>
+/// A field of a Pokémon that a transfer can change.
+/// </summary>
+public enum TransferField
+{
+    Species,
+    Form,
+    HeldItem,
+    Moves,
+    MetLocation,
+    MetLevel,
+    Ball,
+    Friendship,
+    Nickname,
+    Ability,
+}
+
+/// <summary>
+/// Why a transfer changes a field.
+/// </summary>
+/// <remarks>
+/// <c>hmRemoved</c>: Pal Park and Poké Transfer take away HM moves. <c>itemRemapped</c>: the item becomes another one in the destination game.
+/// <c>itemRemoved</c>: the destination game can't hold the item. <c>received</c>: a Generation 2, 3 or 4 game sets friendship to 70 on a Pokémon it receives by link trade.
+/// <c>tradeEvolution</c>: the destination game evolves the Pokémon on arrival. <c>itemUsed</c>: the evolution uses up the held item.
+/// <c>formReverted</c>: Platinum reverts Giratina, Shaymin and Rotom to their base form before a link trade, and takes back the Griseous Orb.
+/// The others name the route that made the change.
+/// </remarks>
+public enum TransferChangeReason
+{
+    HmRemoved,
+    ItemRemapped,
+    ItemRemoved,
+    Link,
+    TimeCapsule,
+    PalPark,
+    PokeTransfer,
+    Received,
+    TradeEvolution,
+    ItemUsed,
+    FormReverted,
+}
+
+/// <summary>
+/// What a transfer changes in a save besides the Pokémon itself.
+/// </summary>
+/// <remarks>
+/// <c>pokedexCaught</c>: the Pokédex registers the species as caught. <c>itemReturned</c>: an item the Pokémon held goes back to the sender's bag.
+/// <c>eventVar</c>: the game sets an event variable, as Platinum does to start its Arceus event when it receives a Pokémon from a distribution.
+/// </remarks>
+public enum TransferSaveChangeKind
+{
+    PokedexCaught,
+    ItemReturned,
+    EventVar,
+}
+
+/// <summary>
+/// A save in a transfer: <c>sender</c> is the one the Pokémon leaves, <c>receiver</c> the one it arrives in.
+/// </summary>
+public enum TransferSide
+{
+    Sender,
+    Receiver,
+}
+
+/// <summary>
+/// A field a transfer changes.
+/// </summary>
+/// <param name="Before">The value as the source game names it. Null when there was none, such as a move the Pokémon learns.</param>
+/// <param name="After">The value as the destination game names it. Null when there is none, such as a removed move or item.</param>
+public record TransferChange(TransferField Field, string? Before, string? After, TransferChangeReason Reason);
+
+/// <summary>
+/// A change a transfer makes to a save.
+/// </summary>
+/// <param name="Save">The save that changes.</param>
+/// <param name="Label">What changes, for display: the species caught, the item returned, or the event and its new value.</param>
+public record TransferSaveChange(TransferSaveChangeKind Kind, TransferSide Save, string Label);
+
+/// <summary>
+/// A Pokémon in the offer that can be transferred, and what moving it changes.
+/// </summary>
+/// <param name="From">The Pokémon as it is now. Its handle points to the save it leaves.</param>
+/// <param name="Arrives">The Pokémon as it will be in the other save. Its handle is the box slot it will land in.</param>
+/// <param name="Changes">The fields the move changes, in the order of <see cref="TransferField"/>. A move can show up once per move removed.</param>
+/// <param name="SaveChanges">What the move changes in either save.</param>
+/// <param name="Legality">PKHeX's legality check of the Pokémon as it arrives, judged in the destination game.</param>
+public record OfferedPokemon(
+    TransferDirection Direction,
+    PokemonSummary From,
+    PokemonSummary Arrives,
+    TransferChange[] Changes,
+    TransferSaveChange[] SaveChanges,
+    Legality Legality);
+
+/// <summary>
+/// A Pokémon in the offer that can't be transferred.
+/// </summary>
+/// <param name="At">Where it is, in the save it would leave.</param>
+public record RefusedPokemon(TransferDirection Direction, PokemonHandle At, TransferRefusal Reason);
+
+/// <summary>
+/// What <c>transfer.commit</c> would do with an offer, returned by <c>transfer.preview</c>.
+/// </summary>
+/// <param name="Offers">The Pokémon that can be transferred, sent ones first.</param>
+/// <param name="Refused">The Pokémon that can't. <c>transfer.commit</c> fails while any are left.</param>
+public record TransferPreview(OfferedPokemon[] Offers, RefusedPokemon[] Refused);
+
+/// <summary>
+/// A Pokémon a transfer moved.
+/// </summary>
+/// <param name="At">The box slot it landed in: in the partner for <c>send</c>, in the loaded save for <c>receive</c>.</param>
+public record TransferredPokemon(TransferDirection Direction, PokemonId Id, PokemonHandle At);
+
+/// <summary>
+/// Both saves after <c>transfer.commit</c>, ready to write back.
+/// </summary>
+/// <param name="Save">The loaded save.</param>
+/// <param name="Partner">The partner save.</param>
+/// <param name="Arrived">Where each Pokémon landed, sent ones first.</param>
+public record TransferResult(ExportedSave Save, ExportedSave Partner, TransferredPokemon[] Arrived);
+
+public static class TransferMapping
+{
+    public static TransferRoute? ToDto(this Transfers.TransferRoute? route) => route switch
+    {
+        null => null,
+        Transfers.TransferRoute.Link => TransferRoute.Link,
+        Transfers.TransferRoute.TimeCapsule => TransferRoute.TimeCapsule,
+        Transfers.TransferRoute.PalPark => TransferRoute.PalPark,
+        Transfers.TransferRoute.PokeTransfer => TransferRoute.PokeTransfer,
+        _ => throw new ArgumentOutOfRangeException(nameof(route), route, null),
+    };
+
+    public static TransferDirection ToDto(this Transfers.TransferDirection direction) =>
+        direction == Transfers.TransferDirection.Send ? TransferDirection.Send : TransferDirection.Receive;
+
+    public static TransferRefusal ToDto(this Transfers.TransferRefusal refusal) => refusal switch
+    {
+        Transfers.TransferRefusal.NoRoute => TransferRefusal.NoRoute,
+        Transfers.TransferRefusal.SlotLocked => TransferRefusal.SlotLocked,
+        Transfers.TransferRefusal.EggAcrossGenerations => TransferRefusal.EggAcrossGenerations,
+        Transfers.TransferRefusal.LanguageMismatch => TransferRefusal.LanguageMismatch,
+        Transfers.TransferRefusal.SpeciesNotInGame => TransferRefusal.SpeciesNotInGame,
+        Transfers.TransferRefusal.LastPartyMember => TransferRefusal.LastPartyMember,
+        Transfers.TransferRefusal.NoRoom => TransferRefusal.NoRoom,
+        Transfers.TransferRefusal.BagFull => TransferRefusal.BagFull,
+        _ => throw new ArgumentOutOfRangeException(nameof(refusal), refusal, null),
+    };
+
+    public static TransferChange ToDto(this Transfers.TransferChange change) => new(
+        change.Field switch
+        {
+            Transfers.TransferField.Species => TransferField.Species,
+            Transfers.TransferField.Form => TransferField.Form,
+            Transfers.TransferField.HeldItem => TransferField.HeldItem,
+            Transfers.TransferField.Moves => TransferField.Moves,
+            Transfers.TransferField.MetLocation => TransferField.MetLocation,
+            Transfers.TransferField.MetLevel => TransferField.MetLevel,
+            Transfers.TransferField.Ball => TransferField.Ball,
+            Transfers.TransferField.Friendship => TransferField.Friendship,
+            Transfers.TransferField.Nickname => TransferField.Nickname,
+            Transfers.TransferField.Ability => TransferField.Ability,
+            _ => throw new ArgumentOutOfRangeException(nameof(change), change.Field, null),
+        },
+        change.Before,
+        change.After,
+        change.Reason switch
+        {
+            Transfers.TransferChangeReason.HmRemoved => TransferChangeReason.HmRemoved,
+            Transfers.TransferChangeReason.ItemRemapped => TransferChangeReason.ItemRemapped,
+            Transfers.TransferChangeReason.ItemRemoved => TransferChangeReason.ItemRemoved,
+            Transfers.TransferChangeReason.Link => TransferChangeReason.Link,
+            Transfers.TransferChangeReason.TimeCapsule => TransferChangeReason.TimeCapsule,
+            Transfers.TransferChangeReason.PalPark => TransferChangeReason.PalPark,
+            Transfers.TransferChangeReason.PokeTransfer => TransferChangeReason.PokeTransfer,
+            Transfers.TransferChangeReason.Received => TransferChangeReason.Received,
+            Transfers.TransferChangeReason.TradeEvolution => TransferChangeReason.TradeEvolution,
+            Transfers.TransferChangeReason.ItemUsed => TransferChangeReason.ItemUsed,
+            Transfers.TransferChangeReason.FormReverted => TransferChangeReason.FormReverted,
+            _ => throw new ArgumentOutOfRangeException(nameof(change), change.Reason, null),
+        });
+
+    public static TransferSaveChange ToDto(this Transfers.TransferSaveChange change) => new(
+        change.Kind switch
+        {
+            Transfers.TransferSaveChangeKind.PokedexCaught => TransferSaveChangeKind.PokedexCaught,
+            Transfers.TransferSaveChangeKind.ItemReturned => TransferSaveChangeKind.ItemReturned,
+            Transfers.TransferSaveChangeKind.EventVar => TransferSaveChangeKind.EventVar,
+            _ => throw new ArgumentOutOfRangeException(nameof(change), change.Kind, null),
+        },
+        change.Save == Transfers.TransferSide.Sender ? TransferSide.Sender : TransferSide.Receiver,
+        change.Label);
+
+    public static TransferRoom ToDto(this Transfers.TransferRoom room) => new(room.Mine, room.Partner);
+}

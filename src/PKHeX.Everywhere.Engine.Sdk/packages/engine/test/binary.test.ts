@@ -99,14 +99,14 @@ describe('binary outputs', () => {
     expect(exported.bytes).toEqual(bytes)
   })
 
-  it('returns both saves of a trade as Uint8Arrays', async () => {
+  it('returns both saves of a transfer as Uint8Arrays', async () => {
     const { engine } = engineReturning({
       save: { bytes: base64, fileName: 'firered.sav' },
       partner: { bytes: base64, fileName: 'emerald.sav' },
       arrived: [],
     })
 
-    const done = await engine.trade.commit({ send: [], receive: [] })
+    const done = await engine.transfer.commit({ send: [], receive: [] })
 
     expect(done).toEqual({ save: { bytes, fileName: 'firered.sav' }, partner: { bytes, fileName: 'emerald.sav' }, arrived: [] })
   })
