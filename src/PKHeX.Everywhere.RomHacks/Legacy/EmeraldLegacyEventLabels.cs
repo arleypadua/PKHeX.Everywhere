@@ -1554,5 +1554,6 @@ internal static class EmeraldLegacyEventLabels
         new(253, "Route112 Wild Set", "Misc"), // VAR_ROUTE112_WILD_SET
         new(254, "Route114 Wild Set", "Misc"), // VAR_ROUTE114_WILD_SET
         new(255, "Route116 Wild Set", "Misc"), // VAR_ROUTE116_WILD_SET
+        new(256, "Norman Rematch Call Step Counter", "Misc"), // VAR_NORMAN_REMATCH_CALL_STEP_COUNTER
     ];
 }

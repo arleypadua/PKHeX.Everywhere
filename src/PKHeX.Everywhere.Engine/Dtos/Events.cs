@@ -6,8 +6,8 @@ namespace PKHeX.Everywhere.Engine.Dtos;
 /// A named event flag: an on/off story or progress marker in the save.
 /// </summary>
 /// <param name="Index">The flag's index, which <c>events.flag</c> and <c>events.setFlag</c> take.</param>
-/// <param name="Name">The flag's label from PKHeX.</param>
-/// <param name="Category">The PKHeX label category, such as <c>Misc</c>.</param>
+/// <param name="Name">The flag's label, from PKHeX or, for a ROM hack, from its save format.</param>
+/// <param name="Category">A group to filter by, such as <c>Misc</c>. PKHeX's categories for a base game; a ROM hack's save format can use its own.</param>
 /// <param name="Value">Whether the flag is set.</param>
 public record EventFlag(int Index, string Name, string Category, bool Value);
 
@@ -20,8 +20,8 @@ public record WorkOption(string Name, int Value);
 /// A named event work entry: a numeric story or progress value in the save.
 /// </summary>
 /// <param name="Index">The entry's index, which <c>events.setWork</c> takes.</param>
-/// <param name="Name">The entry's label from PKHeX.</param>
-/// <param name="Category">The PKHeX label category, such as <c>Misc</c>.</param>
+/// <param name="Name">The entry's label, from PKHeX or, for a ROM hack, from its save format.</param>
+/// <param name="Category">A group to filter by, such as <c>Misc</c>. PKHeX's categories for a base game; a ROM hack's save format can use its own.</param>
 /// <param name="Options">Known values for this entry. Empty when PKHeX knows none; any value between <c>workMin</c> and <c>workMax</c> is still accepted.</param>
 public record EventWork(int Index, string Name, string Category, int Value, WorkOption[] Options);
 

@@ -41,8 +41,27 @@ public class EmeraldLegacyEventsTests
     public void NamesEveryWorkValue()
     {
         var events = Load().Events!;
-        events.Work.Should().HaveCount(256);
+        events.Work.Should().HaveCount(257);
         events.Work.Should().Contain(w => w.Index == 0 && w.Name == "Temp 0");
+        events.Work.Should().Contain(w => w.Index == 0x100 && w.Name == "Norman Rematch Call Step Counter");
+    }
+
+    [Theory]
+    [InlineData(0x23, 2)] // Starter Mon: Mudkip, and the party has a Swampert
+    [InlineData(0x85, 7)] // Petalburg Gym: Norman defeated
+    public void ReadsWorkAfterLegacysLongerFlagArray(int index, int expected) =>
+        Load().Events!.GetWork(index).Should().Be(expected);
+
+    [Fact]
+    public void WritingWorkLeavesEveryFlagAlone()
+    {
+        var events = Load().Events!;
+        var flags = Enumerable.Range(0, events.FlagCount).Select(events.GetFlag).ToArray();
+
+        events.SetWork(0, ushort.MaxValue);
+
+        Enumerable.Range(0, events.FlagCount).Select(events.GetFlag).Should().Equal(flags);
+        events.GetWork(0).Should().Be(ushort.MaxValue);
     }
 
     [Fact]
