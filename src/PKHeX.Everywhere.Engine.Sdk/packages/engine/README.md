@@ -30,3 +30,5 @@ For React, use [`@pkhex-everywhere/react`](https://www.npmjs.com/package/@pkhex-
 ## License
 
 GPL-3.0-or-later, because the runtime contains PKHeX.Core.
+
+`_framework/` also bundles third-party code under other licences. `@pkhex-everywhere/engine/notices.json` lists each component with its version, SPDX licence and source URL.
