@@ -27,7 +27,6 @@ export function withBytes<T>(value: T, paths: readonly string[]): T {
   return converted as T
 }
 
-// The reverse of withBytes, for an input that holds records a call returned.
 export async function withBase64<T>(value: T, paths: readonly string[]): Promise<T> {
   if (value == null) return value
   if (Array.isArray(value)) return (await Promise.all(value.map((item: unknown) => withBase64(item, paths)))) as T

@@ -139,7 +139,7 @@ public class Transfer(Game mine, Game partner)
             var arrives = evolved.Clone();
             if (TransferRestore.CopyFor(pokemon, to, keptCopies) is { } copy) TransferRestore.Restore(arrives.Pkm, copy);
 
-            var changes = Restored(pokemon, evolved, arrives, Changes(pokemon, leaving, TransferChangeReason.FormReverted)
+            var changes = WithRestoredChanges(pokemon, evolved, arrives, Changes(pokemon, leaving, TransferChangeReason.FormReverted)
                     .Concat(Changes(leaving, converted, route.Value))
                     .Concat(Changes(converted, received, TransferChangeReason.Received))
                     .Concat(Changes(received, evolved, TransferChangeReason.TradeEvolution, TransferChangeReason.ItemUsed)))
@@ -245,7 +245,7 @@ public class Transfer(Game mine, Game partner)
     }
 
     // A restored field reports its change from the Pokémon as it left, replacing what the conversion did to it on the way.
-    private static IEnumerable<TransferChange> Restored(Pokemon from, Pokemon converted, Pokemon restored, IEnumerable<TransferChange> changes)
+    private static IEnumerable<TransferChange> WithRestoredChanges(Pokemon from, Pokemon converted, Pokemon restored, IEnumerable<TransferChange> changes)
     {
         var fields = Changes(converted, restored, TransferChangeReason.Restored).Select(change => change.Field).ToHashSet();
         return changes

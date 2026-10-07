@@ -46,7 +46,6 @@ public static class TypeScript
     {
         public IEnumerable<string> OutputPaths(Type type) => BytesPaths(type, Inputs);
 
-        // The paths to the bytes of every returned record an input holds.
         public IEnumerable<string> InputPaths(Type type) => Objects(type).SelectMany(p => Outputs.Contains(p.Type)
             ? OutputPaths(p.Type).Select(path => $"{p.Name}.{path}")
             : InputPaths(p.Type).Select(path => $"{p.Name}.{path}"));
@@ -332,7 +331,6 @@ public static class TypeScript
     private enum Direction
     {
         Nested,
-        // Inside a record a call takes, where the client encodes the returned records it holds.
         NestedInput,
         Input,
         Output,

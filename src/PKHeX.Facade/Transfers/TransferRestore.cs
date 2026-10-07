@@ -10,7 +10,6 @@ internal static class TransferRestore
             ? new KeptCopy(key, pokemon.Pkm.Format, pokemon.ToFile().Bytes)
             : null;
 
-    /// <returns>The first copy that applies to <paramref name="pokemon"/>, in <paramref name="to"/>'s format.</returns>
     public static PKM? CopyFor(Pokemon pokemon, Game to, IEnumerable<KeptCopy> copies)
     {
         if (pokemon.IdentityKey is not { } key) return null;
@@ -34,7 +33,6 @@ internal static class TransferRestore
         pk.MetLevel = copy.MetLevel;
         pk.MetDate = copy.MetDate;
         pk.EggMetDate = copy.EggMetDate;
-        pk.FatefulEncounter = copy.FatefulEncounter;
 
         // The location and ball setters guess which Gen 4 games wrote them, so the copy's raw values go across instead.
         if (pk is G4PKM g4 && copy is G4PKM copy4)
@@ -61,11 +59,11 @@ internal static class TransferRestore
             pk5.PokeStarFame = copy5.PokeStarFame;
         }
 
-        var ability = pk.PersonalInfo.GetIndexOfAbility(copy.Ability);
-        if (ability >= 0)
+        if (TransferConversion.CanHaveAbility(pk, copy.Ability))
         {
             pk.Ability = copy.Ability;
-            if (pk is PK5 hidden) hidden.HiddenAbility = ability == 2;
+            if (pk is PK5 hidden && copy is PK5 { HiddenAbility: var wasHidden })
+                hidden.HiddenAbility = wasHidden && hidden.PersonalInfo.GetAbilityAtIndex(2) == copy.Ability;
         }
 
         AddRibbons(pk, copy);
