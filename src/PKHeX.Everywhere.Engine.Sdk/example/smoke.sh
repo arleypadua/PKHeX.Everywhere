@@ -21,7 +21,7 @@ done
 cd "$here"
 rm -rf node_modules dist dist-self-hosted
 npm install --include=dev
-node --input-type=module -e 'import notices from "@pkhex-everywhere/engine/notices.json" with { type: "json" }; if (!notices.length) throw new Error("notices.json is empty")'
+node --input-type=module -e 'import notices from "@pkhex-everywhere/engine/notices.json" with { type: "json" }; if (!notices.length || !notices.every((n) => n.name && n.license && n.source?.startsWith("https://"))) throw new Error("notices.json is empty or malformed")'
 npx tsc --noEmit
 npx vite build
 npx vite build --mode self-hosted --outDir dist-self-hosted

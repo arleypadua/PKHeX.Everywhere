@@ -8,7 +8,6 @@ const licenceTexts = { 'MIT License': 'MIT' }
 const unicodeV3 =
   'Permission is hereby granted, free of charge, to any person obtaining a copy of data files and any associated documentation (the "Data Files") or software'
 
-
 export function frameworkNotices({ host, framework, repo }) {
   const assets = JSON.parse(readFileSync(join(host, 'obj/project.assets.json'), 'utf8'))
   const packages = Object.keys(assets.packageFolders)[0]
@@ -59,7 +58,7 @@ function* libraryComponents(assets, target, packages, host, repo) {
     if (!files.length) continue
 
     if (library.type === 'package') {
-      yield { notice: nugetNotice(readNuspec(join(packages, library.path))), files }
+      yield { notice: nugetNotice(readNuspec(join(packages, library.path)), key.split('/')[1]), files }
       continue
     }
 
@@ -71,8 +70,9 @@ function* libraryComponents(assets, target, packages, host, repo) {
 
 function* runtimePackComponents(assets, packages, rid) {
   for (const framework of Object.values(assets.project.frameworks)) {
-    for (const { name, version } of framework.downloadDependencies ?? []) {
-      const pack = join(packages, name.toLowerCase(), version.replace(/^\[([^,\]]+).*$/, '$1'))
+    for (const dependency of framework.downloadDependencies ?? []) {
+      const version = dependency.version.replace(/^\[([^,\]]+).*$/, '$1')
+      const pack = join(packages, dependency.name.toLowerCase(), version)
       const runtimes = join(pack, 'runtimes', rid)
       const libs = listDir(join(runtimes, 'lib')).flatMap((tfm) => listDir(join(runtimes, 'lib', tfm)))
       const files = [...libs.filter((file) => file.endsWith('.dll')), ...listDir(join(runtimes, 'native'))].map(webcil)
@@ -80,7 +80,7 @@ function* runtimePackComponents(assets, packages, rid) {
 
       const nuspec = readNuspec(pack)
       const icu = files.filter((file) => /^icudt.*\.dat$/.test(file))
-      yield { notice: nugetNotice(nuspec), files: files.filter((file) => !icu.includes(file)) }
+      yield { notice: nugetNotice(nuspec, version), files: files.filter((file) => !icu.includes(file)) }
       if (icu.length) yield { notice: icuNotice(pack, nuspec), files: icu }
     }
   }
@@ -102,14 +102,13 @@ function readNuspec(dir) {
   const attribute = (name) => repository.match(new RegExp(`\\b${name}="([^"]*)"`))?.[1]
   return {
     id: element('id'),
-    version: element('version'),
     license: xml.match(/<license type="expression">([^<]*)<\/license>/)?.[1],
     repository: attribute('url')?.replace(/\.git$/, ''),
     commit: attribute('commit'),
   }
 }
 
-function nugetNotice({ id, version, license, repository, commit }) {
+function nugetNotice({ id, license, repository, commit }, version) {
   if (!license) throw new Error(`${id} declares no SPDX licence expression in its .nuspec`)
   if (!repository || !commit) throw new Error(`${id} declares no repository commit in its .nuspec`)
   return { name: id, version, license, source: `${repository}/tree/${commit}` }
