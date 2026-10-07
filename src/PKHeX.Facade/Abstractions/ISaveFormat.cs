@@ -11,6 +11,12 @@ public interface ISaveFormat
 
     IGameDataSource GameData(SaveFile save) => new PKHeXGameData(save);
 
+    /// <summary>
+    /// Names for the save's event flags and work values, for a hack whose constants differ from its base game's.
+    /// Returning <c>null</c> keeps the base game's names.
+    /// </summary>
+    EventLabels? EventLabels => null;
+
     SaveFormatMatch Detect(ReadOnlySpan<byte> data);
     SaveFile Load(byte[] data);
 

@@ -18,6 +18,7 @@ public class Game
     {
         SaveFile = saveFile;
         Format = format is null ? null : new SaveFormatDescription(format.Id, format.Name, format.BaseGame);
+        EventLabels = format?.EventLabels;
         Capabilities = format?.Capabilities ?? AllCapabilities;
         GameData = format?.GameData(saveFile) ?? new PKHeXGameData(saveFile);
         SpeciesRepository = new SpeciesRepository(this);
@@ -32,6 +33,9 @@ public class Game
     }
 
     public SaveFormatDescription? Format { get; }
+
+    /// <summary>The Save format's own event names, when it renumbers what its base game stores.</summary>
+    internal Abstractions.EventLabels? EventLabels { get; }
 
     public IReadOnlySet<Capability> Capabilities { get; }
 

@@ -12,6 +12,26 @@
 *REMOVED*PKHeX.Facade.Pokemons.PokemonDetails.UnknownHeldItem.get -> string?
 *REMOVED*PKHeX.Facade.Pokemons.PokemonDetails.UnknownHeldItem.init -> void
 *REMOVED*static PKHeX.Facade.Repositories.ItemDefinition.Unmapped(ushort stored) -> PKHeX.Facade.Repositories.ItemDefinition!
+PKHeX.Facade.Abstractions.EventLabel
+PKHeX.Facade.Abstractions.EventLabel.Category.get -> string!
+PKHeX.Facade.Abstractions.EventLabel.Category.init -> void
+PKHeX.Facade.Abstractions.EventLabel.Deconstruct(out int Index, out string! Name, out string! Category) -> void
+PKHeX.Facade.Abstractions.EventLabel.Equals(PKHeX.Facade.Abstractions.EventLabel other) -> bool
+PKHeX.Facade.Abstractions.EventLabel.EventLabel() -> void
+PKHeX.Facade.Abstractions.EventLabel.EventLabel(int Index, string! Name, string! Category) -> void
+PKHeX.Facade.Abstractions.EventLabel.Index.get -> int
+PKHeX.Facade.Abstractions.EventLabel.Index.init -> void
+PKHeX.Facade.Abstractions.EventLabel.Name.get -> string!
+PKHeX.Facade.Abstractions.EventLabel.Name.init -> void
+PKHeX.Facade.Abstractions.EventLabels
+PKHeX.Facade.Abstractions.EventLabels.<Clone>$() -> PKHeX.Facade.Abstractions.EventLabels!
+PKHeX.Facade.Abstractions.EventLabels.Deconstruct(out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Abstractions.EventLabel>! Flags, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Abstractions.EventLabel>! Work) -> void
+PKHeX.Facade.Abstractions.EventLabels.Equals(PKHeX.Facade.Abstractions.EventLabels? other) -> bool
+PKHeX.Facade.Abstractions.EventLabels.EventLabels(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Abstractions.EventLabel>! Flags, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Abstractions.EventLabel>! Work) -> void
+PKHeX.Facade.Abstractions.EventLabels.Flags.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Abstractions.EventLabel>!
+PKHeX.Facade.Abstractions.EventLabels.Flags.init -> void
+PKHeX.Facade.Abstractions.EventLabels.Work.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Abstractions.EventLabel>!
+PKHeX.Facade.Abstractions.EventLabels.Work.init -> void
 PKHeX.Facade.Abstractions.GameDataKind
 PKHeX.Facade.Abstractions.GameDataKind.Ball = 5 -> PKHeX.Facade.Abstractions.GameDataKind
 PKHeX.Facade.Abstractions.GameDataKind.HeldItem = 2 -> PKHeX.Facade.Abstractions.GameDataKind
@@ -36,6 +56,7 @@ PKHeX.Facade.Abstractions.IGameDataSource.OriginGames.get -> System.Collections.
 PKHeX.Facade.Abstractions.IGameDataSource.Species.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 PKHeX.Facade.Abstractions.IGameDataSource.StatsApproximate.get -> bool
 PKHeX.Facade.Abstractions.IGameDataSource.StoresAbilitySlot.get -> bool
+PKHeX.Facade.Abstractions.ISaveFormat.EventLabels.get -> PKHeX.Facade.Abstractions.EventLabels?
 PKHeX.Facade.Abstractions.ISaveFormat.GameData(PKHeX.Core.SaveFile! save) -> PKHeX.Facade.Abstractions.IGameDataSource!
 PKHeX.Facade.Game.GameData.get -> PKHeX.Facade.Abstractions.IGameDataSource!
 PKHeX.Facade.Inventory.CanSet(ushort itemId) -> bool
@@ -57,6 +78,14 @@ PKHeX.Facade.Pokemons.PokemonOptions.Locked.get -> System.Collections.Generic.IR
 PKHeX.Facade.Pokemons.PokemonOptions.Locked.init -> void
 PKHeX.Facade.Repositories.ItemDefinition.IsUnknown.get -> bool
 PKHeX.Facade.Repositories.ItemDefinition.IsUnknown.init -> void
+override PKHeX.Facade.Abstractions.EventLabel.GetHashCode() -> int
+override PKHeX.Facade.Abstractions.EventLabels.Equals(object? obj) -> bool
+override PKHeX.Facade.Abstractions.EventLabels.GetHashCode() -> int
+override PKHeX.Facade.Abstractions.EventLabels.ToString() -> string!
+static PKHeX.Facade.Abstractions.EventLabel.operator !=(PKHeX.Facade.Abstractions.EventLabel left, PKHeX.Facade.Abstractions.EventLabel right) -> bool
+static PKHeX.Facade.Abstractions.EventLabel.operator ==(PKHeX.Facade.Abstractions.EventLabel left, PKHeX.Facade.Abstractions.EventLabel right) -> bool
+static PKHeX.Facade.Abstractions.EventLabels.operator !=(PKHeX.Facade.Abstractions.EventLabels? left, PKHeX.Facade.Abstractions.EventLabels? right) -> bool
+static PKHeX.Facade.Abstractions.EventLabels.operator ==(PKHeX.Facade.Abstractions.EventLabels? left, PKHeX.Facade.Abstractions.EventLabels? right) -> bool
 virtual PKHeX.Facade.PKHeXGameData.Balls.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 virtual PKHeX.Facade.PKHeXGameData.HeldItems.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
 virtual PKHeX.Facade.PKHeXGameData.Items.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Choice!>!
@@ -463,3 +492,5 @@ PKHeX.Facade.Pokemons.PokemonDetails.HeldItemIndex.get -> int
 PKHeX.Facade.Pokemons.PokemonDetails.HeldItemIndex.init -> void
 PKHeX.Facade.Repositories.ItemDefinition.Index.get -> int
 PKHeX.Facade.Repositories.ItemDefinition.Index.init -> void
+~override PKHeX.Facade.Abstractions.EventLabel.Equals(object obj) -> bool
+~override PKHeX.Facade.Abstractions.EventLabel.ToString() -> string

@@ -211,9 +211,9 @@ export interface EncounterVersions {
 export interface EventFlag {
   /** The flag's index, which `events.flag` and `events.setFlag` take. */
   index: number
-  /** The flag's label from PKHeX. */
+  /** The flag's label, from PKHeX or, for a ROM hack, from its save format. */
   name: string
-  /** The PKHeX label category, such as `Misc`. */
+  /** A group to filter by, such as `Misc`. PKHeX's categories for a base game; a ROM hack's save format can use its own. */
   category: string
   /** Whether the flag is set. */
   value: boolean
@@ -223,9 +223,9 @@ export interface EventFlag {
 export interface EventWork {
   /** The entry's index, which `events.setWork` takes. */
   index: number
-  /** The entry's label from PKHeX. */
+  /** The entry's label, from PKHeX or, for a ROM hack, from its save format. */
   name: string
-  /** The PKHeX label category, such as `Misc`. */
+  /** A group to filter by, such as `Misc`. PKHeX's categories for a base game; a ROM hack's save format can use its own. */
   category: string
   value: number
   /** Known values for this entry. Empty when PKHeX knows none; any value between `workMin` and `workMax` is still accepted. */

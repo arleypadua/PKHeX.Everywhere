@@ -57,6 +57,10 @@ public sealed class GameEvents
     internal static GameEvents? For(Game game)
     {
         var saveFile = game.SaveFile;
+        // A Save format's own labels win, since a hack can renumber what its base game stores.
+        if (game.EventLabels is { } labels && saveFile is IEventFlag37 labelled)
+            return new GameEvents(WorkspaceStore<IEventFlag37, ushort>.Labelled(labelled, labels), Gen3Events.For(game));
+
         IEventStore? store = saveFile switch
         {
             IEventFlag37 s => new WorkspaceStore<IEventFlag37, ushort>(s, saveFile.Version),

@@ -25,7 +25,12 @@ public sealed class EmeraldLegacyFormat : ISaveFormat
     public string Id => "emerald-legacy";
     public string Name => "Pokémon Emerald Legacy";
     public GameVersion BaseGame => GameVersion.E;
-    public IReadOnlySet<Capability> Capabilities => FrozenSet<Capability>.Empty;
+    // Legacy keeps Emerald's event system, only renumbered, so the flag and work editor works against the
+    // offsets EmeraldLegacyBlockLarge supplies. Everything else PKHeX would infer from the base game is still off.
+    public IReadOnlySet<Capability> Capabilities { get; } = new[] { Capability.Events }.ToFrozenSet();
+
+    public EventLabels? EventLabels { get; } =
+        new(EmeraldLegacyEventLabels.Flags, EmeraldLegacyEventLabels.Work);
 
     public SaveFormatMatch Detect(ReadOnlySpan<byte> data)
     {

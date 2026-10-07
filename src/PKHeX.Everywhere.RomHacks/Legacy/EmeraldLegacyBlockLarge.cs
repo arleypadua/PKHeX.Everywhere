@@ -1,9 +1,10 @@
-// Emerald Legacy's SaveBlock1 differs from Emerald's by two constants in the hack's decomp
+// Emerald Legacy's SaveBlock1 differs from Emerald's by three constants in the hack's decomp
 // (https://github.com/cRz-Shadows/Pokemon_Emerald_Legacy, V1.0.0 through V1.1.4 and main):
 // BAG_ITEMS_COUNT 30 -> 120 grows the Items pocket by 0x168, and MAX_TRAINERS_COUNT 864 -> 960
-// moves SYSTEM_FLAGS from 0x860 to 0x8C0. Shrinking unused_3598 from 0x180 to 0x18 gives back
-// that same 0x168, so everything from the Key Items pocket to unused_3598 shifts +0x168 while
-// the tail from Painting onwards shifts only +0x10, and sizeof(SaveBlock1) is 0x3D98.
+// moves SYSTEM_FLAGS from 0x860 to 0x8C0. That grows FLAGS_COUNT to 0x9C0, so flags[] is 312 bytes
+// rather than 300, and VARS_END 0x40FF -> 0x4100 adds a 257th var: from vars[] on everything shifts
+// a further +0x10. Shrinking unused_3598 from 0x180 to 0x18 gives back the bag's 0x168, so the tail
+// from Painting onwards shifts only +0x10, and sizeof(SaveBlock1) is 0x3D98.
 using PKHeX.Core;
 using static System.Buffers.Binary.BinaryPrimitives;
 
@@ -45,9 +46,9 @@ internal sealed record EmeraldLegacyBlockLarge(Memory<byte> Raw) : ISaveBlock3La
     public void SetBerryBlenderRPMRecord(int index, ushort value) => WriteUInt16LittleEndian(GetBlenderRPMSpan(index), value);
 
     private const int EventFlag = 0x13D8;
-    private const int EventWork = 0x1504;
-    public int EventFlagCount => 8 * 300;
-    public int EventWorkCount => 0x100;
+    private const int EventWork = 0x1510;
+    public int EventFlagCount => 8 * 312;
+    public int EventWorkCount => 0x101;
     public int EggEventFlag => 0x86;
     public int BadgeFlagStart => 0x8C7;
 
