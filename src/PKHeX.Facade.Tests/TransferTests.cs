@@ -285,6 +285,130 @@ public class TransferTests
         EntityConverter.AllowIncompatibleConversion.Should().Be(EntityCompatibilitySetting.DisallowIncompatible);
     }
 
+    [Fact]
+    public void TheIdentityKeyFollowsThePokemonIntoOlderGames()
+    {
+        var black = Black(new PK5 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowBall, PID = 0x12345678, TID16 = 12345, SID16 = 54321 });
+        var (platinum, ruby) = (Blank(GameVersion.Pt), Blank(GameVersion.R));
+        var key = black.Trainer.PokemonBox.All[0].IdentityKey;
+
+        var inPlatinum = new Transfer(black, platinum).Commit(Send(Box(0))).Single();
+        var inRuby = new Transfer(platinum, ruby).Commit(Send(Box(inPlatinum.BoxIndex))).Single();
+
+        key.Should().NotBeNull();
+        (inPlatinum.Pokemon.IdentityKey, inRuby.Pokemon.IdentityKey).Should().Be((key, key));
+        SaveFilePath.Load(SaveFilePath.Crystal).Trainer.PokemonBox.All.First(p => !p.IsEmpty).IdentityKey.Should().BeNull();
+    }
+
+    [Fact]
+    public void ATransferToAnOlderGameKeepsACopy()
+    {
+        var (platinum, ruby) = PlatinumAndRuby(Gengar());
+        var gengar = platinum.Trainer.PokemonBox.All[0];
+
+        var offered = new Transfer(platinum, ruby).Preview(Send(Box(0))).Offers.Single();
+        var copy = new Transfer(platinum, ruby).Commit(Send(Box(0))).Single().KeptCopy;
+
+        offered.KeptCopy.Should().NotBeNull();
+        copy.Should().NotBeNull();
+        (copy!.IdentityKey, copy.Generation).Should().Be((gengar.IdentityKey, 4));
+        copy.Bytes.Should().Equal(gengar.ToFile().Bytes);
+    }
+
+    [Fact]
+    public void ATransferToANewerGameKeepsNoCopy()
+    {
+        var (platinum, ruby) = PlatinumAndRuby(Gengar());
+        new Transfer(platinum, ruby).Commit(Send(Box(0)));
+
+        var offered = new Transfer(ruby, Blank(GameVersion.Pt)).Preview(Send(Box(0))).Offers.Single();
+
+        offered.KeptCopy.Should().BeNull();
+        offered.Changes.Should().NotContain(change => change.Reason == TransferChangeReason.Restored);
+    }
+
+    [Fact]
+    public void AKeptCopyRestoresWhatTheOlderGameDropped()
+    {
+        var (platinum, ruby) = PlatinumAndRuby(Gengar());
+        var copy = new Transfer(platinum, ruby).Commit(Send(Box(0))).Single().KeptCopy!;
+        ruby.Trainer.PokemonBox.All[0].ChangeLevel(60);
+
+        var offered = new Transfer(ruby, Blank(GameVersion.Pt)).Preview(new TransferOffer([Box(0)], [], [copy])).Offers.Single();
+
+        offered.Arrives.Ball.Name.Should().Be("Dusk Ball");
+        offered.Arrives.Level.Should().Be(60);
+        offered.Arrives.Pkm.MetLocation.Should().Be(PlatinumRoute209);
+        offered.Arrives.Pkm.MetLevel.Should().Be(30);
+        offered.Arrives.Pkm.MetDate.Should().Be(new DateOnly(2009, 1, 31));
+        offered.Changes.Should().Contain(new TransferChange(TransferField.Ball, "Poké Ball", "Dusk Ball", TransferChangeReason.Restored))
+            .And.Contain(new TransferChange(TransferField.MetDate, null, "2009-01-31", TransferChangeReason.Restored))
+            .And.Contain(change => change.Field == TransferField.MetLocation && change.Reason == TransferChangeReason.Restored);
+    }
+
+    [Fact]
+    public void ALegalPokemonThatGoesToAnOlderGameAndBackStaysLegal()
+    {
+        var gastly = Blank(GameVersion.Pt).PokemonRepository.FindEncounter(GameVersion.Pt, Species.Gastly, shiny: false, egg: false)
+            .First(e => e.Data is EncounterSlot4)
+            .ConvertToPokemon();
+        var (platinum, ruby) = PlatinumAndRuby((PK4)gastly.Pkm);
+        Transfer.LegalityIn(platinum, platinum.Trainer.PokemonBox.All[0]).Valid.Should().BeTrue();
+
+        var copy = new Transfer(platinum, ruby).Commit(Send(Box(0))).Single().KeptCopy!;
+        var offered = new Transfer(ruby, platinum).Preview(new TransferOffer([Box(0)], [], [copy])).Offers.Single();
+
+        offered.Legality.Messages.Should().BeEmpty();
+        offered.Legality.Valid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ACopyOfAnotherEvolutionFamilyIsIgnored()
+    {
+        var (platinum, ruby) = PlatinumAndRuby(Gengar());
+        new Transfer(platinum, ruby).Commit(Send(Box(0)));
+        var machop = new Pokemon(new PK4 { Species = (ushort)Species.Machop, CurrentLevel = 30, PID = Gengar().PID, TID16 = Gengar().TID16, SID16 = Gengar().SID16, Ball = (byte)Ball.Dusk }, Blank(GameVersion.Pt));
+        var copy = new KeptCopy(machop.IdentityKey!, 4, machop.ToFile().Bytes);
+
+        var offered = new Transfer(ruby, Blank(GameVersion.Pt)).Preview(new TransferOffer([Box(0)], [], [copy])).Offers.Single();
+
+        offered.Arrives.Ball.Name.Should().Be("Poké Ball");
+        offered.Changes.Should().NotContain(change => change.Reason == TransferChangeReason.Restored);
+    }
+
+    [Fact]
+    public void ACopyFromANewerGameRestoresIntoAnOlderOne()
+    {
+        var black = Black(new PK5 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowBall, Ball = (byte)Ball.Dusk, MetDate = new DateOnly(2011, 3, 6) });
+        var (platinum, ruby) = (Blank(GameVersion.Pt), Blank(GameVersion.R));
+        var blackCopy = new Transfer(black, platinum).Commit(Send(Box(0))).Single().KeptCopy!;
+        new Transfer(platinum, ruby).Commit(Send(Box(0)));
+
+        var offered = new Transfer(ruby, Blank(GameVersion.Pt)).Preview(new TransferOffer([Box(0)], [], [blackCopy])).Offers.Single();
+
+        blackCopy.Generation.Should().Be(5);
+        offered.Arrives.Ball.Name.Should().Be("Dusk Ball");
+        offered.Arrives.Pkm.MetDate.Should().Be(new DateOnly(2011, 3, 6));
+        offered.Changes.Should().Contain(new TransferChange(TransferField.Ball, "Poké Ball", "Dusk Ball", TransferChangeReason.Restored));
+    }
+
+    private const ushort PlatinumRoute209 = 24;
+
+    private static PK4 Gengar() => new()
+    {
+        Species = (ushort)Species.Gengar,
+        CurrentLevel = 50,
+        Move1 = (ushort)Move.ShadowBall,
+        PID = 0x12345678,
+        TID16 = 12345,
+        SID16 = 54321,
+        Ball = (byte)Ball.Dusk,
+        Version = GameVersion.Pt,
+        MetLocation = PlatinumRoute209,
+        MetLevel = 30,
+        MetDate = new DateOnly(2009, 1, 31),
+    };
+
     private static TransferPreview PlatinumToRuby(PK4 pokemon)
     {
         var (mine, partner) = PlatinumAndRuby(pokemon);
@@ -296,6 +420,13 @@ public class TransferTests
         var platinum = new SAV4Pt();
         for (var i = 0; i < boxed.Length; i++) platinum.SetBoxSlotAtIndex(boxed[i], i, EntityImportSettings.None);
         return (new Game(platinum), Blank(GameVersion.R));
+    }
+
+    private static Game Black(PK5 boxed)
+    {
+        var black = BlankSaveFile.Get(GameVersion.B);
+        black.SetBoxSlotAtIndex(boxed, 0, EntityImportSettings.None);
+        return new Game(black);
     }
 
     private static Game Blank(GameVersion version) => new(BlankSaveFile.Get(version));

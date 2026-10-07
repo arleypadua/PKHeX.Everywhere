@@ -63,8 +63,8 @@ public class Transfer(Game mine, Game partner)
     {
         var offers = new List<TransferredPokemon>();
         var refused = new List<RefusedPokemon>();
-        Plan(TransferDirection.Send, offer.Send, offers, refused);
-        Plan(TransferDirection.Receive, offer.Receive, offers, refused);
+        Plan(TransferDirection.Send, offer.Send, offer.KeptCopies ?? [], offers, refused);
+        Plan(TransferDirection.Receive, offer.Receive, offer.KeptCopies ?? [], offers, refused);
         return new TransferPreview(offers, refused);
     }
 
@@ -87,14 +87,14 @@ public class Transfer(Game mine, Game partner)
             Apply(offered);
 
         return preview.Offers
-            .Select(o => new TransferArrival(o.Direction, o.ArrivesAt, To(o.Direction).Trainer.PokemonBox.All[o.ArrivesAt]))
+            .Select(o => new TransferArrival(o.Direction, o.ArrivesAt, To(o.Direction).Trainer.PokemonBox.All[o.ArrivesAt], o.KeptCopy))
             .ToList();
     }
 
     public Game From(TransferDirection direction) => direction == TransferDirection.Send ? Mine : Partner;
     public Game To(TransferDirection direction) => direction == TransferDirection.Send ? Partner : Mine;
 
-    private void Plan(TransferDirection direction, IEnumerable<TransferSlot> slots, List<TransferredPokemon> offers, List<RefusedPokemon> refused)
+    private void Plan(TransferDirection direction, IEnumerable<TransferSlot> slots, IReadOnlyList<KeptCopy> keptCopies, List<TransferredPokemon> offers, List<RefusedPokemon> refused)
     {
         var (from, to) = (From(direction), To(direction));
         var route = RouteBetween(from, to);
@@ -134,13 +134,15 @@ public class Transfer(Game mine, Game partner)
             if (tookOrb) orbsReturned++;
             var received = converted!.Clone();
             TransferEffects.Receive(received.Pkm, route!.Value);
-            var arrives = received.Clone();
-            TransferEffects.Evolve(arrives.Pkm, to, route.Value);
+            var evolved = received.Clone();
+            TransferEffects.Evolve(evolved.Pkm, to, route.Value);
+            var arrives = evolved.Clone();
+            if (TransferRestore.CopyFor(pokemon, to, keptCopies) is { } copy) TransferRestore.Restore(arrives.Pkm, copy);
 
-            var changes = Changes(pokemon, leaving, TransferChangeReason.FormReverted)
-                .Concat(Changes(leaving, converted, route.Value))
-                .Concat(Changes(converted, received, TransferChangeReason.Received))
-                .Concat(Changes(received, arrives, TransferChangeReason.TradeEvolution, TransferChangeReason.ItemUsed))
+            var changes = Restored(pokemon, evolved, arrives, Changes(pokemon, leaving, TransferChangeReason.FormReverted)
+                    .Concat(Changes(leaving, converted, route.Value))
+                    .Concat(Changes(converted, received, TransferChangeReason.Received))
+                    .Concat(Changes(received, evolved, TransferChangeReason.TradeEvolution, TransferChangeReason.ItemUsed)))
                 .OrderBy(change => change.Field)
                 .ToList();
 
@@ -163,7 +165,8 @@ public class Transfer(Game mine, Game partner)
                 arrives,
                 changes,
                 saveChanges,
-                LegalityIn(to, arrives)));
+                LegalityIn(to, arrives),
+                TransferRestore.Keep(pokemon, to)));
         }
     }
 
@@ -239,6 +242,15 @@ public class Transfer(Game mine, Game partner)
 
         var box = slots.Where(s => s.Source == PokemonSource.Box).Select(s => s.Index).ToList();
         if (box.Count > 0) game.Trainer.PokemonBox.Remove(box);
+    }
+
+    // A restored field reports its change from the Pokémon as it left, replacing what the conversion did to it on the way.
+    private static IEnumerable<TransferChange> Restored(Pokemon from, Pokemon converted, Pokemon restored, IEnumerable<TransferChange> changes)
+    {
+        var fields = Changes(converted, restored, TransferChangeReason.Restored).Select(change => change.Field).ToHashSet();
+        return changes
+            .Where(change => !fields.Contains(change.Field))
+            .Concat(Changes(from, restored, TransferChangeReason.Restored).Where(change => fields.Contains(change.Field)));
     }
 
     private static IEnumerable<TransferChange> Changes(Pokemon from, Pokemon arrives, TransferRoute route)

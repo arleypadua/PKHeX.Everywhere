@@ -151,6 +151,24 @@ public class TransferHandlerTests
     }
 
     [Fact]
+    public void AKeptCopyRestoresThePokemonWhenItComesBack()
+    {
+        var session = Loaded(SaveFilePath.HgSs);
+        Open(session, SaveFilePath.Emerald);
+
+        var offer = Preview(session, Send(PokemonHandle.Party(0)))["offers"]![0]!;
+        var arrived = Value(Dispatch(session, "transfer.commit", Args(Send(PokemonHandle.Party(0)))))!["arrived"]![0]!;
+        var copy = arrived["keptCopy"]!;
+        var back = Preview(session, new { send = Array.Empty<object>(), receive = new[] { arrived["at"] }, keptCopies = new[] { copy } })["offers"]![0]!;
+
+        offer["keepsCopy"]!.GetValue<bool>().Should().BeTrue();
+        copy["identityKey"]!.GetValue<string>().Should().Be(offer["from"]!["identityKey"]!.GetValue<string>());
+        copy["generation"]!.GetValue<int>().Should().Be(4);
+        back["keepsCopy"]!.GetValue<bool>().Should().BeFalse();
+        back["changes"]!.AsArray().Should().Contain(change => change!["field"]!.GetValue<string>() == "metLocation" && change["reason"]!.GetValue<string>() == "restored");
+    }
+
+    [Fact]
     public void ALetsGoSaveHasNoRoutes()
     {
         var session = Loaded(SaveFilePath.LetsGoPikachu);

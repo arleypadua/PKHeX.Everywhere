@@ -26,6 +26,11 @@ public partial class Pokemon(PKM pokemon, Game game)
     public Owner Owner => new(pokemon);
     
     public uint PID => Pkm.PID;
+
+    /// <summary>
+    /// The PID, trainer ID and secret ID, which no conversion between Gen 3, 4 and 5 changes. Null in Gen 1 and 2, which have no PID.
+    /// </summary>
+    public string? IdentityKey => Pkm.Format <= 2 ? null : $"{Pkm.PID:X8}-{Pkm.TID16:D5}-{Pkm.SID16:D5}";
     
     public GameVersionDefinition Version => GameVersionRepository.Instance.Get(Pkm.Version);
 

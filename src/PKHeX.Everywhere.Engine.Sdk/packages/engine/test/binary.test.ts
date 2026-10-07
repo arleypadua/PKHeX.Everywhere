@@ -111,6 +111,32 @@ describe('binary outputs', () => {
     expect(done).toEqual({ save: { bytes, fileName: 'firered.sav' }, partner: { bytes, fileName: 'emerald.sav' }, arrived: [] })
   })
 
+  it('returns the kept copies of a transfer as Uint8Arrays', async () => {
+    const at = { source: 'box', slot: 0, box: 0 } as const
+    const { engine } = engineReturning({
+      save: { bytes: base64, fileName: 'platinum.sav' },
+      partner: { bytes: base64, fileName: 'ruby.sav' },
+      arrived: [
+        { direction: 'send', id: 'a', at, keptCopy: { identityKey: 'key', generation: 4, bytes: base64 } },
+        { direction: 'send', id: 'b', at, keptCopy: null },
+      ],
+    })
+
+    const done = await engine.transfer.commit({ send: [], receive: [] })
+
+    expect(done.arrived.map((pokemon) => pokemon.keptCopy)).toEqual([{ identityKey: 'key', generation: 4, bytes }, null])
+  })
+
+  it('sends kept copies to the host as base64', async () => {
+    const { engine, calls } = engineReturning({ offers: [], refused: [] })
+    const keptCopy = { identityKey: 'key', generation: 4, bytes: bytes.slice() }
+
+    await engine.transfer.preview({ send: [], receive: [], keptCopies: [keptCopy, keptCopy] })
+
+    const sent = { identityKey: 'key', generation: 4, bytes: base64 }
+    expect(argsOf(calls)).toEqual([{ send: [], receive: [], keptCopies: [sent, sent] }])
+  })
+
   it('returns the loaded file as a Uint8Array, or null without a save', async () => {
     expect((await engineReturning({ bytes: base64, fileName: 'a.sav', version: 'E' }).engine.game.file())?.bytes).toEqual(bytes)
     expect(await engineReturning(null).engine.game.file()).toBeNull()
