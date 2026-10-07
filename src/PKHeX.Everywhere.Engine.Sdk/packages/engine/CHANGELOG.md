@@ -1,5 +1,15 @@
 # @pkhex-everywhere/engine
 
+## 0.16.0
+
+### Minor Changes
+
+- 43d34e0: New `gender`, `isEgg` and `types` on `PokemonSummary`, as on `EditablePokemon`. The party, the boxes and `OfferedPokemon` in the trade review now carry them, so a list can show a female sprite, an egg sprite, or a placeholder tinted by the first type.
+
+### Patch Changes
+
+- 9dc40ec: `pokemon.read` returns the level stored in party bytes instead of computing it from EXP, so it matches what the game shows when a randomizer changes growth rates. Box bytes still get the EXP-derived level.
+
 ## 0.15.0
 
 ### Minor Changes
