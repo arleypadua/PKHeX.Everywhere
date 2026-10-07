@@ -5,7 +5,7 @@ namespace PKHeX.Everywhere.Engine.Dtos;
 /// <summary>
 /// The species and item ids <c>catalog.names</c> should name. It doesn't need a loaded save.
 /// </summary>
-/// <param name="SpeciesIds">National Pokédex numbers, as PKHeX.Core numbers species.</param>
+/// <param name="SpeciesIds">National Pokédex numbers, as PKHeX.Core numbers species. With a <c>FormatId</c>, also the ids <c>species.list</c> gives the hack's own species.</param>
 /// <param name="ItemIds">PKHeX.Core item ids, which follow the Generation 4 and later numbering. Generation 1 to 3 saves number their pouch items differently.</param>
 /// <param name="FormatId">
 /// The id of a ROM hack's format from <c>game.formats()</c>, such as <c>unbound</c>, to name the hack's own species and items, as <c>species.list</c> and <c>pokemon.options()</c> do with its save loaded.

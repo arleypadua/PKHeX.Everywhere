@@ -76,6 +76,7 @@ public class RomHackPokemonReadTests
     [InlineData(100, (int)GameVersion.FR, "unbound", "bad-checksum")]
     [InlineData(100, (int)GameVersion.E, "emerald-imperium", "bad-checksum")]
     [InlineData(100, (int)GameVersion.FR, "no-such-format", "not-found")]
+    [InlineData(100, (int)GameVersion.E, "pkhex", "not-supported")]
     public void ReadFailsWithTheCodeOfTheProblem(int length, int version, string formatId, string code) =>
         Error(Dispatch(new Session(), "pokemon.read", Args(Convert.ToBase64String(new byte[length]), version, formatId))).Should().Be(code);
 

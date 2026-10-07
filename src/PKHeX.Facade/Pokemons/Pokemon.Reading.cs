@@ -35,11 +35,11 @@ public partial class Pokemon
     /// <exception cref="UnreadablePokemonException">The bytes or the version can't be read as a Pokémon of the format.</exception>
     public static PokemonDetails Read(byte[] bytes, int version, ISaveFormat format)
     {
-        if (version != (int)format.BaseGame)
-            throw new UnreadablePokemonException(UnreadableReason.NotTheBaseGame, $"{format.Name} runs on version {(int)format.BaseGame}, not {version}.");
-
         var game = Game.EmptyOf(format)
             ?? throw new UnreadablePokemonException(UnreadableReason.UnsupportedFormat, $"{format.Name} can't read a Pokémon without a save.");
+
+        if (version != (int)format.BaseGame)
+            throw new UnreadablePokemonException(UnreadableReason.NotTheBaseGame, $"{format.Name} runs on version {(int)format.BaseGame}, not {version}.");
 
         var save = game.SaveFile;
         if (bytes.Length != save.SIZE_PARTY)

@@ -66,7 +66,7 @@ export interface CatalogNames {
 
 /** The species and item ids `catalog.names` should name. It doesn't need a loaded save. */
 export interface CatalogNamesRequest {
-  /** National Pokédex numbers, as PKHeX.Core numbers species. */
+  /** National Pokédex numbers, as PKHeX.Core numbers species. With a `FormatId`, also the ids `species.list` gives the hack's own species. */
   speciesIds: number[]
   /** PKHeX.Core item ids, which follow the Generation 4 and later numbering. Generation 1 to 3 saves number their pouch items differently. */
   itemIds: number[]
