@@ -1,5 +1,11 @@
 # @pkhex-everywhere/engine
 
+## 0.14.0
+
+### Minor Changes
+
+- 9e75b2b: `catalog.names` now names abilities and natures, without a loaded save. Pass `abilityIds` and `natureIds`, the ids `pokemon.read` returns, and read `abilities` and `natures` back. Unknown ids get a placeholder such as `Unknown Ability 400`.
+
 ## 0.13.0
 
 ### Minor Changes
