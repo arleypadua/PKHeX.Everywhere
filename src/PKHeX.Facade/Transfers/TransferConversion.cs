@@ -42,10 +42,12 @@ internal static class TransferConversion
 
         if (converted is null) return null;
 
-        if (result == EntityConverterResult.SuccessIncompatibleReflection) KeepIdentity(pk, converted, to);
-
-        // Reflection copies the held item's raw value, and Generations 1 to 3 number their items differently from the rest.
-        if (result == EntityConverterResult.SuccessIncompatibleReflection) converted.HeldItem = ItemIn(to, pk);
+        if (result == EntityConverterResult.SuccessIncompatibleReflection)
+        {
+            KeepIdentity(pk, converted, to);
+            // Reflection copies the held item's raw value, and Generations 1 to 3 number their items differently from the rest.
+            converted.HeldItem = ItemIn(to, pk);
+        }
         if (converted.HeldItem != 0 && to.Options.HeldItems.All(item => item.Id != converted.HeldItem)) converted.HeldItem = 0;
         if (to.SaveFile.Generation >= 3 && !HasBall(to, converted.Ball)) converted.Ball = (byte)Ball.Poke;
         if (!Enum.IsDefined(converted.Version) || !converted.Version.IsValidSavedVersion()) converted.Version = DestinationVersion(to);
@@ -64,9 +66,14 @@ internal static class TransferConversion
 
     private static void KeepIdentity(PKM from, PKM converted, Game to)
     {
+        // GBPKM.ImportFromFuture writes the nickname into the OT.
+        var trainer = from.OriginalTrainerName;
+        converted.OriginalTrainerName = trainer[..Math.Min(trainer.Length, converted.MaxStringLengthTrainer)];
+
         if (from is GBPKM gb && converted.Format >= 3)
         {
-            converted.Language = gb.Language != 0 ? gb.Language : to.SaveFile.Language;
+            var guessed = gb.Language;
+            converted.Language = guessed != 0 && (converted.Format > 3 || guessed <= (int)LanguageID.Spanish) ? guessed : to.SaveFile.Language;
             converted.SetEVs(stackalloc int[6]);
             SetPid(gb, converted);
         }
@@ -76,10 +83,6 @@ internal static class TransferConversion
             if (converted is GBPKM arrival) arrival.SetNotNicknamed(arrival.GuessedLanguage(from.Language));
             else converted.ClearNickname();
         }
-
-        // GBPKM.ImportFromFuture writes the nickname into the OT.
-        var trainer = from.OriginalTrainerName;
-        converted.OriginalTrainerName = trainer[..Math.Min(trainer.Length, converted.MaxStringLengthTrainer)];
     }
 
     // Seeded from what the player can't change in Generations 1 and 2, so the same Pokémon always gets the same PID.
@@ -102,9 +105,10 @@ internal static class TransferConversion
 
     private static ulong Seed(GBPKM pk)
     {
-        var hash = 14695981039346656037UL;
+        const ulong fnvOffset = 14695981039346656037UL, fnvPrime = 1099511628211UL;
+        var hash = fnvOffset;
         foreach (var c in $"{pk.TID16}-{pk.DV16}-{pk.OriginalTrainerName}")
-            hash = (hash ^ c) * 1099511628211UL;
+            hash = (hash ^ c) * fnvPrime;
         return hash;
     }
 
