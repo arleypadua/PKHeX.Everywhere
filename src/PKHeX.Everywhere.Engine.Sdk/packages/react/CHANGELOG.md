@@ -1,5 +1,44 @@
 # @pkhex-everywhere/react
 
+## 0.19.1
+
+### Patch Changes
+
+- Updated dependencies [2e5cafa]
+  - @pkhex-everywhere/engine@0.19.1
+
+## 0.19.0
+
+### Minor Changes
+
+- f8f6791: Add `transfer.convert`, `transfer.details` and `transfer.export`. A transfer offer takes `arrivals`: each places an offered Pokémon as given bytes plus a patch, instead of running the usual conversion. `EditablePokemon` gains `evolutionFamily` and `ExportedPokemon` gains `generation`. Remove kept copies: `KeptCopy`, `TransferOffer.keptCopies`, `OfferedPokemon.keepsCopy`, `TransferredPokemon.keptCopy`, `identityKey` and the `restored` change reason.
+
+### Patch Changes
+
+- Updated dependencies [f8f6791]
+  - @pkhex-everywhere/engine@0.19.0
+
+## 0.18.3
+
+### Patch Changes
+
+- Updated dependencies [d4644cf]
+  - @pkhex-everywhere/engine@0.18.3
+
+## 0.18.2
+
+### Patch Changes
+
+- Updated dependencies [580ae24]
+  - @pkhex-everywhere/engine@0.18.2
+
+## 0.18.1
+
+### Patch Changes
+
+- Updated dependencies [161f09a]
+  - @pkhex-everywhere/engine@0.18.1
+
 ## 0.18.0
 
 ### Minor Changes

@@ -10,6 +10,10 @@ using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 
 namespace PKHeX.Everywhere.Engine.Tests;
 
+// The transfer commands judge legality under the destination's ParseSettings, which are global, so no other test runs meanwhile.
+[CollectionDefinition(nameof(SaveFormats), DisableParallelization = true)]
+public class SaveFormatsCollection;
+
 [Collection(nameof(SaveFormats))]
 public class CommandTopicTests
 {
@@ -17,11 +21,11 @@ public class CommandTopicTests
     {
         ["box.addEncounter"] = (game, _) => game.Supports(Capability.Encounters) ? [Args(0)] : [],
         // A hack Pokémon's file is in the hack's format, which PKHeX can't read back.
-        ["box.addFromFile"] = (game, saveFile) => saveFile is SaveFilePath.Unbound or SaveFilePath.RadicalRed or SaveFilePath.Imperium
+        ["box.addFromFile"] = (game, saveFile) => saveFile is SaveFilePath.Unbound or SaveFilePath.Unbound21 or SaveFilePath.RadicalRed or SaveFilePath.Imperium
             ? []
             : [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes), null!)],
         ["box.get"] = (_, _) => ["[]"],
-        ["box.previewFile"] = (game, saveFile) => saveFile is SaveFilePath.Unbound or SaveFilePath.RadicalRed or SaveFilePath.Imperium
+        ["box.previewFile"] = (game, saveFile) => saveFile is SaveFilePath.Unbound or SaveFilePath.Unbound21 or SaveFilePath.RadicalRed or SaveFilePath.Imperium
             ? []
             : [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes))],
         ["box.list"] = (_, _) => ["[]"],
@@ -72,6 +76,9 @@ public class CommandTopicTests
         ["pokemon.clone"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
         ["pokemon.addToBox"] = (_, _) => ["[]"],
         ["species.list"] = (_, _) => ["[]"],
+        ["transfer.convert"] = (game, _) => new[] { "mine", "partner" }.Select(to => Args(new { bytes = Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes), generation = game.Trainer.Party.Pokemons[0].Pkm.Format }, to)),
+        ["transfer.details"] = (game, _) => InBothSaves(game),
+        ["transfer.export"] = (game, _) => InBothSaves(game),
         ["transfer.get"] = (_, _) => ["[]"],
         ["transfer.partnerBoxes"] = (_, _) => ["[]"],
         ["transfer.preview"] = (game, _) => FirstBoxPokemon(game) is var (at, _) ? [Args(Offer(at))] : [],
@@ -150,6 +157,9 @@ public class CommandTopicTests
         send = new[] { new { source = "box", slot = send.Slot, box = send.Box } },
         receive = Array.Empty<object>(),
     };
+
+    private static IEnumerable<string> InBothSaves(Game game) =>
+        Pokemons(game).SelectMany(p => new[] { Args(p.At, "mine"), Args(p.At, "partner") });
 
     private static IEnumerable<(PokemonHandle At, int Level)> PokemonsAndDraft(Game game) =>
         Pokemons(game).Append((PokemonHandle.Draft(), game.Trainer.Party.Pokemons[0].Level));

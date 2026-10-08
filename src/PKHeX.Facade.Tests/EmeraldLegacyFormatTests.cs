@@ -32,6 +32,24 @@ public class EmeraldLegacyFormatTests
         _format.Detect(withTrailer).Should().Be(SaveFormatMatch.Possible);
     }
 
+    [Fact]
+    public void DetectsALegacySaveWithAnotherEmulatorClockFooter() =>
+        _format.Detect(SaveFilePath.WithClockFooter(Save(SaveFilePath.EmeraldLegacy), 0x2C)).Should().Be(SaveFormatMatch.Possible);
+
+    [Fact]
+    public void ExportsASaveWithAnotherEmulatorClockFooterUnchanged()
+    {
+        var data = SaveFilePath.WithClockFooter(Save(SaveFilePath.EmeraldLegacy), 0x2C);
+
+        Game.LoadFrom(data.ToArray(), format: _format).ToByteArray().Should().Equal(data);
+    }
+
+    [Theory]
+    [InlineData(0x11)]
+    [InlineData(0x40)]
+    public void DoesNotDetectASaveWithAnImplausibleFooter(int length) =>
+        _format.Detect(SaveFilePath.WithClockFooter(Save(SaveFilePath.EmeraldLegacy), length)).Should().Be(SaveFormatMatch.No);
+
     [Theory]
     [InlineData(SaveFilePath.Emerald)]
     [InlineData(SaveFilePath.FireRed)]

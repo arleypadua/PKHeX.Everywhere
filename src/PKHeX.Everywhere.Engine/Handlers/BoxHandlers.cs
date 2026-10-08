@@ -75,17 +75,22 @@ public static class BoxHandlers
             throw new EngineException(ErrorCodes.Unparseable, "The file isn't a Pokémon.", e);
         }
 
+        return Converting(loaded, game, () => Transfers.Transfer.Import(loaded, game));
+    }
+
+    internal static Transfers.PokemonImport Converting(Pokemon loaded, Game to, Func<Transfers.PokemonImport> convert)
+    {
         try
         {
-            return Transfers.Transfer.Import(loaded, game);
+            return convert();
         }
         catch (Transfers.PokemonRefusedException e) when (e.Reason == Transfers.TransferRefusal.SpeciesNotInGame)
         {
-            throw new EngineException(ErrorCodes.NotInGame, $"{loaded.Species.Name} doesn't exist in {game.SaveVersion.Name}.", e);
+            throw new EngineException(ErrorCodes.NotInGame, $"{loaded.Species.Name} doesn't exist in {to.SaveVersion.Name}.", e);
         }
         catch (Transfers.PokemonRefusedException e)
         {
-            throw new EngineException(ErrorCodes.ConversionFailed, $"Can't convert {loaded.Species.Name} to {game.SaveVersion.Name} ({e.Reason}).", e);
+            throw new EngineException(ErrorCodes.ConversionFailed, $"Can't convert {loaded.Species.Name} to {to.SaveVersion.Name} ({e.Reason}).", e);
         }
     }
 

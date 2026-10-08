@@ -13,7 +13,7 @@ namespace PKHeX.Everywhere.Engine.Tests;
 public class EncounterHandlerTests
 {
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Encounters
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.Unbound21, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Encounters
     public void VersionsReturnsTheVersionsTheBlazorEncounterSearchOffers(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -46,7 +46,7 @@ public class EncounterHandlerTests
         Error(Dispatch(new Session(), "encounters.versions", "[]")).Should().Be("no-save");
 
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Encounters
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.Unbound21, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Encounters
     public void SearchReturnsTheEncountersOfTheSpecies(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -80,7 +80,7 @@ public class EncounterHandlerTests
         Error(Dispatch(new Session(), "encounters.search", Args((int)GameVersion.E, (int)Species.Abra))).Should().Be("no-save");
 
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Encounters
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.Unbound21, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Encounters
     public void AddEncounterAddsTheRowsSpeciesToTheFirstEmptyBoxSlot(string saveFile)
     {
         var session = Loaded(saveFile);

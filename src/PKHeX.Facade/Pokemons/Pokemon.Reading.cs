@@ -30,6 +30,35 @@ public partial class Pokemon
     }
 
     /// <summary>
+    /// Reads a Pokémon file of a generation, as <see cref="ToFile"/> writes it. The Pokémon belongs to a blank save of its generation.
+    /// </summary>
+    /// <exception cref="UnreadablePokemonException">The bytes aren't a Pokémon of the generation.</exception>
+    public static Pokemon ReadFile(byte[] bytes, int generation)
+    {
+        var data = bytes.ToArray();
+        // Format detection takes some Gen 5 Pokémon for Battle Revolution ones, so Gen 3 to 5 are read as their generation's type.
+        var pkm = generation switch
+        {
+            3 when IsSizeOf<PK3>(data) => new PK3(data),
+            4 when IsSizeOf<PK4>(data) => new PK4(data),
+            5 when IsSizeOf<PK5>(data) => new PK5(data),
+            >= 1 and <= 9 => EntityFormat.GetFromBytes(data, prefer: (EntityContext)generation),
+            _ => null,
+        };
+
+        if (pkm is null || pkm.Format != generation || !pkm.ChecksumValid || IsBlank(pkm))
+            throw new UnreadablePokemonException(UnreadableReason.BadChecksum, $"The bytes aren't a Gen {generation} Pokémon.");
+
+        return new Pokemon(pkm, new Game(BlankSaveFile.Get(pkm.Context)));
+    }
+
+    private static bool IsSizeOf<T>(byte[] data) where T : PKM, new()
+    {
+        var blank = new T();
+        return data.Length == blank.SIZE_STORED || data.Length == blank.SIZE_PARTY;
+    }
+
+    /// <summary>
     /// Reads one Pokémon as a game in the Save format keeps it in its party in memory, with the format's species, items and moves.
     /// Nothing is written to a save, and the details hold no legality report. The level is the one the game stores in the party bytes.
     /// </summary>

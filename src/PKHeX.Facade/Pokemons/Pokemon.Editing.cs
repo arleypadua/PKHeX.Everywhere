@@ -9,7 +9,7 @@ public partial class Pokemon
 {
     public PokemonDetails Details() => Details(withLegality: true);
 
-    private PokemonDetails Details(bool withLegality) => new(
+    internal PokemonDetails Details(bool withLegality) => new(
         Species.Id,
         Pkm.Form,
         Gender,
@@ -55,6 +55,7 @@ public partial class Pokemon
         IsEditable = IsEditable,
         SpeciesIndex = SpeciesIndex,
         HeldItemIndex = HeldItemIndex,
+        EvolutionFamily = EvolutionFamily,
     };
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices())

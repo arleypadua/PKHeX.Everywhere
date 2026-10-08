@@ -13,8 +13,6 @@ public sealed class ImperiumFormat : ISaveFormat
     private const int SectorCount = 28;
     private const uint Signature = 0x08012025;
 
-    private static readonly int[] FileSizes = [0x20000, 0x20010];
-
     private static readonly int[] Version2ChecksumLengths =
         [2940, 4084, 4084, 4084, 772, .. new int[9], .. Enumerable.Repeat(4084, 12), 1512, 0];
 
@@ -35,7 +33,7 @@ public sealed class ImperiumFormat : ISaveFormat
 
     private static bool Matches(ReadOnlySpan<byte> data, int[] checksumLengths)
     {
-        if (!FileSizes.Contains(data.Length)) return false;
+        if (!Gen3SaveSize.IsSupported(data.Length)) return false;
 
         var seen = 0;
         for (var index = 0; index < SectorCount; index++)

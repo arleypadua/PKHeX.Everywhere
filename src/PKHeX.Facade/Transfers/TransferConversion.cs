@@ -42,8 +42,12 @@ internal static class TransferConversion
 
         if (converted is null) return null;
 
-        // Reflection copies the held item's raw value, and Generations 1 to 3 number their items differently from the rest.
-        if (result == EntityConverterResult.SuccessIncompatibleReflection) converted.HeldItem = ItemIn(to, pk);
+        if (result == EntityConverterResult.SuccessIncompatibleReflection)
+        {
+            KeepIdentity(pk, converted, to);
+            // Reflection copies the held item's raw value, and Generations 1 to 3 number their items differently from the rest.
+            converted.HeldItem = ItemIn(to, pk);
+        }
         if (converted.HeldItem != 0 && to.Options.HeldItems.All(item => item.Id != converted.HeldItem)) converted.HeldItem = 0;
         if (to.SaveFile.Generation >= 3 && !HasBall(to, converted.Ball)) converted.Ball = (byte)Ball.Poke;
         if (!Enum.IsDefined(converted.Version) || !converted.Version.IsValidSavedVersion()) converted.Version = DestinationVersion(to);
@@ -58,6 +62,54 @@ internal static class TransferConversion
         }
 
         return converted;
+    }
+
+    private static void KeepIdentity(PKM from, PKM converted, Game to)
+    {
+        // GBPKM.ImportFromFuture writes the nickname into the OT.
+        var trainer = from.OriginalTrainerName;
+        converted.OriginalTrainerName = trainer[..Math.Min(trainer.Length, converted.MaxStringLengthTrainer)];
+
+        if (from is GBPKM gb && converted.Format >= 3)
+        {
+            var guessed = gb.Language;
+            converted.Language = guessed != 0 && (converted.Format > 3 || guessed <= (int)LanguageID.Spanish) ? guessed : to.SaveFile.Language;
+            converted.SetEVs(stackalloc int[6]);
+            SetPid(gb, converted);
+        }
+
+        if (!from.IsNicknamed)
+        {
+            if (converted is GBPKM arrival) arrival.SetNotNicknamed(arrival.GuessedLanguage(from.Language));
+            else converted.ClearNickname();
+        }
+    }
+
+    // Seeded from what the player can't change in Generations 1 and 2, so the same Pokémon always gets the same PID.
+    private static void SetPid(GBPKM from, PKM converted)
+    {
+        var rng = new Xoroshiro128Plus(Seed(from));
+        var ratio = converted.PersonalInfo.Gender;
+        do
+        {
+            var pid = (uint)rng.Next();
+            if (from.IsShiny) pid = ((pid & 0xFFFF) ^ converted.TID16 ^ converted.SID16) << 16 | (pid & 0xFFFF);
+            converted.PID = pid;
+        }
+        while (EntityGender.GetFromPIDAndRatio(converted.PID, ratio) != from.Gender || converted.IsShiny != from.IsShiny);
+
+        converted.Gender = from.Gender;
+        if (converted.Format >= 5) converted.Nature = (Nature)(converted.PID % 25);
+        if (converted.Format >= 6) converted.EncryptionConstant = (uint)rng.Next();
+    }
+
+    private static ulong Seed(GBPKM pk)
+    {
+        const ulong fnvOffset = 14695981039346656037UL, fnvPrime = 1099511628211UL;
+        var hash = fnvOffset;
+        foreach (var c in $"{pk.TID16}-{pk.DV16}-{pk.OriginalTrainerName}")
+            hash = (hash ^ c) * fnvPrime;
+        return hash;
     }
 
     // EntityConverter reads the setting from a static, so it is on only while this conversion runs.

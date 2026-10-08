@@ -3,7 +3,11 @@ namespace PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 public sealed class UnboundPokemon : CfruPokemon
 {
     internal static readonly CfruSpeciesMap Map = new(UnboundSpeciesTable.NationalByIndex);
-    internal static readonly CfruItemMap Items = new(UnboundItemTable.ModernByIndex);
+
+    // No modern game has the Mega Cuff, so it isn't in a modern key items list.
+    private static readonly ushort[] KeyItems = [766];
+
+    internal static readonly CfruItemMap Items = new(UnboundItemTable.ModernByIndex, KeyItems);
 
     public UnboundPokemon() { }
     public UnboundPokemon(Memory<byte> data) : base(data) { }

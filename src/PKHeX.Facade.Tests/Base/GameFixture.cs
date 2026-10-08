@@ -51,13 +51,14 @@ public static class SaveFilePath
     public const string Crystal = "./data/save/crystal.sav"; // crystal
     public const string FireRed = "./data/save/firered.sav";
     public const string Unbound = "./data/save/unbound.sav"; // Unbound 2.0
+    public const string Unbound21 = "./data/save/unbound-2.1.sav"; // Unbound 2.1.1.1
     public const string RadicalRed = "./data/save/radicalred.sav";
     public const string Imperium = "./data/save/imperium.sav"; // Emerald Imperium 1.3
     public const string EmeraldLegacy = "./data/save/emerald-legacy.sav";
     public const string UnboundUnknownSpecies = "./data/save/unbound-unknown-species.sav"; // Shadow Warrior in box 23, slot 19
 
     public static IReadOnlyList<string> All { get; } =
-        [Yellow, Crystal, Emerald, FireRed, HgSs, LetsGoPikachu, LetsGoEevee, Unbound, RadicalRed, Imperium];
+        [Yellow, Crystal, Emerald, FireRed, HgSs, LetsGoPikachu, LetsGoEevee, Unbound, Unbound21, RadicalRed, Imperium];
 
     // The fixture's slot starts at sector id 18. Rotated so id 0 comes first, PKHeX reads it as Emerald.
     public static byte[] ImperiumReadableAsEmerald()
@@ -70,6 +71,9 @@ public static class SaveFilePath
 
         return data;
     }
+
+    public static byte[] WithClockFooter(ReadOnlySpan<byte> save, int length) =>
+        [.. save, .. Enumerable.Range(1, length).Select(index => (byte)index)];
 
     public static Game Load(string path) => Game.LoadFrom(File.ReadAllBytes(path), path, FormatOf(path));
 

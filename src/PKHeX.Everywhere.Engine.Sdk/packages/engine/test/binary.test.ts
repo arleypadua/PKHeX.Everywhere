@@ -111,30 +111,35 @@ describe('binary outputs', () => {
     expect(done).toEqual({ save: { bytes, fileName: 'firered.sav' }, partner: { bytes, fileName: 'emerald.sav' }, arrived: [] })
   })
 
-  it('returns the kept copies of a transfer as Uint8Arrays', async () => {
+  it('sends the bytes of each arrival to the host as base64', async () => {
+    const { engine, calls } = engineReturning({ offers: [], refused: [] })
     const at = { source: 'box', slot: 0, box: 0 } as const
-    const { engine } = engineReturning({
-      save: { bytes: base64, fileName: 'platinum.sav' },
-      partner: { bytes: base64, fileName: 'ruby.sav' },
-      arrived: [
-        { direction: 'send', id: 'a', at, keptCopy: { identityKey: 'key', generation: 4, bytes: base64 } },
-        { direction: 'send', id: 'b', at, keptCopy: null },
-      ],
-    })
+    const arrivals = [
+      { at, bytes: bytes.slice(), patch: { level: 60 } },
+      { at, bytes: new Blob([bytes]), patch: {} },
+    ]
 
-    const done = await engine.transfer.commit({ send: [], receive: [] })
+    await engine.transfer.preview({ send: [at], receive: [], arrivals })
 
-    expect(done.arrived.map((pokemon) => pokemon.keptCopy)).toEqual([{ identityKey: 'key', generation: 4, bytes }, null])
+    expect(argsOf(calls)).toEqual([
+      {
+        send: [at],
+        receive: [],
+        arrivals: [
+          { at, bytes: base64, patch: { level: 60 } },
+          { at, bytes: base64, patch: {} },
+        ],
+      },
+    ])
   })
 
-  it('sends kept copies to the host as base64', async () => {
-    const { engine, calls } = engineReturning({ offers: [], refused: [] })
-    const keptCopy = { identityKey: 'key', generation: 4, bytes: bytes.slice() }
+  it('sends a file to convert as base64 and returns the converted bytes as a Uint8Array', async () => {
+    const { engine, calls } = engineReturning({ bytes: base64, pokemon: {} })
 
-    await engine.transfer.preview({ send: [], receive: [], keptCopies: [keptCopy, keptCopy] })
+    const converted = await engine.transfer.convert({ bytes: new Blob([bytes]), generation: 4 }, 'partner')
 
-    const sent = { identityKey: 'key', generation: 4, bytes: base64 }
-    expect(argsOf(calls)).toEqual([{ send: [], receive: [], keptCopies: [sent, sent] }])
+    expect(argsOf(calls)).toEqual([{ bytes: base64, generation: 4 }, 'partner'])
+    expect(converted.bytes).toEqual(bytes)
   })
 
   it('returns the loaded file as a Uint8Array, or null without a save', async () => {

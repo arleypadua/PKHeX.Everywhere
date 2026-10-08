@@ -29,36 +29,53 @@ public static class TypeScript
     }
 
     // A returned record's bytes become a Uint8Array only when the client can convert them, so the record must never reach JS any other way.
-    // That covers the records it holds bytes through, such as each save a transfer returns. A record a call takes keeps its bytes as Base64,
-    // and so do the records it holds, unless a call also returns them inside another record: then the client encodes them back on the way in.
+    // That covers the records it holds bytes through, such as each save a transfer returns. A record only calls take, directly or through
+    // other records, takes its bytes as Binary and the client encodes them. A record a call both takes and returns keeps its bytes as Base64.
     private static BinaryRecords BinaryOutputs(Contract contract)
     {
         var inputs = contract.Calls.SelectMany(c => c.Parameters).Select(p => Nullable.GetUnderlyingType(p.Type) ?? p.Type).ToHashSet();
-        var outputs = contract.Calls
-            .Select(c => Nullable.GetUnderlyingType(c.ReturnType) ?? c.ReturnType)
+        var returned = contract.Calls.Select(c => Nullable.GetUnderlyingType(c.ReturnType) ?? c.ReturnType).ToList();
+        var outputs = returned
             .Where(t => Contract.IsObject(t) && BytesPaths(t, inputs).Any() && !inputs.Contains(t))
             .SelectMany(t => BytesHolders(t, inputs).Prepend(t))
             .ToHashSet();
-        return new BinaryRecords(outputs, inputs);
+        var inputOnly = Reachable(inputs);
+        inputOnly.ExceptWith(Reachable(returned));
+        return new BinaryRecords(outputs, inputs, inputOnly);
     }
 
-    private sealed record BinaryRecords(HashSet<Type> Outputs, HashSet<Type> Inputs)
+    private sealed record BinaryRecords(HashSet<Type> Outputs, HashSet<Type> Inputs, HashSet<Type> InputOnly)
     {
         public IEnumerable<string> OutputPaths(Type type) => BytesPaths(type, Inputs);
 
-        public IEnumerable<string> InputPaths(Type type) => Objects(type).SelectMany(p => Outputs.Contains(p.Type)
-            ? OutputPaths(p.Type).Select(path => $"{p.Name}.{path}")
-            : InputPaths(p.Type).Select(path => $"{p.Name}.{path}"));
+        public IEnumerable<string> InputPaths(Type type) => InputOnly.Contains(type)
+            ? OwnBytes(type).Concat(Objects(type).SelectMany(p => InputPaths(p.Type).Select(path => $"{p.Name}.{path}")))
+            : [];
     }
+
+    private static HashSet<Type> Reachable(IEnumerable<Type> roots)
+    {
+        var reached = new HashSet<Type>();
+        var pending = new Stack<Type>(roots.Select(t => TypeCollector.ElementType(t, null)?.Element ?? t).Where(Contract.IsObject));
+        while (pending.TryPop(out var type))
+        {
+            if (!reached.Add(type)) continue;
+            foreach (var (_, held) in Objects(type)) pending.Push(held);
+        }
+
+        return reached;
+    }
+
+    private static IEnumerable<string> OwnBytes(Type type) => TypeCollector.Properties(type)
+        .Where(p => p.PropertyType == typeof(byte[]))
+        .Select(p => JsonNamingPolicy.CamelCase.ConvertName(p.Name));
 
     // An array is crossed as if it were its element: the client converts each one.
     private static IEnumerable<(string Name, Type Type)> Objects(Type type) => TypeCollector.Properties(type)
         .Select(p => (Name: JsonNamingPolicy.CamelCase.ConvertName(p.Name), Type: TypeCollector.ElementType(p.PropertyType, null)?.Element ?? p.PropertyType))
         .Where(p => Contract.IsObject(p.Type));
 
-    private static IEnumerable<string> BytesPaths(Type type, HashSet<Type> inputs) => TypeCollector.Properties(type)
-        .Where(p => p.PropertyType == typeof(byte[]))
-        .Select(p => JsonNamingPolicy.CamelCase.ConvertName(p.Name))
+    private static IEnumerable<string> BytesPaths(Type type, HashSet<Type> inputs) => OwnBytes(type)
         .Concat(Objects(type).Where(p => !inputs.Contains(p.Type)).SelectMany(p => BytesPaths(p.Type, inputs).Select(path => $"{p.Name}.{path}")));
 
     private static IEnumerable<Type> BytesHolders(Type type, HashSet<Type> inputs) => Objects(type)
@@ -331,7 +348,6 @@ public static class TypeScript
     private enum Direction
     {
         Nested,
-        NestedInput,
         Input,
         Output,
     }
@@ -394,8 +410,8 @@ public static class TypeScript
                 return rendered.Contains('|') ? $"({rendered})[]" : $"{rendered}[]";
             }
 
-            if (IsBinaryOutput(type) && direction == Direction.Nested)
-                throw new InvalidOperationException($"{type.Name} carries bytes and is returned by a call, so it can only reach JS as that call's result or in a call's input.");
+            if (IsBinaryOutput(type) && direction != Direction.Output)
+                throw new InvalidOperationException($"{type.Name} carries bytes and is returned by a call, so it can only reach JS as that call's result.");
 
             if (Contract.IsBranded(type) || Contract.IsObject(type)) return Register(type);
 
@@ -454,7 +470,7 @@ public static class TypeScript
 
         private Direction PropertyDirection(Type type) =>
             IsBinaryOutput(type) ? Direction.Output
-            : binary.Inputs.Contains(type) && binary.InputPaths(type).Any() ? Direction.NestedInput
+            : binary.InputOnly.Contains(type) ? Direction.Input
             : Direction.Nested;
 
         // The JSON reader passes null for a missing property, so a nullable constructor parameter with a default can be left out.

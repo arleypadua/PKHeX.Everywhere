@@ -39,6 +39,19 @@ public class GameTests
     }
 
     [Theory]
+    [InlineData(GameVersion.RS, GameVersion.R)]
+    [InlineData(GameVersion.DP, GameVersion.D)]
+    [InlineData(GameVersion.HGSS, GameVersion.HG)]
+    [InlineData(GameVersion.B2W2, GameVersion.B2)]
+    public void GameVersionApproximation_OfACombinedSave_IsTheFirstGameOfThePair(GameVersion combined, GameVersion expected)
+    {
+        var game = new Game(BlankSaveFile.Get(expected.SaveFileType, combined));
+
+        game.SaveVersion.Aggregated.Should().BeTrue();
+        game.GameVersionApproximation.Version.Should().Be(expected);
+    }
+
+    [Theory]
     [InlineData(GameVersion.GD)]
     [InlineData(GameVersion.SI)]
     [InlineData(GameVersion.C)]

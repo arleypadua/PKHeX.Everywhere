@@ -151,21 +151,89 @@ public class TransferHandlerTests
     }
 
     [Fact]
-    public void AKeptCopyRestoresThePokemonWhenItComesBack()
+    public void ConvertGivesAPokemonInThePartnersFormat()
+    {
+        var session = Loaded(SaveFilePath.HgSs);
+        Open(session, SaveFilePath.Emerald);
+        var exported = Value(Dispatch(session, "transfer.export", Args(Handle(PokemonHandle.Party(0)), "mine")))!;
+
+        var converted = Value(Dispatch(session, "transfer.convert", Args(new { bytes = exported["bytes"], generation = exported["generation"] }, "partner")))!;
+
+        exported["generation"]!.GetValue<int>().Should().Be(4);
+        new PK3(Bytes(converted)).Species.Should().Be(converted["pokemon"]!["species"]!.GetValue<ushort>());
+        converted["pokemon"]!["legality"].Should().NotBeNull();
+        Value(Dispatch(session, "transfer.convert", Args(new { bytes = exported["bytes"], generation = exported["generation"] }, "partner")))!["bytes"]!.GetValue<string>()
+            .Should().Be(converted["bytes"]!.GetValue<string>());
+    }
+
+    [Fact]
+    public void ConvertFailsWithUnparseableOnBytesThatArentAPokemon()
     {
         var session = Loaded(SaveFilePath.HgSs);
         Open(session, SaveFilePath.Emerald);
 
-        var offer = Preview(session, Send(PokemonHandle.Party(0)))["offers"]![0]!;
-        var arrived = Value(Dispatch(session, "transfer.commit", Args(Send(PokemonHandle.Party(0)))))!["arrived"]![0]!;
-        var copy = arrived["keptCopy"]!;
-        var back = Preview(session, new { send = Array.Empty<object>(), receive = new[] { arrived["at"] }, keptCopies = new[] { copy } })["offers"]![0]!;
+        Error(Dispatch(session, "transfer.convert", Args(new { bytes = Convert.ToBase64String(new byte[136]), generation = 4 }, "partner"))).Should().Be("unparseable");
+    }
 
-        offer["keepsCopy"]!.GetValue<bool>().Should().BeTrue();
-        copy["identityKey"]!.GetValue<string>().Should().Be(offer["from"]!["identityKey"]!.GetValue<string>());
-        copy["generation"]!.GetValue<int>().Should().Be(4);
-        back["keepsCopy"]!.GetValue<bool>().Should().BeFalse();
-        back["changes"]!.AsArray().Should().Contain(change => change!["field"]!.GetValue<string>() == "metLocation" && change["reason"]!.GetValue<string>() == "restored");
+    [Fact]
+    public void ConvertFailsWithNoTransferWhenNoneIsOpen() =>
+        Error(Dispatch(Loaded(SaveFilePath.HgSs), "transfer.convert", Args(new { bytes = Convert.ToBase64String(new byte[136]), generation = 4 }, "partner"))).Should().Be("no-transfer");
+
+    [Fact]
+    public void DetailsAndExportReadThePartnersPokemon()
+    {
+        var session = Loaded(SaveFilePath.FireRed);
+        Open(session, SaveFilePath.Emerald);
+        var torchic = SaveFilePath.Load(SaveFilePath.Emerald).Trainer.Party.Pokemons[0];
+
+        var details = Value(Dispatch(session, "transfer.details", Args(Handle(PokemonHandle.Party(0)), "partner")))!;
+        var exported = Value(Dispatch(session, "transfer.export", Args(Handle(PokemonHandle.Party(0)), "partner")))!;
+
+        details["species"]!.GetValue<int>().Should().Be((int)Species.Torchic);
+        details["evolutionFamily"]!.GetValue<int>().Should().Be((int)Species.Torchic);
+        Bytes(exported).Should().Equal(torchic.ToFile().Bytes);
+        exported["generation"]!.GetValue<int>().Should().Be(3);
+    }
+
+    [Fact]
+    public void AnArrivalLandsWithItsPatch()
+    {
+        var session = Loaded(SaveFilePath.HgSs);
+        Open(session, SaveFilePath.Emerald);
+        var exported = Value(Dispatch(session, "transfer.export", Args(Handle(PokemonHandle.Party(0)), "mine")))!;
+        var converted = Value(Dispatch(session, "transfer.convert", Args(new { bytes = exported["bytes"], generation = 4 }, "partner")))!;
+        var offer = WithArrival(PokemonHandle.Party(0), converted["bytes"]!.GetValue<string>(), new { nickname = "Spooky" });
+
+        var offered = Preview(session, offer)["offers"]![0]!;
+        var at = Value(Dispatch(session, "transfer.commit", Args(offer)))!["arrived"]![0]!["at"]!;
+
+        offered["arrives"]!["nickname"]!.GetValue<string>().Should().Be("Spooky");
+        offered["changes"]!.AsArray().Should().Contain(change => change!["field"]!.GetValue<string>() == "nickname");
+        Value(Dispatch(session, "transfer.details", Args(at, "partner")))!["nickname"]!.GetValue<string>().Should().Be("Spooky");
+    }
+
+    [Fact]
+    public void AnArrivalForAPokemonNotInTheOfferFailsWithNotFound()
+    {
+        var session = Loaded(SaveFilePath.HgSs);
+        Open(session, SaveFilePath.Emerald);
+        var offer = new { send = new[] { Handle(PokemonHandle.Party(0)) }, receive = Array.Empty<object>(), arrivals = new[] { Arrival(PokemonHandle.Party(1), Convert.ToBase64String(new byte[100]), new { }) } };
+
+        Error(Dispatch(session, "transfer.preview", Args(offer))).Should().Be("not-found");
+    }
+
+    [Theory]
+    [InlineData(136, "unparseable")]
+    [InlineData(0, "invalid-patch")]
+    public void AnArrivalFailsOnBytesOfAnotherFormatOrABadPatch(int length, string error)
+    {
+        var session = Loaded(SaveFilePath.HgSs);
+        Open(session, SaveFilePath.Emerald);
+        var exported = Value(Dispatch(session, "transfer.export", Args(Handle(PokemonHandle.Party(0)), "mine")))!;
+        var converted = Value(Dispatch(session, "transfer.convert", Args(new { bytes = exported["bytes"], generation = 4 }, "partner")))!;
+        var bytes = length == 0 ? converted["bytes"]!.GetValue<string>() : Convert.ToBase64String(Bytes(exported)[..length]);
+
+        Error(Dispatch(session, "transfer.commit", Args(WithArrival(PokemonHandle.Party(0), bytes, new { level = 101 })))).Should().Be(error);
     }
 
     [Fact]
@@ -513,6 +581,11 @@ public class TransferHandlerTests
     private static object Send(params PokemonHandle[] send) => new { send = send.Select(Handle), receive = Array.Empty<object>() };
 
     private static object Receive(params PokemonHandle[] receive) => new { send = Array.Empty<object>(), receive = receive.Select(Handle) };
+
+    private static object WithArrival(PokemonHandle at, string bytes, object patch) =>
+        new { send = new[] { Handle(at) }, receive = Array.Empty<object>(), arrivals = new[] { Arrival(at, bytes, patch) } };
+
+    private static object Arrival(PokemonHandle at, string bytes, object patch) => new { at = Handle(at), bytes, patch };
 
     private static object Handle(PokemonHandle at) => new { source = at.Source.ToString().ToLowerInvariant(), slot = at.Slot, box = at.Box };
 

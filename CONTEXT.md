@@ -66,10 +66,6 @@ _Avoid_: trade, except for the link trade; migration
 How a Transfer moves a Pokémon: a link trade between saves of the same format, the Time Capsule (Gen 1 and 2), Pal Park (Gen 3 to 4), Poké Transfer (Gen 4 to 5), or `unofficial`, a route no game has, where PKHeX copies the fields the destination can hold. Saves loaded with a ROM hack format and Let's Go saves have no Route. A Pokémon file added to a box takes the unofficial Route only when PKHeX has no conversion of its own.
 _Avoid_: path, conversion
 
-**Kept copy**:
-A Pokémon as it was before a transfer to an older game. The client stores it and passes it back, so a later transfer forward restores what the older game dropped.
-_Avoid_: backup, snapshot
-
 **Topic**:
 A hierarchical path, such as `party`, `box/3` or `inventory`, naming a part of the save that queries read and commands write. A Topic covers every path beneath it.
 _Avoid_: cache key, channel

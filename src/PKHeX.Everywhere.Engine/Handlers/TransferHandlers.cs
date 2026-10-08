@@ -1,6 +1,7 @@
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 using PKHeX.Facade.Pokemons;
+using Pokemon = PKHeX.Facade.Pokemons.Pokemon;
 using Transfers = PKHeX.Facade.Transfers;
 
 namespace PKHeX.Everywhere.Engine.Handlers;
@@ -46,14 +47,55 @@ public static class TransferHandlers
     }
 
     /// <summary>
+    /// Converts a Pokémon file to <c>to</c>'s format the way a transfer would: by the official route when there is one, unofficially otherwise.
+    /// The same file always gives the same bytes. Nothing is written.
+    /// Fails with <c>unparseable</c>, <c>not-in-game</c> and <c>conversion-failed</c> as <c>box.previewFile</c> does, and with <c>no-transfer</c> when no transfer is open.
+    /// </summary>
+    /// <param name="to">The save to convert the Pokémon to.</param>
+    [Query("transfer.convert", Topics.Transfer, Topics.Trainer)]
+    public static ConvertedPokemon Convert(Session session, Game game, PokemonFile file, TransferSave to)
+    {
+        var transfer = TransferWith(session, game);
+        Pokemon read;
+        try
+        {
+            read = Pokemon.ReadFile(file.Bytes, file.Generation);
+        }
+        catch (UnreadablePokemonException e)
+        {
+            throw new EngineException(ErrorCodes.Unparseable, e.Message, e);
+        }
+
+        var save = to.ToFacade();
+        var converted = BoxHandlers.Converting(read, transfer.SaveOf(save), () => transfer.Convert(read, save));
+        return new ConvertedPokemon(converted.Arrives.ToFile().Bytes, converted.Details().ToEditable());
+    }
+
+    /// <summary>
+    /// <c>pokemon.export</c> for a slot in either save of the open transfer.
+    /// </summary>
+    [Query("transfer.export", Topics.Transfer, Topics.Party, Topics.Box)]
+    public static ExportedPokemon Export(Session session, Game game, PokemonHandle at, TransferSave save) =>
+        TransferWith(session, game).SaveOf(save.ToFacade()).FindSaved(at).Pokemon.ToExported();
+
+    /// <summary>
+    /// <c>pokemon.details</c> for a slot in either save of the open transfer.
+    /// </summary>
+    [Query("transfer.details", Topics.Transfer, Topics.Party, Topics.Box)]
+    public static EditablePokemon Details(Session session, Game game, PokemonHandle at, TransferSave save) =>
+        TransferWith(session, game).SaveOf(save.ToFacade()).FindSaved(at).Pokemon.Details().ToEditable();
+
+    /// <summary>
     /// Shows what moving the offered Pokémon would change, and which ones can't move. Nothing is written.
     /// A handle without a Pokémon fails with <c>not-found</c>, and the draft with <c>draft-not-allowed</c>.
+    /// An arrival for a Pokémon the offer doesn't have fails with <c>not-found</c>, bytes that aren't a Pokémon of the destination's format with <c>unparseable</c>,
+    /// and a patch the way <c>pokemon.update</c> fails.
     /// </summary>
     [Query("transfer.preview", Topics.Transfer, Topics.Party, Topics.Box)]
     public static TransferPreview Preview(Session session, Game game, TransferOffer offer)
     {
         var transfer = TransferWith(session, game);
-        var preview = transfer.Preview(ToFacade(transfer, offer));
+        var preview = Arriving(() => transfer.Preview(ToFacade(transfer, offer)));
         return new TransferPreview(
             preview.Offers.Select(offered => ToDto(transfer, offered)).ToArray(),
             preview.Refused.Select(refused => new RefusedPokemon(refused.Direction.ToDto(), HandleOf(transfer.From(refused.Direction), refused.From), refused.Reason.ToDto())).ToArray());
@@ -61,7 +103,7 @@ public static class TransferHandlers
 
     /// <summary>
     /// Moves the offered Pokémon: each leaves its slot and lands in the first empty box slots of the other save.
-    /// Fails with <c>transfer-refused</c>, writing nothing, when <c>transfer.preview()</c> refuses any of them.
+    /// Fails with <c>transfer-refused</c>, writing nothing, when <c>transfer.preview()</c> refuses any of them, and as <c>transfer.preview()</c> does on an arrival.
     /// </summary>
     [Command("transfer.commit", Topics.Transfer, Topics.Party, Topics.Box, Topics.Draft)]
     public static TransferResult Commit(Session session, Game game, TransferOffer offer)
@@ -70,7 +112,7 @@ public static class TransferHandlers
         IReadOnlyList<Transfers.TransferArrival> arrived;
         try
         {
-            arrived = transfer.Commit(ToFacade(transfer, offer));
+            arrived = Arriving(() => transfer.Commit(ToFacade(transfer, offer)));
         }
         catch (Transfers.TransferRefusedException e)
         {
@@ -86,8 +128,7 @@ public static class TransferHandlers
             arrived.Select(a => new TransferredPokemon(
                 a.Direction.ToDto(),
                 new PokemonId(a.Pokemon.UniqueId.Value),
-                PokemonSlots.BoxHandle(transfer.To(a.Direction).SaveFile, a.BoxIndex),
-                a.KeptCopy.ToDto())).ToArray());
+                PokemonSlots.BoxHandle(transfer.To(a.Direction).SaveFile, a.BoxIndex))).ToArray());
     }
 
     /// <summary>
@@ -117,7 +158,35 @@ public static class TransferHandlers
     private static Transfers.TransferOffer ToFacade(Transfers.Transfer transfer, TransferOffer offer) => new(
         offer.Send.Select(at => SlotOf(transfer.Mine, at)).ToList(),
         offer.Receive.Select(at => SlotOf(transfer.Partner, at)).ToList(),
-        offer.KeptCopies?.Select(copy => copy.ToFacade()).ToList());
+        offer.Arrivals?.Select(arrival => ToFacade(transfer, offer, arrival)).ToList());
+
+    private static Transfers.ArrivalOverride ToFacade(Transfers.Transfer transfer, TransferOffer offer, TransferArrival arrival)
+    {
+        var direction = offer.Send.Contains(arrival.At) ? Transfers.TransferDirection.Send
+            : offer.Receive.Contains(arrival.At) ? Transfers.TransferDirection.Receive
+            : throw new EngineException(ErrorCodes.NotFound, $"The offer has no Pokémon at {arrival.At.Topic()} slot {arrival.At.Slot} to arrive as given.");
+        return new Transfers.ArrivalOverride(direction, SlotOf(transfer.From(direction), arrival.At), arrival.Bytes, arrival.Patch.ToFacade());
+    }
+
+    private static T Arriving<T>(Func<T> transfer)
+    {
+        try
+        {
+            return transfer();
+        }
+        catch (UnreadablePokemonException e)
+        {
+            throw new EngineException(ErrorCodes.Unparseable, e.Message, e);
+        }
+        catch (InvalidPatchException e)
+        {
+            throw new EngineException(ErrorCodes.InvalidPatch, e.Message, e);
+        }
+        catch (UnknownSpeciesException e)
+        {
+            throw new EngineException(ErrorCodes.UnknownSpecies, e.Message, e);
+        }
+    }
 
     private static Transfers.TransferSlot SlotOf(Game game, PokemonHandle at)
     {
@@ -138,6 +207,5 @@ public static class TransferHandlers
         offered.Arrives.ToSummary(PokemonSlots.BoxHandle(transfer.To(offered.Direction).SaveFile, offered.ArrivesAt)),
         offered.Changes.Select(change => change.ToDto()).ToArray(),
         offered.SaveChanges.Select(change => change.ToDto()).ToArray(),
-        new Legality(offered.Legality.Valid, offered.Legality.Messages.ToArray()),
-        offered.KeptCopy is not null);
+        new Legality(offered.Legality.Valid, offered.Legality.Messages.ToArray()));
 }

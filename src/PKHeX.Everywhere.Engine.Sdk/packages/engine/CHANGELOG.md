@@ -1,5 +1,35 @@
 # @pkhex-everywhere/engine
 
+## 0.19.1
+
+### Patch Changes
+
+- 2e5cafa: Unbound and Radical Red bags list the Key Items pocket, and key items can be added, changed and removed. Unbound's Mega Cuff and Radical Red's TM Case, Exp. Share, Silph Scope and Lift Key go in Key Items, not Items.
+
+## 0.19.0
+
+### Minor Changes
+
+- f8f6791: Add `transfer.convert`, `transfer.details` and `transfer.export`. A transfer offer takes `arrivals`: each places an offered Pokémon as given bytes plus a patch, instead of running the usual conversion. `EditablePokemon` gains `evolutionFamily` and `ExportedPokemon` gains `generation`. Remove kept copies: `KeptCopy`, `TransferOffer.keptCopies`, `OfferedPokemon.keepsCopy`, `TransferredPokemon.keptCopy`, `identityKey` and the `restored` change reason.
+
+## 0.18.3
+
+### Patch Changes
+
+- d4644cf: Radical Red, Unbound, Emerald Imperium and Emerald Legacy saves load with any emulator clock footer that PKHeX accepts for a Gen 3 save, not only a 16-byte one. The footer is kept on export.
+
+## 0.18.2
+
+### Patch Changes
+
+- 580ae24: Unofficial transfers through Generations 1 and 2 keep the Pokémon's identity. A Pokémon moved into Gen 1 or 2 keeps its original trainer and, if it has no nickname, gets the game's default name. A Pokémon moved up from Gen 1 or 2 into Gen 3 or later keeps its language, gender and shininess, and arrives with no EVs. Its PID is no longer 0. The same Pokémon always gets the same PID, so Pokémon from one trainer no longer share an `identityKey`.
+
+## 0.18.1
+
+### Patch Changes
+
+- 161f09a: A save that can't tell paired games apart now names a game from its own pair. `game.version()` and the default in `encounters.versions()` return the first game of the pair. A Ruby or Sapphire save says Ruby, and a Diamond or Pearl save says Diamond. Before, they named the generation's default game, such as Emerald or SoulSilver.
+
 ## 0.18.0
 
 ### Minor Changes

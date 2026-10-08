@@ -68,7 +68,6 @@ public enum TransferChangeReason
     FormReverted,
     NotInGame,
     Unofficial,
-    Restored,
 }
 
 public enum TransferSaveChangeKind
@@ -87,15 +86,21 @@ public enum TransferSide
 /// <param name="Index">The party slot, or the box slot counted across every box.</param>
 public record TransferSlot(PokemonSource Source, int Index);
 
-/// <param name="KeptCopies">Copies kept by earlier transfers to older games. Each restores what an older game dropped from the offered Pokémon it applies to.</param>
-public record TransferOffer(IReadOnlyList<TransferSlot> Send, IReadOnlyList<TransferSlot> Receive, IReadOnlyList<KeptCopy>? KeptCopies = null);
+/// <param name="Arrivals">Offered Pokémon that arrive as given instead of by the usual conversion.</param>
+public record TransferOffer(IReadOnlyList<TransferSlot> Send, IReadOnlyList<TransferSlot> Receive, IReadOnlyList<ArrivalOverride>? Arrivals = null);
 
 /// <summary>
-/// A Pokémon as it was before a transfer to an older game, to restore what that game dropped.
+/// An offered Pokémon that arrives as <paramref name="Bytes"/>, with <paramref name="Patch"/> applied as <see cref="Pokemon.Update"/> applies it, instead of by the usual conversion.
 /// </summary>
-/// <param name="Generation">The generation of the game it left.</param>
-/// <param name="Bytes">The Pokémon in that game's format, as <see cref="Pokemon.ToFile"/> writes it.</param>
-public record KeptCopy(string IdentityKey, int Generation, byte[] Bytes);
+/// <param name="At">The offered Pokémon, in the save it leaves.</param>
+/// <param name="Bytes">The Pokémon in the destination's format, as <see cref="Pokemon.ToFile"/> writes it.</param>
+public record ArrivalOverride(TransferDirection Direction, TransferSlot At, byte[] Bytes, PokemonPatch Patch);
+
+public enum TransferSave
+{
+    Mine,
+    Partner,
+}
 
 public record TransferRoom(int Mine, int Partner);
 
@@ -105,7 +110,6 @@ public record TransferChange(TransferField Field, string? Before, string? After,
 public record TransferSaveChange(TransferSaveChangeKind Kind, TransferSide Save, string Label);
 
 /// <param name="ArrivesAt">The box slot, counted across every box, the Pokémon lands in.</param>
-/// <param name="KeptCopy">The Pokémon as it leaves, kept when it moves to an older game.</param>
 public record TransferredPokemon(
     TransferDirection Direction,
     TransferRoute Route,
@@ -115,15 +119,14 @@ public record TransferredPokemon(
     Pokemon Arrives,
     IReadOnlyList<TransferChange> Changes,
     IReadOnlyList<TransferSaveChange> SaveChanges,
-    PokemonLegality Legality,
-    KeptCopy? KeptCopy = null);
+    PokemonLegality Legality);
 
 public record RefusedPokemon(TransferDirection Direction, TransferSlot From, TransferRefusal Reason);
 
 public record TransferPreview(IReadOnlyList<TransferredPokemon> Offers, IReadOnlyList<RefusedPokemon> Refused);
 
 /// <param name="BoxIndex">The box slot, counted across every box, the Pokémon landed in.</param>
-public record TransferArrival(TransferDirection Direction, int BoxIndex, Pokemon Pokemon, KeptCopy? KeptCopy = null);
+public record TransferArrival(TransferDirection Direction, int BoxIndex, Pokemon Pokemon);
 
 /// <param name="Unofficial">No game can move the Pokémon into the save, so PKHeX copied the fields the save can hold.</param>
 public record PokemonImport(Pokemon Arrives, bool Unofficial, IReadOnlyList<TransferChange> Changes)
@@ -132,6 +135,11 @@ public record PokemonImport(Pokemon Arrives, bool Unofficial, IReadOnlyList<Tran
     /// PKHeX's legality check of the Pokémon as it arrives, judged in the save. Null when the save has no legality check, such as a ROM hack's.
     /// </summary>
     public PokemonLegality? Legality() => Arrives.Game.Supports(Capability.Legality) ? Transfer.LegalityIn(Arrives.Game, Arrives) : null;
+
+    /// <summary>
+    /// The Pokémon's details as it arrives, with <see cref="Legality"/> judged in the save.
+    /// </summary>
+    public PokemonDetails Details() => Arrives.Details(withLegality: false) with { Legality = Legality() };
 }
 
 public class PokemonRefusedException(TransferRefusal reason) : Exception($"The Pokémon can't be moved into the save: {reason}.")
