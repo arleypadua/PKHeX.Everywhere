@@ -88,6 +88,7 @@ await engine.transfer.close()
 `transfer.convert` converts a Pokémon file to the format of either save, the way a transfer would, and writes nothing. The same file always gives the same bytes. `transfer.details` and `transfer.export` read a slot in either save. An offer's `arrivals` replace the usual conversion: the offered Pokémon arrives as the given bytes, with a patch applied as `pokemon.update` applies it. This lets a client keep its own copy of a Pokémon and decide which fields to bring back when it moves forward again:
 
 ```ts
+// copy: a file you kept from an earlier transfer, such as { bytes, generation: 4 }. at: the offered Pokémon's handle.
 const base = await engine.transfer.convert(copy, 'partner')
 const offer = { send: [at], receive: [], arrivals: [{ at, bytes: base.bytes, patch: { level: 60 } }] }
 await engine.transfer.commit(offer)

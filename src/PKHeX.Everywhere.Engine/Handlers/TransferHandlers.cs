@@ -66,7 +66,8 @@ public static class TransferHandlers
             throw new EngineException(ErrorCodes.Unparseable, e.Message, e);
         }
 
-        var converted = BoxHandlers.Converting(read, transfer.SaveOf(to.ToFacade()), () => transfer.Convert(read, to.ToFacade()));
+        var save = to.ToFacade();
+        var converted = BoxHandlers.Converting(read, transfer.SaveOf(save), () => transfer.Convert(read, save));
         return new ConvertedPokemon(converted.Arrives.ToFile().Bytes, converted.Details().ToEditable());
     }
 
