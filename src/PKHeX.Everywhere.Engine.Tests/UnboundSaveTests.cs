@@ -628,12 +628,12 @@ public class UnboundSaveTests
         Enumerable.Range(0, exported.Length).Where(offset => exported[offset] != Fixture[offset]).ToArray();
 
     [Fact]
-    public void TheBagListsTheMainBallTmAndBerryPockets()
+    public void TheBagListsTheMainKeyItemBallTmAndBerryPockets()
     {
         var pouches = Value(Dispatch(LoadedUnbound(), "inventory.get", "[]"))!.AsArray();
 
         pouches.Select(pouch => (pouch!["name"]!.GetValue<string>(), pouch["items"]!.AsArray().Count))
-            .Should().Equal(("Balls", 16), ("Berries", 66), ("Items", 276), ("TMHMs", 128));
+            .Should().Equal(("Balls", 16), ("Berries", 66), ("Items", 276), ("KeyItems", 41), ("TMHMs", 128));
     }
 
     [Theory]
@@ -688,7 +688,7 @@ public class UnboundSaveTests
     {
         var session = LoadedUnbound();
 
-        foreach (var pouch in new[] { "Items", "Balls", "TMHMs", "Berries" })
+        foreach (var pouch in new[] { "Items", "KeyItems", "Balls", "TMHMs", "Berries" })
         foreach (var (id, _, count) in Owned(Pouch(session, pouch)))
             Value(SetItem(session, pouch, id, count));
 
@@ -698,6 +698,7 @@ public class UnboundSaveTests
     // The fixture owns every TM, so the one added back is one removed first.
     [Theory]
     [InlineData("Items", 5)]
+    [InlineData("KeyItems", 2)]
     [InlineData("Balls", 5)]
     [InlineData("TMHMs", 1)]
     [InlineData("Berries", 5)]
@@ -725,6 +726,7 @@ public class UnboundSaveTests
 
     [Theory]
     [InlineData("Items")]
+    [InlineData("KeyItems")]
     [InlineData("Balls")]
     [InlineData("TMHMs")]
     [InlineData("Berries")]
@@ -741,6 +743,7 @@ public class UnboundSaveTests
 
     [Theory]
     [InlineData("Items")]
+    [InlineData("KeyItems")]
     [InlineData("Balls")]
     [InlineData("Berries")]
     public void AddingAnItemChangesOnlyTheSlotItFills(string pouch)
@@ -766,14 +769,11 @@ public class UnboundSaveTests
         Unknown(Pouch(LoadedUnbound(Exported(session)), "Items")).Should().Equal(unknown);
     }
 
-    // The key items pocket isn't listed yet, so its bytes are checked where they follow the main pocket in sector 30.
-    private static readonly Range KeyItems = 0x1E1F0..0x1E31C;
-
     [Fact]
     public void TheMainPocketHolds450EntriesAndKeepsTheOtherPockets()
     {
         var session = LoadedUnbound();
-        var others = new[] { "Balls", "TMHMs", "Berries" }.Select(pouch => Owned(Pouch(session, pouch))).ToArray();
+        var others = new[] { "KeyItems", "Balls", "TMHMs", "Berries" }.Select(pouch => Owned(Pouch(session, pouch))).ToArray();
         var full = FixtureWith(save =>
         {
             var bag = save.Inventory;
@@ -785,8 +785,7 @@ public class UnboundSaveTests
         var reloaded = LoadedUnbound(exported);
 
         Owned(Pouch(reloaded, "Items")).Should().HaveCount(450);
-        exported[KeyItems].Should().Equal(Fixture[KeyItems]);
-        new[] { "Balls", "TMHMs", "Berries" }.Select(pouch => Owned(Pouch(reloaded, pouch))).Should().BeEquivalentTo(others);
+        new[] { "KeyItems", "Balls", "TMHMs", "Berries" }.Select(pouch => Owned(Pouch(reloaded, pouch))).Should().BeEquivalentTo(others);
         Error(SetItem(reloaded, "Items", Pouch(reloaded, "Items")["addable"]!.AsArray().First()!["id"]!.GetValue<int>(), 1))
             .Should().Be("pouch-full");
     }

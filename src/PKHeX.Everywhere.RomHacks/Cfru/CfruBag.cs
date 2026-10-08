@@ -3,7 +3,7 @@ using PKHeX.Core;
 namespace PKHeX.Everywhere.RomHacks.Cfru;
 
 /// <summary>
-/// The main, Poké Ball, TM and berry pockets of a CFRU save.
+/// The main, key item, Poké Ball, TM and berry pockets of a CFRU save.
 /// </summary>
 public sealed class CfruBag : PlayerBag
 {
@@ -19,6 +19,7 @@ public sealed class CfruBag : PlayerBag
         [
             new CfruPouch(InventoryType.Items, Info, 999, map, countKey: 0,
                 (block13 + MainPocket, MainSlotsInBlock), (sector30, MainSlots - MainSlotsInBlock)),
+            new CfruPouch(InventoryType.KeyItems, Info, 999, map, countKey: 0, (sector30 + 0x1F0, 75)),
             new CfruPouch(InventoryType.Balls, Info, 999, map, countKey: 0, (sector30 + 0x31C, 50)),
             new CfruPouch(InventoryType.TMHMs, Info, 1, map, countKey: 0, (sector30 + 0x3E4, 128)),
             new CfruPouch(InventoryType.Berries, Info, 999, map, countKey: 0, (sector30 + 0x5E4, 75)),

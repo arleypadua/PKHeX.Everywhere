@@ -13,7 +13,7 @@ public sealed class CfruItemMap
     private readonly ushort[] _modernByIndex;
     private readonly Dictionary<ushort, ushort> _indexByModern;
 
-    public CfruItemMap(ushort[] modernByIndex)
+    public CfruItemMap(ushort[] modernByIndex, ushort[]? keyItems = null)
     {
         _modernByIndex = modernByIndex;
         _indexByModern = modernByIndex
@@ -25,7 +25,7 @@ public sealed class CfruItemMap
             .Where(item => Holdable.Contains(item) && !CfruItemStorage.Machines.Contains(item) && !ItemStorage8SWSH.IsTechRecord(item))
             .Order()
             .ToArray();
-        Pockets = new CfruItemStorage(_indexByModern.Keys);
+        Pockets = new CfruItemStorage(_indexByModern.Keys, (keyItems ?? []).ToDictionary(item => item, _ => InventoryType.KeyItems));
     }
 
     public ushort[] HeldItems { get; }
