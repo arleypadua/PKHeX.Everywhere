@@ -17,6 +17,25 @@ public static class PageExtensions
         await page.Locator("input[type=file]").SetInputFilesAsync(saveFile);
     }
 
+    public static async Task DropSaveAsync(this IPage page, string saveFile)
+    {
+        var bytes = Convert.ToBase64String(await File.ReadAllBytesAsync(saveFile));
+        await using var dataTransfer = await page.EvaluateHandleAsync("""
+            ({ bytes, name }) => {
+                const transfer = new DataTransfer();
+                transfer.items.add(new File([Uint8Array.from(atob(bytes), c => c.charCodeAt(0))], name));
+                return transfer;
+            }
+            """, new { bytes, name = Path.GetFileName(saveFile) });
+        var overlay = page.GetByRole(AriaRole.Dialog, new() { Name = "Drop to open save", Exact = true });
+
+        await Assertions.Expect(overlay).ToBeHiddenAsync();
+        await page.GetByRole(AriaRole.Button, new() { Name = "Open", Exact = true }).DispatchEventAsync("dragenter", new { dataTransfer });
+        await Assertions.Expect(overlay).ToBeVisibleAsync();
+        await overlay.DispatchEventAsync("drop", new { dataTransfer });
+        await Assertions.Expect(overlay).ToBeHiddenAsync();
+    }
+
     public static async Task NavigateWithMenuAsync(this IPage page, string menuItem, Uri expected)
     {
         await page.GetByRole(AriaRole.Link, new() { Name = menuItem, Exact = true }).ClickAsync();

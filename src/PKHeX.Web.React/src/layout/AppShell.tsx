@@ -35,7 +35,6 @@ import { LoadLayout } from './LoadLayout'
 import { MainLayout } from './MainLayout'
 import { PlugInOutcomes } from './PlugInOutcomes'
 import { PlugInUpdateNotice } from './PlugInUpdateNotice'
-import { SaveFileDrop } from './SaveFileDrop'
 
 const fontFamily = `'Pokemon GB', "Lucida Console", sans-serif`
 
@@ -193,7 +192,6 @@ export function AppShell({ autoLoad }: { autoLoad: boolean }) {
           <PlugInsProvider value={plugIns}>
             <BrowserRouter>
               <GameJourney />
-              <SaveFileDrop />
               <PlugInOutcomes />
               <PlugInUpdateNotice />
               <AppRoutes autoLoad={autoLoad} />
