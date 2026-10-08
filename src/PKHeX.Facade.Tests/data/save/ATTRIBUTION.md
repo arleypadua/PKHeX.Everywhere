@@ -10,3 +10,5 @@
 every trainer name in it, including the ones in its Pokémon and its trainer name records, was replaced
 with a same-length placeholder, and the sector checksums were recomputed. Ids and PIDs are untouched,
 since a Gen 3 Pokémon's substructures are encrypted with its PID and OT id.
+
+`unbound-2.1.sav` (Pokémon Unbound 2.1.1.1) is `Pokemon - Unbound (v2.1.1.1).srm` from [Unbound-2.1.1.1-living-dex](https://github.com/RickHalden/Unbound-2.1.1.1-living-dex) by RickHalden, copied unchanged at commit `6337b2131e829cbc539c0a179e3a31e8fb24a9bc` (blob `2c647823d76d2685484b1dbdc9e2b686e7d03b73`). That repository has no license.
