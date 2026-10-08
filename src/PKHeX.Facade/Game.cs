@@ -70,7 +70,8 @@ public class Game
      * If the save file yields an actual game version, it will be returned instead of an approximation.
      */
     public GameVersionDefinition GameVersionApproximation => SaveVersion.Aggregated
-        ? GameVersionRepository.Instance.Get(SaveFile.Context.GetSingleGameVersion())
+        ? GameVersionRepository.Instance.FindFirstOfPair(SaveVersion.Version)
+          ?? GameVersionRepository.Instance.Get(SaveFile.Context.GetSingleGameVersion())
         : SaveVersion;
 
     public EntityContext Generation => SaveFile.Context;

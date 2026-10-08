@@ -9,6 +9,18 @@ public class GameVersionRepository
     
     private readonly Dictionary<GameVersion, GameVersionDefinition> _versions;
 
+    private static readonly Dictionary<GameVersion, GameVersion> FirstOfPair = new()
+    {
+        [GameVersion.RS] = GameVersion.R,
+        [GameVersion.FRLG] = GameVersion.FR,
+        [GameVersion.DP] = GameVersion.D,
+        [GameVersion.HGSS] = GameVersion.HG,
+        [GameVersion.GS] = GameVersion.GD,
+        [GameVersion.RB] = GameVersion.RD,
+        [GameVersion.BW] = GameVersion.B,
+        [GameVersion.B2W2] = GameVersion.B2,
+    };
+
     private GameVersionRepository()
     {
         _versions = Enum.GetValues<GameVersion>()
@@ -28,6 +40,9 @@ public class GameVersionRepository
 
     public GameVersionDefinition Get(int id) => _versions[(GameVersion)id];
     public GameVersionDefinition Get(GameVersion version) => Get((int)version);
+
+    internal GameVersionDefinition? FindFirstOfPair(GameVersion combined) =>
+        FirstOfPair.TryGetValue(combined, out var first) ? Get(first) : null;
 
     public IImmutableList<GameVersionDefinition> GetAvailableFor(EntityContext generation, GameVersion version) => GameUtil
         .GetVersionsInGeneration(generation, version)
