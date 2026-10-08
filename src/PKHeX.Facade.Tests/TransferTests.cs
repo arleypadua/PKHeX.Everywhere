@@ -392,6 +392,89 @@ public class TransferTests
         offered.Changes.Should().Contain(new TransferChange(TransferField.Ball, "Poké Ball", "Dusk Ball", TransferChangeReason.Restored));
     }
 
+    [Fact]
+    public void APokemonMovedToGen1KeepsItsTrainerAndDefaultName()
+    {
+        var arrived = new Transfer(Black(Venusaur()), Blank(GameVersion.RD)).Commit(Send(Box(0))).Single().Pokemon;
+
+        (arrived.Pkm.OriginalTrainerName, arrived.Pkm.Nickname, arrived.Pkm.Language).Should().Be(("Trainer", "VENUSAUR", (int)LanguageID.English));
+    }
+
+    [Fact]
+    public void APokemonMovedUpFromGen2KeepsItsLanguageGenderAndShininessAndLosesItsStatExperience()
+    {
+        var (red, crystal) = (Blank(GameVersion.RD), Blank(GameVersion.C));
+        var inRed = new Transfer(Black(Venusaur()), red).Commit(Send(Box(0))).Single();
+        var inCrystal = new Transfer(red, crystal).Commit(Send(Box(inRed.BoxIndex))).Single();
+
+        var offered = new Transfer(crystal, Blank(GameVersion.E)).Preview(Send(Box(inCrystal.BoxIndex))).Offers.Single();
+
+        var arrives = offered.Arrives.Pkm;
+        arrives.Language.Should().Be((int)LanguageID.English);
+        arrives.EVTotal.Should().Be(0);
+        arrives.PID.Should().NotBe(0);
+        (arrives.Gender, arrives.IsShiny).Should().Be((inCrystal.Pokemon.Pkm.Gender, inCrystal.Pokemon.Pkm.IsShiny));
+        offered.Legality.Messages.Should().NotContain(message => message.Contains("Language") || message.Contains("EV") || message.Contains("Encryption"));
+    }
+
+    [Fact]
+    public void AGen2PokemonWhoseLanguageCantBeGuessedTakesTheDestinationsLanguage()
+    {
+        var emerald = Blank(GameVersion.E);
+        emerald.SaveFile.Language = (int)LanguageID.French;
+
+        var arrives = new Transfer(Crystal(Pikachu(0xFAAA, "SPARKY")), emerald).Preview(Send(Box(0))).Offers.Single().Arrives.Pkm;
+
+        (arrives.Language, arrives.Nickname).Should().Be(((int)LanguageID.French, "SPARKY"));
+    }
+
+    [Fact]
+    public void AGen2PokemonGetsTheSamePidEveryTimeAndKeepsItsShininess()
+    {
+        var crystal = Crystal(Pikachu(0xAAAA), Pikachu(0x1234));
+
+        var first = new Transfer(crystal, Blank(GameVersion.E)).Preview(Send(Box(0), Box(1))).Offers;
+        var again = new Transfer(crystal, Blank(GameVersion.E)).Preview(Send(Box(0))).Offers.Single();
+
+        again.Arrives.Pkm.PID.Should().Be(first[0].Arrives.Pkm.PID);
+        first[0].Arrives.Pkm.IsShiny.Should().BeTrue();
+        first[0].Arrives.IdentityKey.Should().NotBe(first[1].Arrives.IdentityKey);
+    }
+
+    private static PK5 Venusaur()
+    {
+        var venusaur = new PK5
+        {
+            Species = (ushort)Species.Venusaur,
+            CurrentLevel = 50,
+            Move1 = (ushort)Move.VineWhip,
+            Language = (int)LanguageID.English,
+            OriginalTrainerName = "Trainer",
+            TID16 = 12345,
+            SID16 = 54321,
+            PID = 0x12345678,
+            IV_HP = 31, IV_ATK = 31, IV_DEF = 31, IV_SPA = 31, IV_SPD = 31, IV_SPE = 31,
+            EV_HP = 75, EV_SPA = 255, EV_SPE = 180,
+        };
+        venusaur.ClearNickname();
+        return venusaur;
+    }
+
+    private static PK2 Pikachu(ushort dvs, string? nickname = null)
+    {
+        var pikachu = new PK2 { Species = (ushort)Species.Pikachu, CurrentLevel = 20, Move1 = (ushort)Move.ThunderShock, TID16 = 12345, OriginalTrainerName = "GOLD", DV16 = dvs };
+        if (nickname is null) pikachu.SetNotNicknamed((int)LanguageID.English);
+        else pikachu.Nickname = nickname;
+        return pikachu;
+    }
+
+    private static Game Crystal(params PK2[] boxed)
+    {
+        var crystal = BlankSaveFile.Get(GameVersion.C);
+        for (var i = 0; i < boxed.Length; i++) crystal.SetBoxSlotAtIndex(boxed[i], i, EntityImportSettings.None);
+        return new Game(crystal);
+    }
+
     private const ushort PlatinumRoute209 = 24;
 
     private static PK4 Gengar() => new()
