@@ -1,5 +1,11 @@
 # @pkhex-everywhere/engine
 
+## 0.19.1
+
+### Patch Changes
+
+- 2e5cafa: Unbound and Radical Red bags list the Key Items pocket, and key items can be added, changed and removed. Unbound's Mega Cuff and Radical Red's TM Case, Exp. Share, Silph Scope and Lift Key go in Key Items, not Items.
+
 ## 0.19.0
 
 ### Minor Changes
