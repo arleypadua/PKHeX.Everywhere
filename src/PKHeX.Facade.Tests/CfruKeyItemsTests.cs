@@ -10,6 +10,8 @@ public class CfruKeyItemsTests
 
     private static Inventory KeyItems(Game game) => game.Trainer.Inventories["KeyItems"];
 
+    private static bool InPocket(int offset) => offset >= Pocket.Start.Value && offset < Pocket.End.Value;
+
     private static int[] ChangedOffsets(string path, Game game)
     {
         var fixture = File.ReadAllBytes(path);
@@ -34,8 +36,6 @@ public class CfruKeyItemsTests
     [InlineData(SaveFilePath.RadicalRed, "Silph Scope", 1)]
     public void ReadsKeyItemsByName(string path, string item, int count) =>
         KeyItems(SaveFilePath.Load(path)).Items.Should().ContainSingle(owned => owned.Name == item && owned.Count == count);
-
-    private static bool InPocket(int offset) => offset >= Pocket.Start.Value && offset < Pocket.End.Value;
 
     // Writing Radical Red's bag rewrites a main pocket item whose index shares a modern item with another (#231), so only its pocket is checked.
     [Theory]
