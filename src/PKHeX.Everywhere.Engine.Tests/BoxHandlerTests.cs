@@ -2,6 +2,7 @@ using AwesomeAssertions;
 using PKHeX.Core;
 using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade.Tests.Base;
+using PokemonFile = PKHeX.Facade.Tests.Base.PokemonFile;
 using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 using static PKHeX.Everywhere.Engine.Tests.EngineResults;
 

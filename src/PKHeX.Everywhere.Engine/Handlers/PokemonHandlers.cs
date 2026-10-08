@@ -57,11 +57,7 @@ public static class PokemonHandlers
 
     [Requires(Requirement.Save)]
     [Query("pokemon.export", Topics.Party, Topics.Box, Topics.Draft)]
-    public static ExportedPokemon Export(Session session, PokemonHandle at)
-    {
-        var file = session.Find(at).Pokemon.ToFile();
-        return new ExportedPokemon(file.Bytes, file.Name);
-    }
+    public static ExportedPokemon Export(Session session, PokemonHandle at) => session.Find(at).Pokemon.ToExported();
 
     [Requires(Requirement.Save)]
     [Command("pokemon.setLevel")]

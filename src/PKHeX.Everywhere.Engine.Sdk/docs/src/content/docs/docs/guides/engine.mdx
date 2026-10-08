@@ -85,12 +85,13 @@ await engine.transfer.close()
 - On the `unofficial` route, the moves, held item, ball and ability the destination game doesn't have are removed, with the reason `notInGame`. A ball becomes a Poké Ball, and a Pokémon left with no moves learns its first level-up move. Every other change has the reason `unofficial`.
 - Saves loaded with a ROM hack format and Let's Go saves have no route, and their Pokémon are refused with `noRoute`.
 
-An older game drops what it can't hold, such as a Gen 4 ball, met data and ribbons. When a Pokémon moves to an older game, its offer has `keepsCopy: true` and `commit` returns a `keptCopy` of it as it was. Store the copy, keyed by the Pokémon's `identityKey`, and pass it in `keptCopies` when the Pokémon moves forward again. The engine puts back the ball, met data, origin game, ribbons and ability, with the reason `restored`, and keeps the level, moves, nickname and held item the Pokémon has now:
+`transfer.convert` converts a Pokémon file to the format of either save, the way a transfer would, and writes nothing. The same file always gives the same bytes. `transfer.details` and `transfer.export` read a slot in either save. An offer's `arrivals` replace the usual conversion: the offered Pokémon arrives as the given bytes, with a patch applied as `pokemon.update` applies it. This lets a client keep its own copy of a Pokémon and decide which fields to bring back when it moves forward again:
 
 ```ts
-const keptCopies = chosen.flatMap((p) => copies.get(p.identityKey) ?? [])
-const result = await engine.transfer.commit({ send, receive: [], keptCopies })
-for (const { keptCopy } of result.arrived) if (keptCopy) copies.keep(keptCopy)
+// copy: a file you kept from an earlier transfer, such as { bytes, generation: 4 }. at: the offered Pokémon's handle.
+const base = await engine.transfer.convert(copy, 'partner')
+const offer = { send: [at], receive: [], arrivals: [{ at, bytes: base.bytes, patch: { level: 60 } }] }
+await engine.transfer.commit(offer)
 ```
 
 `box.previewFile` shows how `box.addFromFile` would add a Pokémon file. A file no game can move into the save comes back with `unofficial: true`, and `addFromFile` fails on it with `conversion-failed` unless you pass `allowUnofficial`:

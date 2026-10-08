@@ -550,36 +550,42 @@ PKHeX.Facade.Transfers.PokemonImport.PokemonImport(PKHeX.Facade.Pokemons.Pokemon
 PKHeX.Facade.Transfers.PokemonImport.PokemonImport(PKHeX.Facade.Transfers.PokemonImport! original) -> void
 PKHeX.Facade.Transfers.PokemonImport.Unofficial.get -> bool
 PKHeX.Facade.Transfers.PokemonImport.Unofficial.init -> void
-PKHeX.Facade.Pokemons.Pokemon.IdentityKey.get -> string?
-PKHeX.Facade.Transfers.KeptCopy
-PKHeX.Facade.Transfers.KeptCopy.Bytes.get -> byte[]!
-PKHeX.Facade.Transfers.KeptCopy.Bytes.init -> void
-PKHeX.Facade.Transfers.KeptCopy.Deconstruct(out string! IdentityKey, out int Generation, out byte[]! Bytes) -> void
-PKHeX.Facade.Transfers.KeptCopy.Generation.get -> int
-PKHeX.Facade.Transfers.KeptCopy.Generation.init -> void
-PKHeX.Facade.Transfers.KeptCopy.IdentityKey.get -> string!
-PKHeX.Facade.Transfers.KeptCopy.IdentityKey.init -> void
-PKHeX.Facade.Transfers.KeptCopy.KeptCopy(PKHeX.Facade.Transfers.KeptCopy! original) -> void
-PKHeX.Facade.Transfers.KeptCopy.KeptCopy(string! IdentityKey, int Generation, byte[]! Bytes) -> void
-PKHeX.Facade.Transfers.TransferArrival.Deconstruct(out PKHeX.Facade.Transfers.TransferDirection Direction, out int BoxIndex, out PKHeX.Facade.Pokemons.Pokemon! Pokemon, out PKHeX.Facade.Transfers.KeptCopy? KeptCopy) -> void
-PKHeX.Facade.Transfers.TransferArrival.KeptCopy.get -> PKHeX.Facade.Transfers.KeptCopy?
-PKHeX.Facade.Transfers.TransferArrival.KeptCopy.init -> void
-PKHeX.Facade.Transfers.TransferArrival.TransferArrival(PKHeX.Facade.Transfers.TransferDirection Direction, int BoxIndex, PKHeX.Facade.Pokemons.Pokemon! Pokemon, PKHeX.Facade.Transfers.KeptCopy? KeptCopy = null) -> void
-PKHeX.Facade.Transfers.TransferChangeReason.Restored = 13 -> PKHeX.Facade.Transfers.TransferChangeReason
-PKHeX.Facade.Transfers.TransferOffer.Deconstruct(out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>! Send, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>! Receive, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.KeptCopy!>? KeptCopies) -> void
-PKHeX.Facade.Transfers.TransferOffer.KeptCopies.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.KeptCopy!>?
-PKHeX.Facade.Transfers.TransferOffer.KeptCopies.init -> void
-PKHeX.Facade.Transfers.TransferOffer.TransferOffer(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>! Send, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>! Receive, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.KeptCopy!>? KeptCopies = null) -> void
-PKHeX.Facade.Transfers.TransferredPokemon.Deconstruct(out PKHeX.Facade.Transfers.TransferDirection Direction, out PKHeX.Facade.Transfers.TransferRoute Route, out PKHeX.Facade.Transfers.TransferSlot! From, out PKHeX.Facade.Pokemons.Pokemon! Pokemon, out int ArrivesAt, out PKHeX.Facade.Pokemons.Pokemon! Arrives, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferChange!>! Changes, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSaveChange!>! SaveChanges, out PKHeX.Facade.Pokemons.PokemonLegality! Legality, out PKHeX.Facade.Transfers.KeptCopy? KeptCopy) -> void
-PKHeX.Facade.Transfers.TransferredPokemon.KeptCopy.get -> PKHeX.Facade.Transfers.KeptCopy?
-PKHeX.Facade.Transfers.TransferredPokemon.KeptCopy.init -> void
-PKHeX.Facade.Transfers.TransferredPokemon.TransferredPokemon(PKHeX.Facade.Transfers.TransferDirection Direction, PKHeX.Facade.Transfers.TransferRoute Route, PKHeX.Facade.Transfers.TransferSlot! From, PKHeX.Facade.Pokemons.Pokemon! Pokemon, int ArrivesAt, PKHeX.Facade.Pokemons.Pokemon! Arrives, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferChange!>! Changes, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSaveChange!>! SaveChanges, PKHeX.Facade.Pokemons.PokemonLegality! Legality, PKHeX.Facade.Transfers.KeptCopy? KeptCopy = null) -> void
-override PKHeX.Facade.Transfers.KeptCopy.Equals(object? obj) -> bool
-override PKHeX.Facade.Transfers.KeptCopy.GetHashCode() -> int
-override PKHeX.Facade.Transfers.KeptCopy.ToString() -> string!
-static PKHeX.Facade.Transfers.KeptCopy.operator !=(PKHeX.Facade.Transfers.KeptCopy? left, PKHeX.Facade.Transfers.KeptCopy? right) -> bool
-static PKHeX.Facade.Transfers.KeptCopy.operator ==(PKHeX.Facade.Transfers.KeptCopy? left, PKHeX.Facade.Transfers.KeptCopy? right) -> bool
-virtual PKHeX.Facade.Transfers.KeptCopy.<Clone>$() -> PKHeX.Facade.Transfers.KeptCopy!
-virtual PKHeX.Facade.Transfers.KeptCopy.EqualityContract.get -> System.Type!
-virtual PKHeX.Facade.Transfers.KeptCopy.Equals(PKHeX.Facade.Transfers.KeptCopy? other) -> bool
-virtual PKHeX.Facade.Transfers.KeptCopy.PrintMembers(System.Text.StringBuilder! builder) -> bool
+PKHeX.Facade.Pokemons.Pokemon.EvolutionFamily.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.EvolutionFamily.get -> int
+PKHeX.Facade.Pokemons.PokemonDetails.EvolutionFamily.init -> void
+PKHeX.Facade.Transfers.ArrivalOverride
+PKHeX.Facade.Transfers.ArrivalOverride.ArrivalOverride(PKHeX.Facade.Transfers.ArrivalOverride! original) -> void
+PKHeX.Facade.Transfers.ArrivalOverride.ArrivalOverride(PKHeX.Facade.Transfers.TransferDirection Direction, PKHeX.Facade.Transfers.TransferSlot! At, byte[]! Bytes, PKHeX.Facade.Pokemons.PokemonPatch! Patch) -> void
+PKHeX.Facade.Transfers.ArrivalOverride.At.get -> PKHeX.Facade.Transfers.TransferSlot!
+PKHeX.Facade.Transfers.ArrivalOverride.At.init -> void
+PKHeX.Facade.Transfers.ArrivalOverride.Bytes.get -> byte[]!
+PKHeX.Facade.Transfers.ArrivalOverride.Bytes.init -> void
+PKHeX.Facade.Transfers.ArrivalOverride.Deconstruct(out PKHeX.Facade.Transfers.TransferDirection Direction, out PKHeX.Facade.Transfers.TransferSlot! At, out byte[]! Bytes, out PKHeX.Facade.Pokemons.PokemonPatch! Patch) -> void
+PKHeX.Facade.Transfers.ArrivalOverride.Direction.get -> PKHeX.Facade.Transfers.TransferDirection
+PKHeX.Facade.Transfers.ArrivalOverride.Direction.init -> void
+PKHeX.Facade.Transfers.ArrivalOverride.Patch.get -> PKHeX.Facade.Pokemons.PokemonPatch!
+PKHeX.Facade.Transfers.ArrivalOverride.Patch.init -> void
+PKHeX.Facade.Transfers.PokemonImport.Details() -> PKHeX.Facade.Pokemons.PokemonDetails!
+PKHeX.Facade.Transfers.Transfer.Convert(PKHeX.Facade.Pokemons.Pokemon! pokemon, PKHeX.Facade.Transfers.TransferSave to) -> PKHeX.Facade.Transfers.PokemonImport!
+PKHeX.Facade.Transfers.Transfer.SaveOf(PKHeX.Facade.Transfers.TransferSave save) -> PKHeX.Facade.Game!
+PKHeX.Facade.Transfers.TransferArrival.Deconstruct(out PKHeX.Facade.Transfers.TransferDirection Direction, out int BoxIndex, out PKHeX.Facade.Pokemons.Pokemon! Pokemon) -> void
+PKHeX.Facade.Transfers.TransferArrival.TransferArrival(PKHeX.Facade.Transfers.TransferDirection Direction, int BoxIndex, PKHeX.Facade.Pokemons.Pokemon! Pokemon) -> void
+PKHeX.Facade.Transfers.TransferOffer.Arrivals.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.ArrivalOverride!>?
+PKHeX.Facade.Transfers.TransferOffer.Arrivals.init -> void
+PKHeX.Facade.Transfers.TransferOffer.Deconstruct(out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>! Send, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>! Receive, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.ArrivalOverride!>? Arrivals) -> void
+PKHeX.Facade.Transfers.TransferOffer.TransferOffer(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>! Send, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSlot!>! Receive, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.ArrivalOverride!>? Arrivals = null) -> void
+PKHeX.Facade.Transfers.TransferSave
+PKHeX.Facade.Transfers.TransferSave.Mine = 0 -> PKHeX.Facade.Transfers.TransferSave
+PKHeX.Facade.Transfers.TransferSave.Partner = 1 -> PKHeX.Facade.Transfers.TransferSave
+PKHeX.Facade.Transfers.TransferredPokemon.Deconstruct(out PKHeX.Facade.Transfers.TransferDirection Direction, out PKHeX.Facade.Transfers.TransferRoute Route, out PKHeX.Facade.Transfers.TransferSlot! From, out PKHeX.Facade.Pokemons.Pokemon! Pokemon, out int ArrivesAt, out PKHeX.Facade.Pokemons.Pokemon! Arrives, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferChange!>! Changes, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSaveChange!>! SaveChanges, out PKHeX.Facade.Pokemons.PokemonLegality! Legality) -> void
+PKHeX.Facade.Transfers.TransferredPokemon.TransferredPokemon(PKHeX.Facade.Transfers.TransferDirection Direction, PKHeX.Facade.Transfers.TransferRoute Route, PKHeX.Facade.Transfers.TransferSlot! From, PKHeX.Facade.Pokemons.Pokemon! Pokemon, int ArrivesAt, PKHeX.Facade.Pokemons.Pokemon! Arrives, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferChange!>! Changes, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSaveChange!>! SaveChanges, PKHeX.Facade.Pokemons.PokemonLegality! Legality) -> void
+override PKHeX.Facade.Transfers.ArrivalOverride.Equals(object? obj) -> bool
+override PKHeX.Facade.Transfers.ArrivalOverride.GetHashCode() -> int
+override PKHeX.Facade.Transfers.ArrivalOverride.ToString() -> string!
+static PKHeX.Facade.Pokemons.Pokemon.ReadFile(byte[]! bytes, int generation) -> PKHeX.Facade.Pokemons.Pokemon!
+static PKHeX.Facade.Transfers.ArrivalOverride.operator !=(PKHeX.Facade.Transfers.ArrivalOverride? left, PKHeX.Facade.Transfers.ArrivalOverride? right) -> bool
+static PKHeX.Facade.Transfers.ArrivalOverride.operator ==(PKHeX.Facade.Transfers.ArrivalOverride? left, PKHeX.Facade.Transfers.ArrivalOverride? right) -> bool
+virtual PKHeX.Facade.Transfers.ArrivalOverride.<Clone>$() -> PKHeX.Facade.Transfers.ArrivalOverride!
+virtual PKHeX.Facade.Transfers.ArrivalOverride.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Transfers.ArrivalOverride.Equals(PKHeX.Facade.Transfers.ArrivalOverride? other) -> bool
+virtual PKHeX.Facade.Transfers.ArrivalOverride.PrintMembers(System.Text.StringBuilder! builder) -> bool

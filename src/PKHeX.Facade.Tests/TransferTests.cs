@@ -285,112 +285,138 @@ public class TransferTests
         EntityConverter.AllowIncompatibleConversion.Should().Be(EntityCompatibilitySetting.DisallowIncompatible);
     }
 
-    [Fact]
-    public void TheIdentityKeyFollowsThePokemonIntoOlderGames()
+    public static TheoryData<GameVersion, GameVersion> Conversions()
     {
-        var black = Black(new PK5 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowBall, PID = 0x12345678, TID16 = 12345, SID16 = 54321 });
-        var (platinum, ruby) = (Blank(GameVersion.Pt), Blank(GameVersion.R));
-        var key = black.Trainer.PokemonBox.All[0].IdentityKey;
+        GameVersion[] games = [GameVersion.RD, GameVersion.C, GameVersion.E, GameVersion.Pt, GameVersion.B];
+        var conversions = new TheoryData<GameVersion, GameVersion>();
+        foreach (var from in games)
+        foreach (var to in games.Where(to => to != from))
+            conversions.Add(from, to);
+        return conversions;
+    }
 
-        var inPlatinum = new Transfer(black, platinum).Commit(Send(Box(0))).Single();
-        var inRuby = new Transfer(platinum, ruby).Commit(Send(Box(inPlatinum.BoxIndex))).Single();
+    [Theory]
+    [MemberData(nameof(Conversions))]
+    public void ConvertingTheSameFileTwiceGivesTheSameBytes(GameVersion from, GameVersion to)
+    {
+        var transfer = new Transfer(Blank(from), Blank(to));
+        var file = Transfer.Import(new Pokemon(Venusaur(), Blank(GameVersion.B)), transfer.Mine).Arrives.ToFile().Bytes;
 
-        key.Should().NotBeNull();
-        (inPlatinum.Pokemon.IdentityKey, inRuby.Pokemon.IdentityKey).Should().Be((key, key));
-        SaveFilePath.Load(SaveFilePath.Crystal).Trainer.PokemonBox.All.First(p => !p.IsEmpty).IdentityKey.Should().BeNull();
+        var first = transfer.Convert(Pokemon.ReadFile(file, transfer.Mine.SaveFile.Generation), TransferSave.Partner).Arrives;
+        var again = transfer.Convert(Pokemon.ReadFile(file, transfer.Mine.SaveFile.Generation), TransferSave.Partner).Arrives;
+
+        first.Pkm.GetType().Should().Be(transfer.Partner.SaveFile.PKMType);
+        again.ToFile().Bytes.Should().Equal(first.ToFile().Bytes);
     }
 
     [Fact]
-    public void ATransferToAnOlderGameKeepsACopy()
+    public void ConvertingToThePartnerGivesWhatAnUnofficialCommitPlaces()
     {
-        var (platinum, ruby) = PlatinumAndRuby(Gengar());
-        var gengar = platinum.Trainer.PokemonBox.All[0];
+        var (platinum, ruby) = PlatinumAndRuby(new PK4 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowClaw, Move2 = (ushort)Move.ShadowBall });
+        var transfer = new Transfer(platinum, ruby);
 
-        var offered = new Transfer(platinum, ruby).Preview(Send(Box(0))).Offers.Single();
-        var copy = new Transfer(platinum, ruby).Commit(Send(Box(0))).Single().KeptCopy;
+        var converted = transfer.Convert(Pokemon.ReadFile(platinum.Trainer.PokemonBox.All[0].ToFile().Bytes, 4), TransferSave.Partner);
+        var placed = transfer.Commit(Send(Box(0))).Single().Pokemon;
 
-        offered.KeptCopy.Should().NotBeNull();
-        copy.Should().NotBeNull();
-        (copy!.IdentityKey, copy.Generation).Should().Be((gengar.IdentityKey, 4));
-        copy.Bytes.Should().Equal(gengar.ToFile().Bytes);
+        converted.Arrives.Pkm.Should().BeOfType<PK3>();
+        Moves(converted.Arrives).Should().Equal("Shadow Ball");
+        converted.Arrives.ToFile().Bytes.Should().Equal(placed.ToFile().Bytes);
+        converted.Details().Legality.Should().BeEquivalentTo(Transfer.LegalityIn(ruby, converted.Arrives));
     }
 
     [Fact]
-    public void ATransferToANewerGameKeepsNoCopy()
+    public void ConvertingWritesNothing()
     {
         var (platinum, ruby) = PlatinumAndRuby(Gengar());
-        new Transfer(platinum, ruby).Commit(Send(Box(0)));
+        var transfer = new Transfer(platinum, ruby);
 
-        var offered = new Transfer(ruby, Blank(GameVersion.Pt)).Preview(Send(Box(0))).Offers.Single();
+        transfer.Convert(Pokemon.ReadFile(platinum.Trainer.PokemonBox.All[0].ToFile().Bytes, 4), TransferSave.Partner);
 
-        offered.KeptCopy.Should().BeNull();
-        offered.Changes.Should().NotContain(change => change.Reason == TransferChangeReason.Restored);
+        ruby.Trainer.PokemonBox.All.Should().OnlyContain(pokemon => pokemon.IsEmpty);
     }
 
     [Fact]
-    public void AKeptCopyRestoresWhatTheOlderGameDropped()
+    public void AGen5FileIsntTakenForABattleRevolutionOne()
     {
-        var (platinum, ruby) = PlatinumAndRuby(Gengar());
-        var copy = new Transfer(platinum, ruby).Commit(Send(Box(0))).Single().KeptCopy!;
-        ruby.Trainer.PokemonBox.All[0].ChangeLevel(60);
+        var gengar = new Pokemon(new PK5 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowBall }, Blank(GameVersion.B));
+        var stored = new byte[gengar.Pkm.SIZE_STORED];
+        gengar.Pkm.WriteDecryptedDataStored(stored);
 
-        var offered = new Transfer(ruby, Blank(GameVersion.Pt)).Preview(new TransferOffer([Box(0)], [], [copy])).Offers.Single();
+        Pokemon.ReadFile(stored, 5).Pkm.Should().BeOfType<PK5>();
+    }
 
+    [Theory]
+    [InlineData(4)]
+    [InlineData(0)]
+    public void BytesThatArentAPokemonOfTheGenerationAreUnreadable(int generation)
+    {
+        var read = () => Pokemon.ReadFile(new Pokemon(Gengar(), Blank(GameVersion.Pt)).ToFile().Bytes[..80], generation);
+
+        read.Should().Throw<UnreadablePokemonException>();
+    }
+
+    [Fact]
+    public void AnArrivalLandsAsGivenWithItsPatch()
+    {
+        var black = Black(new PK5 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowClaw, Move2 = (ushort)Move.ShadowBall, Ball = (byte)Ball.Dusk, MetDate = new DateOnly(2011, 3, 6) });
+        var (ruby, platinum) = RubyWithGengar();
+        var transfer = new Transfer(ruby, platinum);
+        var bytes = new Transfer(black, platinum).Convert(Pokemon.ReadFile(black.Trainer.PokemonBox.All[0].ToFile().Bytes, 5), TransferSave.Partner).Arrives.ToFile().Bytes;
+        var offer = new TransferOffer([Box(0)], [], [new ArrivalOverride(TransferDirection.Send, Box(0), bytes, new PokemonPatch(Level: 60, Nickname: "Spooky"))]);
+
+        var offered = transfer.Preview(offer).Offers.Single();
+        var placed = transfer.Commit(offer).Single().Pokemon;
+
+        Moves(offered.Arrives).Should().Equal("Shadow Claw", "Shadow Ball");
         offered.Arrives.Ball.Name.Should().Be("Dusk Ball");
-        offered.Arrives.Level.Should().Be(60);
-        offered.Arrives.Pkm.MetLocation.Should().Be(PlatinumRoute209);
-        offered.Arrives.Pkm.MetLevel.Should().Be(30);
-        offered.Arrives.Pkm.MetDate.Should().Be(new DateOnly(2009, 1, 31));
-        offered.Changes.Should().Contain(new TransferChange(TransferField.Ball, "Poké Ball", "Dusk Ball", TransferChangeReason.Restored))
-            .And.Contain(new TransferChange(TransferField.MetDate, null, "2009-01-31", TransferChangeReason.Restored))
-            .And.Contain(change => change.Field == TransferField.MetLocation && change.Reason == TransferChangeReason.Restored);
+        offered.Legality.Should().BeEquivalentTo(Transfer.LegalityIn(platinum, offered.Arrives));
+        offered.Changes.Should().Contain(new TransferChange(TransferField.Ball, "Poké Ball", "Dusk Ball", TransferChangeReason.PalPark));
+        (placed.Level, placed.Nickname, placed.Ball.Name, placed.Pkm.MetDate).Should().Be((60, "Spooky", "Dusk Ball", new DateOnly(2011, 3, 6)));
+        Moves(placed).Should().Equal("Shadow Claw", "Shadow Ball");
     }
 
     [Fact]
-    public void ALegalPokemonThatGoesToAnOlderGameAndBackStaysLegal()
+    public void AnArrivalForAPokemonNotOfferedIsRejected()
     {
-        var gastly = Blank(GameVersion.Pt).PokemonRepository.FindEncounter(GameVersion.Pt, Species.Gastly, shiny: false, egg: false)
-            .First(e => e.Data is EncounterSlot4)
-            .ConvertToPokemon();
-        var (platinum, ruby) = PlatinumAndRuby((PK4)gastly.Pkm);
-        Transfer.LegalityIn(platinum, platinum.Trainer.PokemonBox.All[0]).Valid.Should().BeTrue();
+        var (ruby, platinum) = RubyWithGengar();
+        var bytes = new Pokemon(Gengar(), platinum).ToFile().Bytes;
 
-        var copy = new Transfer(platinum, ruby).Commit(Send(Box(0))).Single().KeptCopy!;
-        var offered = new Transfer(ruby, platinum).Preview(new TransferOffer([Box(0)], [], [copy])).Offers.Single();
+        var preview = () => new Transfer(ruby, platinum).Preview(new TransferOffer([Box(0)], [], [new ArrivalOverride(TransferDirection.Send, Box(1), bytes, new PokemonPatch())]));
 
-        offered.Legality.Messages.Should().BeEmpty();
-        offered.Legality.Valid.Should().BeTrue();
+        preview.Should().Throw<ArgumentException>();
     }
 
     [Fact]
-    public void ACopyOfAnotherEvolutionFamilyIsIgnored()
+    public void AnArrivalNotInTheDestinationsFormatIsUnreadable()
     {
-        var (platinum, ruby) = PlatinumAndRuby(Gengar());
-        new Transfer(platinum, ruby).Commit(Send(Box(0)));
-        var machop = new Pokemon(new PK4 { Species = (ushort)Species.Machop, CurrentLevel = 30, PID = Gengar().PID, TID16 = Gengar().TID16, SID16 = Gengar().SID16, Ball = (byte)Ball.Dusk }, Blank(GameVersion.Pt));
-        var copy = new KeptCopy(machop.IdentityKey!, 4, machop.ToFile().Bytes);
+        var (ruby, platinum) = RubyWithGengar();
+        var bytes = ruby.Trainer.PokemonBox.All[0].ToFile().Bytes;
 
-        var offered = new Transfer(ruby, Blank(GameVersion.Pt)).Preview(new TransferOffer([Box(0)], [], [copy])).Offers.Single();
+        var preview = () => new Transfer(ruby, platinum).Preview(new TransferOffer([Box(0)], [], [new ArrivalOverride(TransferDirection.Send, Box(0), bytes, new PokemonPatch())]));
 
-        offered.Arrives.Ball.Name.Should().Be("Poké Ball");
-        offered.Changes.Should().NotContain(change => change.Reason == TransferChangeReason.Restored);
+        preview.Should().Throw<UnreadablePokemonException>();
     }
 
     [Fact]
-    public void ACopyFromANewerGameRestoresIntoAnOlderOne()
+    public void AnArrivalsPatchFailsAsAnUpdateDoes()
     {
-        var black = Black(new PK5 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowBall, Ball = (byte)Ball.Dusk, MetDate = new DateOnly(2011, 3, 6) });
-        var (platinum, ruby) = (Blank(GameVersion.Pt), Blank(GameVersion.R));
-        var blackCopy = new Transfer(black, platinum).Commit(Send(Box(0))).Single().KeptCopy!;
-        new Transfer(platinum, ruby).Commit(Send(Box(0)));
+        var (ruby, platinum) = RubyWithGengar();
+        var bytes = new Pokemon(Gengar(), platinum).ToFile().Bytes;
 
-        var offered = new Transfer(ruby, Blank(GameVersion.Pt)).Preview(new TransferOffer([Box(0)], [], [blackCopy])).Offers.Single();
+        var preview = () => new Transfer(ruby, platinum).Preview(new TransferOffer([Box(0)], [], [new ArrivalOverride(TransferDirection.Send, Box(0), bytes, new PokemonPatch(Level: 101))]));
 
-        blackCopy.Generation.Should().Be(5);
-        offered.Arrives.Ball.Name.Should().Be("Dusk Ball");
-        offered.Arrives.Pkm.MetDate.Should().Be(new DateOnly(2011, 3, 6));
-        offered.Changes.Should().Contain(new TransferChange(TransferField.Ball, "Poké Ball", "Dusk Ball", TransferChangeReason.Restored));
+        preview.Should().Throw<InvalidPatchException>();
     }
+
+    [Theory]
+    [InlineData(Species.Venusaur, 1)]
+    [InlineData(Species.Gengar, 92)]
+    public void TheEvolutionFamilyIsItsFirstSpecies(Species species, int family) =>
+        new Pokemon(new PK4 { Species = (ushort)species, CurrentLevel = 50 }, Blank(GameVersion.Pt)).Details().EvolutionFamily.Should().Be(family);
+
+    [Fact]
+    public void APikachuIsOfPichusFamilyEvenInGen1() =>
+        new Pokemon(new PK1 { Species = (ushort)Species.Pikachu, CurrentLevel = 20 }, Blank(GameVersion.RD)).EvolutionFamily.Should().Be((int)Species.Pichu);
 
     [Fact]
     public void APokemonMovedToGen1KeepsItsTrainerAndDefaultName()
@@ -438,7 +464,7 @@ public class TransferTests
 
         again.Arrives.Pkm.PID.Should().Be(first[0].Arrives.Pkm.PID);
         first[0].Arrives.Pkm.IsShiny.Should().BeTrue();
-        first[0].Arrives.IdentityKey.Should().NotBe(first[1].Arrives.IdentityKey);
+        first[0].Arrives.Pkm.PID.Should().NotBe(first[1].Arrives.Pkm.PID);
     }
 
     private static PK5 Venusaur()
@@ -503,6 +529,13 @@ public class TransferTests
         var platinum = new SAV4Pt();
         for (var i = 0; i < boxed.Length; i++) platinum.SetBoxSlotAtIndex(boxed[i], i, EntityImportSettings.None);
         return (new Game(platinum), Blank(GameVersion.R));
+    }
+
+    private static (Game Ruby, Game Platinum) RubyWithGengar()
+    {
+        var ruby = BlankSaveFile.Get(GameVersion.R);
+        ruby.SetBoxSlotAtIndex(new PK3 { Species = (ushort)Species.Gengar, CurrentLevel = 50, Move1 = (ushort)Move.ShadowBall, Ball = (byte)Ball.Poke, Language = (int)LanguageID.English }, 0, EntityImportSettings.None);
+        return (new Game(ruby), Blank(GameVersion.Pt));
     }
 
     private static Game Black(PK5 boxed)

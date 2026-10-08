@@ -44,17 +44,39 @@ public record TransferSummary(SaveSummary Partner, TransferRoutes Routes, Transf
 /// </summary>
 /// <param name="Send">Pokémon to move from the loaded save to the partner.</param>
 /// <param name="Receive">Pokémon to move from the partner to the loaded save.</param>
-/// <param name="KeptCopies">Copies <c>transfer.commit</c> returned from earlier transfers to older games. A copy restores what an older game dropped from the offered Pokémon with its <c>identityKey</c>. Copies that apply to none are ignored.</param>
-public record TransferOffer(PokemonHandle[] Send, PokemonHandle[] Receive, KeptCopy[]? KeptCopies = null);
+/// <param name="Arrivals">Offered Pokémon that arrive as given instead of by the usual conversion.</param>
+public record TransferOffer(PokemonHandle[] Send, PokemonHandle[] Receive, TransferArrival[]? Arrivals = null);
 
 /// <summary>
-/// A Pokémon as it was before a transfer to an older game, to restore what that game dropped.
-/// Store it and pass it in <c>keptCopies</c> when the Pokémon moves to a newer game again.
+/// An offered Pokémon that arrives as <c>bytes</c>, already in the destination's format, with <c>patch</c> applied as <c>pokemon.update</c> applies it, instead of the usual conversion.
 /// </summary>
-/// <param name="IdentityKey">The Pokémon's <c>identityKey</c>.</param>
-/// <param name="Generation">The generation of the game it left.</param>
-/// <param name="Bytes">The Pokémon as it was in that game, in the bytes <c>pokemon.export</c> writes.</param>
-public record KeptCopy(string IdentityKey, int Generation, byte[] Bytes);
+/// <param name="At">The offered Pokémon, as in <c>send</c> or <c>receive</c>. When both offer it, the arrival is for the one sent.</param>
+/// <param name="Bytes">The Pokémon in the destination's format, such as <c>transfer.convert</c> returns.</param>
+/// <param name="Patch">The fields to change on the arrival.</param>
+public record TransferArrival(PokemonHandle At, byte[] Bytes, PokemonPatch Patch);
+
+/// <summary>
+/// Which save of the open transfer: <c>mine</c>, the loaded one, or <c>partner</c>.
+/// </summary>
+public enum TransferSave
+{
+    Mine,
+    Partner,
+}
+
+/// <summary>
+/// A Pokémon file, such as <c>pokemon.export</c> writes.
+/// </summary>
+/// <param name="Bytes">The Pokémon, decrypted or encrypted, at party or box size.</param>
+/// <param name="Generation">The generation of the game it comes from, which tells formats of the same size apart.</param>
+public record PokemonFile(byte[] Bytes, int Generation);
+
+/// <summary>
+/// A Pokémon file converted to a save's format by <c>transfer.convert</c>.
+/// </summary>
+/// <param name="Bytes">The converted Pokémon, in the bytes <c>pokemon.export</c> writes.</param>
+/// <param name="Pokemon">Its details, with <c>legality</c> judged in the save it was converted to.</param>
+public record ConvertedPokemon(byte[] Bytes, EditablePokemon Pokemon);
 
 /// <summary>
 /// Which way a Pokémon moves: <c>send</c> from the loaded save to the partner, <c>receive</c> from the partner to the loaded save.
@@ -127,7 +149,6 @@ public enum TransferField
 /// <c>formReverted</c>: Platinum reverts Giratina, Shaymin and Rotom to their base form before a link trade, and takes back the Griseous Orb.
 /// <c>notInGame</c>: on the unofficial route, the destination game doesn't have the move, item, ball or ability. A ball becomes a Poké Ball.
 /// <c>unofficial</c>: PKHeX changed it converting the Pokémon outside the games' routes, such as the move a Pokémon left with no moves learns.
-/// <c>restored</c>: a kept copy put back what an older game dropped, such as its ball or met data.
 /// The others name the route that made the change.
 /// </remarks>
 public enum TransferChangeReason
@@ -145,7 +166,6 @@ public enum TransferChangeReason
     FormReverted,
     NotInGame,
     Unofficial,
-    Restored,
 }
 
 /// <summary>
@@ -191,10 +211,9 @@ public record TransferSaveChange(TransferSaveChangeKind Kind, TransferSide Save,
 /// <param name="Route">How the Pokémon gets to the other save.</param>
 /// <param name="From">The Pokémon as it is now. Its handle points to the save it leaves.</param>
 /// <param name="Arrives">The Pokémon as it will be in the other save. Its handle is the box slot it will land in.</param>
-/// <param name="Changes">The fields the move changes, in the order of <see cref="TransferField"/>. A move can show up once per move removed.</param>
+/// <param name="Changes">The fields the move changes, in the order of <see cref="TransferField"/>. A move can show up once per move removed. For a Pokémon with an arrival, the Pokémon as it is against the arrival, with the route's reasons.</param>
 /// <param name="SaveChanges">What the move changes in either save.</param>
 /// <param name="Legality">PKHeX's legality check of the Pokémon as it arrives, judged in the destination game.</param>
-/// <param name="KeepsCopy"><c>transfer.commit</c> returns a kept copy of this Pokémon.</param>
 public record OfferedPokemon(
     TransferDirection Direction,
     TransferRoute Route,
@@ -202,8 +221,7 @@ public record OfferedPokemon(
     PokemonSummary Arrives,
     TransferChange[] Changes,
     TransferSaveChange[] SaveChanges,
-    Legality Legality,
-    bool KeepsCopy);
+    Legality Legality);
 
 /// <summary>
 /// A Pokémon in the offer that can't be transferred.
@@ -222,8 +240,7 @@ public record TransferPreview(OfferedPokemon[] Offers, RefusedPokemon[] Refused)
 /// A Pokémon a transfer moved.
 /// </summary>
 /// <param name="At">The box slot it landed in: in the partner for <c>send</c>, in the loaded save for <c>receive</c>.</param>
-/// <param name="KeptCopy">The Pokémon as it was before it moved to an older game. Null when it didn't. Store it to pass in a later transfer's <c>keptCopies</c>.</param>
-public record TransferredPokemon(TransferDirection Direction, PokemonId Id, PokemonHandle At, KeptCopy? KeptCopy);
+public record TransferredPokemon(TransferDirection Direction, PokemonId Id, PokemonHandle At);
 
 /// <summary>
 /// Both saves after <c>transfer.commit</c>, ready to write back.
@@ -305,7 +322,6 @@ public static class TransferMapping
             Transfers.TransferChangeReason.FormReverted => TransferChangeReason.FormReverted,
             Transfers.TransferChangeReason.NotInGame => TransferChangeReason.NotInGame,
             Transfers.TransferChangeReason.Unofficial => TransferChangeReason.Unofficial,
-            Transfers.TransferChangeReason.Restored => TransferChangeReason.Restored,
             _ => throw new ArgumentOutOfRangeException(nameof(change), change.Reason, null),
         });
 
@@ -322,7 +338,5 @@ public static class TransferMapping
 
     public static TransferRoom ToDto(this Transfers.TransferRoom room) => new(room.Mine, room.Partner);
 
-    public static KeptCopy? ToDto(this Transfers.KeptCopy? copy) => copy is null ? null : new(copy.IdentityKey, copy.Generation, copy.Bytes);
-
-    public static Transfers.KeptCopy ToFacade(this KeptCopy copy) => new(copy.IdentityKey, copy.Generation, copy.Bytes);
+    public static Transfers.TransferSave ToFacade(this TransferSave save) => save == TransferSave.Mine ? Transfers.TransferSave.Mine : Transfers.TransferSave.Partner;
 }

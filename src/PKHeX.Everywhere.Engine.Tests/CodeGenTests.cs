@@ -83,21 +83,20 @@ public class CodeGenTests
     }
 
     [Fact]
-    public void BytesInRecordsAReturnedRecordHoldsAreUint8Arrays()
+    public void BytesInRecordsAReturnedRecordHoldsAreUint8Arrays() =>
+        Client.Should().Contain("withBytes(await invoke<TransferResult>('transfer.commit', [await withBase64(offer, ['arrivals.bytes'])]), ['save.bytes', 'partner.bytes'])");
+
+    [Fact]
+    public void BytesInRecordsOnlyCallsTakeAreBinaryTheClientEncodes()
     {
-        Client.Should().Contain("withBytes(await invoke<TransferResult>('transfer.commit', [await withBase64(offer, ['keptCopies.bytes'])]), ['save.bytes', 'partner.bytes', 'arrived.keptCopy.bytes'])");
-        Types.Should().MatchRegex(@"export interface KeptCopy {\n(.*\n)*?  bytes: Uint8Array<ArrayBuffer>\n");
+        Client.Should().Contain("convert: async (file, to) => withBytes(await invoke<ConvertedPokemon>('transfer.convert', [await withBase64(file, ['bytes']), to]), ['bytes']),")
+            .And.Contain("preview: async (offer) => invoke('transfer.preview', [await withBase64(offer, ['arrivals.bytes'])]),");
+        Types.Should().MatchRegex(@"export interface PokemonFile {\n(.*\n)*?  bytes: Binary\n")
+            .And.MatchRegex(@"export interface TransferArrival {\n(.*\n)*?  bytes: Binary\n");
     }
 
     [Fact]
-    public void ReturnedRecordsAnInputHoldsAreEncodedBack()
-    {
-        Client.Should().Contain("preview: async (offer) => invoke('transfer.preview', [await withBase64(offer, ['keptCopies.bytes'])]),");
-        Types.Should().Contain("  keptCopies?: KeptCopy[] | null\n");
-    }
-
-    [Fact]
-    public void BytesNestedInAnInputStayBase64()
+    public void BytesInARecordACallAlsoReturnsStayBase64()
     {
         Types.Should().Contain("  file?: Base64 | null\n").And.Contain("export type Base64 = string\n");
     }

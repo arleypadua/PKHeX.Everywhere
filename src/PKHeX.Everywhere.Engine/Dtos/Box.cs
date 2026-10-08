@@ -25,7 +25,6 @@ public static class BoxMapping
 /// <param name="Editable">The Pokémon could be opened with <c>pokemon.edit()</c> once added.</param>
 /// <param name="Nickname">The species name when the Pokémon has no nickname.</param>
 /// <param name="Types">Type ids, named by <c>game.types()</c>. One entry for a single-type Pokémon.</param>
-/// <param name="IdentityKey">The same for this Pokémon in every game it moves to: its PID, trainer ID and secret ID. Null in Gen 1 and 2.</param>
 public record PokemonPreview(
     int? SpeciesId,
     int SpeciesIndex,
@@ -38,8 +37,7 @@ public record PokemonPreview(
     bool IsShiny,
     PokemonGender Gender,
     bool IsEgg,
-    int[] Types,
-    string? IdentityKey);
+    int[] Types);
 
 /// <summary>
 /// A Pokémon file as <c>box.addFromFile</c> would add it to the loaded save, returned by <c>box.previewFile</c>.

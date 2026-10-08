@@ -49,6 +49,11 @@ public record PokemonDetails(
     public bool IsEditable { get; init; }
     public int SpeciesIndex { get; init; }
     public int HeldItemIndex { get; init; }
+
+    /// <summary>
+    /// The National Pokédex number of the first species in its evolution family: 1 for Bulbasaur, Ivysaur and Venusaur.
+    /// </summary>
+    public int EvolutionFamily { get; init; }
 }
 
 public record StatValues(int Health, int Attack, int Defense, int SpecialAttack, int SpecialDefense, int Speed);

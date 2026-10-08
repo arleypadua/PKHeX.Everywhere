@@ -18,6 +18,8 @@ public class Transfer(Game mine, Game partner)
 
     public TransferRoom Room => new(EmptyBoxSlots(Mine).Count, EmptyBoxSlots(Partner).Count);
 
+    public Game SaveOf(TransferSave save) => save == TransferSave.Mine ? Mine : Partner;
+
     public static TransferRoute? RouteBetween(Game from, Game to)
     {
         if (!HasRoutes(from) || !HasRoutes(to)) return null;
@@ -50,6 +52,12 @@ public class Transfer(Game mine, Game partner)
         return new PokemonImport(arrives!, unofficial, Changes(pokemon, arrives!, route).OrderBy(change => change.Field).ToList());
     }
 
+    /// <summary>
+    /// Converts a Pokémon to <paramref name="to"/>'s format as <see cref="Import"/> does, writing nothing. The same Pokémon always converts to the same bytes.
+    /// </summary>
+    /// <exception cref="PokemonRefusedException">The Pokémon can't be moved into the save.</exception>
+    public PokemonImport Convert(Pokemon pokemon, TransferSave to) => Import(pokemon, SaveOf(to));
+
     private static TransferRoute? OfficialRoute(Type source, Type target)
     {
         if (source == target) return TransferRoute.Link;
@@ -59,16 +67,26 @@ public class Transfer(Game mine, Game partner)
         return null;
     }
 
+    /// <exception cref="ArgumentException">An arrival is for a Pokémon the offer doesn't have.</exception>
+    /// <exception cref="UnreadablePokemonException">An arrival's bytes aren't a Pokémon of the destination's format.</exception>
+    /// <exception cref="InvalidPatchException">An arrival's patch holds a value the destination can't store.</exception>
     public TransferPreview Preview(TransferOffer offer)
     {
+        var arrivals = offer.Arrivals ?? [];
+        if (arrivals.FirstOrDefault(a => !(a.Direction == TransferDirection.Send ? offer.Send : offer.Receive).Contains(a.At)) is { } stray)
+            throw new ArgumentException($"There is no offered Pokémon in {stray.At.Source} slot {stray.At.Index} to arrive as given.", nameof(offer));
+
         var offers = new List<TransferredPokemon>();
         var refused = new List<RefusedPokemon>();
-        Plan(TransferDirection.Send, offer.Send, offer.KeptCopies ?? [], offers, refused);
-        Plan(TransferDirection.Receive, offer.Receive, offer.KeptCopies ?? [], offers, refused);
+        Plan(TransferDirection.Send, offer.Send, arrivals, offers, refused);
+        Plan(TransferDirection.Receive, offer.Receive, arrivals, offers, refused);
         return new TransferPreview(offers, refused);
     }
 
     /// <exception cref="TransferRefusedException">A Pokémon in the offer is refused. Neither save changes.</exception>
+    /// <exception cref="ArgumentException">An arrival is for a Pokémon the offer doesn't have.</exception>
+    /// <exception cref="UnreadablePokemonException">An arrival's bytes aren't a Pokémon of the destination's format.</exception>
+    /// <exception cref="InvalidPatchException">An arrival's patch holds a value the destination can't store.</exception>
     public IReadOnlyList<TransferArrival> Commit(TransferOffer offer)
     {
         var preview = Preview(offer);
@@ -87,14 +105,14 @@ public class Transfer(Game mine, Game partner)
             Apply(offered);
 
         return preview.Offers
-            .Select(o => new TransferArrival(o.Direction, o.ArrivesAt, To(o.Direction).Trainer.PokemonBox.All[o.ArrivesAt], o.KeptCopy))
+            .Select(o => new TransferArrival(o.Direction, o.ArrivesAt, To(o.Direction).Trainer.PokemonBox.All[o.ArrivesAt]))
             .ToList();
     }
 
     public Game From(TransferDirection direction) => direction == TransferDirection.Send ? Mine : Partner;
     public Game To(TransferDirection direction) => direction == TransferDirection.Send ? Partner : Mine;
 
-    private void Plan(TransferDirection direction, IEnumerable<TransferSlot> slots, IReadOnlyList<KeptCopy> keptCopies, List<TransferredPokemon> offers, List<RefusedPokemon> refused)
+    private void Plan(TransferDirection direction, IEnumerable<TransferSlot> slots, IReadOnlyList<ArrivalOverride> arrivals, List<TransferredPokemon> offers, List<RefusedPokemon> refused)
     {
         var (from, to) = (From(direction), To(direction));
         var route = RouteBetween(from, to);
@@ -136,13 +154,15 @@ public class Transfer(Game mine, Game partner)
             TransferEffects.Receive(received.Pkm, route!.Value);
             var evolved = received.Clone();
             TransferEffects.Evolve(evolved.Pkm, to, route.Value);
-            var arrives = evolved.Clone();
-            if (TransferRestore.CopyFor(pokemon, to, keptCopies) is { } copy) TransferRestore.Restore(arrives.Pkm, copy);
+            var given = arrivals.FirstOrDefault(a => a.Direction == direction && a.At == slot);
+            var arrives = given is null ? evolved : Arrival(given, to);
 
-            var changes = WithRestoredChanges(pokemon, evolved, arrives, Changes(pokemon, leaving, TransferChangeReason.FormReverted)
-                    .Concat(Changes(leaving, converted, route.Value))
-                    .Concat(Changes(converted, received, TransferChangeReason.Received))
-                    .Concat(Changes(received, evolved, TransferChangeReason.TradeEvolution, TransferChangeReason.ItemUsed)))
+            var changes = (given is null
+                    ? Changes(pokemon, leaving, TransferChangeReason.FormReverted)
+                        .Concat(Changes(leaving, converted, route.Value))
+                        .Concat(Changes(converted, received, TransferChangeReason.Received))
+                        .Concat(Changes(received, evolved, TransferChangeReason.TradeEvolution, TransferChangeReason.ItemUsed))
+                    : Changes(pokemon, arrives, route.Value))
                 .OrderBy(change => change.Field)
                 .ToList();
 
@@ -165,8 +185,7 @@ public class Transfer(Game mine, Game partner)
                 arrives,
                 changes,
                 saveChanges,
-                LegalityIn(to, arrives),
-                TransferRestore.Keep(pokemon, to)));
+                LegalityIn(to, arrives)));
         }
     }
 
@@ -244,13 +263,15 @@ public class Transfer(Game mine, Game partner)
         if (box.Count > 0) game.Trainer.PokemonBox.Remove(box);
     }
 
-    // A restored field reports its change from the Pokémon as it left, replacing what the conversion did to it on the way.
-    private static IEnumerable<TransferChange> WithRestoredChanges(Pokemon from, Pokemon converted, Pokemon restored, IEnumerable<TransferChange> changes)
+    private static Pokemon Arrival(ArrivalOverride given, Game to)
     {
-        var fields = Changes(converted, restored, TransferChangeReason.Restored).Select(change => change.Field).ToHashSet();
-        return changes
-            .Where(change => !fields.Contains(change.Field))
-            .Concat(Changes(from, restored, TransferChangeReason.Restored).Where(change => fields.Contains(change.Field)));
+        var file = Pokemon.ReadFile(given.Bytes, to.SaveFile.Generation);
+        if (file.Pkm.GetType() != to.SaveFile.PKMType)
+            throw new UnreadablePokemonException(UnreadableReason.UnsupportedFormat, $"The arrival is a {file.Pkm.GetType().Name}, not a {to.SaveFile.PKMType.Name}.");
+
+        var arrives = new Pokemon(file.Pkm, to);
+        arrives.Update(given.Patch);
+        return arrives;
     }
 
     private static IEnumerable<TransferChange> Changes(Pokemon from, Pokemon arrives, TransferRoute route)
