@@ -15,8 +15,6 @@ public abstract class CfruSave : SaveFile
     private const int SlotsPerBox = 30;
     private const int Boxes = 25;
 
-    public static readonly int[] FileSizes = [0x20000, 0x20010];
-
     // Sectors 30 and 31 sit outside both save slots, have no footer and are addressed physically.
     private static readonly (int Block, int Start, int End)[] BoxStream =
     [
@@ -46,7 +44,7 @@ public abstract class CfruSave : SaveFile
     // One slot whose sectors are in order and hold nothing, which reads as a save with no Pokémon.
     internal static byte[] Blank(uint signature)
     {
-        var data = new byte[FileSizes[0]];
+        var data = new byte[0x20000];
         for (var sector = 0; sector < SectorCount; sector++)
         {
             var footer = data.AsSpan((sector * SectorSize) + 0xFF4);
@@ -59,7 +57,7 @@ public abstract class CfruSave : SaveFile
 
     public static int? FindActiveSlot(ReadOnlySpan<byte> data, IReadOnlyCollection<uint> signatures)
     {
-        if (!FileSizes.Contains(data.Length)) return null;
+        if (!Gen3SaveSize.IsSupported(data.Length)) return null;
 
         int? active = null;
         uint activeIndex = 0;

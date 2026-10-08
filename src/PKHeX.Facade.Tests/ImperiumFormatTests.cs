@@ -2,6 +2,7 @@ using AwesomeAssertions;
 using PKHeX.Core;
 using PKHeX.Everywhere.RomHacks.Expansion.Imperium;
 using PKHeX.Facade.Abstractions;
+using PKHeX.Facade.Tests.Base;
 using static System.Buffers.Binary.BinaryPrimitives;
 
 namespace PKHeX.Facade.Tests;
@@ -27,6 +28,24 @@ public class ImperiumFormatTests
     [Fact]
     public void DetectsAnImperiumSaveWithoutTheClockTrailer() =>
         Format.Detect(Fixture[..0x20000]).Should().Be(SaveFormatMatch.Certain);
+
+    [Fact]
+    public void DetectsAnImperiumSaveWithAnotherEmulatorClockFooter() =>
+        Format.Detect(SaveFilePath.WithClockFooter(Fixture.AsSpan(0, 0x20000), 0x2C)).Should().Be(SaveFormatMatch.Certain);
+
+    [Fact]
+    public void ExportsASaveWithAnotherEmulatorClockFooterUnchanged()
+    {
+        var data = SaveFilePath.WithClockFooter(Fixture.AsSpan(0, 0x20000), 0x2C);
+
+        Game.LoadFrom(data.ToArray(), format: Format).ToByteArray().Should().Equal(data);
+    }
+
+    [Theory]
+    [InlineData(0x11)]
+    [InlineData(0x40)]
+    public void DoesNotDetectASaveWithAnImplausibleFooter(int length) =>
+        Format.Detect(SaveFilePath.WithClockFooter(Fixture.AsSpan(0, 0x20000), length)).Should().Be(SaveFormatMatch.No);
 
     [Theory]
     [InlineData(SaveFilePath.Emerald)]
