@@ -18,7 +18,7 @@ public class DraftHandlerTests
 
     // A hack Pokémon's file is in the hack's format, which PKHeX can't read back.
     public static TheoryData<string, bool> SavesAndSlotsWithPKHeXFiles() =>
-        SavesAndSlotsOf(new SupportedSaveFilesAttribute { Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium] });
+        SavesAndSlotsOf(new SupportedSaveFilesAttribute { Except = [SaveFilePath.Unbound, SaveFilePath.Unbound21, SaveFilePath.RadicalRed, SaveFilePath.Imperium] });
 
     private static TheoryData<string, bool> SavesAndSlotsOf(SupportedSaveFilesAttribute saves)
     {
@@ -158,7 +158,7 @@ public class DraftHandlerTests
     }
 
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Legality
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.Unbound21, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Legality
     public void DetailsReturnsNicknameLevelAndLegality(string saveFile)
     {
         var session = Loaded(saveFile);

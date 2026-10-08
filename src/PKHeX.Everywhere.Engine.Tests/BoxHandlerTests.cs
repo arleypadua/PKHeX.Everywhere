@@ -64,7 +64,7 @@ public class BoxHandlerTests
         Error(Dispatch(new Session(), "box.get", "[]")).Should().Be("no-save");
 
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // a hack Pokémon's file is in the hack's format, which PKHeX can't read back
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.Unbound21, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // a hack Pokémon's file is in the hack's format, which PKHeX can't read back
     public void AddFromFileAddsAPokemonExportedFromTheSaveToTheFirstEmptyBoxSlot(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -97,7 +97,7 @@ public class BoxHandlerTests
     }
 
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // a hack Pokémon's file is in the hack's format, which PKHeX can't read back
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.Unbound21, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // a hack Pokémon's file is in the hack's format, which PKHeX can't read back
     public void AddFromFileFailsWithBoxFullWhenNoBoxSlotIsEmpty(string saveFile)
     {
         var session = Loaded(saveFile);

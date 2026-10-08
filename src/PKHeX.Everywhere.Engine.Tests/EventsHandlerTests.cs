@@ -15,7 +15,7 @@ public class EventsHandlerTests
     private const int OldSeaMap = 376;
 
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Events
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.Unbound21, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Events
     public void GetReturnsTheEventsOfTheSave(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -98,7 +98,7 @@ public class EventsHandlerTests
         Error(Dispatch(new Session(), "events.get", "[]")).Should().Be("no-save");
 
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Events
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.Unbound21, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Events
     public void SetFlagChangesTheFlag(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -148,7 +148,7 @@ public class EventsHandlerTests
         Error(Dispatch(NoEvents(), "events.setFlag", Args(0, true))).Should().Be("not-found");
 
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Events
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.Unbound21, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Events
     public void FlagReturnsTheValueAtAnIndex(string saveFile)
     {
         var session = Loaded(saveFile);
@@ -179,7 +179,7 @@ public class EventsHandlerTests
         Error(Dispatch(NoEvents(), "events.flag", Args(0))).Should().Be("not-found");
 
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Events
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.Unbound21, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Events
     public void SetWorkChangesTheWork(string saveFile)
     {
         var session = Loaded(saveFile);

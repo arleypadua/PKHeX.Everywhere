@@ -29,12 +29,11 @@ public class PokemonPartyTests
     {
         var game = SaveFilePath.Load(saveFile);
         var firstPokemon = game.Trainer.Party.Pokemons.First();
+        var shiny = !firstPokemon.IsShiny;
         
-        firstPokemon.IsShiny.Should().BeFalse();
+        firstPokemon.SetShiny(shiny);
         
-        firstPokemon.SetShiny(true);
-        
-        firstPokemon.IsShiny.Should().BeTrue();
+        firstPokemon.IsShiny.Should().Be(shiny);
         
         game.SaveAndReload(savedGame =>
         {
