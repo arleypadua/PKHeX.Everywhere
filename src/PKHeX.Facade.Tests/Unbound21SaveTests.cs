@@ -1,51 +1,65 @@
 using AwesomeAssertions;
+using PKHeX.Core;
 using PKHeX.Facade.Tests.Base;
 
 namespace PKHeX.Facade.Tests;
 
-// What issue #144 lists for the fixture.
 public class Unbound21SaveTests
 {
-    private static readonly Game Game = SaveFilePath.Load(SaveFilePath.Unbound21);
+    private static Game Load() => SaveFilePath.Load(SaveFilePath.Unbound21);
 
     [Fact]
     public void LoadsAsUnbound()
     {
-        Game.Format!.Id.Should().Be("unbound");
-        Game.SaveFile.ChecksumsValid.Should().BeTrue();
+        var game = Load();
+        game.Format!.Id.Should().Be("unbound");
+        game.SaveFile.ChecksumsValid.Should().BeTrue();
     }
 
     [Fact]
     public void ReadsTheTrainer()
     {
-        Game.Trainer.Name.Should().Be("Rick");
-        Game.Trainer.Money.Amount.Should().Be(1_258_126);
+        var game = Load();
+        game.Trainer.Name.Should().Be("Rick");
+        game.Trainer.Money.Amount.Should().Be(1_258_126);
     }
 
     [Fact]
     public void ReadsTheParty() =>
-        Game.Trainer.Party.Pokemons.Select(pokemon => (pokemon.Species.Name, pokemon.Level)).Should().Equal(
+        Load().Trainer.Party.Pokemons.Select(pokemon => (pokemon.Species.Name, pokemon.Level)).Should().Equal(
             ("Samurott", 100), ("Gengar", 100), ("Comfey", 100), ("Garchomp", 94), ("Infernape", 100), ("Staraptor", 100));
 
     [Fact]
     public void ReadsHowManyPokemonEachBoxHolds()
     {
-        var slots = Game.Trainer.PokemonBox.Boxes[0].Slots;
-        var perBox = Game.Trainer.PokemonBox.Boxed().CountBy(boxed => boxed.Index / slots).ToDictionary();
+        var box = Load().Trainer.PokemonBox;
+        var slots = box.Boxes[0].Slots;
+        var perBox = box.Boxed().CountBy(boxed => boxed.Index / slots).ToDictionary();
 
-        Enumerable.Range(0, 25).Select(box => perBox.GetValueOrDefault(box)).Should().Equal(
+        Enumerable.Range(0, 25).Select(number => perBox.GetValueOrDefault(number)).Should().Equal(
             30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 12, 28, 27, 29, 27, 18, 0, 0, 3, 21, 2, 11, 7, 14, 12);
     }
 
     [Fact]
     public void ReadsEveryPokemonAsAKnownSpecies() =>
-        Game.Trainer.PokemonBox.Boxed().Should().AllSatisfy(boxed => boxed.Pokemon.IsUnknown.Should().BeFalse());
+        Load().Trainer.PokemonBox.Boxed().Should().AllSatisfy(boxed => boxed.Pokemon.IsUnknown.Should().BeFalse());
 
     [Theory]
-    [InlineData("Items", 283)]
-    [InlineData("Balls", 17)]
-    [InlineData("TMHMs", 128)]
-    [InlineData("Berries", 53)]
+    [InlineData(nameof(InventoryType.Items), 283)]
+    [InlineData(nameof(InventoryType.Balls), 17)]
+    [InlineData(nameof(InventoryType.TMHMs), 128)]
+    [InlineData(nameof(InventoryType.Berries), 53)]
     public void ReadsHowManyKindsOfItemEachPocketHolds(string pocket, int kinds) =>
-        Game.Trainer.Inventories[pocket].AllExceptNone().Should().HaveCount(kinds);
+        Load().Trainer.Inventories[pocket].AllExceptNone().Should().HaveCount(kinds);
+
+    [Fact]
+    public void ReadsTheItemsItsTablesLeaveUnmappedAsUnknown()
+    {
+        var game = Load();
+        var bag = game.Trainer.Inventories.InventoryItems.Values.SelectMany(pocket => pocket.Items).Where(item => item.IsUnknown);
+        var held = game.Trainer.PokemonBox.Boxed().Select(boxed => boxed.Pokemon.HeldItem).Where(item => item.IsUnknown);
+
+        bag.Select(item => item.Index).Should().BeEquivalentTo([73, 79, 89, 174, 444, 615]);
+        held.Select(item => item.Index).Should().Equal(728);
+    }
 }
