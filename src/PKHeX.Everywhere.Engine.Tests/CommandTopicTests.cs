@@ -10,6 +10,10 @@ using static PKHeX.Everywhere.Engine.Tests.EngineCalls;
 
 namespace PKHeX.Everywhere.Engine.Tests;
 
+// The transfer commands judge legality under the destination's ParseSettings, which are global, so no other test runs meanwhile.
+[CollectionDefinition(nameof(SaveFormats), DisableParallelization = true)]
+public class SaveFormatsCollection;
+
 [Collection(nameof(SaveFormats))]
 public class CommandTopicTests
 {
