@@ -17,11 +17,11 @@ public class CommandTopicTests
     {
         ["box.addEncounter"] = (game, _) => game.Supports(Capability.Encounters) ? [Args(0)] : [],
         // A hack Pokémon's file is in the hack's format, which PKHeX can't read back.
-        ["box.addFromFile"] = (game, saveFile) => saveFile is SaveFilePath.Unbound or SaveFilePath.RadicalRed or SaveFilePath.Imperium
+        ["box.addFromFile"] = (game, saveFile) => saveFile is SaveFilePath.Unbound or SaveFilePath.Unbound21 or SaveFilePath.RadicalRed or SaveFilePath.Imperium
             ? []
             : [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes), null!)],
         ["box.get"] = (_, _) => ["[]"],
-        ["box.previewFile"] = (game, saveFile) => saveFile is SaveFilePath.Unbound or SaveFilePath.RadicalRed or SaveFilePath.Imperium
+        ["box.previewFile"] = (game, saveFile) => saveFile is SaveFilePath.Unbound or SaveFilePath.Unbound21 or SaveFilePath.RadicalRed or SaveFilePath.Imperium
             ? []
             : [Args(Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes))],
         ["box.list"] = (_, _) => ["[]"],

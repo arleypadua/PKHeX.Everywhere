@@ -7,7 +7,7 @@ namespace PKHeX.Facade.Tests;
 public class PokemonRepositoryTests
 {
     [Theory]
-    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Encounters
+    [SupportedSaveFiles(Except = [SaveFilePath.Unbound, SaveFilePath.Unbound21, SaveFilePath.RadicalRed, SaveFilePath.Imperium])] // the hacks don't support Encounters
     public void ShouldEncounterPokemons(string saveFile)
     {
         var game = SaveFilePath.Load(saveFile);
