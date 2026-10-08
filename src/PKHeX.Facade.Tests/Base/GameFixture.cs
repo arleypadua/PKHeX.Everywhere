@@ -51,6 +51,7 @@ public static class SaveFilePath
     public const string Crystal = "./data/save/crystal.sav"; // crystal
     public const string FireRed = "./data/save/firered.sav";
     public const string Unbound = "./data/save/unbound.sav"; // Unbound 2.0
+    public const string Unbound21 = "./data/save/unbound-2.1.sav"; // Unbound 2.1.1.1
     public const string RadicalRed = "./data/save/radicalred.sav";
     public const string Imperium = "./data/save/imperium.sav"; // Emerald Imperium 1.3
     public const string EmeraldLegacy = "./data/save/emerald-legacy.sav";

@@ -3,7 +3,8 @@ namespace PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 public sealed class RadicalRedPokemon : CfruPokemon
 {
     internal static readonly CfruSpeciesMap Map = new(RadicalRedSpeciesTable.NationalByIndex);
-    internal static readonly CfruItemMap Items = new(RadicalRedItemTable.ModernByIndex);
+    // The TM Case, Exp. Share, Silph Scope and Lift Key are key items in Radical Red, though modern games put them elsewhere or lack them.
+    internal static readonly CfruItemMap Items = new(RadicalRedItemTable.ModernByIndex, 123, 216, 874, 878);
 
     public RadicalRedPokemon() { }
     public RadicalRedPokemon(Memory<byte> data) : base(data) { }
