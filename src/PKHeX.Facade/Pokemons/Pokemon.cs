@@ -28,9 +28,13 @@ public partial class Pokemon(PKM pokemon, Game game)
     public uint PID => Pkm.PID;
 
     /// <summary>
-    /// The PID, trainer ID and secret ID, which no conversion between Gen 3, 4 and 5 changes. Null in Gen 1 and 2, which have no PID.
+    /// The National Pokédex number of the first species in its evolution family: 1 for Bulbasaur, Ivysaur and Venusaur.
     /// </summary>
-    public string? IdentityKey => Pkm.Format <= 2 ? null : $"{Pkm.PID:X8}-{Pkm.TID16:D5}-{Pkm.SID16:D5}";
+    // Up to Gen 7 the family comes from the Gen 7 tree, so a Pokémon keeps its family in every game it moves to, even one without its baby form.
+    public int EvolutionFamily => EvolutionTree
+        .GetEvolutionTree(Pkm.Format <= 7 ? EntityContext.Gen7 : Pkm.Context)
+        .GetBaseSpeciesForm(Pkm.Species, Pkm.Form)
+        .Species;
     
     public GameVersionDefinition Version => GameVersionRepository.Instance.Get(Pkm.Version);
 

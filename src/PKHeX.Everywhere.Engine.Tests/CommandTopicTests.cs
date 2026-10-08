@@ -72,6 +72,9 @@ public class CommandTopicTests
         ["pokemon.clone"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
         ["pokemon.addToBox"] = (_, _) => ["[]"],
         ["species.list"] = (_, _) => ["[]"],
+        ["transfer.convert"] = (game, _) => new[] { "mine", "partner" }.Select(to => Args(new { bytes = Convert.ToBase64String(game.Trainer.Party.Pokemons[0].ToFile().Bytes), generation = game.Trainer.Party.Pokemons[0].Pkm.Format }, to)),
+        ["transfer.details"] = (game, _) => InBothSaves(game),
+        ["transfer.export"] = (game, _) => InBothSaves(game),
         ["transfer.get"] = (_, _) => ["[]"],
         ["transfer.partnerBoxes"] = (_, _) => ["[]"],
         ["transfer.preview"] = (game, _) => FirstBoxPokemon(game) is var (at, _) ? [Args(Offer(at))] : [],
@@ -150,6 +153,9 @@ public class CommandTopicTests
         send = new[] { new { source = "box", slot = send.Slot, box = send.Box } },
         receive = Array.Empty<object>(),
     };
+
+    private static IEnumerable<string> InBothSaves(Game game) =>
+        Pokemons(game).SelectMany(p => new[] { Args(p.At, "mine"), Args(p.At, "partner") });
 
     private static IEnumerable<(PokemonHandle At, int Level)> PokemonsAndDraft(Game game) =>
         Pokemons(game).Append((PokemonHandle.Draft(), game.Trainer.Party.Pokemons[0].Level));

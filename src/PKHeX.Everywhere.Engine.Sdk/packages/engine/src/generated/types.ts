@@ -96,6 +96,14 @@ export interface Choice {
   name: string
 }
 
+/** A Pokémon file converted to a save's format by `transfer.convert`. */
+export interface ConvertedPokemon {
+  /** The converted Pokémon, in the bytes `pokemon.export` writes. */
+  bytes: Uint8Array<ArrayBuffer>
+  /** Its details, with `legality` judged in the save it was converted to. */
+  pokemon: EditablePokemon
+}
+
 /** A page an enabled plug-in declares, as listed by `plugins.pages`. */
 export interface DeclaredPage {
   /** The plug-in's id, its assembly name. */
@@ -113,6 +121,8 @@ export interface EditablePokemon {
   species: number | null
   /** The species as the save stores it, before any conversion: the game's internal index in Gen 1 to 3, Gen 9 and ROM hacks, and the National Pokédex number elsewhere. Use it to index the game's own tables, such as its sprites. */
   speciesIndex: number
+  /** National Pokédex number of the first species in its evolution family: 1 for Bulbasaur, Ivysaur and Venusaur. */
+  evolutionFamily: number
   /** Neither PKHeX nor the save knows the species, such as a ROM hack's egg slot. */
   isUnknown: boolean
   /** When false, show the fields read-only: `pokemon.update()` fails with `unknown-species`. */
@@ -252,6 +262,8 @@ export interface ExportedPokemon {
   bytes: Uint8Array<ArrayBuffer>
   /** Suggested file name, with the extension of the format, such as `.pk9`. */
   fileName: string
+  /** The generation of the save's format, so the file can be passed to `transfer.convert`. */
+  generation: number
 }
 
 /** The save file written by `game.export`, ready to download. */
@@ -393,16 +405,6 @@ export interface ItemHandle {
   itemId: number
 }
 
-/** A Pokémon as it was before a transfer to an older game, to restore what that game dropped. Store it and pass it in `keptCopies` when the Pokémon moves to a newer game again. */
-export interface KeptCopy {
-  /** The Pokémon's `identityKey`. */
-  identityKey: string
-  /** The generation of the game it left. */
-  generation: number
-  /** The Pokémon as it was in that game, in the bytes `pokemon.export` writes. */
-  bytes: Uint8Array<ArrayBuffer>
-}
-
 /** The result of PKHeX's legality check on a Pokémon. */
 export interface Legality {
   /** True when PKHeX finds nothing illegal. */
@@ -443,14 +445,12 @@ export interface OfferedPokemon {
   from: PokemonSummary
   /** The Pokémon as it will be in the other save. Its handle is the box slot it will land in. */
   arrives: PokemonSummary
-  /** The fields the move changes, in the order of `TransferField`. A move can show up once per move removed. */
+  /** The fields the move changes, in the order of `TransferField`. A move can show up once per move removed. For a Pokémon with an arrival, the Pokémon as it is against the arrival, with the route's reasons. */
   changes: TransferChange[]
   /** What the move changes in either save. */
   saveChanges: TransferSaveChange[]
   /** PKHeX's legality check of the Pokémon as it arrives, judged in the destination game. */
   legality: Legality
-  /** `transfer.commit` returns a kept copy of this Pokémon. */
-  keepsCopy: boolean
 }
 
 /** An item the trainer holds in a pouch. */
@@ -653,6 +653,14 @@ export interface PokemonChanged {
 /** A Pokémon field a save can lock, named as in `PokemonPatch`. */
 export type PokemonField = 'gender' | 'nature' | 'ability' | 'metLocation'
 
+/** A Pokémon file, such as `pokemon.export` writes. */
+export interface PokemonFile {
+  /** The Pokémon, decrypted or encrypted, at party or box size. */
+  bytes: Binary
+  /** The generation of the game it comes from, which tells formats of the same size apart. */
+  generation: number
+}
+
 /** A Pokémon's form. */
 export interface PokemonForm {
   /** Form index within the species' forms. 0 is the default form. */
@@ -787,8 +795,6 @@ export interface PokemonPreview {
   isEgg: boolean
   /** Type ids, named by `game.types()`. One entry for a single-type Pokémon. */
   types: number[]
-  /** The same for this Pokémon in every game it moves to: its PID, trainer ID and secret ID. Null in Gen 1 and 2. */
-  identityKey: string | null
 }
 
 /** Fires when an edited or cloned Pokémon is written to the save: by `pokemon.commit` back to its slot, or by `pokemon.addToBox` to the first empty box slot. */
@@ -824,8 +830,6 @@ export interface PokemonSummary {
   isEgg: boolean
   /** Type ids, named by `game.types()`. One entry for a single-type Pokémon. */
   types: number[]
-  /** The same for this Pokémon in every game it moves to: its PID, trainer ID and secret ID. Null in Gen 1 and 2. */
-  identityKey: string | null
 }
 
 /** One bag pouch in the save, returned by `inventory.get`. */
@@ -981,6 +985,16 @@ export interface TrainerCard {
 /** The trainer's gender, as `trainer.get` returns it and `trainer.setGender` takes it. */
 export type TrainerGender = 'male' | 'female'
 
+/** An offered Pokémon that arrives as `bytes`, already in the destination's format, with `patch` applied as `pokemon.update` applies it, instead of the usual conversion. */
+export interface TransferArrival {
+  /** The offered Pokémon, as in `send` or `receive`. When both offer it, the arrival is for the one sent. */
+  at: PokemonHandle
+  /** The Pokémon in the destination's format, such as `transfer.convert` returns. */
+  bytes: Binary
+  /** The fields to change on the arrival. */
+  patch: PokemonPatch
+}
+
 /** A field a transfer changes. */
 export interface TransferChange {
   field: TransferField
@@ -992,7 +1006,7 @@ export interface TransferChange {
 }
 
 /** Why a transfer changes a field. */
-export type TransferChangeReason = 'hmRemoved' | 'itemRemapped' | 'itemRemoved' | 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'received' | 'tradeEvolution' | 'itemUsed' | 'formReverted' | 'notInGame' | 'unofficial' | 'restored'
+export type TransferChangeReason = 'hmRemoved' | 'itemRemapped' | 'itemRemoved' | 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'received' | 'tradeEvolution' | 'itemUsed' | 'formReverted' | 'notInGame' | 'unofficial'
 
 /** Which way a Pokémon moves: `send` from the loaded save to the partner, `receive` from the partner to the loaded save. */
 export type TransferDirection = 'send' | 'receive'
@@ -1006,8 +1020,8 @@ export interface TransferOffer {
   send: PokemonHandle[]
   /** Pokémon to move from the partner to the loaded save. */
   receive: PokemonHandle[]
-  /** Copies `transfer.commit` returned from earlier transfers to older games. A copy restores what an older game dropped from the offered Pokémon with its `identityKey`. Copies that apply to none are ignored. */
-  keptCopies?: KeptCopy[] | null
+  /** Offered Pokémon that arrive as given instead of by the usual conversion. */
+  arrivals?: TransferArrival[] | null
 }
 
 /** What `transfer.commit` would do with an offer, returned by `transfer.preview`. */
@@ -1050,6 +1064,9 @@ export interface TransferRoutes {
   receive: TransferRoute | null
 }
 
+/** Which save of the open transfer: `mine`, the loaded one, or `partner`. */
+export type TransferSave = 'mine' | 'partner'
+
 /** A change a transfer makes to a save. */
 export interface TransferSaveChange {
   kind: TransferSaveChangeKind
@@ -1078,8 +1095,6 @@ export interface TransferredPokemon {
   id: PokemonId
   /** The box slot it landed in: in the partner for `send`, in the loaded save for `receive`. */
   at: PokemonHandle
-  /** The Pokémon as it was before it moved to an older game. Null when it didn't. Store it to pass in a later transfer's `keptCopies`. */
-  keptCopy: KeptCopy | null
 }
 
 /** A game version with its display name. */

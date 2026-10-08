@@ -128,6 +128,7 @@ describe('entity hooks', () => {
     let details: EditablePokemon = {
       species: 25,
       speciesIndex: 25,
+      evolutionFamily: 172,
       isUnknown: false,
       editable: true,
       form: 0,

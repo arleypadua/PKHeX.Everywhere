@@ -143,7 +143,7 @@ export function useTransfer() {
     () => ({
       /** Closes the open transfer, dropping the partner save. Closing with no transfer open does nothing. */
       close: () => engine.transfer.close(),
-      /** Moves the offered Pokémon: each leaves its slot and lands in the first empty box slots of the other save. Fails with `transfer-refused`, writing nothing, when `transfer.preview()` refuses any of them. Requires a loaded save; throws `no-save` otherwise. Wrap in `<RequireGame>`. */
+      /** Moves the offered Pokémon: each leaves its slot and lands in the first empty box slots of the other save. Fails with `transfer-refused`, writing nothing, when `transfer.preview()` refuses any of them, and as `transfer.preview()` does on an arrival. Requires a loaded save; throws `no-save` otherwise. Wrap in `<RequireGame>`. */
       commit: (offer: TransferOffer) => engine.transfer.commit(offer),
       /**
        * Opens a partner save next to the loaded one, to move Pokémon between them. It replaces the partner opened before, and stays open until `transfer.close()`, even when another save is loaded. Requires a loaded save; throws `no-save` otherwise. Wrap in `<RequireGame>`.

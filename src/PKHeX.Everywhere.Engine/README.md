@@ -48,7 +48,7 @@ DTOs follow the same rules as the Engine's, and must live under a `PKHeX.Everywh
 
 `PKHeX.Everywhere.Engine.Tests.Handlers` is an example.
 
-`byte[]` crosses the boundary as a base64 string. A `byte[]` parameter is typed `Binary` (`Uint8Array | ArrayBuffer | Blob`) and the generated client encodes it. A `byte[]` property of a record a call returns, directly or through records and arrays, is a `Uint8Array` and the client decodes it, so that record can't reach JS any other way. A record a call takes can hold such a record, such as the kept copies in a `TransferOffer`, and the client encodes it back. Elsewhere it stays a `Base64` string. A `fileName` parameter right after a `byte[]` one defaults to the name of a `File`.
+`byte[]` crosses the boundary as a base64 string. A `byte[]` parameter is typed `Binary` (`Uint8Array | ArrayBuffer | Blob`) and the generated client encodes it. A `byte[]` property of a record a call returns, directly or through records and arrays, is a `Uint8Array` and the client decodes it, so that record can't reach JS any other way. A `byte[]` property of a record only calls take, directly or through records and arrays, is `Binary` and the client encodes it, such as the bytes of each arrival in a `TransferOffer`. Elsewhere it stays a `Base64` string. A `fileName` parameter right after a `byte[]` one defaults to the name of a `File`.
 
 A handler's `///` summary and `<param>` tags become the JSDoc of its client method and hook command.
 

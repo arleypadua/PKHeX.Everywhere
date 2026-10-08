@@ -57,7 +57,6 @@ public record PokemonForm(int Id, string Name);
 /// <param name="Editable">The Pokémon can be opened with <c>pokemon.edit()</c> and copied with <c>pokemon.clone()</c>. When false, show it read-only with <c>pokemon.details()</c>: editing it fails with <c>unknown-species</c>.</param>
 /// <param name="Nickname">The species name when the Pokémon has no nickname.</param>
 /// <param name="Types">Type ids, named by <c>game.types()</c>. One entry for a single-type Pokémon.</param>
-/// <param name="IdentityKey">The same for this Pokémon in every game it moves to: its PID, trainer ID and secret ID. Null in Gen 1 and 2.</param>
 public record PokemonSummary(
     PokemonId Id,
     PokemonHandle At,
@@ -72,8 +71,7 @@ public record PokemonSummary(
     bool IsShiny,
     PokemonGender Gender,
     bool IsEgg,
-    int[] Types,
-    string? IdentityKey);
+    int[] Types);
 
 /// <summary>
 /// A Pokémon just added to a box.
@@ -86,7 +84,8 @@ public record AddedPokemon(PokemonId Id, PokemonHandle At);
 /// </summary>
 /// <param name="Bytes">The decrypted file contents, in the save's format and at party size.</param>
 /// <param name="FileName">Suggested file name, with the extension of the format, such as <c>.pk9</c>.</param>
-public record ExportedPokemon(byte[] Bytes, string FileName);
+/// <param name="Generation">The generation of the save's format, so the file can be passed to <c>transfer.convert</c>.</param>
+public record ExportedPokemon(byte[] Bytes, string FileName, int Generation);
 
 /// <summary>
 /// The result of PKHeX's legality check on a Pokémon.
@@ -119,6 +118,7 @@ public enum PokemonHandler
 /// </summary>
 /// <param name="Species">PKHeX species id, which is the National Pokédex number, or an id of its own for a species the save defines, such as a ROM hack's Shadow Warrior. A sprite lookup by id can miss for those. Null when <c>isUnknown</c> is true.</param>
 /// <param name="SpeciesIndex">The species as the save stores it, before any conversion: the game's internal index in Gen 1 to 3, Gen 9 and ROM hacks, and the National Pokédex number elsewhere. Use it to index the game's own tables, such as its sprites.</param>
+/// <param name="EvolutionFamily">National Pokédex number of the first species in its evolution family: 1 for Bulbasaur, Ivysaur and Venusaur.</param>
 /// <param name="IsUnknown">Neither PKHeX nor the save knows the species, such as a ROM hack's egg slot.</param>
 /// <param name="Editable">When false, show the fields read-only: <c>pokemon.update()</c> fails with <c>unknown-species</c>.</param>
 /// <param name="Form">Form index within the species' forms. 0 is the default form.</param>
@@ -155,6 +155,7 @@ public enum PokemonHandler
 public record EditablePokemon(
     int? Species,
     int SpeciesIndex,
+    int EvolutionFamily,
     bool IsUnknown,
     bool Editable,
     int Form,
@@ -351,8 +352,7 @@ public static class PokemonMapping
             pokemon.IsShiny,
             pokemon.Gender.ToDto(),
             pokemon.Egg.IsEgg,
-            pokemon.Types.Ids.ToArray(),
-            pokemon.IdentityKey);
+            pokemon.Types.Ids.ToArray());
     }
 
     public static PokemonPreview ToPreview(this Pokemon pokemon) => new(
@@ -367,8 +367,13 @@ public static class PokemonMapping
         pokemon.IsShiny,
         pokemon.Gender.ToDto(),
         pokemon.Egg.IsEgg,
-        pokemon.Types.Ids.ToArray(),
-        pokemon.IdentityKey);
+        pokemon.Types.Ids.ToArray());
+
+    public static ExportedPokemon ToExported(this Pokemon pokemon)
+    {
+        var file = pokemon.ToFile();
+        return new ExportedPokemon(file.Bytes, file.Name, pokemon.Pkm.Format);
+    }
 
     public static PokemonOverview ToOverview(this Pokemon pokemon) =>
         new(pokemon.Species.Id, pokemon.SpeciesIndex, pokemon.Species.Name, pokemon.Gender.Name, pokemon.Ball.Name, pokemon.Level);
@@ -376,6 +381,7 @@ public static class PokemonMapping
     public static EditablePokemon ToEditable(this PokemonDetails details) => new(
         details.IsUnknown ? null : details.Species,
         details.SpeciesIndex,
+        details.EvolutionFamily,
         details.IsUnknown,
         details.IsEditable,
         details.Form,
