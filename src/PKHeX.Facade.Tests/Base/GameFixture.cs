@@ -71,6 +71,9 @@ public static class SaveFilePath
         return data;
     }
 
+    public static byte[] WithClockFooter(ReadOnlySpan<byte> save, int length) =>
+        [.. save, .. Enumerable.Range(1, length).Select(index => (byte)index)];
+
     public static Game Load(string path) => Game.LoadFrom(File.ReadAllBytes(path), path, FormatOf(path));
 
     // Radical Red and Emerald Legacy only possibly match their formats, so loading one without a choice asks for one.

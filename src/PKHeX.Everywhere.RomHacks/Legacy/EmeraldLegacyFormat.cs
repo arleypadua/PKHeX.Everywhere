@@ -20,8 +20,6 @@ public sealed class EmeraldLegacyFormat : ISaveFormat
     private const uint Signature = 0x08012025;
     private const int DexFlagBytes = 0x34;
 
-    private static readonly int[] FileSizes = [0x20000, 0x20010];
-
     public string Id => "emerald-legacy";
     public string Name => "Pokémon Emerald Legacy";
     public GameVersion BaseGame => GameVersion.E;
@@ -34,7 +32,7 @@ public sealed class EmeraldLegacyFormat : ISaveFormat
 
     public SaveFormatMatch Detect(ReadOnlySpan<byte> data)
     {
-        if (!FileSizes.Contains(data.Length)) return SaveFormatMatch.No;
+        if (!Gen3SaveSize.IsSupported(data.Length)) return SaveFormatMatch.No;
         if (!TryReadBlocks(data, out var small, out var large)) return SaveFormatMatch.No;
 
         // Emerald keeps seen1 at 0x988 and seen2 at 0x3B24; Legacy's bag moves the first to 0xAF0 and
