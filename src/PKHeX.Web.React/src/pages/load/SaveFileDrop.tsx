@@ -24,11 +24,11 @@ export function SaveFileDrop({ onOpen, disabled = false, children }: SaveFileDro
   }, [reset])
 
   // modal portals bubble through React even when their DOM is outside this element.
-  const hasFiles = (event: DragEvent<HTMLDivElement>) =>
+  const isFileDragInside = (event: DragEvent<HTMLDivElement>) =>
     event.currentTarget.contains(event.target as Node) && event.dataTransfer.types.includes('Files')
 
   const enter = (event: DragEvent<HTMLDivElement>) => {
-    if (!hasFiles(event)) return
+    if (!isFileDragInside(event)) return
     event.preventDefault()
     if (disabled) return
     depth.current += 1
@@ -36,7 +36,7 @@ export function SaveFileDrop({ onOpen, disabled = false, children }: SaveFileDro
   }
 
   const over = (event: DragEvent<HTMLDivElement>) => {
-    if (!hasFiles(event)) return
+    if (!isFileDragInside(event)) return
     event.preventDefault()
     event.dataTransfer.dropEffect = disabled ? 'none' : 'copy'
   }
@@ -48,7 +48,7 @@ export function SaveFileDrop({ onOpen, disabled = false, children }: SaveFileDro
   }
 
   const drop = (event: DragEvent<HTMLDivElement>) => {
-    if (!hasFiles(event)) return
+    if (!isFileDragInside(event)) return
     event.preventDefault()
     reset()
     if (disabled) return
@@ -59,6 +59,7 @@ export function SaveFileDrop({ onOpen, disabled = false, children }: SaveFileDro
   return (
     <div style={{ width: '100%' }} onDragEnter={enter} onDragOver={over} onDragLeave={leave} onDrop={drop} onDragEnd={reset}>
       {children}
+      {/* Inside this element, dragging over the overlay doesn't count as leaving the drop area. */}
       {dragging && (
         <Modal open centered title="Drop to open save" footer={null} closable={false} keyboard={false} getContainer={false}>
           <div style={{ textAlign: 'center', padding: '24px 0' }}>

@@ -17,23 +17,18 @@ public static class PageExtensions
         await page.Locator("input[type=file]").SetInputFilesAsync(saveFile);
     }
 
-    public static async Task DropSaveAsync(this IPage page, string saveFile)
+    public static async Task<FileDrag> DragFileOverAsync(this ILocator target, string file)
     {
-        var bytes = Convert.ToBase64String(await File.ReadAllBytesAsync(saveFile));
-        await using var dataTransfer = await page.EvaluateHandleAsync("""
+        var bytes = Convert.ToBase64String(await File.ReadAllBytesAsync(file));
+        var dataTransfer = await target.Page.EvaluateHandleAsync("""
             ({ bytes, name }) => {
                 const transfer = new DataTransfer();
                 transfer.items.add(new File([Uint8Array.from(atob(bytes), c => c.charCodeAt(0))], name));
                 return transfer;
             }
-            """, new { bytes, name = Path.GetFileName(saveFile) });
-        var overlay = page.GetByRole(AriaRole.Dialog, new() { Name = "Drop to open save", Exact = true });
-
-        await Assertions.Expect(overlay).ToBeHiddenAsync();
-        await page.GetByRole(AriaRole.Button, new() { Name = "Open", Exact = true }).DispatchEventAsync("dragenter", new { dataTransfer });
-        await Assertions.Expect(overlay).ToBeVisibleAsync();
-        await overlay.DispatchEventAsync("drop", new { dataTransfer });
-        await Assertions.Expect(overlay).ToBeHiddenAsync();
+            """, new { bytes, name = Path.GetFileName(file) });
+        await target.DispatchEventAsync("dragenter", new { dataTransfer });
+        return new FileDrag(dataTransfer);
     }
 
     public static async Task NavigateWithMenuAsync(this IPage page, string menuItem, Uri expected)
