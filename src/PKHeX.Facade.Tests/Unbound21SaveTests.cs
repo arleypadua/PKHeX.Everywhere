@@ -49,6 +49,7 @@ public class Unbound21SaveTests
     [InlineData(nameof(InventoryType.Balls), 17)]
     [InlineData(nameof(InventoryType.TMHMs), 128)]
     [InlineData(nameof(InventoryType.Berries), 53)]
+    [InlineData(nameof(InventoryType.KeyItems), 38)]
     public void ReadsHowManyKindsOfItemEachPocketHolds(string pocket, int kinds) =>
         Load().Trainer.Inventories[pocket].AllExceptNone().Should().HaveCount(kinds);
 
@@ -56,7 +57,10 @@ public class Unbound21SaveTests
     public void ReadsTheItemsItsTablesLeaveUnmappedAsUnknown()
     {
         var game = Load();
-        var bag = game.Trainer.Inventories.InventoryItems.Values.SelectMany(pocket => pocket.Items).Where(item => item.IsUnknown);
+        var bag = game.Trainer.Inventories.InventoryItems
+            .Where(pocket => pocket.Key != nameof(InventoryType.KeyItems))
+            .SelectMany(pocket => pocket.Value.Items)
+            .Where(item => item.IsUnknown);
         var held = game.Trainer.PokemonBox.Boxed().Select(boxed => boxed.Pokemon.HeldItem).Where(item => item.IsUnknown);
 
         bag.Select(item => item.Index).Should().BeEquivalentTo([73, 79, 89, 174, 444, 615]);
