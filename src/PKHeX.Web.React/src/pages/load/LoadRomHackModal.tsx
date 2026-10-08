@@ -1,6 +1,7 @@
 import { useRef, useState, type ChangeEvent } from 'react'
 import { Modal, Select } from 'antd'
 import { useQuery } from '@pkhex-everywhere/react'
+import { SaveFileDrop } from './SaveFileDrop'
 import { useLoadSave } from './useLoadSave'
 
 export function LoadRomHackModal({ onClose }: { onClose: () => void }) {
@@ -9,10 +10,14 @@ export function LoadRomHackModal({ onClose }: { onClose: () => void }) {
   const [formatId, setFormatId] = useState<string>()
   const fileInput = useRef<HTMLInputElement>(null)
 
+  const openSave = async (file: File) => {
+    if (formatId && (await openFile(file, formatId))) onClose()
+  }
+
   const loadFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     event.target.value = ''
-    if (file && formatId && (await openFile(file, formatId))) onClose()
+    if (file) await openSave(file)
   }
 
   return (
@@ -23,6 +28,7 @@ export function LoadRomHackModal({ onClose }: { onClose: () => void }) {
       onOk={() => fileInput.current?.click()}
       onCancel={onClose}
       okButtonProps={{ disabled: !formatId }}
+      modalRender={(content) => <SaveFileDrop onOpen={openSave} disabled={!formatId}>{content}</SaveFileDrop>}
     >
       <Select
         showSearch={{ optionFilterProp: 'label' }}

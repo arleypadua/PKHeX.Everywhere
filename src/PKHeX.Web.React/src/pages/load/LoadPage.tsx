@@ -10,6 +10,7 @@ import { journey } from '../../layout/journey'
 import { routes } from '../../routes'
 import { FormatPickerModal } from './FormatPickerModal'
 import { LoadRomHackModal } from './LoadRomHackModal'
+import { SaveFileDrop } from './SaveFileDrop'
 import { showRomHacksBadge } from './romHacksBadge'
 import { useLoadSave } from './useLoadSave'
 
@@ -31,13 +32,15 @@ export default function LoadPage() {
   }
 
   return (
-    <Flex vertical align="center" gap={20} style={{ width: '100%' }}>
-      <AdSlot slot={topAdSlot} />
-      {game ? <LoadedGame game={game} onOpen={openFilePicker} /> : <NoGame onOpen={openFilePicker} onDemo={openDemo} />}
-      <AdSlot slot={bottomAdSlot} />
-      <input ref={fileInput} type="file" hidden onChange={loadFile} />
-      {formatChoice && <FormatPickerModal choice={formatChoice} onChoose={chooseFormat} onCancel={cancelFormatChoice} />}
-    </Flex>
+    <SaveFileDrop onOpen={openFile}>
+      <Flex vertical align="center" gap={20} style={{ width: '100%' }}>
+        <AdSlot slot={topAdSlot} />
+        {game ? <LoadedGame game={game} onOpen={openFilePicker} /> : <NoGame onOpen={openFilePicker} onDemo={openDemo} />}
+        <AdSlot slot={bottomAdSlot} />
+        <input ref={fileInput} type="file" hidden onChange={loadFile} />
+        {formatChoice && <FormatPickerModal choice={formatChoice} onChoose={chooseFormat} onCancel={cancelFormatChoice} />}
+      </Flex>
+    </SaveFileDrop>
   )
 }
 

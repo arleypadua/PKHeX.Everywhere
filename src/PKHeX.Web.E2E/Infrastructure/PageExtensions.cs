@@ -17,6 +17,20 @@ public static class PageExtensions
         await page.Locator("input[type=file]").SetInputFilesAsync(saveFile);
     }
 
+    public static async Task<FileDrag> DragFileOverAsync(this ILocator target, string file)
+    {
+        var bytes = Convert.ToBase64String(await File.ReadAllBytesAsync(file));
+        var dataTransfer = await target.Page.EvaluateHandleAsync("""
+            ({ bytes, name }) => {
+                const transfer = new DataTransfer();
+                transfer.items.add(new File([Uint8Array.from(atob(bytes), c => c.charCodeAt(0))], name));
+                return transfer;
+            }
+            """, new { bytes, name = Path.GetFileName(file) });
+        await target.DispatchEventAsync("dragenter", new { dataTransfer });
+        return new FileDrag(dataTransfer);
+    }
+
     public static async Task NavigateWithMenuAsync(this IPage page, string menuItem, Uri expected)
     {
         await page.GetByRole(AriaRole.Link, new() { Name = menuItem, Exact = true }).ClickAsync();
