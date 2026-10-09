@@ -6,7 +6,6 @@ namespace PKHeX.Facade;
 
 public record Team(int Number, string? Name, string? Cup, int Slots, IReadOnlyList<Pokemon> Members);
 
-// A team never has a gap: its members fill the first slots, as the games keep them.
 public class Teams
 {
     public const int SlotsPerTeam = 6;
@@ -41,7 +40,7 @@ public class Teams
             Members(number).Select(pkm => new Pokemon(pkm, _game)).ToList());
     }
 
-    /// <returns>The slot the copy is in: the given one when it holds a member, else the one after the last member.</returns>
+    // Returns the slot the copy lands in: the given one when it holds a member, else the one after the last member.
     public int Place(int number, int slot, Pokemon pokemon)
     {
         RequireSlot(number, slot);

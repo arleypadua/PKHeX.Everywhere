@@ -80,6 +80,21 @@ public class TeamHandlerTests
         Value(Dispatch(session, "pokemon.details", Args(PokemonHandle.InBox(0, 1))))!["level"]!.GetValue<int>().Should().Be(5);
     }
 
+    // PKHeX can't write a Pocket Monsters Stadium box slot, so the member is placed through the Facade.
+    [Fact]
+    public void AnEditedPocketMonstersStadiumTeamMemberSurvivesExportAndLoad()
+    {
+        var session = Blank(GameVersion.StadiumJ);
+        session.Game!.Teams!.Place(0, 0, Make(session.Game, Species.Mew));
+        var mew = PokemonHandle.InTeam(0, 0);
+
+        Value(Dispatch(session, "pokemon.edit", Args(mew)));
+        Value(Dispatch(session, "pokemon.update", Args(PokemonHandle.Draft(), new { level = 50 })));
+        Value(Dispatch(session, "pokemon.commit", "[]"));
+
+        Value(Dispatch(ExportedAndLoaded(session), "pokemon.details", Args(mew)))!["level"]!.GetValue<int>().Should().Be(50);
+    }
+
     [Fact]
     public void UpdatingATeamMemberReportsItsTeam()
     {
@@ -159,15 +174,18 @@ public class TeamHandlerTests
         var session = Blank(version);
         var game = session.Game!;
         foreach (var each in species)
-        {
-            var pkm = game.SaveFile.BlankPKM;
-            pkm.Species = (ushort)each;
-            pkm.CurrentLevel = 5;
-            pkm.ClearNickname();
-            game.Trainer.PokemonBox.AddOnEmptySlot(new Pokemon(pkm, game)).Should().BeTrue();
-        }
+            game.Trainer.PokemonBox.AddOnEmptySlot(Make(game, each)).Should().BeTrue();
 
         return session;
+    }
+
+    private static Pokemon Make(PKHeX.Facade.Game game, Species species)
+    {
+        var pkm = game.SaveFile.BlankPKM;
+        pkm.Species = (ushort)species;
+        pkm.CurrentLevel = 5;
+        pkm.ClearNickname();
+        return new Pokemon(pkm, game);
     }
 
     private static Session ExportedAndLoaded(Session session)

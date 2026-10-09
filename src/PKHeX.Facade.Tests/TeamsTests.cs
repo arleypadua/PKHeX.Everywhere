@@ -21,6 +21,21 @@ public class TeamsTests
             "Anything Goes", "Little Cup", "Poké Cup", "Prime Cup", "Gym Leader Castle", "Vs. Rival"));
 
     [Fact]
+    public void JapaneseStadiumListsATeamPerCupTwelveTimes() =>
+        new Game(new SAV1Stadium(new byte[SaveUtil.SIZE_G1STAD], japanese: true)).Teams!.All.Should().SatisfyRespectively(CupsOf(12,
+            "Anything Goes", "Nintendo Cup '97", "Nintendo Cup '98", "Nintendo Cup '99", "Petit Cup", "Pika Cup", "Prime Cup", "Gym Leader Castle", "Vs. Mewtwo"));
+
+    [Fact]
+    public void APokemonPlacedInAJapaneseStadiumTeamIsThereAfterReloading()
+    {
+        var game = new Game(new SAV1Stadium(new byte[SaveUtil.SIZE_G1STAD], japanese: true));
+
+        game.Teams!.Place(100, 0, Make(game, Species.Mew, 30));
+
+        game.SaveAndReload(reloaded => SpeciesOf(reloaded, 100).Should().Equal(Species.Mew));
+    }
+
+    [Fact]
     public void PocketMonstersStadiumListsSixteenTeamsWithoutCups()
     {
         var teams = Blank(GameVersion.StadiumJ).Teams!.All;

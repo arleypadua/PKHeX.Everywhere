@@ -161,9 +161,17 @@ export interface EngineClient {
     list(): Promise<SpeciesEntry[]>
   }
   team: {
-    /** Empties a team slot. The Pokémon after it move up, so a team never has a gap. Clearing an empty slot does nothing. A draft opened from the cleared slot or one after it is dropped. Fails with `not-supported` for a save without teams and `out-of-range` for an unknown team or slot. Requires a loaded save; throws `no-save` otherwise. */
+    /**
+     * Empties a team slot. The Pokémon after it move up, so a team never has a gap. Clearing an empty slot does nothing. A draft opened from the cleared slot or one after it is dropped. Fails with `not-supported` for a save without teams and `out-of-range` for an unknown team or slot. Requires a loaded save; throws `no-save` otherwise.
+     *
+     * @param at The team slot to empty.
+     */
     clear(at: TeamSlot): Promise<void>
-    /** The team's Pokémon in slot order, with handles of source `team`. Fails with `out-of-range` for an unknown team, and `not-supported` for a save without teams. Requires a loaded save; throws `no-save` otherwise. */
+    /**
+     * The team's Pokémon in slot order, with handles of source `team`. Fails with `out-of-range` for an unknown team, and `not-supported` for a save without teams. Requires a loaded save; throws `no-save` otherwise.
+     *
+     * @param team Zero-based team number, as `team.list` lists it.
+     */
     get(team: number): Promise<PokemonSummary[]>
     /** Lists every registered team in order, empty ones included. Only Stadium saves have teams, so any other save returns none. Requires a loaded save; throws `no-save` otherwise. */
     list(): Promise<TeamEntry[]>

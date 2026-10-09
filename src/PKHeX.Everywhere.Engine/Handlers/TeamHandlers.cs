@@ -15,6 +15,7 @@ public static class TeamHandlers
     /// The team's Pokémon in slot order, with handles of source <c>team</c>.
     /// Fails with <c>out-of-range</c> for an unknown team, and <c>not-supported</c> for a save without teams.
     /// </summary>
+    /// <param name="team">Zero-based team number, as <c>team.list</c> lists it.</param>
     [Query("team.get", Topics.Team)]
     public static PokemonSummary[] Get(Game game, int team) => InRange(() => game.RequireTeams().Get(team)).Members
         .Select((pokemon, slot) => pokemon.ToSummary(PokemonHandle.InTeam(team, slot)))
@@ -44,11 +45,16 @@ public static class TeamHandlers
     /// A draft opened from the cleared slot or one after it is dropped.
     /// Fails with <c>not-supported</c> for a save without teams and <c>out-of-range</c> for an unknown team or slot.
     /// </summary>
+    /// <param name="at">The team slot to empty.</param>
     [Command("team.clear")]
     public static void Clear(Session session, Game game, TeamSlot at)
     {
         var teams = game.RequireTeams();
-        InRange(() => teams.Clear(at.Team, at.Slot));
+        InRange(() =>
+        {
+            teams.Clear(at.Team, at.Slot);
+            return true;
+        });
 
         if (session.Draft?.From is { Source: SlotSource.Team } from && from.Team == at.Team && from.Slot >= at.Slot)
         {
@@ -56,12 +62,6 @@ public static class TeamHandlers
             session.AlsoWrote(Topics.Draft);
         }
     }
-
-    private static void InRange(Action change) => InRange(() =>
-    {
-        change();
-        return 0;
-    });
 
     private static T InRange<T>(Func<T> read)
     {
