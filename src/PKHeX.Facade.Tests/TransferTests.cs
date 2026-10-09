@@ -467,6 +467,40 @@ public class TransferTests
         first[0].Arrives.Pkm.PID.Should().NotBe(first[1].Arrives.Pkm.PID);
     }
 
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void SendingFromTheMiddleOfAStadiumBoxKeepsThePokemonAfterIt(int generation)
+    {
+        var (mine, load) = Stadium(generation, Species.Bulbasaur, Species.Charmander, Species.Squirtle);
+        new Transfer(mine, Blank(generation == 1 ? GameVersion.RD : GameVersion.C)).Commit(Send(Box(1)));
+
+        var reloaded = new Game(load(mine.ToByteArray()));
+
+        BoxSpecies(reloaded).Should().Equal("Bulbasaur", "Squirtle", null);
+        BoxSpecies(mine).Should().Equal("Bulbasaur", "Squirtle", null);
+    }
+
+    private static List<string?> BoxSpecies(Game game) => game.Trainer.PokemonBox.All.Take(3).Select(p => p.IsEmpty ? null : p.Species.Name).ToList();
+
+    private static (Game Game, Func<Memory<byte>, SAV_STADIUM> Load) Stadium(int generation, params Species[] boxed)
+    {
+        Func<Memory<byte>, SAV_STADIUM> load = generation == 1
+            ? data => new SAV1Stadium(data, japanese: false)
+            : data => new SAV2Stadium(data, japanese: false);
+        // A blank Stadium save has no box headers until it's loaded from bytes once.
+        var save = load(new byte[generation == 1 ? SaveUtil.SIZE_G1STAD : SaveUtil.SIZE_G2STAD]);
+        for (var i = 0; i < boxed.Length; i++)
+        {
+            var pokemon = save.BlankPKM;
+            pokemon.Species = (ushort)boxed[i];
+            pokemon.CurrentLevel = 10;
+            pokemon.Move1 = (ushort)Move.Tackle;
+            save.SetBoxSlotAtIndex(pokemon, i, EntityImportSettings.None);
+        }
+        return (new Game(save), load);
+    }
+
     private static PK5 Venusaur()
     {
         var venusaur = new PK5

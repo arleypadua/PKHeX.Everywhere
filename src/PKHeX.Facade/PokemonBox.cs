@@ -88,6 +88,8 @@ public class PokemonBox : IMutablePokemonCollection
         PopulateFromSave();
     }
 
+    internal void Reload() => PopulateFromSave();
+
     internal void SharePartyMembers()
     {
         foreach (var (index, pkm) in _party.BoxedMembers())
