@@ -90,14 +90,17 @@ public class TransferHandlerTests
     [Fact]
     public void Stadium2AndCrystalMovePokemonThroughTheTimeCapsuleRoute()
     {
+        var stadium = new SAV2Stadium(new byte[SaveUtil.SIZE_G2STAD], japanese: false);
+        stadium.SetBoxSlotAtIndex(new SK2 { Species = (ushort)Species.Bulbasaur, CurrentLevel = 10, Move1 = (ushort)Move.Tackle }, 0, EntityImportSettings.None);
         var session = new Session();
-        session.Load(new Game(new SAV2Stadium(new byte[SaveUtil.SIZE_G2STAD], japanese: false)), "stadium2.sav");
+        session.Load(new Game(stadium), "stadium2.sav");
+
         var transfer = Open(session, SaveFilePath.Crystal);
+        var offers = Preview(session, new { send = new[] { Handle(PokemonHandle.InBox(0, 0)) }, receive = new[] { Handle(PokemonHandle.InBox(0, 0)) } })["offers"]!.AsArray();
 
         transfer["routes"]!.ToJsonString().Should().Be("""{"send":"timeCapsule","receive":"timeCapsule"}""");
-        var offer = Preview(session, Receive(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
-        offer["route"]!.GetValue<string>().Should().Be("timeCapsule");
-        offer["arrives"]!["species"]!.GetValue<string>().Should().Be("Scyther");
+        offers.Select(o => (o!["direction"]!.GetValue<string>(), o["route"]!.GetValue<string>(), o["arrives"]!["species"]!.GetValue<string>()))
+            .Should().Equal(("send", "timeCapsule", "Bulbasaur"), ("receive", "timeCapsule", "Scyther"));
     }
 
     [Fact]

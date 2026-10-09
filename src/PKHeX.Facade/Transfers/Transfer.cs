@@ -153,6 +153,7 @@ public class Transfer(Game mine, Game partner)
             var received = converted!.Clone();
             TransferEffects.Receive(received.Pkm, route!.Value);
             var evolved = received.Clone();
+            // Storing a Pokémon in a Stadium isn't a trade, so nothing evolves on the way in or out.
             if (!IsStadium(from) && !IsStadium(to)) TransferEffects.Evolve(evolved.Pkm, to, route.Value);
             var given = arrivals.FirstOrDefault(a => a.Direction == direction && a.At == slot);
             var arrives = given is null ? evolved : Arrival(given, to);
@@ -250,7 +251,6 @@ public class Transfer(Game mine, Game partner)
 
     private static bool IsGameBoy(Type type) => type == typeof(PK1) || type == typeof(PK2) || type == typeof(SK2);
 
-    // Storing a Pokémon in a Stadium isn't a trade, so nothing evolves on the way in or out.
     private static bool IsStadium(Game game) => game.SaveFile is SAV_STADIUM;
 
     // ConvertToType doesn't check it, so a Japanese Gen 1 or 2 Pokémon would convert into an international save.
