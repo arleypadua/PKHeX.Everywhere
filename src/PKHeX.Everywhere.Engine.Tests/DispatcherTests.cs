@@ -28,7 +28,7 @@ public class DispatcherTests
             var pokemon = party[slot]!;
             var form = expected[slot].Form.Form;
             pokemon["id"]!.GetValue<string>().Should().Be(expected[slot].UniqueId.Value);
-            pokemon["at"]!.ToJsonString().Should().Be($$"""{"source":"party","slot":{{slot}},"box":null}""");
+            pokemon["at"]!.ToJsonString().Should().Be($$"""{"source":"party","slot":{{slot}},"box":null,"team":null}""");
             pokemon["speciesId"]!.GetValue<int>().Should().Be(expected[slot].Species.Id);
             pokemon["species"]!.GetValue<string>().Should().Be(expected[slot].Species.Name);
             pokemon["form"]!.ToJsonString().Should().Be(JsonSerializer.Serialize(new { id = (int)form.Id, name = form.Name }));

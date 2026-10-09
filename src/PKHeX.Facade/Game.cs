@@ -29,6 +29,7 @@ public class Game
 
         Trainer = new Trainer(this);
         BattlePoints = BattlePoints.GetInstance(saveFile);
+        Teams = Teams.Of(this);
         _events = new Lazy<GameEvents?>(() => Supports(Capability.Events) ? GameEvents.For(this) : null);
     }
 
@@ -57,6 +58,8 @@ public class Game
     public GameOptions Options { get; }
     public Trainer Trainer { get; }
     public BattlePoints BattlePoints { get; }
+
+    public Teams? Teams { get; }
     public GameEvents? Events => _events.Value;
     public Progress Progress => Progress.Of(SaveFile);
     public Badges? Badges => Badges.Of(SaveFile);
@@ -141,7 +144,7 @@ public class Game
         string? trainerName = null)
     {
         // PKHeX writes a Gen 2 name one character past the game's limit and overflows, so the Trainer cuts it first.
-        var game = new Game(BlankSaveFile.Get(version.Version));
+        var game = new Game(StadiumSaves.Blank(version.Version) ?? BlankSaveFile.Get(version.Version));
         game.Trainer.Name = trainerName ?? "PKHeXWeb";
         return game;
     }

@@ -51,7 +51,7 @@ public class TransferHandlerTests
 
         theirs.Select(p => p!["species"]!.GetValue<string>()).Should().StartWith(["Torchic", "Wurmple", "Wingull", "Bulbasaur"]);
         theirs[0]!["at"]!["source"]!.GetValue<string>().Should().Be("party");
-        theirs[3]!["at"]!.ToJsonString().Should().Be("""{"source":"box","slot":0,"box":0}""");
+        theirs[3]!["at"]!.ToJsonString().Should().Be("""{"source":"box","slot":0,"box":0,"team":null}""");
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public class TransferHandlerTests
         var offer = preview["offers"]![0]!;
         offer["direction"]!.GetValue<string>().Should().Be("send");
         offer["from"]!["species"]!.GetValue<string>().Should().Be("Charizard");
-        offer["from"]!["at"]!.ToJsonString().Should().Be("""{"source":"box","slot":0,"box":0}""");
+        offer["from"]!["at"]!.ToJsonString().Should().Be("""{"source":"box","slot":0,"box":0,"team":null}""");
         offer["arrives"]!["species"]!.GetValue<string>().Should().Be("Charizard");
         offer["arrives"]!["id"]!.GetValue<string>().Should().Be(offer["from"]!["id"]!.GetValue<string>());
         offer["arrives"]!["at"]!.ToJsonString().Should().Be(FirstEmptyBoxSlot(SaveFilePath.Emerald));
@@ -112,7 +112,7 @@ public class TransferHandlerTests
         var preview = Preview(session, Send(PokemonHandle.InBox(0, 0), PokemonHandle.InBox(0, 1)));
 
         preview["offers"]!.AsArray().Select(o => o!["from"]!["species"]!.GetValue<string>()).Should().Equal("Scyther");
-        preview["refused"]!.ToJsonString().Should().Be("""[{"direction":"send","at":{"source":"box","slot":1,"box":0},"reason":"speciesNotInGame"}]""");
+        preview["refused"]!.ToJsonString().Should().Be("""[{"direction":"send","at":{"source":"box","slot":1,"box":0,"team":null},"reason":"speciesNotInGame"}]""");
     }
 
     [Fact]
@@ -281,7 +281,7 @@ public class TransferHandlerTests
         var preview = Preview(session, Send(PokemonHandle.Party(0), PokemonHandle.Party(1), PokemonHandle.Party(2)));
 
         preview["offers"]!.AsArray().Select(o => o!["from"]!["species"]!.GetValue<string>()).Should().Equal("Torchic", "Wurmple");
-        preview["refused"]!.ToJsonString().Should().Be("""[{"direction":"send","at":{"source":"party","slot":2,"box":null},"reason":"lastPartyMember"}]""");
+        preview["refused"]!.ToJsonString().Should().Be("""[{"direction":"send","at":{"source":"party","slot":2,"box":null,"team":null},"reason":"lastPartyMember"}]""");
     }
 
     [Fact]
@@ -294,7 +294,7 @@ public class TransferHandlerTests
 
         preview["offers"]!.AsArray().Should().HaveCount(7);
         preview["offers"]!.AsArray().Select(o => o!["arrives"]!["at"]!.ToJsonString()).Should().OnlyHaveUniqueItems();
-        preview["refused"]!.ToJsonString().Should().Be("""[{"direction":"send","at":{"source":"box","slot":7,"box":0},"reason":"noRoom"}]""");
+        preview["refused"]!.ToJsonString().Should().Be("""[{"direction":"send","at":{"source":"box","slot":7,"box":0,"team":null},"reason":"noRoom"}]""");
     }
 
     [Fact]
@@ -323,7 +323,7 @@ public class TransferHandlerTests
         var landed = partner.Trainer.PokemonBox.All[Index(partner, arrived["at"]!)];
         landed.Pkm.Data.ToArray().Should().Equal(charizard.Pkm.Data.ToArray());
         landed.Legality().Valid.Should().BeTrue();
-        Value(Dispatch(session, "box.get", "[]"))!.AsArray().Should().NotContain(p => p!["at"]!.ToJsonString() == """{"source":"box","slot":0,"box":0}""");
+        Value(Dispatch(session, "box.get", "[]"))!.AsArray().Should().NotContain(p => p!["at"]!.ToJsonString() == """{"source":"box","slot":0,"box":0,"team":null}""");
         Value(Dispatch(session, "transfer.partnerBoxes", "[]"))!.AsArray().Should().Contain(p => p!["at"]!.ToJsonString() == arrived["at"]!.ToJsonString());
     }
 
@@ -603,13 +603,13 @@ public class TransferHandlerTests
 
     private static object Arrival(PokemonHandle at, string bytes, object patch) => new { at = Handle(at), bytes, patch };
 
-    private static object Handle(PokemonHandle at) => new { source = at.Source.ToString().ToLowerInvariant(), slot = at.Slot, box = at.Box };
+    private static object Handle(PokemonHandle at) => new { source = at.Source.ToString().ToLowerInvariant(), slot = at.Slot, box = at.Box, team = at.Team };
 
     private static string FirstEmptyBoxSlot(string saveFile)
     {
         var save = SaveFilePath.Load(saveFile).SaveFile;
         var index = save.NextOpenBoxSlot();
-        return $$"""{"source":"box","slot":{{index % save.BoxSlotCount}},"box":{{index / save.BoxSlotCount}}}""";
+        return $$"""{"source":"box","slot":{{index % save.BoxSlotCount}},"box":{{index / save.BoxSlotCount}},"team":null}""";
     }
 
     private static int Index(Game game, JsonNode at) =>

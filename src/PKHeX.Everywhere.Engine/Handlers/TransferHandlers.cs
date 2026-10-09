@@ -76,14 +76,14 @@ public static class TransferHandlers
     /// </summary>
     [Query("transfer.export", Topics.Transfer, Topics.Party, Topics.Box)]
     public static ExportedPokemon Export(Session session, Game game, PokemonHandle at, TransferSave save) =>
-        TransferWith(session, game).SaveOf(save.ToFacade()).FindSaved(at).Pokemon.ToExported();
+        Stored(TransferWith(session, game).SaveOf(save.ToFacade()), at).Pokemon.ToExported();
 
     /// <summary>
     /// <c>pokemon.details</c> for a slot in either save of the open transfer.
     /// </summary>
     [Query("transfer.details", Topics.Transfer, Topics.Party, Topics.Box)]
     public static EditablePokemon Details(Session session, Game game, PokemonHandle at, TransferSave save) =>
-        TransferWith(session, game).SaveOf(save.ToFacade()).FindSaved(at).Pokemon.Details().ToEditable();
+        Stored(TransferWith(session, game).SaveOf(save.ToFacade()), at).Pokemon.Details().ToEditable();
 
     /// <summary>
     /// Shows what moving the offered Pokémon would change, and which ones can't move. Nothing is written.
@@ -188,9 +188,13 @@ public static class TransferHandlers
         }
     }
 
+    private static PokemonSlot Stored(Game game, PokemonHandle at) => at.Source == SlotSource.Team
+        ? throw new EngineException(ErrorCodes.NotSupported, "Transfers move Pokémon in the party and the boxes, not in teams.")
+        : game.FindSaved(at);
+
     private static Transfers.TransferSlot SlotOf(Game game, PokemonHandle at)
     {
-        game.FindSaved(at);
+        Stored(game, at);
         return at.Source == SlotSource.Party
             ? new Transfers.TransferSlot(PokemonSource.Party, at.Slot)
             : new Transfers.TransferSlot(PokemonSource.Box, at.Box!.Value * game.SaveFile.BoxSlotCount + at.Slot);

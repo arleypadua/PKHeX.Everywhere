@@ -9,15 +9,15 @@ namespace PKHeX.Everywhere.Engine.Handlers;
 public static class PokemonHandlers
 {
     [Requires(Requirement.Save)]
-    [Query("pokemon.get", Topics.Party, Topics.Box, Topics.Draft)]
+    [Query("pokemon.get", Topics.Party, Topics.Box, Topics.Team, Topics.Draft)]
     public static PokemonSummary Get(Session session, PokemonHandle at) => session.Find(at).Pokemon.ToSummary(at);
 
     [Requires(Requirement.Save)]
-    [Query("pokemon.showdown", Topics.Party, Topics.Box, Topics.Draft)]
+    [Query("pokemon.showdown", Topics.Party, Topics.Box, Topics.Team, Topics.Draft)]
     public static string Showdown(Session session, PokemonHandle at) => session.Find(at).Pokemon.Showdown();
 
     [Requires(Requirement.Save)]
-    [Query("pokemon.details", Topics.Party, Topics.Box, Topics.Draft)]
+    [Query("pokemon.details", Topics.Party, Topics.Box, Topics.Team, Topics.Draft)]
     public static EditablePokemon Details(Session session, PokemonHandle at) => session.Find(at).Pokemon.Details().ToEditable();
 
     /// <summary>
@@ -52,11 +52,11 @@ public static class PokemonHandlers
     }
 
     [Requires(Requirement.Save)]
-    [Query("pokemon.options", Topics.Party, Topics.Box, Topics.Draft)]
+    [Query("pokemon.options", Topics.Party, Topics.Box, Topics.Team, Topics.Draft)]
     public static Dtos.PokemonOptions Options(Session session, PokemonHandle at) => session.Find(at).Pokemon.Options().ToDto();
 
     [Requires(Requirement.Save)]
-    [Query("pokemon.export", Topics.Party, Topics.Box, Topics.Draft)]
+    [Query("pokemon.export", Topics.Party, Topics.Box, Topics.Team, Topics.Draft)]
     public static ExportedPokemon Export(Session session, PokemonHandle at) => session.Find(at).Pokemon.ToExported();
 
     [Requires(Requirement.Save)]
@@ -105,8 +105,8 @@ public static class PokemonHandlers
         var draft = session.RequireDraft();
         var from = draft.From ?? throw new EngineException(ErrorCodes.NoSlot, "This Pokémon is a clone. Add it to the box instead.");
         var replaced = game.FindSaved(from).Pokemon;
-        var source = from.Source == SlotSource.Party ? PokemonSource.Party : PokemonSource.Box;
-        game.Trainer.AddOrUpdate(replaced.UniqueId, draft.Pokemon, source);
+        if (from.Source == SlotSource.Team) game.RequireTeams().Replace(from.Team!.Value, from.Slot, draft.Pokemon);
+        else game.Trainer.AddOrUpdate(replaced.UniqueId, draft.Pokemon, from.Source == SlotSource.Party ? PokemonSource.Party : PokemonSource.Box);
 
         var saved = game.FindSaved(from);
         session.AlsoWrote(saved.Topics);

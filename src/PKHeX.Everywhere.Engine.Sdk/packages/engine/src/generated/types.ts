@@ -671,14 +671,16 @@ export interface PokemonForm {
 /** A Pokémon's gender. */
 export type PokemonGender = 'male' | 'female' | 'genderless'
 
-/** Points to a Pokémon in the party, a box or the draft. */
+/** Points to a Pokémon in the party, a box, a registered team or the draft. */
 export interface PokemonHandle {
   /** Which storage the Pokémon is in. */
   source: SlotSource
-  /** Zero-based slot in the party or in the box. Ignored for the draft. */
+  /** Zero-based slot in the party, the box or the team. Ignored for the draft. */
   slot: number
   /** Zero-based box number. Required when `source` is `box`. */
   box?: number | null
+  /** Zero-based team number. Required when `source` is `team`. */
+  team?: number | null
 }
 
 /** Who currently holds a Pokémon: its original trainer, or the trainer it was traded to. */
@@ -923,8 +925,8 @@ export interface SaveVersion {
   formatId: string | null
 }
 
-/** Where a Pokémon is: the party, a box, or the draft opened with `pokemon.edit()` or `pokemon.clone()`. */
-export type SlotSource = 'party' | 'box' | 'draft'
+/** Where a Pokémon is: the party, a box, a registered team of a Stadium save, or the draft opened with `pokemon.edit()` or `pokemon.clone()`. */
+export type SlotSource = 'party' | 'box' | 'draft' | 'team'
 
 /** A species that exists in the loaded save's game, as listed by `species.list`. */
 export interface SpeciesEntry {
@@ -951,6 +953,28 @@ export interface StatValues {
   specialAttack: number
   specialDefense: number
   speed: number
+}
+
+/** A registered team in the save, as `team.list` lists it. Empty teams are included. Only Stadium saves have teams. */
+export interface TeamEntry {
+  /** Zero-based team number, the same number a team `PokemonHandle` carries. */
+  team: number
+  /** The name of the trainer who registered the team, as the save stores it, or null when it stores none. */
+  name: string | null
+  /** The cup the team is registered for, such as `Poké Cup`. Null in Pocket Monsters Stadium, which doesn't sort teams by cup. */
+  cup: string | null
+  /** How many slots the team has. */
+  slots: number
+  /** How many slots hold a Pokémon. A team has no gaps, so these are the first slots. */
+  filled: number
+}
+
+/** A slot in a registered team. */
+export interface TeamSlot {
+  /** Zero-based team number. */
+  team: number
+  /** Zero-based slot in the team. */
+  slot: number
 }
 
 /** The Generation 3 event tickets and, in Emerald, the island access flags. */

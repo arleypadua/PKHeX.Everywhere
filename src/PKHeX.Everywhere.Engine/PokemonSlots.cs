@@ -49,7 +49,8 @@ internal static class PokemonSlots
     {
         SlotSource.Party => InParty(game, at.Slot) ?? throw NotFound(at),
         SlotSource.Box => InBox(game, at),
-        SlotSource.Draft => throw new EngineException(ErrorCodes.DraftNotAllowed, "This only works on a Pokémon in the party or the box."),
+        SlotSource.Team => InTeam(game, at),
+        SlotSource.Draft => throw new EngineException(ErrorCodes.DraftNotAllowed, "This only works on a Pokémon in the party, a box or a team."),
         _ => throw NotFound(at),
     };
 
@@ -88,6 +89,21 @@ internal static class PokemonSlots
             pokemons.Commit();
         }, [at.Topic(), Topics.Party]);
     }
+
+    private static PokemonSlot InTeam(Game game, PokemonHandle at)
+    {
+        var teams = game.RequireTeams();
+        if (at.Team is not { } number || number < 0 || number >= teams.Count) throw NotFound(at);
+
+        var members = teams.Get(number).Members;
+        if (at.Slot < 0 || at.Slot >= members.Count) throw NotFound(at);
+
+        var pokemon = members[at.Slot];
+        return new PokemonSlot(pokemon, () => teams.Replace(number, at.Slot, pokemon), [at.Topic()]);
+    }
+
+    public static Teams RequireTeams(this Game game) =>
+        game.Teams ?? throw new EngineException(ErrorCodes.NotSupported, "Only Stadium saves have registered teams.");
 
     public static PokemonHandle BoxHandle(SaveFile save, int index) =>
         PokemonHandle.InBox(index / save.BoxSlotCount, index % save.BoxSlotCount);
