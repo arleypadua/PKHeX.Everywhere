@@ -472,24 +472,33 @@ public class TransferTests
     [InlineData(2)]
     public void SendingFromTheMiddleOfAStadiumBoxKeepsThePokemonAfterIt(int generation)
     {
+        var (mine, load) = Stadium(generation, Species.Bulbasaur, Species.Charmander, Species.Squirtle);
+        new Transfer(mine, Blank(generation == 1 ? GameVersion.RD : GameVersion.C)).Commit(Send(Box(1)));
+
+        var reloaded = new Game(load(mine.ToByteArray()));
+
+        BoxSpecies(reloaded).Should().Equal("Bulbasaur", "Squirtle", null);
+        BoxSpecies(mine).Should().Equal("Bulbasaur", "Squirtle", null);
+    }
+
+    private static List<string?> BoxSpecies(Game game) => game.Trainer.PokemonBox.All.Take(3).Select(p => p.IsEmpty ? null : p.Species.Name).ToList();
+
+    private static (Game Game, Func<Memory<byte>, SAV_STADIUM> Load) Stadium(int generation, params Species[] boxed)
+    {
         Func<Memory<byte>, SAV_STADIUM> load = generation == 1
             ? data => new SAV1Stadium(data, japanese: false)
             : data => new SAV2Stadium(data, japanese: false);
         // A blank Stadium save has no box headers until it's loaded from bytes once.
         var save = load(new byte[generation == 1 ? SaveUtil.SIZE_G1STAD : SaveUtil.SIZE_G2STAD]);
-        Species[] boxed = [Species.Bulbasaur, Species.Charmander, Species.Squirtle];
         for (var i = 0; i < boxed.Length; i++)
         {
             var pokemon = save.BlankPKM;
-            (pokemon.Species, pokemon.CurrentLevel, pokemon.Move1) = ((ushort)boxed[i], 10, (ushort)Move.Tackle);
+            pokemon.Species = (ushort)boxed[i];
+            pokemon.CurrentLevel = 10;
+            pokemon.Move1 = (ushort)Move.Tackle;
             save.SetBoxSlotAtIndex(pokemon, i, EntityImportSettings.None);
         }
-        var mine = new Game(save);
-
-        new Transfer(mine, Blank(generation == 1 ? GameVersion.RD : GameVersion.C)).Commit(Send(Box(1)));
-        var box = new Game(load(mine.ToByteArray())).Trainer.PokemonBox.All;
-
-        box.Take(3).Select(p => p.IsEmpty ? null : p.Species.Name).Should().Equal("Bulbasaur", "Squirtle", null);
+        return (new Game(save), load);
     }
 
     private static PK5 Venusaur()

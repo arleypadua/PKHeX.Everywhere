@@ -90,7 +90,7 @@ public class Game
         // make sure pending changes make its way to the bytes of the save
         Trainer.Commit();
 
-        if (SaveFile is IStorageCleanup storage) storage.FixStoragePreWrite();
+        if (SaveFile is IStorageCleanup storage && storage.FixStoragePreWrite()) Trainer.PokemonBox.Reload();
 
         return SaveFile.Write(
             setting: SaveFile.Metadata.GetSuggestedFlags(Path.GetExtension(SaveFile.Metadata.FileName))
