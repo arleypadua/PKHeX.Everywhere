@@ -88,6 +88,19 @@ public class TransferHandlerTests
     }
 
     [Fact]
+    public void Stadium2AndCrystalMovePokemonThroughTheTimeCapsuleRoute()
+    {
+        var session = new Session();
+        session.Load(new Game(new SAV2Stadium(new byte[SaveUtil.SIZE_G2STAD], japanese: false)), "stadium2.sav");
+        var transfer = Open(session, SaveFilePath.Crystal);
+
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"timeCapsule","receive":"timeCapsule"}""");
+        var offer = Preview(session, Receive(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
+        offer["route"]!.GetValue<string>().Should().Be("timeCapsule");
+        offer["arrives"]!["species"]!.GetValue<string>().Should().Be("Scyther");
+    }
+
+    [Fact]
     public void CrystalToYellowRefusesAGen2Species()
     {
         var session = Loaded(SaveFilePath.Crystal);
