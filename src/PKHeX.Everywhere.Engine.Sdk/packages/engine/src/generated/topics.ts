@@ -2,7 +2,7 @@
 
 import type { QueryName } from './client'
 
-export const topics = ['*', 'game', 'party', 'box', 'inventory', 'events', 'trainer', 'draft', 'plugins', 'transfer'] as const
+export const topics = ['*', 'game', 'party', 'box', 'inventory', 'events', 'trainer', 'draft', 'plugins', 'transfer', 'team'] as const
 
 export type Topic = (typeof topics)[number] | `${(typeof topics)[number]}/${string}`
 
@@ -40,13 +40,15 @@ export const queryTopics: Record<QueryName, readonly Topic[]> = {
   'plugins.pages': ['*'],
   'plugins.setting': ['plugins'],
   'plugins.state': ['plugins'],
-  'pokemon.details': ['party', 'box', 'draft'],
-  'pokemon.export': ['party', 'box', 'draft'],
-  'pokemon.get': ['party', 'box', 'draft'],
-  'pokemon.options': ['party', 'box', 'draft'],
+  'pokemon.details': ['party', 'box', 'team', 'draft'],
+  'pokemon.export': ['party', 'box', 'team', 'draft'],
+  'pokemon.get': ['party', 'box', 'team', 'draft'],
+  'pokemon.options': ['party', 'box', 'team', 'draft'],
   'pokemon.read': [],
-  'pokemon.showdown': ['party', 'box', 'draft'],
+  'pokemon.showdown': ['party', 'box', 'team', 'draft'],
   'species.list': ['game'],
+  'team.get': ['team'],
+  'team.list': ['team'],
   'trainer.badges': ['trainer', 'events'],
   'trainer.get': ['trainer'],
   'transfer.convert': ['transfer', 'trainer'],

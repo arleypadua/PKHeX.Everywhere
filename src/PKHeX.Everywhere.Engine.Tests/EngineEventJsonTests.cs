@@ -132,7 +132,7 @@ public class EngineEventJsonTests
         var expected = new
         {
             type = "pokemonSaved",
-            at = new { source = "party", slot = 0, box = (int?)null },
+            at = new { source = "party", slot = 0, box = (int?)null, team = (int?)null },
             pokemon = new
             {
                 speciesId = pokemon.Species.Id,

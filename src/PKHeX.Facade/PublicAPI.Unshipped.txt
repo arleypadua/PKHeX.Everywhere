@@ -589,3 +589,35 @@ virtual PKHeX.Facade.Transfers.ArrivalOverride.<Clone>$() -> PKHeX.Facade.Transf
 virtual PKHeX.Facade.Transfers.ArrivalOverride.EqualityContract.get -> System.Type!
 virtual PKHeX.Facade.Transfers.ArrivalOverride.Equals(PKHeX.Facade.Transfers.ArrivalOverride? other) -> bool
 virtual PKHeX.Facade.Transfers.ArrivalOverride.PrintMembers(System.Text.StringBuilder! builder) -> bool
+PKHeX.Facade.Game.Teams.get -> PKHeX.Facade.Teams?
+PKHeX.Facade.Team
+PKHeX.Facade.Team.Cup.get -> string?
+PKHeX.Facade.Team.Cup.init -> void
+PKHeX.Facade.Team.Deconstruct(out int Number, out string? Name, out string? Cup, out int Slots, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Pokemon!>! Members) -> void
+PKHeX.Facade.Team.Members.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Pokemon!>!
+PKHeX.Facade.Team.Members.init -> void
+PKHeX.Facade.Team.Name.get -> string?
+PKHeX.Facade.Team.Name.init -> void
+PKHeX.Facade.Team.Number.get -> int
+PKHeX.Facade.Team.Number.init -> void
+PKHeX.Facade.Team.Slots.get -> int
+PKHeX.Facade.Team.Slots.init -> void
+PKHeX.Facade.Team.Team(PKHeX.Facade.Team! original) -> void
+PKHeX.Facade.Team.Team(int Number, string? Name, string? Cup, int Slots, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Pokemons.Pokemon!>! Members) -> void
+PKHeX.Facade.Teams
+PKHeX.Facade.Teams.All.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Team!>!
+PKHeX.Facade.Teams.Clear(int number, int slot) -> void
+PKHeX.Facade.Teams.Count.get -> int
+PKHeX.Facade.Teams.Get(int number) -> PKHeX.Facade.Team!
+PKHeX.Facade.Teams.Place(int number, int slot, PKHeX.Facade.Pokemons.Pokemon! pokemon) -> int
+PKHeX.Facade.Teams.Replace(int number, int slot, PKHeX.Facade.Pokemons.Pokemon! pokemon) -> void
+const PKHeX.Facade.Teams.SlotsPerTeam = 6 -> int
+override PKHeX.Facade.Team.Equals(object? obj) -> bool
+override PKHeX.Facade.Team.GetHashCode() -> int
+override PKHeX.Facade.Team.ToString() -> string!
+static PKHeX.Facade.Team.operator !=(PKHeX.Facade.Team? left, PKHeX.Facade.Team? right) -> bool
+static PKHeX.Facade.Team.operator ==(PKHeX.Facade.Team? left, PKHeX.Facade.Team? right) -> bool
+virtual PKHeX.Facade.Team.<Clone>$() -> PKHeX.Facade.Team!
+virtual PKHeX.Facade.Team.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Team.Equals(PKHeX.Facade.Team? other) -> bool
+virtual PKHeX.Facade.Team.PrintMembers(System.Text.StringBuilder! builder) -> bool

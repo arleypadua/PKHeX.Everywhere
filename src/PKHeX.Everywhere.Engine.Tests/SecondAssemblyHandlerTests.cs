@@ -25,7 +25,7 @@ public class SecondAssemblyHandlerTests
         var value = Value(Dispatch(session, "lead.get", "[]"))!;
 
         value.ToJsonString().Should().Be(
-            $$"""{"at":{"source":"party","slot":0,"box":null},"species":"{{lead.Species.Name}}","level":{{lead.Level}}}""");
+            $$"""{"at":{"source":"party","slot":0,"box":null,"team":null},"species":"{{lead.Species.Name}}","level":{{lead.Level}}}""");
     }
 
     [Fact]

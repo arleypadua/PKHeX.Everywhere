@@ -135,13 +135,14 @@ public class GameHandlerTests
     }
 
     [Fact]
-    public void BlankVersionsHaveNoAggregatedVersion()
+    public void BlankVersionsHaveNoAggregatedVersionButTheStadiums()
     {
         var versions = Value(Dispatch(new Session(), "game.blankVersions", "[]"))!.AsArray();
 
         var ids = versions.Select(v => v!["id"]!.GetValue<int>()).ToList();
         ids.Should().NotBeEmpty();
-        ids.Should().NotContain(id => GameVersionRepository.Instance.Get(id).Aggregated);
+        ids.Where(id => GameVersionRepository.Instance.Get(id).Aggregated).Order().Should()
+            .Equal((int)GameVersion.StadiumJ, (int)GameVersion.Stadium, (int)GameVersion.Stadium2);
         versions.Select(v => v!["name"]!.GetValue<string>()).Should().BeInAscendingOrder();
     }
 

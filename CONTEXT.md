@@ -58,6 +58,10 @@ _Avoid_: pointer, reference
 The one unsaved Pokémon the Session holds while the editor changes it. It is addressed as a Handle with source `draft` and reaches the save only on commit. See [ADR 0005](docs/adr/0005-editing-goes-through-an-engine-held-draft-slot.md).
 _Avoid_: working copy, scratch Pokémon
 
+**Registered team**:
+A team of up to six Pokémon that a Stadium save keeps for a cup. Only Pokémon Stadium, Pocket Monsters Stadium and Stadium 2 saves have them. A Pokémon is copied into a team from a box, and a team never has a gap.
+_Avoid_: party, which Stadium saves don't have
+
 **Transfer**:
 Moving Pokémon between the loaded save and a partner save the Engine holds next to it, along a Route. A preview refuses what the destination can't hold, such as a species or an egg from another generation, and a commit with any refused Pokémon writes nothing. On the unofficial Route it strips the moves, item, ball and ability the destination game doesn't have instead. The receiving game applies its trade rules on arrival, such as trade evolutions.
 _Avoid_: trade, except for the link trade; migration

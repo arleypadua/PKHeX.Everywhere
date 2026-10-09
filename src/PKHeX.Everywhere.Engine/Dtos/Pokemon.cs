@@ -11,31 +11,35 @@ namespace PKHeX.Everywhere.Engine.Dtos;
 public readonly record struct PokemonId(string Value);
 
 /// <summary>
-/// Where a Pokémon is: the party, a box, or the draft opened with <c>pokemon.edit()</c> or <c>pokemon.clone()</c>.
+/// Where a Pokémon is: the party, a box, a registered team of a Stadium save, or the draft opened with <c>pokemon.edit()</c> or <c>pokemon.clone()</c>.
 /// </summary>
 public enum SlotSource
 {
     Party,
     Box,
     Draft,
+    Team,
 }
 
 /// <summary>
-/// Points to a Pokémon in the party, a box or the draft.
+/// Points to a Pokémon in the party, a box, a registered team or the draft.
 /// </summary>
 /// <param name="Source">Which storage the Pokémon is in.</param>
-/// <param name="Slot">Zero-based slot in the party or in the box. Ignored for the draft.</param>
+/// <param name="Slot">Zero-based slot in the party, the box or the team. Ignored for the draft.</param>
 /// <param name="Box">Zero-based box number. Required when <c>source</c> is <c>box</c>.</param>
-public record PokemonHandle(SlotSource Source, int Slot, int? Box = null) : IHandle
+/// <param name="Team">Zero-based team number. Required when <c>source</c> is <c>team</c>.</param>
+public record PokemonHandle(SlotSource Source, int Slot, int? Box = null, int? Team = null) : IHandle
 {
     public static PokemonHandle Party(int slot) => new(SlotSource.Party, slot);
     public static PokemonHandle InBox(int box, int slot) => new(SlotSource.Box, slot, box);
+    public static PokemonHandle InTeam(int team, int slot) => new(SlotSource.Team, slot, Team: team);
     public static PokemonHandle Draft() => new(SlotSource.Draft, 0);
 
     public string Topic() => Source switch
     {
         SlotSource.Party => Topics.Party,
         SlotSource.Draft => Topics.Draft,
+        SlotSource.Team => TeamSlot.TopicOf(Team),
         _ => Box is { } box ? $"{Topics.Box}/{box}" : Topics.Box,
     };
 }

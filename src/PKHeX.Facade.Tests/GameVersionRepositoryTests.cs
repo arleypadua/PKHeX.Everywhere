@@ -7,12 +7,12 @@ namespace PKHeX.Facade.Tests;
 public class GameVersionRepositoryTests
 {
     [Fact]
-    public void BlankVersionsAreTheSavedVersionsSortedByName()
+    public void BlankVersionsAreTheSavedVersionsAndTheStadiumsSortedByName()
     {
         var blank = GameVersionRepository.Instance.Blank;
 
         blank.Should().NotBeEmpty();
-        blank.Should().NotContain(v => v.Aggregated);
+        blank.Where(v => v.Aggregated).Select(v => v.Version).Order().Should().Equal(GameVersion.StadiumJ, GameVersion.Stadium, GameVersion.Stadium2);
         blank.Select(v => v.Name).Should().BeInAscendingOrder();
     }
 

@@ -43,6 +43,7 @@ Calls that act on one Pokémon take a `PokemonHandle`, which gives its source an
 ```ts
 const lead = { source: 'party', slot: 0 } as const
 const boxed = { source: 'box', box: 2, slot: 14 } as const
+const member = { source: 'team', team: 0, slot: 2 } as const
 
 await engine.pokemon.setLevel(lead, 100)
 ```
@@ -102,9 +103,32 @@ if (preview.unofficial && !(await confirm(preview.changes))) return
 await engine.box.addFromFile(file, { allowUnofficial: preview.unofficial })
 ```
 
+## Registered teams
+
+Only Pokémon Stadium, Pocket Monsters Stadium and Stadium 2 saves have teams. They hold teams of up to six Pokémon, registered for a cup: 70 teams in Stadium, 16 in Pocket Monsters Stadium and 60 in Stadium 2. `team.list` returns `[]` for any other save, and the other `team` calls fail with `not-supported`, so show teams only when the list has some.
+
+```ts
+const teams = await engine.team.list()
+// [{ team: 0, name: null, cup: 'Anything Goes', slots: 6, filled: 0 }, ...]
+
+await engine.team.place({ source: 'box', box: 3, slot: 7 }, { team: 1, slot: 0 })
+const members = await engine.team.get(1) // handles like { source: 'team', team: 1, slot: 0 }
+
+await engine.pokemon.edit(members[0].at)
+await engine.pokemon.update(draftHandle, { level: 50 })
+await engine.pokemon.commit()
+
+await engine.team.clear({ team: 1, slot: 0 })
+```
+
+- `team.place` copies, so the Pokémon stays in its box, the way Stadium registers a team. A filled slot is replaced.
+- A team never has a gap. Placing past the last member puts the Pokémon right after it, and `team.clear` moves the members after the slot up.
+- `pokemon.get`, `pokemon.details`, `pokemon.edit`, `pokemon.commit`, `pokemon.clone` and `pokemon.export` take team handles like box handles. Transfers don't.
+- `cup` is null in Pocket Monsters Stadium, which doesn't sort teams by cup.
+
 ## Reacting to changes
 
-`engine.subscribe(topics, callback)` calls back when a command changes something under those topics. Topics are `game`, `party`, `box`, `inventory`, `events`, `trainer`, `draft`, `plugins`, `transfer`, or `*` for everything:
+`engine.subscribe(topics, callback)` calls back when a command changes something under those topics. Topics are `game`, `party`, `box`, `team`, `inventory`, `events`, `trainer`, `draft`, `plugins`, `transfer`, or `*` for everything:
 
 ```ts
 const stop = engine.subscribe(['party'], async () => {
