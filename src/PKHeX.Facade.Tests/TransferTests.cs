@@ -481,6 +481,48 @@ public class TransferTests
         BoxSpecies(mine).Should().Equal("Bulbasaur", "Squirtle", null);
     }
 
+    [Theory]
+    [InlineData(GameVersion.C, TransferRoute.TimeCapsule)]
+    [InlineData(GameVersion.GD, TransferRoute.TimeCapsule)]
+    [InlineData(GameVersion.YW, TransferRoute.TimeCapsule)]
+    [InlineData(GameVersion.RD, TransferRoute.TimeCapsule)]
+    [InlineData(GameVersion.E, TransferRoute.Unofficial)]
+    public void Stadium2MovesPokemonToAndFromTheGameBoyGames(GameVersion partner, TransferRoute route)
+    {
+        var (stadium, _) = Stadium(2);
+        var transfer = new Transfer(stadium, Blank(partner));
+
+        (transfer.SendRoute, transfer.ReceiveRoute).Should().Be((route, route));
+    }
+
+    [Fact]
+    public void APokemonMovedFromCrystalToStadium2AndBackIsUnchanged()
+    {
+        var (stadium, _) = Stadium(2);
+        var pikachu = Pikachu(0xABCD);
+        (pikachu.Move2, pikachu.Move3) = ((ushort)Move.Growl, (ushort)Move.ThunderWave);
+        var crystal = Crystal(pikachu);
+        var sent = crystal.Trainer.PokemonBox.All[0].Pkm;
+
+        var there = new Transfer(crystal, stadium).Commit(Send(Box(0))).Single();
+        var back = new Transfer(stadium, crystal).Commit(Send(Box(there.BoxIndex))).Single().Pokemon.Pkm;
+
+        (back.Species, back.CurrentLevel, back.Move1, back.Move2, back.Move3, back.Move4, ((PK2)back).DV16)
+            .Should().Be((sent.Species, sent.CurrentLevel, sent.Move1, sent.Move2, sent.Move3, sent.Move4, (ushort)0xABCD));
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void StoringInAStadiumIsntATrade(int generation)
+    {
+        var (stadium, _) = Stadium(generation, Species.Haunter);
+        var partner = Blank(generation == 1 ? GameVersion.RD : GameVersion.C);
+
+        new Transfer(stadium, partner).Preview(Send(Box(0))).Offers.Single().Arrives.Species.Name.Should().Be("Haunter");
+        new Transfer(partner, stadium).Preview(new TransferOffer([], [Box(0)])).Offers.Single().Arrives.Species.Name.Should().Be("Haunter");
+    }
+
     private static List<string?> BoxSpecies(Game game) => game.Trainer.PokemonBox.All.Take(3).Select(p => p.IsEmpty ? null : p.Species.Name).ToList();
 
     private static (Game Game, Func<Memory<byte>, SAV_STADIUM> Load) Stadium(int generation, params Species[] boxed)
