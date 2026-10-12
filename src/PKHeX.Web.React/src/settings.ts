@@ -6,6 +6,8 @@ export type Theme = 'light' | 'dark'
 const themeKey = 'theme'
 const calculatorUrlKey = '__settings__#calculatorUrl'
 const lastDateNewsSeenKey = 'lastDateNewsSeen'
+const pkhemuPreviewKey = 'pkhemuClosedTest'
+const pkhemuCardDismissedKey = 'pkhemuCardDismissed'
 
 export type Settings = ReturnType<typeof createSettings>
 
@@ -35,6 +37,18 @@ export function createSettings(storage: Storage = localStorage, prefersDark = pr
     },
     writeLastDateNewsSeen(date: string | null) {
       write(lastDateNewsSeenKey, date)
+    },
+    readPkhemuPreview(): boolean {
+      return storage.getItem(pkhemuPreviewKey) === 'true'
+    },
+    writePkhemuPreview(on: boolean) {
+      write(pkhemuPreviewKey, on ? 'true' : null)
+    },
+    readPkhemuCardDismissed(): boolean {
+      return storage.getItem(pkhemuCardDismissedKey) === 'true'
+    },
+    writePkhemuCardDismissed() {
+      write(pkhemuCardDismissedKey, 'true')
     },
   }
 }

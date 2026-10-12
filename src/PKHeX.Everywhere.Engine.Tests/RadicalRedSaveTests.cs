@@ -61,7 +61,9 @@ public class RadicalRedSaveTests
 
         session.Game!.SaveFile.Should().BeOfType<RadicalRedSave>();
         session.Game.SaveFile.ChecksumsValid.Should().BeTrue();
-        Value(Dispatch(session, "game.get", "[]"))!["format"]!["id"]!.GetValue<string>().Should().Be("radicalred");
+        var summary = Value(Dispatch(session, "game.get", "[]"))!;
+        summary["format"]!["id"]!.GetValue<string>().Should().Be("radicalred");
+        summary["format"]!["baseGeneration"]!.GetValue<int>().Should().Be(3);
     }
 
     [Fact]

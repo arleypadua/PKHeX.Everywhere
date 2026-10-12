@@ -78,4 +78,12 @@ describe('settings', () => {
       expect(localStorage.getItem('lastDateNewsSeen')).toBeNull()
     })
   })
+
+  describe('pkhemu card dismissed', () => {
+    it('is false until written, then stays true', () => {
+      expect(createSettings(localStorage).readPkhemuCardDismissed()).toBe(false)
+      createSettings(localStorage).writePkhemuCardDismissed()
+      expect(createSettings(localStorage).readPkhemuCardDismissed()).toBe(true)
+    })
+  })
 })

@@ -891,6 +891,8 @@ export interface SaveFormat {
   baseGame: string
   /** The PKHeX `GameVersion` value of the game the format builds on. */
   baseGameId: number
+  /** The generation of the game the format builds on, such as `3` for FireRed. The save's own `generation` can be higher, since ROM hacks load with the newest generation's data. */
+  baseGeneration: number
 }
 
 /** The loaded save's file name, game, generation, save format and capabilities, returned by `game.get`. */

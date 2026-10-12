@@ -16,7 +16,7 @@ describe('romHackWarning', () => {
   it('warns that a ROM hack format is experimental', () => {
     const unbound: SaveSummary = {
       ...fireRed,
-      format: { id: 'unbound', name: 'Pokémon Unbound', baseGame: 'FireRed', baseGameId: 5 },
+      format: { id: 'unbound', name: 'Pokémon Unbound', baseGame: 'FireRed', baseGameId: 5, baseGeneration: 3 },
     }
 
     expect(romHackWarning(unbound)).toEqual({

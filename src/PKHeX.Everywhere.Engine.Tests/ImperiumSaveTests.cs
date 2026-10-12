@@ -58,7 +58,9 @@ public class ImperiumSaveTests
 
         session.Game!.SaveFile.Should().BeOfType<ImperiumSave>();
         session.Game.SaveFile.ChecksumsValid.Should().BeTrue();
-        Value(Dispatch(session, "game.get", "[]"))!["format"]!["id"]!.GetValue<string>().Should().Be("emerald-imperium");
+        var summary = Value(Dispatch(session, "game.get", "[]"))!;
+        summary["format"]!["id"]!.GetValue<string>().Should().Be("emerald-imperium");
+        summary["format"]!["baseGeneration"]!.GetValue<int>().Should().Be(3);
     }
 
     [Fact]
