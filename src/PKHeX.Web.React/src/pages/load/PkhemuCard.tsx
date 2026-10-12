@@ -15,22 +15,22 @@ export function PkhemuCard({ generation, onClose }: { generation: number; onClos
   }
 
   useEffect(() => {
-    if (visible && !preview) track('pkhemu_card_shown', { generation_id: generation })
-  }, [visible, preview, generation])
+    if (visible) report('pkhemu_card_shown')
+  }, [])
 
   if (!visible) return null
 
-  const remember = () => {
+  const markDismissed = () => {
     if (!preview) settings.writePkhemuCardDismissed()
   }
 
   const join = () => {
-    remember()
+    markDismissed()
     report('pkhemu_card_click')
   }
 
   const dismiss = () => {
-    remember()
+    markDismissed()
     report('pkhemu_card_dismiss')
     onClose()
   }

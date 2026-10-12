@@ -37,7 +37,11 @@ export default function LoadPage() {
     <SaveFileDrop onOpen={openFile}>
       <Flex vertical align="center" gap={20} style={{ width: '100%' }}>
         <AdSlot slot={topAdSlot} />
-        {game ? <LoadedGame game={game} onOpen={openFilePicker} /> : <NoGame onOpen={openFilePicker} onDemo={openDemo} />}
+        {game ? (
+          <LoadedGame key={`${game.fileName}|${game.version}|${game.format?.id}`} game={game} onOpen={openFilePicker} />
+        ) : (
+          <NoGame onOpen={openFilePicker} onDemo={openDemo} />
+        )}
         <AdSlot slot={bottomAdSlot} />
         <input ref={fileInput} type="file" hidden onChange={loadFile} />
         {formatChoice && <FormatPickerModal choice={formatChoice} onChoose={chooseFormat} onCancel={cancelFormatChoice} />}
