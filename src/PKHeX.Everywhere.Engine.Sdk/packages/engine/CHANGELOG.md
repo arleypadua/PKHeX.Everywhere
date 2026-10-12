@@ -1,5 +1,11 @@
 # @pkhex-everywhere/engine
 
+## 0.21.0
+
+### Minor Changes
+
+- b18c320: `SaveFormat` gains `baseGeneration`, the generation of the game a ROM hack builds on, such as `3` for Unbound. ROM hack saves report `generation` 9 because they load with the newest generation's data.
+
 ## 0.20.0
 
 ### Minor Changes
