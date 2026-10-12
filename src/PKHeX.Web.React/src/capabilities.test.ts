@@ -17,7 +17,7 @@ const unbound: SaveSummary = {
   version: 'FireRed',
   generation: 9,
   hasEvents: false,
-  format: { id: 'unbound', name: 'Pokémon Unbound', baseGame: 'FireRed', baseGameId: 5 },
+  format: { id: 'unbound', name: 'Pokémon Unbound', baseGame: 'FireRed', baseGameId: 5, baseGeneration: 3 },
   capabilities: [],
   statsApproximate: true,
 }

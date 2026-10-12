@@ -1,3 +1,4 @@
+using PKHeX.Core;
 using PKHeX.Facade;
 using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Repositories;
@@ -23,7 +24,8 @@ public record SaveSummary(string? FileName, string Version, int Generation, bool
 /// <param name="Name">The format's display name, such as <c>Pokémon Unbound</c>. Show it as the loaded game.</param>
 /// <param name="BaseGame">The display name of the game the format builds on, such as <c>FireRed</c>.</param>
 /// <param name="BaseGameId">The PKHeX <c>GameVersion</c> value of the game the format builds on.</param>
-public record SaveFormat(string Id, string Name, string BaseGame, int BaseGameId);
+/// <param name="BaseGeneration">The generation of the game the format builds on, such as <c>3</c> for FireRed. The save's own <c>generation</c> can be higher, since ROM hacks load with the newest generation's data.</param>
+public record SaveFormat(string Id, string Name, string BaseGame, int BaseGameId, int BaseGeneration);
 
 /// <summary>
 /// A save format <c>game.load()</c> can load a save with, returned by <c>game.formats()</c>.
@@ -124,7 +126,8 @@ public static class GameMapping
         format.Id,
         format.Name,
         GameVersionRepository.Instance.Get(format.BaseGame).Name,
-        (int)format.BaseGame);
+        (int)format.BaseGame,
+        format.BaseGame.Generation);
 
     private static SaveCapability ToDto(Capability capability) => capability switch
     {

@@ -10,7 +10,9 @@ import { journey } from '../../layout/journey'
 import { routes } from '../../routes'
 import { FormatPickerModal } from './FormatPickerModal'
 import { LoadRomHackModal } from './LoadRomHackModal'
+import { PkhemuCard } from './PkhemuCard'
 import { SaveFileDrop } from './SaveFileDrop'
+import { cardGeneration } from './pkhemuInvite'
 import { showRomHacksBadge } from './romHacksBadge'
 import { useLoadSave } from './useLoadSave'
 
@@ -46,10 +48,12 @@ export default function LoadPage() {
 
 function LoadedGame({ game, onOpen }: { game: SaveSummary; onOpen: () => void }) {
   const engine = useEngine()
+  const [exported, setExported] = useState(false)
 
   const exportSave = async () => {
     const { bytes, fileName } = await engine.game.export()
     downloadFile(bytes, fileName)
+    setExported(true)
   }
 
   return (
@@ -68,6 +72,7 @@ function LoadedGame({ game, onOpen }: { game: SaveSummary; onOpen: () => void })
         <Button type="primary" icon={<ExportOutlined aria-hidden />} onClick={exportSave}>
           Export
         </Button>
+        {exported && <PkhemuCard generation={cardGeneration(game)} onClose={() => setExported(false)} />}
         <OpenButton label="Open new..." onOpen={onOpen} />
       </Flex>
     </>

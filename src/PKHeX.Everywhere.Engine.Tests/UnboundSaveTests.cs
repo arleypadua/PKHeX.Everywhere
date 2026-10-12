@@ -212,6 +212,7 @@ public class UnboundSaveTests
         summary["format"]!["id"]!.GetValue<string>().Should().Be("unbound");
         summary["format"]!["name"]!.GetValue<string>().Should().Be("Pokémon Unbound");
         summary["format"]!["baseGameId"]!.GetValue<int>().Should().Be((int)Core.GameVersion.FR);
+        summary["format"]!["baseGeneration"]!.GetValue<int>().Should().Be(3);
         summary["capabilities"]!.AsArray().Should().BeEmpty();
     }
 
