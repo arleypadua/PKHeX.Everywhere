@@ -9,6 +9,7 @@ const save = (hasEvents: boolean, capabilities = allCapabilities): SaveSummary =
   version: 'Emerald',
   generation: 3,
   hasEvents,
+  hasMysteryGift: false,
   format: null,
   capabilities,
   statsApproximate: false,

@@ -27,6 +27,14 @@ export interface AddedPokemon {
   at: PokemonHandle
 }
 
+/** A slot in the save's Wonder Card album. */
+export interface AlbumSlot {
+  /** Zero-based slot, as `mysteryGift.insertEvent` and `mysteryGift.remove` take it. */
+  index: number
+  /** The card in the slot, or null when it's empty. */
+  card: WonderCardEntry | null
+}
+
 /** A gym badge, as `trainer.badges` lists it. */
 export interface Badge {
   /** The badge's English name without "Badge", such as `Boulder`. */
@@ -339,6 +347,43 @@ export interface GameProgress {
   /** The Pokédex counts, or null when the save has no Pokédex or the engine can't read it. */
   pokedex: PokedexCount | null
 }
+
+/** The save's Wonder Card album, returned by `mysteryGift.status`. */
+export interface GiftAlbum {
+  /** Whether the game shows Mystery Gift in its menu. Null in Generation 5, where the menu shows it once the player has the Pokédex. */
+  unlocked: boolean | null
+  /** Every slot in order, empty ones included: 3 in Generation 4, 12 in Generation 5. The filled slots come first. */
+  slots: AlbumSlot[]
+}
+
+/** An event from PKHeX's event database that the save's game can receive, as `mysteryGift.events` lists it. */
+export interface GiftEvent {
+  /** The event's id, to pass to `mysteryGift.previewEvent` and `mysteryGift.insertEvent`. Made from the card's bytes, so it stays the same across releases. */
+  id: string
+  /** The title the card shows in the game. */
+  title: string
+  kind: GiftKind
+  /** The species of the Pokémon the card gives, or null when it gives none. */
+  species: SpeciesEntry | null
+  /** The item the card gives, or null when it gives none. */
+  item: GiftItem | null
+  /** The language code the card is for, such as `ENG`. Null when the card doesn't say, as Generation 4 item cards don't. */
+  language: string | null
+  /** The card's number. Distributions in several languages often share it. */
+  cardId: number
+  /** The save is marked as having received a card with this number. */
+  received: boolean
+}
+
+/** An item a Wonder Card gives. */
+export interface GiftItem {
+  /** PKHeX item id. */
+  id: number
+  name: string
+}
+
+/** What a Wonder Card gives. */
+export type GiftKind = 'pokemon' | 'item' | 'other'
 
 /** The type and power of a Pokémon's Hidden Power. */
 export interface HiddenPower {
@@ -905,6 +950,8 @@ export interface SaveSummary {
   generation: number
   /** Whether the save has event flags and work to edit. When false, `events.get` returns null, or fails with `not-supported` when the save doesn't support `events`. */
   hasEvents: boolean
+  /** Whether the save has a Wonder Card album: Generation 4 and 5 saves do. When false, the `mysteryGift` calls fail with `not-supported`. */
+  hasMysteryGift: boolean
   /** The save format the save loaded through, or null for a save PKHeX reads on its own. */
   format: SaveFormat | null
   /** What the save supports. A save from PKHeX supports all of them. Calls behind a capability that's missing fail with `not-supported`. */
@@ -1128,6 +1175,40 @@ export interface VersionEntry {
   /** The game's PKHeX `GameVersion` value. */
   id: number
   name: string
+}
+
+/** A Wonder Card in the save's album. */
+export interface WonderCardEntry {
+  /** The title the card shows in the game. */
+  title: string
+  kind: GiftKind
+  /** The species of the Pokémon the card gives, or null when it gives none. */
+  species: SpeciesEntry | null
+  /** The item the card gives, or null when it gives none. */
+  item: GiftItem | null
+  /** The language code the card is for, such as `ENG`, `JPN` or `FRE`. Null when the card doesn't say, as Generation 4 item cards don't. */
+  language: string | null
+  /** The card's number, which the save's received marks go by. */
+  cardId: number
+  /** The card matches an event in PKHeX's event database. */
+  known: boolean
+}
+
+/** A Wonder Card as the save would receive it, returned by `mysteryGift.previewEvent` and `mysteryGift.previewFile`. */
+export interface WonderCardPreview {
+  /** The title the card shows in the game. */
+  title: string
+  kind: GiftKind
+  /** The Pokémon as the delivery person would hand it to the save's trainer, or null when the card gives none. A random PID or IVs differ from what the game rolls. */
+  pokemon: PokemonPreview | null
+  /** The item the card gives, or null when it gives none. */
+  item: GiftItem | null
+  /** The language code the card is for, such as `ENG`. Null when the card doesn't say. */
+  language: string | null
+  /** The card's number. A `.pgt` file has no card, so it reads 0. */
+  cardId: number
+  /** The card matches an event in PKHeX's event database. Unknown cards still insert. */
+  known: boolean
 }
 
 /** A known value for an event work entry, with its label. */
