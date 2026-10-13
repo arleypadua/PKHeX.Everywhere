@@ -32,7 +32,7 @@ public static class MysteryGiftHandlers
     /// Fails with <c>unparseable</c> when the bytes aren't a card, and <c>wrong-generation</c> for a card of another generation.
     /// </summary>
     [Query("mysteryGift.previewFile", Topics.Trainer)]
-    public static WonderCardPreview PreviewFile(Game game, byte[] bytes) => Refusing(() => AlbumOf(game).ReadFile(bytes)).ToPreview(game);
+    public static WonderCardPreview PreviewFile(Game game, byte[] bytes) => MappingRefusals(() => AlbumOf(game).ReadFile(bytes)).ToPreview(game);
 
     /// <summary>
     /// Puts an event's card in the album as the game does when it receives one, and marks its card number received.
@@ -63,7 +63,7 @@ public static class MysteryGiftHandlers
     public static int InsertFile(Game game, byte[] bytes, int slot)
     {
         var album = AlbumOf(game);
-        return Insert(album, Refusing(() => album.ReadFile(bytes)), slot);
+        return Insert(album, MappingRefusals(() => album.ReadFile(bytes)), slot);
     }
 
     /// <summary>
@@ -103,9 +103,9 @@ public static class MysteryGiftHandlers
     private static WonderCard FindEvent(MysteryGiftAlbum album, string id) =>
         album.FindEvent(id) ?? throw new EngineException(ErrorCodes.NotFound, $"There is no event {id} for this game.");
 
-    private static int Insert(MysteryGiftAlbum album, WonderCard card, int slot) => Refusing(() => InRange(() => album.Insert(card, slot)));
+    private static int Insert(MysteryGiftAlbum album, WonderCard card, int slot) => MappingRefusals(() => InRange(() => album.Insert(card, slot)));
 
-    private static T Refusing<T>(Func<T> read)
+    private static T MappingRefusals<T>(Func<T> read)
     {
         try
         {

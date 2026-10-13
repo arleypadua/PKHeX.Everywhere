@@ -631,7 +631,6 @@ PKHeX.Facade.MysteryGiftAlbum.ReadFile(byte[]! bytes) -> PKHeX.Facade.WonderCard
 PKHeX.Facade.MysteryGiftAlbum.Remove(int slot) -> void
 PKHeX.Facade.MysteryGiftAlbum.SetReceived(int cardId, bool value) -> void
 PKHeX.Facade.MysteryGiftAlbum.SetUnlocked(bool value) -> void
-PKHeX.Facade.MysteryGiftAlbum.SlotCount.get -> int
 PKHeX.Facade.MysteryGiftAlbum.Slots.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.WonderCard?>!
 PKHeX.Facade.MysteryGiftAlbum.Unlocked.get -> bool?
 PKHeX.Facade.MysteryGiftEvent

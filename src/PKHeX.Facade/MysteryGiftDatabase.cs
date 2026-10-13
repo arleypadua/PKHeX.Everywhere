@@ -13,7 +13,7 @@ internal static class MysteryGiftDatabase
     private static readonly Lazy<FrozenSet<string>> KnownCards = new(() =>
         Gen4.Value.Concat(Gen5.Value).Select(entry => KeyOf(new WonderCard(entry.Gift))).ToFrozenSet());
 
-    private static readonly GameVersion[] Gen4Versions = [GameVersion.D, GameVersion.P, GameVersion.Pt, GameVersion.HG, GameVersion.SS];
+    internal static readonly GameVersion[] Gen4Versions = [GameVersion.D, GameVersion.P, GameVersion.Pt, GameVersion.HG, GameVersion.SS];
     private static readonly GameVersion[] Gen5Versions = [GameVersion.B, GameVersion.W, GameVersion.B2, GameVersion.W2];
 
     public static IEnumerable<Entry> ReceivableBy(SaveFile save)
@@ -22,14 +22,18 @@ internal static class MysteryGiftDatabase
             .Where(version => save.Version == version || save.Version.Contains(version))
             .ToArray();
 
+        var compatible = Gen4Compatibility(versions);
         return save.Generation switch
         {
-            4 => Gen4.Value.Where(entry => entry.Gift is PCD { CanConvertToPGT: true } pcd
-                && versions.Any(version => (pcd.CardCompatibility & (1 << (int)version)) != 0)),
+            4 => Gen4.Value.Where(entry => entry.Gift is PCD { CanConvertToPGT: true } pcd && (pcd.CardCompatibility & compatible) != 0),
             5 => Gen5.Value.Where(entry => versions.Any(((PGF)entry.Gift).CanBeReceivedByVersion)),
             _ => [],
         };
     }
+
+    // A card lists the games that can receive it as bits by GameVersion.
+    internal static ushort Gen4Compatibility(IEnumerable<GameVersion> versions) =>
+        (ushort)versions.Aggregate(0, (bits, version) => bits | (1 << (int)version));
 
     public static bool Knows(WonderCard card) => KnownCards.Value.Contains(KeyOf(card));
 

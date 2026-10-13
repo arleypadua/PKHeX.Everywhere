@@ -34,7 +34,6 @@ public sealed class WonderCard
 
     public ItemDefinition? Item => ItemId is { } id ? ItemRepository.GetItem(id) : null;
 
-    /// <summary>The language code the card is for, such as <c>ENG</c>, or null when the card doesn't say.</summary>
     public string? Language => LanguageCode(Gift switch
     {
         PCD { Gift.IsEntity: true, Gift.IsManaphyEgg: false } pcd => pcd.Gift.PK.Language,
@@ -44,18 +43,22 @@ public sealed class WonderCard
 
     public bool Known => MysteryGiftDatabase.Knows(this);
 
-    /// <returns>The Pokémon as the delivery person would hand it to the save's trainer, or null when the card holds no Pokémon.</returns>
     public Pokemon? ToPokemon(Game game) => Kind == WonderCardKind.Pokemon ? new Pokemon(Gift.ConvertToPKM(game.SaveFile), game) : null;
+
+    private const ushort OaksLetter = 452;
+    private const ushort MemberCard = 454;
+    private const ushort AzureFlute = 455;
+    private const ushort SecretKey = 467;
 
     private ushort? ItemId => Gift switch
     {
         PCD pcd => pcd.GiftType switch
         {
             GiftType4.Item => (ushort)pcd.ItemID,
-            GiftType4.OaksLetter => 452,
-            GiftType4.MemberCard => 454,
-            GiftType4.AzureFlute => 455,
-            GiftType4.SecretKey => 467,
+            GiftType4.OaksLetter => OaksLetter,
+            GiftType4.MemberCard => MemberCard,
+            GiftType4.AzureFlute => AzureFlute,
+            GiftType4.SecretKey => SecretKey,
             _ => null,
         },
         PGF { IsItem: true } pgf => (ushort)pgf.ItemID,
@@ -84,7 +87,7 @@ public sealed class MysteryGiftEvent
         Received = received;
     }
 
-    /// <summary>Built from the card's bytes, so it stays the same across releases as long as PKHeX ships the same card.</summary>
+    // Built from the card's bytes, so it stays the same across releases as long as PKHeX ships the same card.
     public string Id { get; }
 
     public WonderCard Card { get; }

@@ -21,7 +21,6 @@ public class MysteryGiftAlbumTests
     {
         var album = Blank(version).MysteryGifts!;
 
-        album.SlotCount.Should().Be(slots);
         album.Slots.Should().HaveCount(slots).And.AllSatisfy(card => card.Should().BeNull());
     }
 
@@ -219,6 +218,14 @@ public class MysteryGiftAlbumTests
         album.Remove(1);
 
         game.SaveAndReload(reloaded => reloaded.MysteryGifts!.Slots.Take(3).Select(card => card?.Title).Should().Equal(events[0].Title, events[2].Title, null));
+    }
+
+    [Fact]
+    public void LoadingABlankGen5SaveLeavesItsBytesAlone()
+    {
+        var bytes = Blank(GameVersion.B2).ToByteArray();
+
+        Game.LoadFrom(bytes).ToByteArray().Should().Equal(bytes);
     }
 
     [Fact]
