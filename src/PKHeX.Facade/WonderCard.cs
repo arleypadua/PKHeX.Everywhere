@@ -37,7 +37,7 @@ public sealed class WonderCard
     // PKHeX's database knows a Generation 5 card's language but the card's bytes don't, so a card from a save or a file takes it from its database copy.
     public string? Language => OwnLanguage ?? MysteryGiftDatabase.LanguageOf(this);
 
-    internal string? OwnLanguage => LanguageCode(Gift switch
+    internal string? OwnLanguage => LanguageCodes.Of(Gift switch
     {
         PCD { Gift.IsEntity: true, Gift.IsManaphyEgg: false } pcd => pcd.Gift.PK.Language,
         PGF pgf => pgf.Language != 0 ? pgf.Language : pgf.RestrictLanguage,
@@ -65,18 +65,6 @@ public sealed class WonderCard
             _ => null,
         },
         PGF { IsItem: true } pgf => (ushort)pgf.ItemID,
-        _ => null,
-    };
-
-    private static string? LanguageCode(int language) => (LanguageID)language switch
-    {
-        LanguageID.Japanese => "JPN",
-        LanguageID.English => "ENG",
-        LanguageID.French => "FRE",
-        LanguageID.Italian => "ITA",
-        LanguageID.German => "GER",
-        LanguageID.Spanish => "SPA",
-        LanguageID.Korean => "KOR",
         _ => null,
     };
 }

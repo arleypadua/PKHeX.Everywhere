@@ -12,6 +12,7 @@ export const queryTopics: Record<QueryName, readonly Topic[]> = {
   'box.previewFile': ['box', 'trainer'],
   'box.showdown': ['box'],
   'catalog.names': [],
+  'encounters.events': ['game'],
   'encounters.search': ['game'],
   'encounters.versions': ['game'],
   'events.flag': ['events'],

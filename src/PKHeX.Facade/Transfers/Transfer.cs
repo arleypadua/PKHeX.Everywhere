@@ -378,20 +378,6 @@ public class Transfer(Game mine, Game partner)
         .Select(move => move.Name)
         .ToList();
 
-    // ParseSettings is global. Gen 1 and 2 need the destination's cartridge rules, and nothing else sets them, so the defaults come back after.
-    internal static PokemonLegality LegalityIn(Game destination, Pokemon arrival)
-    {
-        ParseSettings.InitFromSaveFileData(destination.SaveFile);
-        try
-        {
-            return arrival.LegalityReport();
-        }
-        finally
-        {
-            ParseSettings.ClearActiveTrainer();
-            ParseSettings.AllowEraCartGB = false;
-            ParseSettings.AllowEraCartGBA = true;
-            ParseSettings.AllowEraSwitchGBA = false;
-        }
-    }
+    internal static PokemonLegality LegalityIn(Game destination, Pokemon arrival) =>
+        SaveRules.Under(destination.SaveFile, arrival.LegalityReport);
 }
