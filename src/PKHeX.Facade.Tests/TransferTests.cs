@@ -13,26 +13,33 @@ public class TransferCollection;
 public class TransferTests
 {
     [Theory]
-    [InlineData(SaveFilePath.FireRed, SaveFilePath.Emerald, TransferRoute.Link, TransferRoute.Link)]
-    [InlineData(SaveFilePath.Yellow, SaveFilePath.Crystal, TransferRoute.TimeCapsule, TransferRoute.TimeCapsule)]
-    [InlineData(SaveFilePath.Emerald, SaveFilePath.HgSs, TransferRoute.PalPark, TransferRoute.Unofficial)]
-    [InlineData(SaveFilePath.Crystal, SaveFilePath.Emerald, TransferRoute.Unofficial, TransferRoute.Unofficial)]
+    [InlineData(SaveFilePath.FireRed, SaveFilePath.Emerald, new[] { TransferRoute.Link }, new[] { TransferRoute.Link })]
+    [InlineData(SaveFilePath.Yellow, SaveFilePath.Crystal, new[] { TransferRoute.TimeCapsule }, new[] { TransferRoute.TimeCapsule })]
+    [InlineData(SaveFilePath.Emerald, SaveFilePath.HgSs, new[] { TransferRoute.PalPark }, new[] { TransferRoute.Unofficial })]
+    [InlineData(SaveFilePath.Crystal, SaveFilePath.Emerald, new[] { TransferRoute.Unofficial }, new[] { TransferRoute.Unofficial })]
     [InlineData(SaveFilePath.Unbound, SaveFilePath.FireRed, null, null)]
     [InlineData(SaveFilePath.LetsGoPikachu, SaveFilePath.LetsGoEevee, null, null)]
-    public void RoutesFollowTheGames(string mine, string partner, TransferRoute? send, TransferRoute? receive)
+    public void RoutesFollowTheGames(string mine, string partner, TransferRoute[]? send, TransferRoute[]? receive)
     {
         var transfer = new Transfer(SaveFilePath.Load(mine), SaveFilePath.Load(partner));
 
-        (transfer.SendRoute, transfer.ReceiveRoute).Should().Be((send, receive));
+        transfer.SendRoute.Should().BeEquivalentTo(send, options => options.WithStrictOrdering());
+        transfer.ReceiveRoute.Should().BeEquivalentTo(receive, options => options.WithStrictOrdering());
     }
 
     [Theory]
-    [InlineData(GameVersion.Pt, GameVersion.R, TransferRoute.Unofficial)]
-    [InlineData(GameVersion.R, GameVersion.Pt, TransferRoute.PalPark)]
-    [InlineData(GameVersion.B, GameVersion.Pt, TransferRoute.Unofficial)]
-    [InlineData(GameVersion.C, GameVersion.E, TransferRoute.Unofficial)]
-    public void EveryOtherPairTakesTheUnofficialRoute(GameVersion from, GameVersion to, TransferRoute route) =>
-        Transfer.RouteBetween(Blank(from), Blank(to)).Should().Be(route);
+    [InlineData(GameVersion.E, GameVersion.B, new[] { TransferRoute.PalPark, TransferRoute.PokeTransfer })]
+    [InlineData(GameVersion.Pt, GameVersion.SN, new[] { TransferRoute.PokeTransfer, TransferRoute.Transporter, TransferRoute.Bank })]
+    [InlineData(GameVersion.B, GameVersion.X, new[] { TransferRoute.Transporter, TransferRoute.Bank })]
+    [InlineData(GameVersion.X, GameVersion.SN, new[] { TransferRoute.Bank })]
+    [InlineData(GameVersion.E, GameVersion.SN, new[] { TransferRoute.PalPark, TransferRoute.PokeTransfer, TransferRoute.Transporter, TransferRoute.Bank })]
+    [InlineData(GameVersion.SN, GameVersion.X, new[] { TransferRoute.Unofficial })]
+    [InlineData(GameVersion.Pt, GameVersion.R, new[] { TransferRoute.Unofficial })]
+    [InlineData(GameVersion.B, GameVersion.Pt, new[] { TransferRoute.Unofficial })]
+    [InlineData(GameVersion.C, GameVersion.E, new[] { TransferRoute.Unofficial })]
+    [InlineData(GameVersion.C, GameVersion.SN, new[] { TransferRoute.Unofficial })]
+    public void OfficialHopsChainForwardAndEveryOtherPairIsUnofficial(GameVersion from, GameVersion to, TransferRoute[] route) =>
+        Transfer.RouteBetween(Blank(from), Blank(to)).Should().Equal(route);
 
     [Theory]
     [InlineData(GameVersion.X, GameVersion.OR)]
@@ -46,7 +53,8 @@ public class TransferTests
 
         var arrived = transfer.Commit(Send(Box(0))).Single();
 
-        (transfer.SendRoute, transfer.ReceiveRoute).Should().Be((TransferRoute.Link, TransferRoute.Link));
+        transfer.SendRoute.Should().Equal(TransferRoute.Link);
+        transfer.ReceiveRoute.Should().Equal(TransferRoute.Link);
         arrived.Pokemon.Species.Name.Should().Be("Gengar");
         partner.Trainer.PokemonBox.All[arrived.BoxIndex].Species.Name.Should().Be("Gengar");
         mine.Trainer.PokemonBox.All[0].IsEmpty.Should().BeTrue();
@@ -74,6 +82,71 @@ public class TransferTests
         var omegaRuby = Boxed(GameVersion.OR, Species.Rayquaza, move: Move.Fly, relearn: Move.DragonAscent);
 
         new Transfer(omegaRuby, Blank(GameVersion.X)).Preview(Send(Box(0))).Refused.Single().Reason.Should().Be(TransferRefusal.NotInGame);
+    }
+
+    [Fact]
+    public void EachHopFromEmeraldToSunMakesItsOwnChanges()
+    {
+        var offered = new Transfer(Emerald(Charizard()), Blank(GameVersion.SN)).Preview(Send(Box(0))).Offers.Single();
+
+        offered.Route.Should().Equal(TransferRoute.PalPark, TransferRoute.PokeTransfer, TransferRoute.Transporter, TransferRoute.Bank);
+        offered.Arrives.Pkm.Should().BeOfType<PK7>();
+        offered.Changes.Should().Contain(new TransferChange(TransferField.Moves, "Fly", null, TransferChangeReason.HmRemoved))
+            .And.Contain(new TransferChange(TransferField.MetLocation, "Route 101", "Pal Park", TransferChangeReason.PalPark))
+            .And.Contain(new TransferChange(TransferField.MetLocation, "Pal Park", "Poké Transfer", TransferChangeReason.PokeTransfer))
+            .And.Contain(new TransferChange(TransferField.HeldItem, "Leftovers", null, TransferChangeReason.Transporter))
+            .And.Contain(new TransferChange(TransferField.Nickname, "CHARIZARD", "Charizard", TransferChangeReason.Transporter));
+        offered.Changes.Select(change => change.Reason).Should().BeSubsetOf([TransferChangeReason.HmRemoved, TransferChangeReason.PalPark, TransferChangeReason.PokeTransfer, TransferChangeReason.Transporter, TransferChangeReason.Bank]);
+    }
+
+    [Fact]
+    public void BankReturnsTheHeldItemToTheSendersBagAndRevertsTheFormItGave()
+    {
+        var x = Boxed(GameVersion.X, Species.Giratina, form: 1, move: Move.ShadowForce, item: TransferEffects.GriseousOrb);
+        var transfer = new Transfer(x, Blank(GameVersion.SN));
+
+        var offered = transfer.Preview(Send(Box(0))).Offers.Single();
+        var arrived = transfer.Commit(Send(Box(0))).Single().Pokemon;
+
+        offered.Changes.Should().Contain(new TransferChange(TransferField.HeldItem, "Griseous Orb", null, TransferChangeReason.Bank))
+            .And.Contain(new TransferChange(TransferField.Form, "Origin", "Altered", TransferChangeReason.Bank));
+        offered.SaveChanges.Should().Contain(new TransferSaveChange(TransferSaveChangeKind.ItemReturned, TransferSide.Sender, "Griseous Orb"));
+        (arrived.Pkm.HeldItem, arrived.Pkm.Form).Should().Be((0, (byte)0));
+        x.Trainer.Inventories.InventoryItems.Values.SelectMany(pouch => pouch.Items).Should().Contain(item => item.Id == TransferEffects.GriseousOrb && item.Count == 1);
+    }
+
+    [Fact]
+    public void TransporterReturnsTheHeldItemToTheGen5Bag()
+    {
+        var black = Boxed(GameVersion.B, Species.Gengar, item: Leftovers);
+        var transfer = new Transfer(black, Blank(GameVersion.X));
+
+        var offered = transfer.Preview(Send(Box(0))).Offers.Single();
+        transfer.Commit(Send(Box(0)));
+
+        offered.Changes.Should().Contain(new TransferChange(TransferField.HeldItem, "Leftovers", null, TransferChangeReason.Transporter));
+        offered.SaveChanges.Should().Contain(new TransferSaveChange(TransferSaveChangeKind.ItemReturned, TransferSide.Sender, "Leftovers"));
+        black.Trainer.Inventories.InventoryItems.Values.SelectMany(pouch => pouch.Items).Should().Contain(item => item.Id == Leftovers && item.Count == 1);
+    }
+
+    [Theory]
+    [InlineData(GameVersion.B2, GameVersion.X, Species.Kyurem, 1, Move.FusionFlare, TransferRefusal.Fused)]
+    [InlineData(GameVersion.X, GameVersion.SN, Species.Kyurem, 2, Move.FusionBolt, TransferRefusal.Fused)]
+    [InlineData(GameVersion.OR, GameVersion.SN, Species.Pikachu, 1, Move.Thunderbolt, TransferRefusal.SpeciesNotInGame)]
+    [InlineData(GameVersion.Pt, GameVersion.B, Species.Pichu, 1, Move.ThunderShock, TransferRefusal.SpeciesNotInGame)]
+    public void TheOriginalToolsRefusalsHold(GameVersion from, GameVersion to, Species species, byte form, Move move, TransferRefusal refusal) =>
+        new Transfer(Boxed(from, species, form, move), Blank(to)).Preview(Send(Box(0))).Refused
+            .Should().Equal(new RefusedPokemon(TransferDirection.Send, Box(0), refusal));
+
+    [Theory]
+    [InlineData(GameVersion.B, GameVersion.SN)]
+    [InlineData(GameVersion.X, GameVersion.SN)]
+    public void TransporterAndBankRefuseEggs(GameVersion from, GameVersion to)
+    {
+        var mine = Boxed(from, Species.Gastly, move: Move.Lick);
+        mine.Trainer.PokemonBox.All[0].Pkm.IsEgg = true;
+
+        new Transfer(mine, Blank(to)).Preview(Send(Box(0))).Refused.Single().Reason.Should().Be(TransferRefusal.EggAcrossGenerations);
     }
 
     [Fact]
@@ -534,7 +607,8 @@ public class TransferTests
         var (stadium, _) = Stadium(2);
         var transfer = new Transfer(stadium, Blank(partner));
 
-        (transfer.SendRoute, transfer.ReceiveRoute).Should().Be((route, route));
+        transfer.SendRoute.Should().Equal(route);
+        transfer.ReceiveRoute.Should().Equal(route);
     }
 
     [Fact]
@@ -583,6 +657,40 @@ public class TransferTests
             save.SetBoxSlotAtIndex(pokemon, i, EntityImportSettings.None);
         }
         return (new Game(save), load);
+    }
+
+    private const ushort Leftovers = 234;
+    private const ushort HoennRoute101 = 16;
+
+    private static PK3 Charizard()
+    {
+        var charizard = new PK3
+        {
+            Species = (ushort)Species.Charizard,
+            CurrentLevel = 50,
+            Move1 = (ushort)Move.Flamethrower,
+            Move2 = (ushort)Move.Fly,
+            HeldItem = ItemConverter.GetItemOld3(Leftovers),
+            OriginalTrainerFriendship = 255,
+            Language = (int)LanguageID.English,
+            OriginalTrainerName = "Trainer",
+            TID16 = 12345,
+            SID16 = 54321,
+            PID = 0x12345678,
+            Version = GameVersion.E,
+            MetLocation = HoennRoute101,
+            MetLevel = 5,
+            Ball = (byte)Ball.Poke,
+        };
+        charizard.ClearNickname();
+        return charizard;
+    }
+
+    private static Game Emerald(PK3 boxed)
+    {
+        var emerald = BlankSaveFile.Get(GameVersion.E);
+        emerald.SetBoxSlotAtIndex(boxed, 0, EntityImportSettings.None);
+        return new Game(emerald);
     }
 
     private static PK5 Venusaur()

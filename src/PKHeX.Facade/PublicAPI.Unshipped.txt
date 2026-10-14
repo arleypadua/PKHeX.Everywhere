@@ -241,9 +241,7 @@ PKHeX.Facade.Transfers.Transfer.Commit(PKHeX.Facade.Transfers.TransferOffer! off
 PKHeX.Facade.Transfers.Transfer.Mine.get -> PKHeX.Facade.Game!
 PKHeX.Facade.Transfers.Transfer.Partner.get -> PKHeX.Facade.Game!
 PKHeX.Facade.Transfers.Transfer.Preview(PKHeX.Facade.Transfers.TransferOffer! offer) -> PKHeX.Facade.Transfers.TransferPreview!
-PKHeX.Facade.Transfers.Transfer.ReceiveRoute.get -> PKHeX.Facade.Transfers.TransferRoute?
 PKHeX.Facade.Transfers.Transfer.Room.get -> PKHeX.Facade.Transfers.TransferRoom!
-PKHeX.Facade.Transfers.Transfer.SendRoute.get -> PKHeX.Facade.Transfers.TransferRoute?
 PKHeX.Facade.Transfers.Transfer.Transfer(PKHeX.Facade.Game! mine, PKHeX.Facade.Game! partner) -> void
 PKHeX.Facade.Transfers.TransferArrival
 PKHeX.Facade.Transfers.TransferArrival.BoxIndex.get -> int
@@ -272,10 +270,6 @@ PKHeX.Facade.Transfers.TransferChangeReason.ItemRemoved = 2 -> PKHeX.Facade.Tran
 PKHeX.Facade.Transfers.TransferChangeReason.Link = 3 -> PKHeX.Facade.Transfers.TransferChangeReason
 PKHeX.Facade.Transfers.TransferChangeReason.PalPark = 5 -> PKHeX.Facade.Transfers.TransferChangeReason
 PKHeX.Facade.Transfers.TransferChangeReason.PokeTransfer = 6 -> PKHeX.Facade.Transfers.TransferChangeReason
-PKHeX.Facade.Transfers.TransferChangeReason.Received = 7 -> PKHeX.Facade.Transfers.TransferChangeReason
-PKHeX.Facade.Transfers.TransferChangeReason.TradeEvolution = 8 -> PKHeX.Facade.Transfers.TransferChangeReason
-PKHeX.Facade.Transfers.TransferChangeReason.ItemUsed = 9 -> PKHeX.Facade.Transfers.TransferChangeReason
-PKHeX.Facade.Transfers.TransferChangeReason.FormReverted = 10 -> PKHeX.Facade.Transfers.TransferChangeReason
 PKHeX.Facade.Transfers.TransferChangeReason.TimeCapsule = 4 -> PKHeX.Facade.Transfers.TransferChangeReason
 PKHeX.Facade.Transfers.TransferDirection
 PKHeX.Facade.Transfers.TransferDirection.Receive = 1 -> PKHeX.Facade.Transfers.TransferDirection
@@ -402,7 +396,6 @@ override PKHeX.Facade.Transfers.TransferredPokemon.GetHashCode() -> int
 override PKHeX.Facade.Transfers.TransferredPokemon.ToString() -> string!
 static PKHeX.Facade.Transfers.RefusedPokemon.operator !=(PKHeX.Facade.Transfers.RefusedPokemon? left, PKHeX.Facade.Transfers.RefusedPokemon? right) -> bool
 static PKHeX.Facade.Transfers.RefusedPokemon.operator ==(PKHeX.Facade.Transfers.RefusedPokemon? left, PKHeX.Facade.Transfers.RefusedPokemon? right) -> bool
-static PKHeX.Facade.Transfers.Transfer.RouteBetween(PKHeX.Facade.Game! from, PKHeX.Facade.Game! to) -> PKHeX.Facade.Transfers.TransferRoute?
 static PKHeX.Facade.Transfers.TransferArrival.operator !=(PKHeX.Facade.Transfers.TransferArrival? left, PKHeX.Facade.Transfers.TransferArrival? right) -> bool
 static PKHeX.Facade.Transfers.TransferArrival.operator ==(PKHeX.Facade.Transfers.TransferArrival? left, PKHeX.Facade.Transfers.TransferArrival? right) -> bool
 static PKHeX.Facade.Transfers.TransferChange.operator !=(PKHeX.Facade.Transfers.TransferChange? left, PKHeX.Facade.Transfers.TransferChange? right) -> bool
@@ -515,8 +508,6 @@ PKHeX.Facade.Transfers.PokemonImport
 PKHeX.Facade.Transfers.PokemonRefusedException
 PKHeX.Facade.Transfers.PokemonRefusedException.PokemonRefusedException(PKHeX.Facade.Transfers.TransferRefusal reason) -> void
 PKHeX.Facade.Transfers.PokemonRefusedException.Reason.get -> PKHeX.Facade.Transfers.TransferRefusal
-PKHeX.Facade.Transfers.TransferChangeReason.NotInGame = 11 -> PKHeX.Facade.Transfers.TransferChangeReason
-PKHeX.Facade.Transfers.TransferChangeReason.Unofficial = 12 -> PKHeX.Facade.Transfers.TransferChangeReason
 PKHeX.Facade.Transfers.TransferField.Gender = 12 -> PKHeX.Facade.Transfers.TransferField
 PKHeX.Facade.Transfers.TransferField.Language = 14 -> PKHeX.Facade.Transfers.TransferField
 PKHeX.Facade.Transfers.TransferField.Level = 10 -> PKHeX.Facade.Transfers.TransferField
@@ -527,8 +518,6 @@ PKHeX.Facade.Transfers.TransferField.OriginalTrainer = 15 -> PKHeX.Facade.Transf
 PKHeX.Facade.Transfers.TransferField.Shiny = 13 -> PKHeX.Facade.Transfers.TransferField
 PKHeX.Facade.Transfers.TransferField.TrainerId = 16 -> PKHeX.Facade.Transfers.TransferField
 PKHeX.Facade.Transfers.TransferRefusal.ConversionFailed = 8 -> PKHeX.Facade.Transfers.TransferRefusal
-PKHeX.Facade.Transfers.TransferRoute.Unofficial = 4 -> PKHeX.Facade.Transfers.TransferRoute
-PKHeX.Facade.Transfers.TransferredPokemon.Route.get -> PKHeX.Facade.Transfers.TransferRoute
 PKHeX.Facade.Transfers.TransferredPokemon.Route.init -> void
 override PKHeX.Facade.Transfers.PokemonImport.Equals(object? obj) -> bool
 override PKHeX.Facade.Transfers.PokemonImport.GetHashCode() -> int
@@ -577,8 +566,6 @@ PKHeX.Facade.Transfers.TransferOffer.TransferOffer(System.Collections.Generic.IR
 PKHeX.Facade.Transfers.TransferSave
 PKHeX.Facade.Transfers.TransferSave.Mine = 0 -> PKHeX.Facade.Transfers.TransferSave
 PKHeX.Facade.Transfers.TransferSave.Partner = 1 -> PKHeX.Facade.Transfers.TransferSave
-PKHeX.Facade.Transfers.TransferredPokemon.Deconstruct(out PKHeX.Facade.Transfers.TransferDirection Direction, out PKHeX.Facade.Transfers.TransferRoute Route, out PKHeX.Facade.Transfers.TransferSlot! From, out PKHeX.Facade.Pokemons.Pokemon! Pokemon, out int ArrivesAt, out PKHeX.Facade.Pokemons.Pokemon! Arrives, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferChange!>! Changes, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSaveChange!>! SaveChanges, out PKHeX.Facade.Pokemons.PokemonLegality! Legality) -> void
-PKHeX.Facade.Transfers.TransferredPokemon.TransferredPokemon(PKHeX.Facade.Transfers.TransferDirection Direction, PKHeX.Facade.Transfers.TransferRoute Route, PKHeX.Facade.Transfers.TransferSlot! From, PKHeX.Facade.Pokemons.Pokemon! Pokemon, int ArrivesAt, PKHeX.Facade.Pokemons.Pokemon! Arrives, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferChange!>! Changes, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSaveChange!>! SaveChanges, PKHeX.Facade.Pokemons.PokemonLegality! Legality) -> void
 override PKHeX.Facade.Transfers.ArrivalOverride.Equals(object? obj) -> bool
 override PKHeX.Facade.Transfers.ArrivalOverride.GetHashCode() -> int
 override PKHeX.Facade.Transfers.ArrivalOverride.ToString() -> string!
@@ -682,3 +669,21 @@ virtual PKHeX.Facade.Repositories.EventTrainer.<Clone>$() -> PKHeX.Facade.Reposi
 virtual PKHeX.Facade.Repositories.EventTrainer.EqualityContract.get -> System.Type!
 virtual PKHeX.Facade.Repositories.EventTrainer.Equals(PKHeX.Facade.Repositories.EventTrainer? other) -> bool
 virtual PKHeX.Facade.Repositories.EventTrainer.PrintMembers(System.Text.StringBuilder! builder) -> bool
+PKHeX.Facade.Transfers.Transfer.SendRoute.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferRoute>?
+PKHeX.Facade.Transfers.Transfer.ReceiveRoute.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferRoute>?
+static PKHeX.Facade.Transfers.Transfer.RouteBetween(PKHeX.Facade.Game! from, PKHeX.Facade.Game! to) -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferRoute>?
+PKHeX.Facade.Transfers.TransferRoute.Transporter = 4 -> PKHeX.Facade.Transfers.TransferRoute
+PKHeX.Facade.Transfers.TransferredPokemon.Deconstruct(out PKHeX.Facade.Transfers.TransferDirection Direction, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferRoute>! Route, out PKHeX.Facade.Transfers.TransferSlot! From, out PKHeX.Facade.Pokemons.Pokemon! Pokemon, out int ArrivesAt, out PKHeX.Facade.Pokemons.Pokemon! Arrives, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferChange!>! Changes, out System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSaveChange!>! SaveChanges, out PKHeX.Facade.Pokemons.PokemonLegality! Legality) -> void
+PKHeX.Facade.Transfers.TransferredPokemon.TransferredPokemon(PKHeX.Facade.Transfers.TransferDirection Direction, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferRoute>! Route, PKHeX.Facade.Transfers.TransferSlot! From, PKHeX.Facade.Pokemons.Pokemon! Pokemon, int ArrivesAt, PKHeX.Facade.Pokemons.Pokemon! Arrives, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferChange!>! Changes, System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferSaveChange!>! SaveChanges, PKHeX.Facade.Pokemons.PokemonLegality! Legality) -> void
+PKHeX.Facade.Transfers.TransferRoute.Bank = 5 -> PKHeX.Facade.Transfers.TransferRoute
+PKHeX.Facade.Transfers.TransferredPokemon.Route.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferRoute>!
+PKHeX.Facade.Transfers.TransferRoute.Unofficial = 6 -> PKHeX.Facade.Transfers.TransferRoute
+PKHeX.Facade.Transfers.TransferRefusal.Fused = 10 -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Transfers.TransferChangeReason.Transporter = 7 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.Bank = 8 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.Received = 9 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.TradeEvolution = 10 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.ItemUsed = 11 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.FormReverted = 12 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.NotInGame = 13 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.Transfers.TransferChangeReason.Unofficial = 14 -> PKHeX.Facade.Transfers.TransferChangeReason

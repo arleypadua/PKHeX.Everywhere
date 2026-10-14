@@ -6,7 +6,7 @@ namespace PKHeX.Facade.Transfers;
 
 internal static class TransferConversion
 {
-    public static TransferRefusal? Convert(Pokemon pokemon, Game to, bool unofficial, out Pokemon? arrives)
+    public static TransferRefusal? Convert(Pokemon pokemon, Game to, bool unofficial, out Pokemon? arrives, bool adapt = true)
     {
         arrives = null;
         if (unofficial && !to.IsAwareOf(pokemon)) return TransferRefusal.SpeciesNotInGame;
@@ -19,7 +19,7 @@ internal static class TransferConversion
                 ? TransferRefusal.SpeciesNotInGame
                 : TransferRefusal.ConversionFailed;
 
-        to.SaveFile.AdaptToSaveFile(converted, isParty: false);
+        if (adapt) to.SaveFile.AdaptToSaveFile(converted, isParty: false);
         arrives = new Pokemon(converted, to);
         return to.IsAwareOf(arrives) ? null : TransferRefusal.SpeciesNotInGame;
     }

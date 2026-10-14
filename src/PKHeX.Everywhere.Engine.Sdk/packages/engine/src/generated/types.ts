@@ -513,13 +513,13 @@ export interface MoveSlot {
 /** A Pokémon in the offer that can be transferred, and what moving it changes. */
 export interface OfferedPokemon {
   direction: TransferDirection
-  /** How the Pokémon gets to the other save. */
-  route: TransferRoute
+  /** The hops the Pokémon takes to the other save, in order. */
+  route: TransferRoute[]
   /** The Pokémon as it is now. Its handle points to the save it leaves. */
   from: PokemonSummary
   /** The Pokémon as it will be in the other save. Its handle is the box slot it will land in. */
   arrives: PokemonSummary
-  /** The fields the move changes, in the order of `TransferField`. A move can show up once per move removed. For a Pokémon with an arrival, the Pokémon as it is against the arrival, with the route's reasons. */
+  /** The fields the move changes, in the order of `TransferField`, each with the hop that changed it. A field can show up once per hop that changes it, and a move once per move removed. For a Pokémon with an arrival, the Pokémon as it is against the arrival, with the last hop's reasons. */
   changes: TransferChange[]
   /** What the move changes in either save. */
   saveChanges: TransferSaveChange[]
@@ -1108,7 +1108,7 @@ export interface TransferChange {
 }
 
 /** Why a transfer changes a field. */
-export type TransferChangeReason = 'hmRemoved' | 'itemRemapped' | 'itemRemoved' | 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'received' | 'tradeEvolution' | 'itemUsed' | 'formReverted' | 'notInGame' | 'unofficial'
+export type TransferChangeReason = 'hmRemoved' | 'itemRemapped' | 'itemRemoved' | 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'transporter' | 'bank' | 'received' | 'tradeEvolution' | 'itemUsed' | 'formReverted' | 'notInGame' | 'unofficial'
 
 /** Which way a Pokémon moves: `send` from the loaded save to the partner, `receive` from the partner to the loaded save. */
 export type TransferDirection = 'send' | 'receive'
@@ -1135,7 +1135,7 @@ export interface TransferPreview {
 }
 
 /** Why a Pokémon can't be transferred. */
-export type TransferRefusal = 'noRoute' | 'slotLocked' | 'eggAcrossGenerations' | 'languageMismatch' | 'speciesNotInGame' | 'lastPartyMember' | 'noRoom' | 'bagFull' | 'conversionFailed' | 'notInGame'
+export type TransferRefusal = 'noRoute' | 'slotLocked' | 'eggAcrossGenerations' | 'languageMismatch' | 'speciesNotInGame' | 'lastPartyMember' | 'noRoom' | 'bagFull' | 'conversionFailed' | 'notInGame' | 'fused'
 
 /** Both saves after `transfer.commit`, ready to write back. */
 export interface TransferResult {
@@ -1155,15 +1155,15 @@ export interface TransferRoom {
   partner: number
 }
 
-/** How a Pokémon gets from one save to the other, as the games move it. */
-export type TransferRoute = 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'unofficial'
+/** One hop of the way a Pokémon gets from one save to the other, as the games move it. */
+export type TransferRoute = 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'transporter' | 'bank' | 'unofficial'
 
-/** The routes of an open transfer. A null route means Pokémon can't move that way, and every Pokémon offered that way is refused with `noRoute`. Only saves loaded with a ROM hack format and Let's Go saves have no route. */
+/** The routes of an open transfer. A route lists its hops in order, such as `['palPark', 'pokeTransfer']` from Emerald to Black. A route with one hop is a one-item list, and an unofficial route is `['unofficial']`. Routes only go where the games went: from Generation 7 to 6, and into any older game, the route is `['unofficial']`. A null route means Pokémon can't move that way, and every Pokémon offered that way is refused with `noRoute`. Only saves loaded with a ROM hack format and Let's Go saves have no route. */
 export interface TransferRoutes {
-  /** From the loaded save to the partner. */
-  send: TransferRoute | null
-  /** From the partner to the loaded save. */
-  receive: TransferRoute | null
+  /** The hops from the loaded save to the partner, in order. */
+  send: TransferRoute[] | null
+  /** The hops from the partner to the loaded save, in order. */
+  receive: TransferRoute[] | null
 }
 
 /** Which save of the open transfer: `mine`, the loaded one, or `partner`. */

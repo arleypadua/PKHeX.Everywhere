@@ -3,11 +3,12 @@ using Transfers = PKHeX.Facade.Transfers;
 namespace PKHeX.Everywhere.Engine.Dtos;
 
 /// <summary>
-/// How a Pokémon gets from one save to the other, as the games move it.
+/// One hop of the way a Pokémon gets from one save to the other, as the games move it.
 /// </summary>
 /// <remarks>
 /// <c>link</c> trades between saves of the same format. <c>timeCapsule</c> goes either way between Generation 1 and 2.
 /// <c>palPark</c> goes from Generation 3 to 4, and <c>pokeTransfer</c> from Generation 4 to 5.
+/// <c>transporter</c> takes a Generation 5 Pokémon into Pokémon Bank. <c>bank</c> takes it from Pokémon Bank into a Generation 6 or 7 game, and takes a Generation 6 Pokémon into a Generation 7 game.
 /// <c>unofficial</c> is a route no game has, where PKHeX copies the fields the destination can hold.
 /// </remarks>
 public enum TransferRoute
@@ -16,16 +17,21 @@ public enum TransferRoute
     TimeCapsule,
     PalPark,
     PokeTransfer,
+    Transporter,
+    Bank,
     Unofficial,
 }
 
 /// <summary>
-/// The routes of an open transfer. A null route means Pokémon can't move that way, and every Pokémon offered that way is refused with <c>noRoute</c>.
+/// The routes of an open transfer. A route lists its hops in order, such as <c>['palPark', 'pokeTransfer']</c> from Emerald to Black.
+/// A route with one hop is a one-item list, and an unofficial route is <c>['unofficial']</c>.
+/// Routes only go where the games went: from Generation 7 to 6, and into any older game, the route is <c>['unofficial']</c>.
+/// A null route means Pokémon can't move that way, and every Pokémon offered that way is refused with <c>noRoute</c>.
 /// Only saves loaded with a ROM hack format and Let's Go saves have no route.
 /// </summary>
-/// <param name="Send">From the loaded save to the partner.</param>
-/// <param name="Receive">From the partner to the loaded save.</param>
-public record TransferRoutes(TransferRoute? Send, TransferRoute? Receive);
+/// <param name="Send">The hops from the loaded save to the partner, in order.</param>
+/// <param name="Receive">The hops from the partner to the loaded save, in order.</param>
+public record TransferRoutes(TransferRoute[]? Send, TransferRoute[]? Receive);
 
 /// <summary>
 /// How many empty box slots each save has for Pokémon to arrive in.
@@ -97,6 +103,7 @@ public enum TransferDirection
 /// <c>noRoom</c>: the destination has no empty box slot left for it. <c>bagFull</c>: Platinum can't put back the Griseous Orb it takes before a link trade.
 /// <c>conversionFailed</c>: PKHeX can't convert it to the destination's format.
 /// <c>notInGame</c>: the destination game doesn't have one of its moves, its held item or its ability, such as a move from Omega Ruby traded to X.
+/// <c>fused</c>: Pokémon Bank won't take a Kyurem fused with Reshiram or Zekrom.
 /// </remarks>
 public enum TransferRefusal
 {
@@ -110,6 +117,7 @@ public enum TransferRefusal
     BagFull,
     ConversionFailed,
     NotInGame,
+    Fused,
 }
 
 /// <summary>
@@ -146,12 +154,13 @@ public enum TransferField
 /// </summary>
 /// <remarks>
 /// <c>hmRemoved</c>: Pal Park and Poké Transfer take away HM moves. <c>itemRemapped</c>: the item becomes another one in the destination game.
+/// <c>transporter</c> and <c>bank</c> take the held item, and a Giratina, Arceus or Genesect whose form came from it goes back to its base form.
 /// <c>itemRemoved</c>: the destination game can't hold the item. <c>received</c>: a Generation 2, 3 or 4 game sets friendship to 70 on a Pokémon it receives by link trade.
 /// <c>tradeEvolution</c>: the destination game evolves the Pokémon on arrival. <c>itemUsed</c>: the evolution uses up the held item.
 /// <c>formReverted</c>: Platinum reverts Giratina, Shaymin and Rotom to their base form before a link trade, and takes back the Griseous Orb.
 /// <c>notInGame</c>: on the unofficial route, the destination game doesn't have the move, item, ball or ability. A ball becomes a Poké Ball.
 /// <c>unofficial</c>: PKHeX changed it converting the Pokémon outside the games' routes, such as the move a Pokémon left with no moves learns.
-/// The others name the route that made the change.
+/// The others name the hop that made the change.
 /// </remarks>
 public enum TransferChangeReason
 {
@@ -162,6 +171,8 @@ public enum TransferChangeReason
     TimeCapsule,
     PalPark,
     PokeTransfer,
+    Transporter,
+    Bank,
     Received,
     TradeEvolution,
     ItemUsed,
@@ -175,6 +186,7 @@ public enum TransferChangeReason
 /// </summary>
 /// <remarks>
 /// <c>pokedexCaught</c>: the Pokédex registers the species as caught. <c>itemReturned</c>: an item the Pokémon held goes back to the sender's bag.
+/// Poké Transporter and Pokémon Bank throw away an item the sender's bag has no room for, with no <c>itemReturned</c>.
 /// <c>eventVar</c>: the game sets an event variable, as Platinum does to start its Arceus event when it receives a Pokémon from a distribution.
 /// </remarks>
 public enum TransferSaveChangeKind
@@ -210,15 +222,15 @@ public record TransferSaveChange(TransferSaveChangeKind Kind, TransferSide Save,
 /// <summary>
 /// A Pokémon in the offer that can be transferred, and what moving it changes.
 /// </summary>
-/// <param name="Route">How the Pokémon gets to the other save.</param>
+/// <param name="Route">The hops the Pokémon takes to the other save, in order.</param>
 /// <param name="From">The Pokémon as it is now. Its handle points to the save it leaves.</param>
 /// <param name="Arrives">The Pokémon as it will be in the other save. Its handle is the box slot it will land in.</param>
-/// <param name="Changes">The fields the move changes, in the order of <see cref="TransferField"/>. A move can show up once per move removed. For a Pokémon with an arrival, the Pokémon as it is against the arrival, with the route's reasons.</param>
+/// <param name="Changes">The fields the move changes, in the order of <see cref="TransferField"/>, each with the hop that changed it. A field can show up once per hop that changes it, and a move once per move removed. For a Pokémon with an arrival, the Pokémon as it is against the arrival, with the last hop's reasons.</param>
 /// <param name="SaveChanges">What the move changes in either save.</param>
 /// <param name="Legality">PKHeX's legality check of the Pokémon as it arrives, judged in the destination game.</param>
 public record OfferedPokemon(
     TransferDirection Direction,
-    TransferRoute Route,
+    TransferRoute[] Route,
     PokemonSummary From,
     PokemonSummary Arrives,
     TransferChange[] Changes,
@@ -254,7 +266,7 @@ public record TransferResult(ExportedSave Save, ExportedSave Partner, Transferre
 
 public static class TransferMapping
 {
-    public static TransferRoute? ToDto(this Transfers.TransferRoute? route) => route?.ToDto();
+    public static TransferRoute[]? ToDto(this IReadOnlyList<Transfers.TransferRoute>? route) => route?.Select(hop => hop.ToDto()).ToArray();
 
     public static TransferRoute ToDto(this Transfers.TransferRoute route) => route switch
     {
@@ -262,6 +274,8 @@ public static class TransferMapping
         Transfers.TransferRoute.TimeCapsule => TransferRoute.TimeCapsule,
         Transfers.TransferRoute.PalPark => TransferRoute.PalPark,
         Transfers.TransferRoute.PokeTransfer => TransferRoute.PokeTransfer,
+        Transfers.TransferRoute.Transporter => TransferRoute.Transporter,
+        Transfers.TransferRoute.Bank => TransferRoute.Bank,
         Transfers.TransferRoute.Unofficial => TransferRoute.Unofficial,
         _ => throw new ArgumentOutOfRangeException(nameof(route), route, null),
     };
@@ -281,6 +295,7 @@ public static class TransferMapping
         Transfers.TransferRefusal.BagFull => TransferRefusal.BagFull,
         Transfers.TransferRefusal.ConversionFailed => TransferRefusal.ConversionFailed,
         Transfers.TransferRefusal.NotInGame => TransferRefusal.NotInGame,
+        Transfers.TransferRefusal.Fused => TransferRefusal.Fused,
         _ => throw new ArgumentOutOfRangeException(nameof(refusal), refusal, null),
     };
 
@@ -319,6 +334,8 @@ public static class TransferMapping
             Transfers.TransferChangeReason.TimeCapsule => TransferChangeReason.TimeCapsule,
             Transfers.TransferChangeReason.PalPark => TransferChangeReason.PalPark,
             Transfers.TransferChangeReason.PokeTransfer => TransferChangeReason.PokeTransfer,
+            Transfers.TransferChangeReason.Transporter => TransferChangeReason.Transporter,
+            Transfers.TransferChangeReason.Bank => TransferChangeReason.Bank,
             Transfers.TransferChangeReason.Received => TransferChangeReason.Received,
             Transfers.TransferChangeReason.TradeEvolution => TransferChangeReason.TradeEvolution,
             Transfers.TransferChangeReason.ItemUsed => TransferChangeReason.ItemUsed,
