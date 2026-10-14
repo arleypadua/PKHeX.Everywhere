@@ -1034,7 +1034,7 @@ export interface TicketsAndIslands {
   anyTicketMissing: boolean
   /** Whether the Old Sea Map is missing from a non-Japanese save. It was only distributed in Japan, so ask the user before passing `includeOldSeaMap` to `events.giveTickets`. */
   oldSeaMapNeedsConfirmation: boolean
-  /** Flags for ferry access and the event islands. Empty outside Emerald. */
+  /** Flags for ferry access and the event islands. Empty outside Emerald, FireRed and LeafGreen. */
   islands: EventFlag[]
 }
 

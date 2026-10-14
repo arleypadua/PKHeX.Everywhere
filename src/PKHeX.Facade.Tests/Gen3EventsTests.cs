@@ -103,12 +103,32 @@ public class Gen3EventsTests
             reloaded.Events!.Gen3!.Islands.Single(i => i.Name == faraway.Name).Value.Should().Be(!original));
     }
 
-    [Theory]
-    [InlineData(GameVersion.R)]
-    [InlineData(GameVersion.FR)]
-    public void Islands_ShouldOnlyBeOfferedOnEmerald(GameVersion version)
+    [Fact]
+    public void Tickets_FireRed_ShouldEnableTheShipsToTheirIslands()
     {
-        Blank(version).Events!.Gen3!.Islands.Should().BeEmpty();
+        var game = Game.LoadFrom(SaveFilePath.FireRed);
+
+        game.Events!.Gen3!.Tickets.Give(includeOldSeaMap: true);
+
+        game.SaveAndReload(reloaded =>
+            reloaded.Events!.Gen3!.Islands
+                .Where(i => i.Name is "Reachable: Birth Island" or "Reachable: Navel Rock")
+                .Select(i => i.Value)
+                .Should().Equal(true, true));
+    }
+
+    [Fact]
+    public void Islands_FireRed_ShouldOfferBirthIslandAndNavelRock()
+    {
+        Blank(GameVersion.FR).Events!.Gen3!.Islands.Select(i => (i.Index, i.Name)).Should().Equal(
+            (0x84B, "Reachable: Birth Island"),
+            (0x84A, "Reachable: Navel Rock"));
+    }
+
+    [Fact]
+    public void Islands_ShouldNotBeOfferedOnRuby()
+    {
+        Blank(GameVersion.R).Events!.Gen3!.Islands.Should().BeEmpty();
     }
 
     [Theory]

@@ -18,6 +18,7 @@ public sealed class Gen3Events
     internal static Gen3Events? For(Game game) => game.SaveFile switch
     {
         SAV3E emerald => new Gen3Events(new EventTickets(game), EmeraldIslands(emerald)),
+        SAV3FRLG frlg => new Gen3Events(new EventTickets(game), FireRedLeafGreenIslands(frlg)),
         SAV3 => new Gen3Events(new EventTickets(game), []),
         _ => null,
     };
@@ -36,7 +37,13 @@ public sealed class Gen3Events
         Island(save, 0x1DB, "Initial event: Navel Rock"),
     ];
 
-    private static EventFlagEntry Island(SAV3E save, int flag, string name) =>
+    private static ImmutableList<EventFlagEntry> FireRedLeafGreenIslands(SAV3FRLG save) =>
+    [
+        Island(save, EventTickets.BirthIslandShipFlag, "Reachable: Birth Island"),
+        Island(save, EventTickets.NavelRockShipFlag, "Reachable: Navel Rock"),
+    ];
+
+    private static EventFlagEntry Island(SAV3 save, int flag, string name) =>
         new(flag, name, nameof(NamedEventType.Misc), () => save.GetEventFlag(flag), v => save.SetEventFlag(flag, v));
 }
 
@@ -49,6 +56,15 @@ public sealed class EventTickets
     private const ushort AuroraTicketId = 371;
     private const ushort OldSeaMapId = 376;
     private static readonly ushort[] TicketIds = [SsTicketId, EonTicketId, MysticTicketId, AuroraTicketId, OldSeaMapId];
+    internal const int BirthIslandShipFlag = 0x84B;
+    internal const int NavelRockShipFlag = 0x84A;
+
+    // The Seagallop at Vermilion checks these flags as well as the ticket; a real distribution sets them.
+    private static readonly Dictionary<ushort, int> FireRedLeafGreenShipFlags = new()
+    {
+        [AuroraTicketId] = BirthIslandShipFlag,
+        [MysticTicketId] = NavelRockShipFlag,
+    };
 
     private readonly Game _game;
 
@@ -82,7 +98,11 @@ public sealed class EventTickets
             throw new InvalidOperationException("Not enough space in the Key Items pouch.");
 
         foreach (var ticket in toAdd)
+        {
             Pouch.Set(ticket.Id, 1);
+            if (_game.SaveFile is SAV3FRLG frlg && FireRedLeafGreenShipFlags.TryGetValue(ticket.Id, out var flag))
+                frlg.SetEventFlag(flag, true);
+        }
 
         return toAdd;
     }
