@@ -43,6 +43,7 @@ describe('cardGeneration', () => {
     version: 'Emerald',
     generation: 3,
     hasEvents: true,
+    hasMysteryGift: false,
     format: null,
     capabilities: [],
     statsApproximate: false,

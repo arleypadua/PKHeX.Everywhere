@@ -2,7 +2,7 @@
 
 import type { QueryName } from './client'
 
-export const topics = ['*', 'game', 'party', 'box', 'inventory', 'events', 'trainer', 'draft', 'plugins', 'transfer', 'team'] as const
+export const topics = ['*', 'game', 'party', 'box', 'inventory', 'events', 'trainer', 'draft', 'plugins', 'transfer', 'team', 'mysteryGift'] as const
 
 export type Topic = (typeof topics)[number] | `${(typeof topics)[number]}/${string}`
 
@@ -29,6 +29,10 @@ export const queryTopics: Record<QueryName, readonly Topic[]> = {
   'game.types': ['game'],
   'game.version': ['game'],
   'inventory.get': ['inventory'],
+  'mysteryGift.events': ['mysteryGift'],
+  'mysteryGift.previewEvent': ['trainer'],
+  'mysteryGift.previewFile': ['trainer'],
+  'mysteryGift.status': ['mysteryGift'],
   'party.get': ['party'],
   'party.showdown': ['party'],
   'plugins.actions': ['*'],

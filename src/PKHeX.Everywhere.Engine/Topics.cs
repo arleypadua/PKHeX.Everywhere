@@ -13,4 +13,5 @@ public static class Topics
     public const string PlugIns = "plugins";
     public const string Transfer = "transfer";
     public const string Team = "team";
+    public const string MysteryGift = "mysteryGift";
 }

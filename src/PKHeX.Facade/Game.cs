@@ -30,6 +30,7 @@ public class Game
         Trainer = new Trainer(this);
         BattlePoints = BattlePoints.GetInstance(saveFile);
         Teams = Teams.Of(this);
+        MysteryGifts = MysteryGiftAlbum.Of(this);
         _events = new Lazy<GameEvents?>(() => Supports(Capability.Events) ? GameEvents.For(this) : null);
     }
 
@@ -60,6 +61,7 @@ public class Game
     public BattlePoints BattlePoints { get; }
 
     public Teams? Teams { get; }
+    public MysteryGiftAlbum? MysteryGifts { get; }
     public GameEvents? Events => _events.Value;
     public Progress Progress => Progress.Of(SaveFile);
     public Badges? Badges => Badges.Of(SaveFile);

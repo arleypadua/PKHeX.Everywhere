@@ -5,13 +5,14 @@ import {
   draftHandle,
   EngineError,
   type EditablePokemon,
+  type GiftAlbum,
   type Engine,
   type ErrorCode,
   type PokemonHandle,
   type PokemonPatch,
   type PokemonSummary,
 } from '@pkhex-everywhere/engine'
-import { EngineProvider, useLoadedGame, useParty, usePokemon, usePokemonDetails } from '../src'
+import { EngineProvider, useLoadedGame, useMysteryGift, useParty, usePokemon, usePokemonDetails } from '../src'
 import { fakeEngine } from './fakeEngine'
 
 const at: PokemonHandle = { source: 'party', slot: 0, box: null }
@@ -184,5 +185,22 @@ describe('entity hooks', () => {
 
     expect(result.current.details.level).toBe(50)
     expect(result.current.details.nickname).toBe('Pikachu')
+  })
+
+  it('useMysteryGift refreshes the album after an insert', async () => {
+    const card = { title: 'Liberty Pass', kind: 'item', species: null, item: { id: 590, name: 'Liberty Pass' }, language: 'ENG', cardId: 105, known: true } as const
+    let album: GiftAlbum = { unlocked: false, slots: [{ index: 0, card: null }] }
+    const { engine, calls, emitChange } = fakeEngine((name) => {
+      if (name === 'mysteryGift.status') return album
+      album = { ...album, slots: [{ index: 0, card }] }
+      emitChange(['mysteryGift'])
+      return 0
+    })
+
+    const result = await renderEngineHook(engine, () => useMysteryGift())
+    await act(() => result.current.insertEvent('pgf-105-ENG', 0))
+
+    expect(calls.at(-2)).toEqual({ name: 'mysteryGift.insertEvent', args: ['pgf-105-ENG', 0] })
+    expect(result.current.album.slots[0].card).toEqual(card)
   })
 })

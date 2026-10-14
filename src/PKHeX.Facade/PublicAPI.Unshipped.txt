@@ -621,3 +621,41 @@ virtual PKHeX.Facade.Team.<Clone>$() -> PKHeX.Facade.Team!
 virtual PKHeX.Facade.Team.EqualityContract.get -> System.Type!
 virtual PKHeX.Facade.Team.Equals(PKHeX.Facade.Team? other) -> bool
 virtual PKHeX.Facade.Team.PrintMembers(System.Text.StringBuilder! builder) -> bool
+PKHeX.Facade.Game.MysteryGifts.get -> PKHeX.Facade.MysteryGiftAlbum?
+PKHeX.Facade.MysteryGiftAlbum
+PKHeX.Facade.MysteryGiftAlbum.Events.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.MysteryGiftEvent!>!
+PKHeX.Facade.MysteryGiftAlbum.FindEvent(string! id) -> PKHeX.Facade.WonderCard?
+PKHeX.Facade.MysteryGiftAlbum.Insert(PKHeX.Facade.WonderCard! card, int slot) -> int
+PKHeX.Facade.MysteryGiftAlbum.IsReceived(int cardId) -> bool
+PKHeX.Facade.MysteryGiftAlbum.ReadFile(byte[]! bytes) -> PKHeX.Facade.WonderCard!
+PKHeX.Facade.MysteryGiftAlbum.Remove(int slot) -> void
+PKHeX.Facade.MysteryGiftAlbum.SetReceived(int cardId, bool value) -> void
+PKHeX.Facade.MysteryGiftAlbum.SetUnlocked(bool value) -> void
+PKHeX.Facade.MysteryGiftAlbum.Slots.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.WonderCard?>!
+PKHeX.Facade.MysteryGiftAlbum.Unlocked.get -> bool?
+PKHeX.Facade.MysteryGiftEvent
+PKHeX.Facade.MysteryGiftEvent.Card.get -> PKHeX.Facade.WonderCard!
+PKHeX.Facade.MysteryGiftEvent.Id.get -> string!
+PKHeX.Facade.MysteryGiftEvent.Received.get -> bool
+PKHeX.Facade.WonderCard
+PKHeX.Facade.WonderCard.CardId.get -> int
+PKHeX.Facade.WonderCard.Generation.get -> int
+PKHeX.Facade.WonderCard.Item.get -> PKHeX.Facade.Repositories.ItemDefinition?
+PKHeX.Facade.WonderCard.Kind.get -> PKHeX.Facade.WonderCardKind
+PKHeX.Facade.WonderCard.Known.get -> bool
+PKHeX.Facade.WonderCard.Language.get -> string?
+PKHeX.Facade.WonderCard.Species.get -> PKHeX.Facade.Repositories.SpeciesDefinition?
+PKHeX.Facade.WonderCard.Title.get -> string!
+PKHeX.Facade.WonderCard.ToPokemon(PKHeX.Facade.Game! game) -> PKHeX.Facade.Pokemons.Pokemon?
+PKHeX.Facade.WonderCardKind
+PKHeX.Facade.WonderCardKind.Item = 1 -> PKHeX.Facade.WonderCardKind
+PKHeX.Facade.WonderCardKind.Other = 2 -> PKHeX.Facade.WonderCardKind
+PKHeX.Facade.WonderCardKind.Pokemon = 0 -> PKHeX.Facade.WonderCardKind
+PKHeX.Facade.WonderCardRefusal
+PKHeX.Facade.WonderCardRefusal.DeliveryQueueFull = 3 -> PKHeX.Facade.WonderCardRefusal
+PKHeX.Facade.WonderCardRefusal.NotACard = 0 -> PKHeX.Facade.WonderCardRefusal
+PKHeX.Facade.WonderCardRefusal.NotForTheAlbum = 2 -> PKHeX.Facade.WonderCardRefusal
+PKHeX.Facade.WonderCardRefusal.WrongGeneration = 1 -> PKHeX.Facade.WonderCardRefusal
+PKHeX.Facade.WonderCardRefusedException
+PKHeX.Facade.WonderCardRefusedException.Reason.get -> PKHeX.Facade.WonderCardRefusal
+PKHeX.Facade.WonderCardRefusedException.WonderCardRefusedException(PKHeX.Facade.WonderCardRefusal reason, string! message) -> void

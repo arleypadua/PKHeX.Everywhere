@@ -62,6 +62,10 @@ _Avoid_: working copy, scratch Pokémon
 A team of up to six Pokémon that a Stadium save keeps for a cup. Only Pokémon Stadium, Pocket Monsters Stadium and Stadium 2 saves have them. A Pokémon is copied into a team from a box, and a team never has a gap.
 _Avoid_: party, which Stadium saves don't have
 
+**Wonder Card album**:
+The Mystery Gift cards a Generation 4 or 5 save holds: 3 in Generation 4, 12 in Generation 5. Inserting a card is a real reception, so the player collects the gift from the delivery person in the game. The album never has a gap.
+_Avoid_: mystery gift slots, gift inbox
+
 **Transfer**:
 Moving Pokémon between the loaded save and a partner save the Engine holds next to it, along a Route. A preview refuses what the destination can't hold, such as a species or an egg from another generation, and a commit with any refused Pokémon writes nothing. On the unofficial Route it strips the moves, item, ball and ability the destination game doesn't have instead. The receiving game applies its trade rules on arrival, such as trade evolutions.
 _Avoid_: trade, except for the link trade; migration

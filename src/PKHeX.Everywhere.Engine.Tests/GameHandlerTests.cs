@@ -30,7 +30,7 @@ public class GameHandlerTests
         session.Load(Game.LoadFrom(SaveFilePath.HgSs), "soulsilver.dsv");
 
         Value(Dispatch(session, "game.get", "[]"))!.ToJsonString()
-            .Should().Be($$"""{"fileName":"soulsilver.dsv","version":"{{session.Game!.GameVersionApproximation.Name}}","generation":4,"hasEvents":true,"format":null,"capabilities":["legality","autoLegality","encounters","showdown","events","plugIns"],"statsApproximate":false}""");
+            .Should().Be($$"""{"fileName":"soulsilver.dsv","version":"{{session.Game!.GameVersionApproximation.Name}}","generation":4,"hasEvents":true,"hasMysteryGift":true,"format":null,"capabilities":["legality","autoLegality","encounters","showdown","events","plugIns"],"statsApproximate":false}""");
     }
 
     [Fact]

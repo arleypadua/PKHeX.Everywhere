@@ -126,9 +126,31 @@ await engine.team.clear({ team: 1, slot: 0 })
 - `pokemon.get`, `pokemon.details`, `pokemon.edit`, `pokemon.commit`, `pokemon.clone` and `pokemon.export` take team handles like box handles. Transfers don't.
 - `cup` is null in Pocket Monsters Stadium, which doesn't sort teams by cup.
 
+## Mystery Gift
+
+Generation 4 and 5 saves have a Wonder Card album, and `game.get` reports it as `hasMysteryGift`. The `mysteryGift` calls fail with `not-supported` on other saves.
+
+```ts
+const album = await engine.mysteryGift.status()
+// { unlocked: false, slots: [{ index: 0, card: null }, ...] }
+
+const events = await engine.mysteryGift.events()
+// [{ id: 'pgf-2046-ENG-c62055f4', title: 'Get the Liberty Pass!', kind: 'item', cardId: 2046, received: false, ... }, ...]
+
+const preview = await engine.mysteryGift.previewFile(file) // .pgt, .pcd, .wc4 or .pgf
+await engine.mysteryGift.insertEvent(events[0].id, 0)
+await engine.mysteryGift.setUnlocked(true)
+```
+
+- An insert is a real reception: the player collects the gift from the delivery person in the game. Nothing goes straight into the party, boxes or bag.
+- An insert marks the card number received but leaves Mystery Gift locked. Call `setUnlocked` to show it in a Generation 4 game's menu. Generation 5 games show it once the player has the Pokédex, so `unlocked` is null and `setUnlocked` fails with `not-supported`.
+- The album never has a gap. An insert past the filled slots lands in the first empty one and resolves to that slot, and `remove` moves the later cards up.
+- `events` lists every language. `language` is null when the card doesn't say, as Generation 4 item cards don't.
+- A file for another generation fails with `wrong-generation`, and bytes that aren't a card fail with `unparseable`. A card PKHeX doesn't know still inserts, with `known: false`.
+
 ## Reacting to changes
 
-`engine.subscribe(topics, callback)` calls back when a command changes something under those topics. Topics are `game`, `party`, `box`, `team`, `inventory`, `events`, `trainer`, `draft`, `plugins`, `transfer`, or `*` for everything:
+`engine.subscribe(topics, callback)` calls back when a command changes something under those topics. Topics are `game`, `party`, `box`, `team`, `mysteryGift`, `inventory`, `events`, `trainer`, `draft`, `plugins`, `transfer`, or `*` for everything:
 
 ```ts
 const stop = engine.subscribe(['party'], async () => {

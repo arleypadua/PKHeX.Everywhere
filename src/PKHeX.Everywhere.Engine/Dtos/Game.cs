@@ -12,10 +12,11 @@ namespace PKHeX.Everywhere.Engine.Dtos;
 /// <param name="Version">The game's display name, such as <c>Emerald</c>. Saves that can't tell paired games apart (such as HeartGold and SoulSilver) report one of the pair.</param>
 /// <param name="Generation">The generation number, from 1 to 9.</param>
 /// <param name="HasEvents">Whether the save has event flags and work to edit. When false, <c>events.get</c> returns null, or fails with <c>not-supported</c> when the save doesn't support <c>events</c>.</param>
+/// <param name="HasMysteryGift">Whether the save has a Wonder Card album: Generation 4 and 5 saves do. When false, the <c>mysteryGift</c> calls fail with <c>not-supported</c>.</param>
 /// <param name="Format">The save format the save loaded through, or null for a save PKHeX reads on its own.</param>
 /// <param name="Capabilities">What the save supports. A save from PKHeX supports all of them. Calls behind a capability that's missing fail with <c>not-supported</c>.</param>
 /// <param name="StatsApproximate">Whether computed stats may differ from the game's. ROM hacks use the official games' base stats, which the hack may change.</param>
-public record SaveSummary(string? FileName, string Version, int Generation, bool HasEvents, SaveFormat? Format, SaveCapability[] Capabilities, bool StatsApproximate);
+public record SaveSummary(string? FileName, string Version, int Generation, bool HasEvents, bool HasMysteryGift, SaveFormat? Format, SaveCapability[] Capabilities, bool StatsApproximate);
 
 /// <summary>
 /// A save format PKHeX doesn't know, such as a ROM hack's, that the engine loads on its own.
@@ -109,6 +110,7 @@ public static class GameMapping
         game.GameVersionApproximation.Name,
         game.SaveFile.Generation,
         game.Events is not null,
+        game.MysteryGifts is not null,
         game.Format?.ToDto(),
         game.Capabilities.Order().Select(ToDto).ToArray(),
         game.GameData.StatsApproximate);

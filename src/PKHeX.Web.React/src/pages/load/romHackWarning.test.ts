@@ -7,6 +7,7 @@ const fireRed: SaveSummary = {
   version: 'FireRed',
   generation: 3,
   hasEvents: true,
+  hasMysteryGift: false,
   format: null,
   capabilities: [],
   statsApproximate: false,

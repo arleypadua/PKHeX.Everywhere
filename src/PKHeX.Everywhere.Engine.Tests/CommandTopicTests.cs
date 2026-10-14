@@ -76,6 +76,16 @@ public class CommandTopicTests
         ["pokemon.clone"] = (game, _) => Pokemons(game).Select(p => Args(p.At)),
         ["pokemon.addToBox"] = (_, _) => ["[]"],
         ["species.list"] = (_, _) => ["[]"],
+        ["mysteryGift.status"] = (game, _) => game.MysteryGifts is null ? [] : ["[]"],
+        ["mysteryGift.events"] = (game, _) => game.MysteryGifts is null ? [] : ["[]"],
+        // A Pokémon's preview rolls a new PID each time, so the previews read an item card.
+        ["mysteryGift.previewEvent"] = (game, _) => ItemEvent(game) is { } id ? [Args(id)] : [],
+        ["mysteryGift.previewFile"] = (game, _) => ItemCard(game) is { } bytes ? [Args(bytes)] : [],
+        ["mysteryGift.insertEvent"] = (game, _) => ItemEvent(game) is { } id ? [Args(id, 0)] : [],
+        ["mysteryGift.insertFile"] = (game, _) => ItemCard(game) is { } bytes ? [Args(bytes, 0)] : [],
+        ["mysteryGift.remove"] = (game, _) => game.MysteryGifts is null ? [] : [Args(0)],
+        ["mysteryGift.setUnlocked"] = (game, _) => game.MysteryGifts is { Unlocked: { } unlocked } ? [Args(!unlocked)] : [],
+        ["mysteryGift.setReceived"] = (game, _) => game.MysteryGifts is { } album ? [Args(1, !album.IsReceived(1))] : [],
         ["team.list"] = (_, _) => ["[]"],
         ["team.get"] = (game, _) => game.Teams is null ? [] : [Args(0)],
         ["team.place"] = (game, _) => game.Teams is not null && FirstBoxPokemon(game) is var (at, _) ? [Args(at, new TeamSlot(0, 0))] : [],
@@ -180,6 +190,13 @@ public class CommandTopicTests
         if (OwnedItem(game) is { } owned) yield return Args(owned, 0);
         if (game.Events?.Gen3?.Tickets.Missing.FirstOrDefault() is { } ticket) yield return Args(new ItemHandle("KeyItems", ticket.Id), 1);
     }
+
+    private static string? ItemEvent(Game game) =>
+        game.MysteryGifts?.Events.First(e => e.Card.Kind == WonderCardKind.Item).Id;
+
+    private static string? ItemCard(Game game) => game.SaveFile.Generation == 4 && game.MysteryGifts is not null
+        ? Convert.ToBase64String(EncounterEvent.MGDB_G4.First(c => c.GiftType == GiftType4.Item && (c.CardCompatibility & (1 << (int)GameVersion.HG)) != 0).Data)
+        : null;
 
     private static IEnumerable<EventFlagEntry> Flags(Game game) =>
         game.Events is { } events ? [events.Flags.Last(), .. events.Gen3?.Islands.Take(1) ?? []] : [];

@@ -24,5 +24,6 @@ public static class ErrorCodes
     public const string NoTransfer = "no-transfer";
     public const string TransferRefused = "transfer-refused";
     public const string BadChecksum = "bad-checksum";
+    public const string WrongGeneration = "wrong-generation";
     public const string Unexpected = "unexpected";
 }
