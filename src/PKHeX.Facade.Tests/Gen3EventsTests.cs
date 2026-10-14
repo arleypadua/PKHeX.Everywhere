@@ -103,12 +103,29 @@ public class Gen3EventsTests
             reloaded.Events!.Gen3!.Islands.Single(i => i.Name == faraway.Name).Value.Should().Be(!original));
     }
 
-    [Theory]
-    [InlineData(GameVersion.R)]
-    [InlineData(GameVersion.FR)]
-    public void Islands_ShouldOnlyBeOfferedOnEmerald(GameVersion version)
+    [Fact]
+    public void Tickets_FireRed_ShouldEnableTheShipsToTheirIslands()
     {
-        Blank(version).Events!.Gen3!.Islands.Should().BeEmpty();
+        var game = Blank(GameVersion.FR);
+        ShipFlags(game).Should().Equal(false, false);
+
+        game.Events!.Gen3!.Tickets.Give(includeOldSeaMap: true);
+
+        ShipFlags(game).Should().Equal(true, true);
+    }
+
+    [Fact]
+    public void Islands_FireRed_ShouldOfferBirthIslandAndNavelRock()
+    {
+        Blank(GameVersion.FR).Events!.Gen3!.Islands.Select(i => (i.Index, i.Name)).Should().Equal(
+            (0x84B, "Reachable: Birth Island"),
+            (0x84A, "Reachable: Navel Rock"));
+    }
+
+    [Fact]
+    public void Islands_ShouldNotBeOfferedOnRuby()
+    {
+        Blank(GameVersion.R).Events!.Gen3!.Islands.Should().BeEmpty();
     }
 
     [Theory]
@@ -118,6 +135,9 @@ public class Gen3EventsTests
     {
         Game.LoadFrom(SaveFilePath.PathFrom(version)).Events!.Gen3.Should().BeNull();
     }
+
+    private static IEnumerable<bool> ShipFlags(Game game) =>
+        game.Events!.Gen3!.Islands.Where(i => i.Index is 0x84B or 0x84A).Select(i => i.Value);
 
     private static Game Blank(GameVersion version) =>
         Game.EmptyOf(GameVersionRepository.Instance.Get(version), "ASH");

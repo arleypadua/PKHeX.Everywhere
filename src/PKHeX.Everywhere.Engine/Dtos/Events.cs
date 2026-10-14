@@ -31,7 +31,7 @@ public record EventWork(int Index, string Name, string Category, int Value, Work
 /// <param name="Tickets">Names of the event tickets this game's Key Items pouch can hold. <c>events.giveTickets</c> adds the missing ones.</param>
 /// <param name="AnyTicketMissing">Whether at least one of the tickets is not in the Key Items pouch.</param>
 /// <param name="OldSeaMapNeedsConfirmation">Whether the Old Sea Map is missing from a non-Japanese save. It was only distributed in Japan, so ask the user before passing <c>includeOldSeaMap</c> to <c>events.giveTickets</c>.</param>
-/// <param name="Islands">Flags for ferry access and the event islands. Empty outside Emerald.</param>
+/// <param name="Islands">Flags for ferry access and the event islands. Empty outside Emerald, FireRed and LeafGreen.</param>
 public record TicketsAndIslands(string[] Tickets, bool AnyTicketMissing, bool OldSeaMapNeedsConfirmation, EventFlag[] Islands);
 
 /// <summary>
