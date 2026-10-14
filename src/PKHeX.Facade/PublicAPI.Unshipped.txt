@@ -659,3 +659,4 @@ PKHeX.Facade.WonderCardRefusal.WrongGeneration = 1 -> PKHeX.Facade.WonderCardRef
 PKHeX.Facade.WonderCardRefusedException
 PKHeX.Facade.WonderCardRefusedException.Reason.get -> PKHeX.Facade.WonderCardRefusal
 PKHeX.Facade.WonderCardRefusedException.WonderCardRefusedException(PKHeX.Facade.WonderCardRefusal reason, string! message) -> void
+PKHeX.Facade.Transfers.TransferRefusal.NotInGame = 9 -> PKHeX.Facade.Transfers.TransferRefusal

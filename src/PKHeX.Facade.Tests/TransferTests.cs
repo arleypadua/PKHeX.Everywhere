@@ -34,6 +34,48 @@ public class TransferTests
     public void EveryOtherPairTakesTheUnofficialRoute(GameVersion from, GameVersion to, TransferRoute route) =>
         Transfer.RouteBetween(Blank(from), Blank(to)).Should().Be(route);
 
+    [Theory]
+    [InlineData(GameVersion.X, GameVersion.OR)]
+    [InlineData(GameVersion.OR, GameVersion.X)]
+    [InlineData(GameVersion.SN, GameVersion.US)]
+    [InlineData(GameVersion.US, GameVersion.SN)]
+    public void Gen6And7SavesTradeByLinkWithinTheirGeneration(GameVersion from, GameVersion to)
+    {
+        var (mine, partner) = (Boxed(from, Species.Gengar), Blank(to));
+        var transfer = new Transfer(mine, partner);
+
+        var arrived = transfer.Commit(Send(Box(0))).Single();
+
+        (transfer.SendRoute, transfer.ReceiveRoute).Should().Be((TransferRoute.Link, TransferRoute.Link));
+        arrived.Pokemon.Species.Name.Should().Be("Gengar");
+        partner.Trainer.PokemonBox.All[arrived.BoxIndex].Species.Name.Should().Be("Gengar");
+        mine.Trainer.PokemonBox.All[0].IsEmpty.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(GameVersion.OR, GameVersion.X, Species.Pikachu, 1, Move.Thunderbolt, 0, TransferRefusal.SpeciesNotInGame)]
+    [InlineData(GameVersion.OR, GameVersion.X, Species.Rayquaza, 0, Move.DragonAscent, 0, TransferRefusal.NotInGame)]
+    [InlineData(GameVersion.OR, GameVersion.X, Species.Swampert, 0, Move.Surf, 752, TransferRefusal.NotInGame)]
+    [InlineData(GameVersion.US, GameVersion.SN, Species.Poipole, 0, Move.Peck, 0, TransferRefusal.SpeciesNotInGame)]
+    [InlineData(GameVersion.US, GameVersion.SN, Species.Lycanroc, 2, Move.Tackle, 0, TransferRefusal.SpeciesNotInGame)]
+    [InlineData(GameVersion.US, GameVersion.SN, Species.Necrozma, 0, Move.PhotonGeyser, 0, TransferRefusal.NotInGame)]
+    [InlineData(GameVersion.US, GameVersion.SN, Species.Mimikyu, 0, Move.Tackle, 924, TransferRefusal.NotInGame)]
+    public void AGameRefusesWhatOnlyItsSequelHas(GameVersion from, GameVersion to, Species species, byte form, Move move, int item, TransferRefusal refusal)
+    {
+        var transfer = new Transfer(Boxed(from, species, form, move, item), Blank(to));
+
+        transfer.Preview(Send(Box(0))).Refused.Should().Equal(new RefusedPokemon(TransferDirection.Send, Box(0), refusal));
+        new Transfer(transfer.Mine, Blank(from)).Preview(Send(Box(0))).Refused.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void XRefusesARelearnMoveOnlyOmegaRubyHas()
+    {
+        var omegaRuby = Boxed(GameVersion.OR, Species.Rayquaza, move: Move.Fly, relearn: Move.DragonAscent);
+
+        new Transfer(omegaRuby, Blank(GameVersion.X)).Preview(Send(Box(0))).Refused.Single().Reason.Should().Be(TransferRefusal.NotInGame);
+    }
+
     [Fact]
     public void RoomCountsTheEmptyBoxSlots() =>
         new Transfer(SaveFilePath.Load(SaveFilePath.FireRed), SaveFilePath.Load(SaveFilePath.Emerald)).Room.Should().Be(new TransferRoom(63, 7));
@@ -622,6 +664,21 @@ public class TransferTests
     }
 
     private static Game Blank(GameVersion version) => new(BlankSaveFile.Get(version));
+
+    private static Game Boxed(GameVersion version, Species species, byte form = 0, Move move = Move.ShadowBall, int item = 0, Move relearn = Move.None)
+    {
+        var save = BlankSaveFile.Get(version);
+        var pokemon = save.BlankPKM;
+        pokemon.Species = (ushort)species;
+        pokemon.Form = form;
+        pokemon.CurrentLevel = 50;
+        pokemon.Move1 = (ushort)move;
+        pokemon.RelearnMove1 = (ushort)relearn;
+        pokemon.HeldItem = item;
+        pokemon.Language = (int)LanguageID.English;
+        save.SetBoxSlotAtIndex(pokemon, 0, EntityImportSettings.None);
+        return new Game(save);
+    }
 
     private static List<string> Moves(Pokemon pokemon) => pokemon.Moves.Values.Select(slot => slot.Move).Where(move => move.Id != 0).Select(move => move.Name).ToList();
 

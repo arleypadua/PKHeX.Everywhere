@@ -28,6 +28,7 @@ public enum TransferRefusal
     NoRoom,
     BagFull,
     ConversionFailed,
+    NotInGame,
 }
 
 public enum TransferField

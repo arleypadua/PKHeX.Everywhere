@@ -136,6 +136,7 @@ public class Transfer(Game mine, Game partner)
                 not TransferRoute.Link when pokemon.Pkm.IsEgg => TransferRefusal.EggAcrossGenerations,
                 _ when !IsLanguageCompatible(pokemon, to) => TransferRefusal.LanguageMismatch,
                 _ when TransferConversion.Convert(leaving, to, route == TransferRoute.Unofficial, out converted) is { } failed => failed,
+                TransferRoute.Link when !TransferConversion.CanHold(to, converted!) => TransferRefusal.NotInGame,
                 _ when leavesParty && partyLeft == 1 => TransferRefusal.LastPartyMember,
                 _ when room.Count == 0 => TransferRefusal.NoRoom,
                 _ when tookOrb && !BagHasRoom(from, TransferEffects.GriseousOrb, orbsReturned + 1) => TransferRefusal.BagFull,

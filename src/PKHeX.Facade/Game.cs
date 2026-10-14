@@ -146,7 +146,7 @@ public class Game
         string? trainerName = null)
     {
         // PKHeX writes a Gen 2 name one character past the game's limit and overflows, so the Trainer cuts it first.
-        var game = new Game(StadiumSaves.Blank(version.Version) ?? BlankSaveFile.Get(version.Version));
+        var game = new Game(StadiumSaves.Blank(version.Version) ?? BeefSaves.Sealed(BlankSaveFile.Get(version.Version)));
         game.Trainer.Name = trainerName ?? "PKHeXWeb";
         return game;
     }
