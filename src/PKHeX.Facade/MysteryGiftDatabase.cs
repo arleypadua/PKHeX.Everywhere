@@ -10,8 +10,10 @@ internal static class MysteryGiftDatabase
 
     private static readonly Lazy<IReadOnlyList<Entry>> Gen4 = new(() => Index("pcd", EncounterEvent.MGDB_G4));
     private static readonly Lazy<IReadOnlyList<Entry>> Gen5 = new(() => Index("pgf", EncounterEvent.MGDB_G5));
-    private static readonly Lazy<FrozenSet<string>> KnownCards = new(() =>
-        Gen4.Value.Concat(Gen5.Value).Select(entry => KeyOf(new WonderCard(entry.Gift))).ToFrozenSet());
+    private static readonly Lazy<FrozenDictionary<string, string?>> KnownCards = new(() => Gen4.Value.Concat(Gen5.Value)
+        .Select(entry => new WonderCard(entry.Gift))
+        .GroupBy(KeyOf)
+        .ToFrozenDictionary(cards => cards.Key, OnlyLanguage));
 
     internal static readonly GameVersion[] Gen4Versions = [GameVersion.D, GameVersion.P, GameVersion.Pt, GameVersion.HG, GameVersion.SS];
     private static readonly GameVersion[] Gen5Versions = [GameVersion.B, GameVersion.W, GameVersion.B2, GameVersion.W2];
@@ -35,7 +37,15 @@ internal static class MysteryGiftDatabase
     internal static ushort Gen4Compatibility(IEnumerable<GameVersion> versions) =>
         (ushort)versions.Aggregate(0, (bits, version) => bits | (1 << (int)version));
 
-    public static bool Knows(WonderCard card) => KnownCards.Value.Contains(KeyOf(card));
+    public static bool Knows(WonderCard card) => KnownCards.Value.ContainsKey(KeyOf(card));
+
+    public static string? LanguageOf(WonderCard card) => KnownCards.Value.GetValueOrDefault(KeyOf(card));
+
+    private static string? OnlyLanguage(IEnumerable<WonderCard> cards)
+    {
+        var languages = cards.Select(card => card.OwnLanguage).OfType<string>().Distinct().ToList();
+        return languages.Count == 1 ? languages[0] : null;
+    }
 
     // Saved and shared copies of a card differ from PKHeX's in the encryption of the gift and in the dates, so a card is known by what it shows.
     private static string KeyOf(WonderCard card) =>
@@ -49,7 +59,7 @@ internal static class MysteryGiftDatabase
     private static string IdOf(string prefix, DataMysteryGift gift)
     {
         var hash = Convert.ToHexStringLower(SHA256.HashData(gift.Data)[..4]);
-        return new WonderCard(gift).Language is { } language
+        return new WonderCard(gift).OwnLanguage is { } language
             ? $"{prefix}-{gift.CardID}-{language}-{hash}"
             : $"{prefix}-{gift.CardID}-{hash}";
     }
