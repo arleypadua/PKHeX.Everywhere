@@ -679,6 +679,7 @@ PKHeX.Facade.Transfers.TransferRoute.Bank = 5 -> PKHeX.Facade.Transfers.Transfer
 PKHeX.Facade.Transfers.TransferredPokemon.Route.get -> System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Transfers.TransferRoute>!
 PKHeX.Facade.Transfers.TransferRoute.Unofficial = 6 -> PKHeX.Facade.Transfers.TransferRoute
 PKHeX.Facade.Transfers.TransferRefusal.Fused = 10 -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Transfers.TransferRefusal.HoldingItem = 11 -> PKHeX.Facade.Transfers.TransferRefusal
 PKHeX.Facade.Transfers.TransferChangeReason.Transporter = 7 -> PKHeX.Facade.Transfers.TransferChangeReason
 PKHeX.Facade.Transfers.TransferChangeReason.Bank = 8 -> PKHeX.Facade.Transfers.TransferChangeReason
 PKHeX.Facade.Transfers.TransferChangeReason.Received = 9 -> PKHeX.Facade.Transfers.TransferChangeReason

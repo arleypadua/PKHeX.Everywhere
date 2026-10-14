@@ -1135,7 +1135,7 @@ export interface TransferPreview {
 }
 
 /** Why a Pokémon can't be transferred. */
-export type TransferRefusal = 'noRoute' | 'slotLocked' | 'eggAcrossGenerations' | 'languageMismatch' | 'speciesNotInGame' | 'lastPartyMember' | 'noRoom' | 'bagFull' | 'conversionFailed' | 'notInGame' | 'fused'
+export type TransferRefusal = 'noRoute' | 'slotLocked' | 'eggAcrossGenerations' | 'languageMismatch' | 'speciesNotInGame' | 'lastPartyMember' | 'noRoom' | 'bagFull' | 'conversionFailed' | 'notInGame' | 'fused' | 'holdingItem'
 
 /** Both saves after `transfer.commit`, ready to write back. */
 export interface TransferResult {

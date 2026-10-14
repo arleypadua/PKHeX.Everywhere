@@ -66,7 +66,7 @@ await engine.pokemon.commit()
 
 ## Transferring between saves
 
-`transfer.open` loads a partner save next to the loaded one. Pokémon move between them the way the games move them: a link trade between saves of the same format, the Time Capsule between Generation 1 and 2, Pal Park from Generation 3 to 4, Poké Transfer from Generation 4 to 5, Poké Transporter from Generation 5 into Pokémon Bank, and Pokémon Bank into Generation 6 or 7. A route lists its hops in order, and the games' hops chain forward, so Emerald to Black takes `['palPark', 'pokeTransfer']`. Any other pair, such as Generation 7 to 6 or any move into an older game, takes `['unofficial']`, where PKHeX copies the fields the destination can hold.
+`transfer.open` loads a partner save next to the loaded one. Pokémon move between them the way the games move them: a link trade between saves of the same format, the Time Capsule between Generation 1 and 2, Pal Park from Generation 3 to 4, Poké Transfer from Generation 4 to 5, Poké Transporter from Generation 5 into Pokémon Bank, and Pokémon Bank into Generation 6 or 7. Generation 1 and 2 saves count as the Virtual Console games, whose Pokémon Poké Transporter and Pokémon Bank took only into Generation 7, so Crystal to Sun takes `['transporter', 'bank']`. A route lists its hops in order, and the games' hops chain forward, so Emerald to Black takes `['palPark', 'pokeTransfer']`. Any other pair, such as Generation 7 to 6 or any move into an older game, takes `['unofficial']`, where PKHeX copies the fields the destination can hold.
 
 ```ts
 await engine.game.load(emerald)
@@ -83,6 +83,7 @@ await engine.transfer.close()
 - `send` handles point into the loaded save, and `receive` handles into the partner. `transfer.partnerBoxes()` lists the partner's Pokémon.
 - Each offer shows the Pokémon as it is and as it arrives, the fields the move changes and why, and its legality in the destination game. Each hop applies its own changes and refusals, and each change names the hop that made it.
 - Poké Transporter and Pokémon Bank take the held item and return it to the sender's bag, or throw it away when the bag is full. A Giratina, Arceus or Genesect whose form came from the item goes back to its base form. Both refuse eggs, and Pokémon Bank refuses a fused Kyurem with `fused`.
+- From Generation 1 and 2, Poké Transporter sets the IVs, hidden ability, nature from experience points, Poké Ball, met data and shininess as it did, with the save's game as the origin and its language. It refuses a Generation 2 Pokémon holding an item with `holdingItem`, and one whose language the destination's console region had no Virtual Console games in with `languageMismatch`.
 - The receiving game applies its trade rules: trade evolutions, friendship reset to 70 in Generation 2 to 4, and Platinum's form reverts. `saveChanges` lists what changes in either save, such as a Griseous Orb returned to the sender's bag.
 - A game refuses a species or form it doesn't have with `speciesNotInGame`. From Generation 6, it also refuses a move, held item or ability it doesn't have with `notInGame`. X and Y refuse Omega Ruby and Alpha Sapphire moves, and Sun and Moon refuse Ultra Sun and Ultra Moon ones.
 - `commit` fails with `transfer-refused`, changing nothing, while `preview` refuses any Pokémon in the offer. It returns both saves' bytes.

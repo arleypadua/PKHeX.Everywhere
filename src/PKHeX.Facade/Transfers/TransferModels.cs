@@ -32,6 +32,7 @@ public enum TransferRefusal
     ConversionFailed,
     NotInGame,
     Fused,
+    HoldingItem,
 }
 
 public enum TransferField

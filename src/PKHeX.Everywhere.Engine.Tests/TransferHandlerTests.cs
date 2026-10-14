@@ -154,6 +154,36 @@ public class TransferHandlerTests
             .And.BeSubsetOf(["hmRemoved", "palPark", "pokeTransfer", "transporter", "bank"]);
     }
 
+    [Theory]
+    [InlineData(GameVersion.RD)]
+    [InlineData(GameVersion.C)]
+    public void AVirtualConsolePokemonReachesSunThroughTransporterAndBankAndIsLegal(GameVersion from)
+    {
+        var session = Blank(from, Species.Pikachu, Move.ThunderShock, caught: true);
+        var transfer = Open(session, Exported(Blank(GameVersion.SN)));
+
+        var offer = Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
+
+        transfer["routes"]!["send"]!.ToJsonString().Should().Be("""["transporter","bank"]""");
+        offer["changes"]!.AsArray().Should().NotBeEmpty();
+        offer["changes"]!.AsArray().Select(c => c!["reason"]!.GetValue<string>()).Should().OnlyContain(r => r == "transporter" || r == "bank");
+        offer["legality"]!["valid"]!.GetValue<bool>().Should().BeTrue(offer["legality"]!.ToJsonString());
+    }
+
+    [Fact]
+    public void CrystalToXIsUnofficial() =>
+        Open(Blank(GameVersion.C), Exported(Blank(GameVersion.X)))["routes"]!["send"]!.ToJsonString().Should().Be("""["unofficial"]""");
+
+    [Fact]
+    public void TransporterRefusesAGen2PokemonHoldingAnItem()
+    {
+        var session = Blank(GameVersion.C, Species.Pikachu, Move.ThunderShock, caught: true);
+        session.Game!.Trainer.PokemonBox.All[0].Pkm.HeldItem = Gen2MetalCoat;
+        Open(session, Exported(Blank(GameVersion.SN)));
+
+        Preview(session, Send(PokemonHandle.InBox(0, 0)))["refused"]![0]!["reason"]!.GetValue<string>().Should().Be("holdingItem");
+    }
+
     [Fact]
     public void BankRefusesAFusedKyurem()
     {
@@ -651,7 +681,7 @@ public class TransferHandlerTests
     private static JsonNode Open(Session session, byte[] partner) =>
         Value(Dispatch(session, "transfer.open", Args(Convert.ToBase64String(partner), "partner.sav", null!)))!;
 
-    private static Session Blank(GameVersion version, Species? boxed = null, Move move = Move.None, byte form = 0)
+    private static Session Blank(GameVersion version, Species? boxed = null, Move move = Move.None, byte form = 0, bool caught = false)
     {
         var session = new Session();
         Value(Dispatch(session, "game.loadBlank", Args((int)version)));
@@ -663,6 +693,13 @@ public class TransferHandlerTests
         pokemon.Form = form;
         pokemon.CurrentLevel = 50;
         pokemon.Move1 = (ushort)move;
+        if (caught)
+        {
+            pokemon.Move1_PP = pokemon.GetMovePP(pokemon.Move1, 0);
+            (pokemon.OriginalTrainerName, pokemon.TID16) = (save.OT, save.TID16);
+            if (pokemon is GBPKM gb) gb.SetNotNicknamed(save.Language);
+            pokemon.ResetPartyStats();
+        }
         save.SetBoxSlotAtIndex(pokemon, 0, EntityImportSettings.None);
         session.Load(new Game(save), "boxed.sav");
         return session;

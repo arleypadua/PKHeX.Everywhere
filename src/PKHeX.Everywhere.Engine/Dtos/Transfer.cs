@@ -8,7 +8,7 @@ namespace PKHeX.Everywhere.Engine.Dtos;
 /// <remarks>
 /// <c>link</c> trades between saves of the same format. <c>timeCapsule</c> goes either way between Generation 1 and 2.
 /// <c>palPark</c> goes from Generation 3 to 4, and <c>pokeTransfer</c> from Generation 4 to 5.
-/// <c>transporter</c> takes a Generation 5 Pokémon into Pokémon Bank. <c>bank</c> takes it from Pokémon Bank into a Generation 6 or 7 game, and takes a Generation 6 Pokémon into a Generation 7 game.
+/// <c>transporter</c> takes a Generation 5 Pokémon into Pokémon Bank, and a Generation 1 or 2 one the way it took them from the Virtual Console games. <c>bank</c> takes it from Pokémon Bank into a Generation 6 or 7 game, and takes a Generation 6 Pokémon into a Generation 7 game. Generation 1 and 2 Pokémon leave Pokémon Bank only into Generation 7.
 /// <c>unofficial</c> is a route no game has, where PKHeX copies the fields the destination can hold.
 /// </remarks>
 public enum TransferRoute
@@ -98,12 +98,12 @@ public enum TransferDirection
 /// </summary>
 /// <remarks>
 /// <c>noRoute</c>: a save loaded with a ROM hack format or a Let's Go save is on either side. <c>slotLocked</c>: its box slot is locked by the game, such as a battle team.
-/// <c>eggAcrossGenerations</c>: only link trades take eggs. <c>languageMismatch</c>: a Japanese Generation 1 or 2 Pokémon can't go to an international save, nor the other way.
+/// <c>eggAcrossGenerations</c>: only link trades take eggs. <c>languageMismatch</c>: a Japanese Generation 1 or 2 Pokémon can't go to an international save, nor the other way, and Poké Transporter won't take a Generation 1 or 2 Pokémon whose language the destination's console region had no Virtual Console games in.
 /// <c>speciesNotInGame</c>: the destination game doesn't have its species or form. <c>lastPartyMember</c>: the sending party must keep a Pokémon that isn't an egg.
 /// <c>noRoom</c>: the destination has no empty box slot left for it. <c>bagFull</c>: Platinum can't put back the Griseous Orb it takes before a link trade.
 /// <c>conversionFailed</c>: PKHeX can't convert it to the destination's format.
 /// <c>notInGame</c>: the destination game doesn't have one of its moves, its held item or its ability, such as a move from Omega Ruby traded to X.
-/// <c>fused</c>: Pokémon Bank won't take a Kyurem fused with Reshiram or Zekrom.
+/// <c>fused</c>: Pokémon Bank won't take a Kyurem fused with Reshiram or Zekrom. <c>holdingItem</c>: Poké Transporter won't take a Generation 2 Pokémon holding an item.
 /// </remarks>
 public enum TransferRefusal
 {
@@ -118,6 +118,7 @@ public enum TransferRefusal
     ConversionFailed,
     NotInGame,
     Fused,
+    HoldingItem,
 }
 
 /// <summary>
@@ -296,6 +297,7 @@ public static class TransferMapping
         Transfers.TransferRefusal.ConversionFailed => TransferRefusal.ConversionFailed,
         Transfers.TransferRefusal.NotInGame => TransferRefusal.NotInGame,
         Transfers.TransferRefusal.Fused => TransferRefusal.Fused,
+        Transfers.TransferRefusal.HoldingItem => TransferRefusal.HoldingItem,
         _ => throw new ArgumentOutOfRangeException(nameof(refusal), refusal, null),
     };
 
