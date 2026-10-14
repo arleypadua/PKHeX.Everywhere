@@ -61,6 +61,51 @@ public class PokemonRepository
             .Distinct()
             .Select(e => new Encounter(e, _game));
     }
+
+    public IEnumerable<EventEncounter> FindEvents(Species? species = null)
+    {
+        _game.Require(Capability.Encounters);
+        var all = species is { } one
+            ? [one]
+            : _game.SpeciesRepository.AllGameSpecies.Where(SpeciesDefinition.IsSome).Select(s => s.Species);
+        var versions = EventVersions();
+
+        return SaveRules.Under(_saveFile, () => all
+            .SelectMany(s => versions.SelectMany(version => GiftsOf(s, version)))
+            .Distinct()
+            .Select(gift => (Gift: gift, Sample: EventEncounter.Generate(gift, _saveFile)))
+            .Where(e => e.Sample is not null)
+            .Select(e => new EventEncounter(e.Gift, e.Sample!, _game))
+            .ToList());
+    }
+
+    // A Gen 2 save holds Gen 1 Pokémon through the Time Capsule, which the Korean games don't have.
+    private GameVersion[] EventVersions() => _saveFile switch
+    {
+        { Generation: 1 } => [GameVersion.RD, GameVersion.GN, GameVersion.BU, GameVersion.YW],
+        SAV2 { Korean: true } => [GameVersion.GD, GameVersion.SI],
+        { Generation: 2 } => [GameVersion.RD, GameVersion.GN, GameVersion.BU, GameVersion.YW, GameVersion.GD, GameVersion.SI, GameVersion.C],
+        { Generation: 3 } => [GameVersion.R, GameVersion.S, GameVersion.E, GameVersion.FR, GameVersion.LG],
+        _ => GameUtil.GetVersionsInGeneration(_saveFile.Context, _saveFile.Version),
+    };
+
+    private List<IEncounterable> GiftsOf(Species species, GameVersion version)
+    {
+        var template = _saveFile.BlankPKM.Clone();
+        template.Species = (ushort)species;
+        template.Version = version;
+        var origin = new EvolutionOrigin(template.Species, version.Context, version.Generation, 1, 100, OriginOptions.EncounterTemplate);
+        var chain = EvolutionChain.GetOriginChain(template, origin);
+        if (chain.Length == 0)
+            return [];
+
+        // DS cards are Mystery gifts too, but they go through the save's Mystery Gift album.
+        return EncounterGenerator.GetGenerator(version, version.Generation)
+            .GetPossible(template, chain, version, EncounterTypeGroup.Mystery)
+            .Where(gift => gift.Species == template.Species && gift is not MysteryGift)
+            .Where(gift => _saveFile.Personal.IsPresentInGame(gift.Species, gift.Form))
+            .ToList();
+    }
 }
 
 public class Encounter
@@ -93,7 +138,14 @@ public class Encounter
 
     public GameVersionDefinition Version => GameVersionRepository.Instance.Get(Data.Version);
 
-    public Pokemon ConvertToPokemon() => new(Data.ConvertToPKM(_game.SaveFile), _game);
+    public Pokemon ConvertToPokemon() => new(Generate(), _game);
+
+    internal virtual PKM Generate()
+    {
+        var save = _game.SaveFile;
+        return EntityConverter.ConvertToType(Data.ConvertToPKM(save), save.PKMType, out var result)
+            ?? throw new InvalidOperationException($"Can't convert {Species} to {save.PKMType.Name}: {result}");
+    }
 
     public class Range(int min, int max)
     {

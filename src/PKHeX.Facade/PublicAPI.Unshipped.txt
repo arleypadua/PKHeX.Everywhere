@@ -660,3 +660,25 @@ PKHeX.Facade.WonderCardRefusedException
 PKHeX.Facade.WonderCardRefusedException.Reason.get -> PKHeX.Facade.WonderCardRefusal
 PKHeX.Facade.WonderCardRefusedException.WonderCardRefusedException(PKHeX.Facade.WonderCardRefusal reason, string! message) -> void
 PKHeX.Facade.Transfers.TransferRefusal.NotInGame = 9 -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Repositories.EventEncounter
+PKHeX.Facade.Repositories.EventEncounter.Trainer.get -> PKHeX.Facade.Repositories.EventTrainer!
+PKHeX.Facade.Repositories.EventTrainer
+PKHeX.Facade.Repositories.EventTrainer.Deconstruct(out string? Name, out int? Id, out string? Language) -> void
+PKHeX.Facade.Repositories.EventTrainer.EventTrainer(PKHeX.Facade.Repositories.EventTrainer! original) -> void
+PKHeX.Facade.Repositories.EventTrainer.EventTrainer(string? Name, int? Id, string? Language) -> void
+PKHeX.Facade.Repositories.EventTrainer.Id.get -> int?
+PKHeX.Facade.Repositories.EventTrainer.Id.init -> void
+PKHeX.Facade.Repositories.EventTrainer.Language.get -> string?
+PKHeX.Facade.Repositories.EventTrainer.Language.init -> void
+PKHeX.Facade.Repositories.EventTrainer.Name.get -> string?
+PKHeX.Facade.Repositories.EventTrainer.Name.init -> void
+PKHeX.Facade.Repositories.PokemonRepository.FindEvents(PKHeX.Core.Species? species = null) -> System.Collections.Generic.IEnumerable<PKHeX.Facade.Repositories.EventEncounter!>!
+override PKHeX.Facade.Repositories.EventTrainer.Equals(object? obj) -> bool
+override PKHeX.Facade.Repositories.EventTrainer.GetHashCode() -> int
+override PKHeX.Facade.Repositories.EventTrainer.ToString() -> string!
+static PKHeX.Facade.Repositories.EventTrainer.operator !=(PKHeX.Facade.Repositories.EventTrainer? left, PKHeX.Facade.Repositories.EventTrainer? right) -> bool
+static PKHeX.Facade.Repositories.EventTrainer.operator ==(PKHeX.Facade.Repositories.EventTrainer? left, PKHeX.Facade.Repositories.EventTrainer? right) -> bool
+virtual PKHeX.Facade.Repositories.EventTrainer.<Clone>$() -> PKHeX.Facade.Repositories.EventTrainer!
+virtual PKHeX.Facade.Repositories.EventTrainer.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Repositories.EventTrainer.Equals(PKHeX.Facade.Repositories.EventTrainer? other) -> bool
+virtual PKHeX.Facade.Repositories.EventTrainer.PrintMembers(System.Text.StringBuilder! builder) -> bool

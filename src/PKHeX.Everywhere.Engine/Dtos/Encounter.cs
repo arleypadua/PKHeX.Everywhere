@@ -18,7 +18,7 @@ public record EncounterVersions(VersionEntry[] Versions, int Default);
 /// <summary>
 /// One encounter from <c>encounters.search</c>: a way to obtain the species legally in the chosen game.
 /// </summary>
-/// <param name="Index">The row's position in the latest search. Pass it to <c>box.addEncounter</c>; it is only valid until the next search.</param>
+/// <param name="Index">The row's position in the latest search or event list. Pass it to <c>box.addEncounter</c>; it is only valid until the next one.</param>
 /// <param name="SpeciesId">The species' National Pokédex number, as PKHeX.Core numbers species.</param>
 /// <param name="Form">The form the encounter yields. Its name is empty when the form has none.</param>
 /// <param name="Name">PKHeX's description of the encounter.</param>
@@ -39,6 +39,36 @@ public record EncounterRow(
     string Location,
     string Version);
 
+/// <summary>
+/// One event Pokémon from <c>encounters.events</c>, with the original trainer data the event always gives.
+/// </summary>
+/// <param name="Index">The row's position in the latest search or event list. Pass it to <c>box.addEncounter</c>; it is only valid until the next one.</param>
+/// <param name="SpeciesId">The species' National Pokédex number, as PKHeX.Core numbers species.</param>
+/// <param name="Form">The form the event gives. Its name is empty when the form has none.</param>
+/// <param name="Name">PKHeX's description of the event, such as <c>Event Gift</c> or <c>PCNY Gift</c>.</param>
+/// <param name="IsEgg">Whether the event gives an egg.</param>
+/// <param name="Ball">The Poké Ball the event always uses, or null when it has no fixed ball.</param>
+/// <param name="LevelRange">The event's level, such as <c>5</c>, or its range, such as <c>3-7</c>.</param>
+/// <param name="Location">Where the Pokémon was met. For eggs, the egg location.</param>
+/// <param name="Version">The display name of the game the event names as its origin, which can differ from the loaded save's.</param>
+/// <param name="TrainerName">The original trainer's name the event always gives, or null when the Pokémon gets the player's name or one of several names.</param>
+/// <param name="TrainerId">The original trainer's ID the event always gives, or null when it gets the player's ID or a random one.</param>
+/// <param name="Language">The language the event always gives, such as <c>ENG</c> or <c>JPN</c>, or null when it follows the save.</param>
+public record EventRow(
+    int Index,
+    int SpeciesId,
+    string Species,
+    PokemonForm Form,
+    string Name,
+    bool IsEgg,
+    string? Ball,
+    string LevelRange,
+    string Location,
+    string Version,
+    string? TrainerName,
+    int? TrainerId,
+    string? Language);
+
 public static class EncounterMapping
 {
     public static VersionEntry ToEntry(this GameVersionDefinition version) => new(version.Id, version.Name);
@@ -57,5 +87,24 @@ public static class EncounterMapping
             encounter.LevelRange.Format,
             encounter.Location.Name,
             encounter.Version.Name);
+    }
+
+    public static EventRow ToEventRow(this EventEncounter gift, int index)
+    {
+        var row = gift.ToRow(index);
+        return new EventRow(
+            row.Index,
+            row.SpeciesId,
+            row.Species,
+            row.Form,
+            row.Name,
+            row.IsEgg,
+            row.Ball,
+            row.LevelRange,
+            row.Location,
+            row.Version,
+            gift.Trainer.Name,
+            gift.Trainer.Id,
+            gift.Trainer.Language);
     }
 }

@@ -210,7 +210,7 @@ export interface EditablePokemon {
 
 /** One encounter from `encounters.search`: a way to obtain the species legally in the chosen game. */
 export interface EncounterRow {
-  /** The row's position in the latest search. Pass it to `box.addEncounter`; it is only valid until the next search. */
+  /** The row's position in the latest search or event list. Pass it to `box.addEncounter`; it is only valid until the next one. */
   index: number
   /** The species' National Pokédex number, as PKHeX.Core numbers species. */
   speciesId: number
@@ -249,6 +249,35 @@ export interface EventFlag {
   category: string
   /** Whether the flag is set. */
   value: boolean
+}
+
+/** One event Pokémon from `encounters.events`, with the original trainer data the event always gives. */
+export interface EventRow {
+  /** The row's position in the latest search or event list. Pass it to `box.addEncounter`; it is only valid until the next one. */
+  index: number
+  /** The species' National Pokédex number, as PKHeX.Core numbers species. */
+  speciesId: number
+  species: string
+  /** The form the event gives. Its name is empty when the form has none. */
+  form: PokemonForm
+  /** PKHeX's description of the event, such as `Event Gift` or `PCNY Gift`. */
+  name: string
+  /** Whether the event gives an egg. */
+  isEgg: boolean
+  /** The Poké Ball the event always uses, or null when it has no fixed ball. */
+  ball: string | null
+  /** The event's level, such as `5`, or its range, such as `3-7`. */
+  levelRange: string
+  /** Where the Pokémon was met. For eggs, the egg location. */
+  location: string
+  /** The display name of the game the event names as its origin, which can differ from the loaded save's. */
+  version: string
+  /** The original trainer's name the event always gives, or null when the Pokémon gets the player's name or one of several names. */
+  trainerName: string | null
+  /** The original trainer's ID the event always gives, or null when it gets the player's ID or a random one. */
+  trainerId: number | null
+  /** The language the event always gives, such as `ENG` or `JPN`, or null when it follows the save. */
+  language: string | null
 }
 
 /** A named event work entry: a numeric story or progress value in the save. */
