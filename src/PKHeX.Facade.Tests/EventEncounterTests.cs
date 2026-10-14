@@ -59,6 +59,12 @@ public class EventEncounterTests
             .Should().NotBeEmpty().And.OnlyContain(e => e.Trainer == new EventTrainer(null, null, null));
 
     [Fact]
+    public void AnEventGivenUnderSeveralTrainerNamesHasNoName() =>
+        SaveFilePath.Load(SaveFilePath.Crystal).PokemonRepository.FindEvents()
+            .Where(e => e.Data is EncounterGift2 { Trainer: EncounterGift2.TrainerType.PokemonCenterNewYork })
+            .Should().NotBeEmpty().And.OnlyContain(e => e.Trainer.Name == null);
+
+    [Fact]
     public void WonderCardsAreLeftToTheMysteryGiftAlbum() =>
         SaveFilePath.Load(SaveFilePath.HgSs).PokemonRepository.FindEvents().Select(e => e.Data).OfType<MysteryGift>().Should().BeEmpty();
 }

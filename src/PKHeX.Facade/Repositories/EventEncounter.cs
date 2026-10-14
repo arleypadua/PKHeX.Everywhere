@@ -30,11 +30,11 @@ public sealed class EventEncounter : Encounter
         return null;
     }
 
-    // PCNY and PCJP gifts draw their trainer name from a few at random, and the tour Mews draw their ID.
+    // PCNY and PCJP gifts went out under a few trainer names, and the tour Mews under random IDs.
     private static bool FixesName(IEncounterable gift) => gift switch
     {
         EncounterGift1 gen1 => gen1.Trainer is not EncounterGift1.TrainerType.Recipient,
-        EncounterGift2 gen2 => gen2.Trainer is not EncounterGift2.TrainerType.Recipient,
+        EncounterGift2 gen2 => gen2.Trainer is not (EncounterGift2.TrainerType.Recipient or EncounterGift2.TrainerType.PokemonCenterNewYork),
         EncounterGift3NY or EncounterGift3JPN => false,
         IFixedTrainer fixedTrainer => fixedTrainer.IsFixedTrainer,
         _ => false,
