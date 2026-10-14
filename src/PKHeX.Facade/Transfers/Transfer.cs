@@ -6,24 +6,24 @@ using PKHeX.Facade.Repositories;
 namespace PKHeX.Facade.Transfers;
 
 /// <summary>
-/// Moves Pokémon between the loaded save and a partner save, the way link trades, the Time Capsule, Pal Park and Poké Transfer do.
+/// Moves Pokémon between the loaded save and a partner save, the way link trades, the Time Capsule, Pal Park, Poké Transfer, Poké Transporter and Pokémon Bank do.
 /// </summary>
 public class Transfer(Game mine, Game partner)
 {
     public Game Mine { get; } = mine;
     public Game Partner { get; } = partner;
 
-    public TransferRoute? SendRoute => RouteBetween(Mine, Partner);
-    public TransferRoute? ReceiveRoute => RouteBetween(Partner, Mine);
+    public IReadOnlyList<TransferRoute>? SendRoute => RouteBetween(Mine, Partner);
+    public IReadOnlyList<TransferRoute>? ReceiveRoute => RouteBetween(Partner, Mine);
 
     public TransferRoom Room => new(EmptyBoxSlots(Mine).Count, EmptyBoxSlots(Partner).Count);
 
     public Game SaveOf(TransferSave save) => save == TransferSave.Mine ? Mine : Partner;
 
-    public static TransferRoute? RouteBetween(Game from, Game to)
+    public static IReadOnlyList<TransferRoute>? RouteBetween(Game from, Game to)
     {
         if (!HasRoutes(from) || !HasRoutes(to)) return null;
-        return OfficialRoute(from.SaveFile.PKMType, to.SaveFile.PKMType) ?? TransferRoute.Unofficial;
+        return OfficialRoute(from.SaveFile.PKMType, to.SaveFile.PKMType) ?? [TransferRoute.Unofficial];
     }
 
     // Let's Go keeps its party in box storage, and taking a member out of it isn't handled.
@@ -48,7 +48,8 @@ public class Transfer(Game mine, Game partner)
 
         if (refusal is { } reason) throw new PokemonRefusedException(reason);
 
-        var route = OfficialRoute(pokemon.Pkm.GetType(), to.SaveFile.PKMType) ?? TransferRoute.Unofficial;
+        // A file converts in one step, so only a one-hop route can name the hop behind each change.
+        var route = OfficialRoute(pokemon.Pkm.GetType(), to.SaveFile.PKMType) is [var hop] ? hop : TransferRoute.Unofficial;
         return new PokemonImport(arrives!, unofficial, Changes(pokemon, arrives!, route).OrderBy(change => change.Field).ToList());
     }
 
@@ -58,14 +59,57 @@ public class Transfer(Game mine, Game partner)
     /// <exception cref="PokemonRefusedException">The Pokémon can't be moved into the save.</exception>
     public PokemonImport Convert(Pokemon pokemon, TransferSave to) => Import(pokemon, SaveOf(to));
 
-    private static TransferRoute? OfficialRoute(Type source, Type target)
+    private static readonly Type[] Generations = [typeof(PK3), typeof(PK4), typeof(PK5), typeof(PK6), typeof(PK7)];
+    private static readonly TransferRoute[] HopsForward = [TransferRoute.PalPark, TransferRoute.PokeTransfer, TransferRoute.Transporter, TransferRoute.Bank];
+
+    private static IReadOnlyList<TransferRoute>? OfficialRoute(Type source, Type target)
     {
-        if (source == target) return TransferRoute.Link;
-        if (IsGameBoy(source) && IsGameBoy(target)) return TransferRoute.TimeCapsule;
-        if (source == typeof(PK3) && target == typeof(PK4)) return TransferRoute.PalPark;
-        if (source == typeof(PK4) && target == typeof(PK5)) return TransferRoute.PokeTransfer;
+        if (source == target) return [TransferRoute.Link];
+        if (IsGameBoy(source) && IsGameBoy(target)) return [TransferRoute.TimeCapsule];
+
+        var (from, to) = (Array.IndexOf(Generations, source), Array.IndexOf(Generations, target));
+        if (from < 0 || to <= from) return null;
+        // Poké Transporter only reaches Pokémon Bank, so a Gen 6 game takes Bank's hop as a Gen 7 one does.
+        return HopsForward[from..(target == typeof(PK6) ? HopsForward.Length : to)];
+    }
+
+    private record Stop(TransferRoute Route, Game Game);
+
+    private static List<Stop> Stops(IReadOnlyList<TransferRoute> route, Game to) =>
+        route.Select((hop, index) => new Stop(hop, index == route.Count - 1 ? to : Between(hop))).ToList();
+
+    // Where a Pokémon waits for its next hop: a game of the next generation, or Pokémon Bank, which holds it as a Gen 6 Pokémon.
+    private static Game Between(TransferRoute hop) => new(BlankSaveFile.Get(hop switch
+    {
+        TransferRoute.PalPark => GameVersion.HG,
+        TransferRoute.PokeTransfer => GameVersion.B2,
+        _ => GameVersion.OR,
+    }));
+
+    private static TransferRefusal? Travel(Pokemon pokemon, IReadOnlyList<Stop> stops, out Pokemon? arrives, out List<TransferChange> changes, out ushort returned)
+    {
+        (arrives, changes, returned) = (pokemon, [], 0);
+        for (var hop = 0; hop < stops.Count; hop++)
+        {
+            var (route, at) = stops[hop];
+            var leaving = arrives!.Clone();
+            if (route == TransferRoute.Bank && IsFused(leaving.Pkm)) return TransferRefusal.Fused;
+            if (route is TransferRoute.Transporter or TransferRoute.Bank)
+            {
+                var item = TransferEffects.TakeHeldItem(leaving.Pkm);
+                if (hop == 0) returned = item;
+            }
+
+            if (TransferConversion.Convert(leaving, at, route == TransferRoute.Unofficial, out var next, adapt: hop == stops.Count - 1) is { } failed) return failed;
+            if (route is TransferRoute.Link or TransferRoute.Bank && !TransferConversion.CanHold(at, next!)) return TransferRefusal.NotInGame;
+
+            changes.AddRange(Changes(arrives, next!, route));
+            arrives = next;
+        }
         return null;
     }
+
+    private static bool IsFused(PKM pk) => pk.Species == (ushort)Species.Kyurem && pk.Form != 0;
 
     /// <exception cref="ArgumentException">An arrival is for a Pokémon the offer doesn't have.</exception>
     /// <exception cref="UnreadablePokemonException">An arrival's bytes aren't a Pokémon of the destination's format.</exception>
@@ -116,30 +160,32 @@ public class Transfer(Game mine, Game partner)
     {
         var (from, to) = (From(direction), To(direction));
         var route = RouteBetween(from, to);
+        var stops = route is null ? [] : Stops(route, to);
         var room = new Queue<int>(EmptyBoxSlots(to));
         var partyLeft = from.Trainer.Party.Pokemons.Count(p => !p.Pkm.IsEgg);
         var caught = new HashSet<Species>();
         var arceusEventStarted = false;
-        var orbsReturned = 0;
+        var itemsReturned = new Dictionary<ushort, int>();
 
         foreach (var slot in slots.Distinct())
         {
             var pokemon = PokemonAt(from, slot);
             var leavesParty = slot.Source == PokemonSource.Party && !pokemon.Pkm.IsEgg;
             var leaving = pokemon.Clone();
-            var tookOrb = route == TransferRoute.Link && from.SaveFile is SAV4Pt && TransferEffects.RevertPlatinumFormTakingOrb(leaving.Pkm);
+            var tookOrb = route is [TransferRoute.Link] && from.SaveFile is SAV4Pt && TransferEffects.RevertPlatinumFormTakingOrb(leaving.Pkm);
             Pokemon? converted = null;
+            List<TransferChange> hopChanges = [];
+            ushort taken = 0;
             var refusal = route switch
             {
                 null => TransferRefusal.NoRoute,
                 _ when slot.Source == PokemonSource.Box && from.SaveFile.IsBoxSlotOverwriteProtected(slot.Index) => TransferRefusal.SlotLocked,
-                not TransferRoute.Link when pokemon.Pkm.IsEgg => TransferRefusal.EggAcrossGenerations,
+                not [TransferRoute.Link] when pokemon.Pkm.IsEgg => TransferRefusal.EggAcrossGenerations,
                 _ when !IsLanguageCompatible(pokemon, to) => TransferRefusal.LanguageMismatch,
-                _ when TransferConversion.Convert(leaving, to, route == TransferRoute.Unofficial, out converted) is { } failed => failed,
-                TransferRoute.Link when !TransferConversion.CanHold(to, converted!) => TransferRefusal.NotInGame,
+                _ when Travel(leaving, stops, out converted, out hopChanges, out taken) is { } failed => failed,
                 _ when leavesParty && partyLeft == 1 => TransferRefusal.LastPartyMember,
                 _ when room.Count == 0 => TransferRefusal.NoRoom,
-                _ when tookOrb && !BagHasRoom(from, TransferEffects.GriseousOrb, orbsReturned + 1) => TransferRefusal.BagFull,
+                _ when tookOrb && !BagHasRoom(from, TransferEffects.GriseousOrb, itemsReturned.GetValueOrDefault(TransferEffects.GriseousOrb) + 1) => TransferRefusal.BagFull,
                 _ => (TransferRefusal?)null,
             };
 
@@ -150,26 +196,32 @@ public class Transfer(Game mine, Game partner)
             }
 
             if (leavesParty) partyLeft--;
-            if (tookOrb) orbsReturned++;
+            var arriving = route![^1];
             var received = converted!.Clone();
-            TransferEffects.Receive(received.Pkm, route!.Value);
+            TransferEffects.Receive(received.Pkm, arriving);
             var evolved = received.Clone();
             // Storing a Pokémon in a Stadium isn't a trade, so nothing evolves on the way in or out.
-            if (!IsStadium(from) && !IsStadium(to)) TransferEffects.Evolve(evolved.Pkm, to, route.Value);
+            if (!IsStadium(from) && !IsStadium(to)) TransferEffects.Evolve(evolved.Pkm, to, arriving);
             var given = arrivals.FirstOrDefault(a => a.Direction == direction && a.At == slot);
             var arrives = given is null ? evolved : Arrival(given, to);
 
             var changes = (given is null
                     ? Changes(pokemon, leaving, TransferChangeReason.FormReverted)
-                        .Concat(Changes(leaving, converted, route.Value))
+                        .Concat(hopChanges)
                         .Concat(Changes(converted, received, TransferChangeReason.Received))
                         .Concat(Changes(received, evolved, TransferChangeReason.TradeEvolution, TransferChangeReason.ItemUsed))
-                    : Changes(pokemon, arrives, route.Value))
+                    : Changes(pokemon, arrives, arriving))
                 .OrderBy(change => change.Field)
                 .ToList();
 
+            // Platinum refuses the trade when the Griseous Orb can't go back, while Poké Transporter and Pokémon Bank throw away an item the bag can't take.
+            var returned = tookOrb ? TransferEffects.GriseousOrb : taken;
             var saveChanges = new List<TransferSaveChange>();
-            if (tookOrb) saveChanges.Add(new TransferSaveChange(TransferSaveChangeKind.ItemReturned, TransferSide.Sender, from.ItemRepository.GetGameItem(TransferEffects.GriseousOrb).Name));
+            if (returned != 0 && BagHasRoom(from, returned, itemsReturned.GetValueOrDefault(returned) + 1))
+            {
+                itemsReturned[returned] = itemsReturned.GetValueOrDefault(returned) + 1;
+                saveChanges.Add(new TransferSaveChange(TransferSaveChangeKind.ItemReturned, TransferSide.Sender, from.ItemRepository.GetGameItem(returned).Name));
+            }
             if (!arrives.Pkm.IsEgg && to.SaveFile.HasPokeDex && !to.SaveFile.GetCaught(arrives.Pkm.Species) && caught.Add(arrives.Species.Species))
                 saveChanges.Add(new TransferSaveChange(TransferSaveChangeKind.PokedexCaught, TransferSide.Receiver, arrives.Species.Name));
             if (!arceusEventStarted && TransferEffects.StartsArceusEvent(arrives.Pkm, to))
@@ -180,7 +232,7 @@ public class Transfer(Game mine, Game partner)
 
             offers.Add(new TransferredPokemon(
                 direction,
-                route.Value,
+                route,
                 slot,
                 pokemon,
                 room.Dequeue(),
@@ -198,7 +250,7 @@ public class Transfer(Game mine, Game partner)
             switch (change.Kind)
             {
                 case TransferSaveChangeKind.ItemReturned:
-                    ReturnToBag(From(offered.Direction), TransferEffects.GriseousOrb);
+                    ReturnToBag(From(offered.Direction), (ushort)offered.Pokemon.Pkm.HeldItem);
                     break;
                 case TransferSaveChangeKind.EventVar:
                     ((SAV4Pt)To(offered.Direction).SaveFile).SetWork(TransferEffects.ArceusEventWork, 1);
@@ -282,7 +334,7 @@ public class Transfer(Game mine, Game partner)
     {
         if (route == TransferRoute.Unofficial)
         {
-            return Changes(from, arrives, (field, before, after) => field switch
+            return Changes(from, arrives, keepsMetLocation: false, (field, before, after) => field switch
             {
                 TransferField.Moves or TransferField.HeldItem when after is null => TransferChangeReason.NotInGame,
                 TransferField.HeldItem => TransferChangeReason.ItemRemapped,
@@ -297,11 +349,14 @@ public class Transfer(Game mine, Game partner)
             TransferRoute.Link => TransferChangeReason.Link,
             TransferRoute.TimeCapsule => TransferChangeReason.TimeCapsule,
             TransferRoute.PalPark => TransferChangeReason.PalPark,
-            _ => TransferChangeReason.PokeTransfer,
+            TransferRoute.PokeTransfer => TransferChangeReason.PokeTransfer,
+            TransferRoute.Transporter => TransferChangeReason.Transporter,
+            _ => TransferChangeReason.Bank,
         };
-        return Changes(from, arrives, (field, _, after) => field switch
+        return Changes(from, arrives, keepsMetLocation: true, (field, _, after) => field switch
         {
-            TransferField.HeldItem => after is null ? TransferChangeReason.ItemRemoved : TransferChangeReason.ItemRemapped,
+            // Poké Transporter and Pokémon Bank take every held item, so the hop is the reason.
+            TransferField.HeldItem when route is not (TransferRoute.Transporter or TransferRoute.Bank) => after is null ? TransferChangeReason.ItemRemoved : TransferChangeReason.ItemRemapped,
             // Pal Park and Poké Transfer only take away HM moves.
             TransferField.Moves when after is null && route is TransferRoute.PalPark or TransferRoute.PokeTransfer => TransferChangeReason.HmRemoved,
             _ => reason,
@@ -309,9 +364,10 @@ public class Transfer(Game mine, Game partner)
     }
 
     private static IEnumerable<TransferChange> Changes(Pokemon from, Pokemon arrives, TransferChangeReason reason, TransferChangeReason? itemReason = null) =>
-        Changes(from, arrives, (field, _, _) => field == TransferField.HeldItem ? itemReason ?? reason : reason);
+        Changes(from, arrives, keepsMetLocation: false, (field, _, _) => field == TransferField.HeldItem ? itemReason ?? reason : reason);
 
-    private static IEnumerable<TransferChange> Changes(Pokemon from, Pokemon arrives, Func<TransferField, string?, string?, TransferChangeReason> why)
+    // The games' routes keep the met location's ID, and a later game naming that place its own way isn't a change.
+    private static IEnumerable<TransferChange> Changes(Pokemon from, Pokemon arrives, bool keepsMetLocation, Func<TransferField, string?, string?, TransferChangeReason> why)
     {
         var changes = new List<TransferChange>();
 
@@ -321,14 +377,15 @@ public class Transfer(Game mine, Game partner)
         }
 
         Compare(TransferField.Species, from.Species.Name, arrives.Species.Name);
-        Compare(TransferField.Form, from.Form.Form.Name, arrives.Form.Form.Name);
+        if (from.Pkm.Form != arrives.Pkm.Form) Compare(TransferField.Form, from.Form.Form.Name, arrives.Form.Form.Name);
         Compare(TransferField.HeldItem, HeldItem(from), HeldItem(arrives));
 
         var (movesBefore, movesAfter) = (Moves(from), Moves(arrives));
         changes.AddRange(movesBefore.Except(movesAfter).Select(move => new TransferChange(TransferField.Moves, move, null, why(TransferField.Moves, move, null))));
         changes.AddRange(movesAfter.Except(movesBefore).Select(move => new TransferChange(TransferField.Moves, null, move, why(TransferField.Moves, null, move))));
 
-        Compare(TransferField.MetLocation, MetLocation(from), MetLocation(arrives));
+        if (!keepsMetLocation || from.MetConditions.Location.Id != arrives.MetConditions.Location.Id)
+            Compare(TransferField.MetLocation, MetLocation(from), MetLocation(arrives));
         Compare(TransferField.MetLevel, MetLevel(from), MetLevel(arrives));
         Compare(TransferField.Ball, Ball(from), Ball(arrives));
         Compare(TransferField.Friendship, from.Pkm is PK1 ? null : from.Friendship.ToString(), arrives.Pkm is PK1 ? null : arrives.Friendship.ToString());

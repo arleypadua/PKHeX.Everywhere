@@ -8,6 +8,8 @@ public enum TransferRoute
     TimeCapsule,
     PalPark,
     PokeTransfer,
+    Transporter,
+    Bank,
     Unofficial,
 }
 
@@ -29,6 +31,7 @@ public enum TransferRefusal
     BagFull,
     ConversionFailed,
     NotInGame,
+    Fused,
 }
 
 public enum TransferField
@@ -63,6 +66,8 @@ public enum TransferChangeReason
     TimeCapsule,
     PalPark,
     PokeTransfer,
+    Transporter,
+    Bank,
     Received,
     TradeEvolution,
     ItemUsed,
@@ -113,7 +118,7 @@ public record TransferSaveChange(TransferSaveChangeKind Kind, TransferSide Save,
 /// <param name="ArrivesAt">The box slot, counted across every box, the Pokémon lands in.</param>
 public record TransferredPokemon(
     TransferDirection Direction,
-    TransferRoute Route,
+    IReadOnlyList<TransferRoute> Route,
     TransferSlot From,
     Pokemon Pokemon,
     int ArrivesAt,

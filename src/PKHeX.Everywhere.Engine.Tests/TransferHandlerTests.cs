@@ -26,7 +26,7 @@ public class TransferHandlerTests
 
         transfer["partner"]!["version"]!.GetValue<string>().Should().Be("Emerald");
         transfer["partner"]!["fileName"]!.GetValue<string>().Should().Be("partner.sav");
-        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"link","receive":"link"}""");
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":["link"],"receive":["link"]}""");
         transfer["room"]!.ToJsonString().Should().Be("""{"mine":63,"partner":7}""");
     }
 
@@ -38,7 +38,7 @@ public class TransferHandlerTests
 
         Open(session, SaveFilePath.Emerald);
 
-        Value(Dispatch(session, "transfer.get", "[]"))!["routes"]!["send"]!.GetValue<string>().Should().Be("link");
+        Value(Dispatch(session, "transfer.get", "[]"))!["routes"]!["send"]!.ToJsonString().Should().Be("""["link"]""");
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public class TransferHandlerTests
         var session = Loaded(SaveFilePath.Yellow);
         var transfer = Open(session, SaveFilePath.Crystal);
 
-        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"timeCapsule","receive":"timeCapsule"}""");
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":["timeCapsule"],"receive":["timeCapsule"]}""");
         var offer = Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
         offer["arrives"]!["species"]!.GetValue<string>().Should().Be("Bulbasaur");
         offer["changes"]!.AsArray().Select(c => c!["reason"]!.GetValue<string>()).Should().OnlyContain(r => r == "timeCapsule" || r == "itemRemapped");
@@ -98,9 +98,9 @@ public class TransferHandlerTests
         var transfer = Open(session, SaveFilePath.Crystal);
         var offers = Preview(session, new { send = new[] { Handle(PokemonHandle.InBox(0, 0)) }, receive = new[] { Handle(PokemonHandle.InBox(0, 0)) } })["offers"]!.AsArray();
 
-        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"timeCapsule","receive":"timeCapsule"}""");
-        offers.Select(o => (o!["direction"]!.GetValue<string>(), o["route"]!.GetValue<string>(), o["arrives"]!["species"]!.GetValue<string>()))
-            .Should().Equal(("send", "timeCapsule", "Bulbasaur"), ("receive", "timeCapsule", "Scyther"));
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":["timeCapsule"],"receive":["timeCapsule"]}""");
+        offers.Select(o => (o!["direction"]!.GetValue<string>(), o["route"]!.ToJsonString(), o["arrives"]!["species"]!.GetValue<string>()))
+            .Should().Equal(("send", """["timeCapsule"]""", "Bulbasaur"), ("receive", """["timeCapsule"]""", "Scyther"));
     }
 
     [Fact]
@@ -126,9 +126,41 @@ public class TransferHandlerTests
         var preview = Preview(session, Receive(PokemonHandle.InBox(0, 0)));
         Value(Dispatch(session, "transfer.commit", Args(Receive(PokemonHandle.InBox(0, 0)))));
 
-        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"link","receive":"link"}""");
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":["link"],"receive":["link"]}""");
         preview["refused"]!.AsArray().Should().BeEmpty();
         session.Game!.Trainer.PokemonBox.All[0].Species.Name.Should().Be("Gengar");
+    }
+
+    [Theory]
+    [InlineData(GameVersion.E, GameVersion.B, """["palPark","pokeTransfer"]""")]
+    [InlineData(GameVersion.Pt, GameVersion.SN, """["pokeTransfer","transporter","bank"]""")]
+    [InlineData(GameVersion.B, GameVersion.X, """["transporter","bank"]""")]
+    [InlineData(GameVersion.X, GameVersion.SN, """["bank"]""")]
+    [InlineData(GameVersion.SN, GameVersion.X, """["unofficial"]""")]
+    public void OpenChainsTheGamesHops(GameVersion mine, GameVersion partner, string send) =>
+        Open(Blank(mine), Exported(Blank(partner)))["routes"]!["send"]!.ToJsonString().Should().Be(send);
+
+    [Fact]
+    public void EmeraldToSunTakesFourHopsAndEachChangeNamesItsHop()
+    {
+        var session = LoadedWith(SaveFilePath.Emerald, pk => pk.HeldItem = 200);
+        var transfer = Open(session, Exported(Blank(GameVersion.SN)));
+
+        var offer = Preview(session, Send(PokemonHandle.InBox(0, 0)))["offers"]![0]!;
+
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":["palPark","pokeTransfer","transporter","bank"],"receive":["unofficial"]}""");
+        offer["route"]!.ToJsonString().Should().Be("""["palPark","pokeTransfer","transporter","bank"]""");
+        offer["changes"]!.AsArray().Select(c => c!["reason"]!.GetValue<string>()).Should().Contain(["palPark", "pokeTransfer", "transporter"])
+            .And.BeSubsetOf(["hmRemoved", "palPark", "pokeTransfer", "transporter", "bank"]);
+    }
+
+    [Fact]
+    public void BankRefusesAFusedKyurem()
+    {
+        var session = Blank(GameVersion.X, Species.Kyurem, Move.FusionFlare, form: 1);
+        Open(session, Exported(Blank(GameVersion.SN)));
+
+        Preview(session, Send(PokemonHandle.InBox(0, 0)))["refused"]![0]!["reason"]!.GetValue<string>().Should().Be("fused");
     }
 
     [Fact]
@@ -160,9 +192,9 @@ public class TransferHandlerTests
         var session = Loaded(SaveFilePath.Emerald);
         var transfer = Open(session, SaveFilePath.HgSs);
 
-        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"palPark","receive":"unofficial"}""");
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":["palPark"],"receive":["unofficial"]}""");
         var offer = Preview(session, Send(PokemonHandle.InBox(0, 5)))["offers"]![0]!;
-        offer["route"]!.GetValue<string>().Should().Be("palPark");
+        offer["route"]!.ToJsonString().Should().Be("""["palPark"]""");
         offer["from"]!["species"]!.GetValue<string>().Should().Be("Charizard");
         var changes = offer["changes"]!.AsArray().Select(c => c!.ToJsonString()).ToList();
         changes.Should().Contain("""{"field":"moves","before":"Fly","after":null,"reason":"hmRemoved"}""");
@@ -186,9 +218,9 @@ public class TransferHandlerTests
         var session = Loaded(SaveFilePath.HgSs);
         var transfer = Open(session, SaveFilePath.Emerald);
 
-        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"unofficial","receive":"palPark"}""");
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":["unofficial"],"receive":["palPark"]}""");
         var offer = Preview(session, Send(PokemonHandle.Party(0)))["offers"]![0]!;
-        offer["route"]!.GetValue<string>().Should().Be("unofficial");
+        offer["route"]!.ToJsonString().Should().Be("""["unofficial"]""");
         offer["changes"]!.AsArray().Select(c => c!["reason"]!.GetValue<string>()).Should().OnlyContain(reason => reason == "unofficial" || reason == "notInGame");
         EntityConverter.AllowIncompatibleConversion.Should().Be(EntityCompatibilitySetting.DisallowIncompatible);
     }
@@ -619,7 +651,7 @@ public class TransferHandlerTests
     private static JsonNode Open(Session session, byte[] partner) =>
         Value(Dispatch(session, "transfer.open", Args(Convert.ToBase64String(partner), "partner.sav", null!)))!;
 
-    private static Session Blank(GameVersion version, Species? boxed = null, Move move = Move.None)
+    private static Session Blank(GameVersion version, Species? boxed = null, Move move = Move.None, byte form = 0)
     {
         var session = new Session();
         Value(Dispatch(session, "game.loadBlank", Args((int)version)));
@@ -628,6 +660,7 @@ public class TransferHandlerTests
         var save = session.Game!.SaveFile;
         var pokemon = save.BlankPKM;
         pokemon.Species = (ushort)boxed;
+        pokemon.Form = form;
         pokemon.CurrentLevel = 50;
         pokemon.Move1 = (ushort)move;
         save.SetBoxSlotAtIndex(pokemon, 0, EntityImportSettings.None);

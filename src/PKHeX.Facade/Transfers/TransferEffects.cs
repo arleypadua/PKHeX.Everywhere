@@ -37,6 +37,18 @@ internal static class TransferEffects
         return tookOrb;
     }
 
+    public static ushort TakeHeldItem(PKM pk)
+    {
+        var item = (ushort)pk.HeldItem;
+        pk.HeldItem = 0;
+        if (item == 0 || pk.Form == 0 || (Species)pk.Species is not (Species.Giratina or Species.Arceus or Species.Genesect)) return item;
+
+        pk.Form = 0;
+        RefreshAbility(pk);
+        RecalculateStats(pk);
+        return item;
+    }
+
     public static void Receive(PKM pk, TransferRoute route)
     {
         if (route == TransferRoute.Link && pk.Context is EntityContext.Gen2 or EntityContext.Gen3 or EntityContext.Gen4 && !pk.IsEgg)
