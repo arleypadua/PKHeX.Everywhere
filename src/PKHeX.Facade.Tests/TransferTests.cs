@@ -37,7 +37,10 @@ public class TransferTests
     [InlineData(GameVersion.Pt, GameVersion.R, new[] { TransferRoute.Unofficial })]
     [InlineData(GameVersion.B, GameVersion.Pt, new[] { TransferRoute.Unofficial })]
     [InlineData(GameVersion.C, GameVersion.E, new[] { TransferRoute.Unofficial })]
-    [InlineData(GameVersion.C, GameVersion.SN, new[] { TransferRoute.Unofficial })]
+    [InlineData(GameVersion.RD, GameVersion.SN, new[] { TransferRoute.Transporter, TransferRoute.Bank })]
+    [InlineData(GameVersion.C, GameVersion.UM, new[] { TransferRoute.Transporter, TransferRoute.Bank })]
+    [InlineData(GameVersion.C, GameVersion.X, new[] { TransferRoute.Unofficial })]
+    [InlineData(GameVersion.YW, GameVersion.OR, new[] { TransferRoute.Unofficial })]
     public void OfficialHopsChainForwardAndEveryOtherPairIsUnofficial(GameVersion from, GameVersion to, TransferRoute[] route) =>
         Transfer.RouteBetween(Blank(from), Blank(to)).Should().Equal(route);
 
@@ -97,6 +100,104 @@ public class TransferTests
             .And.Contain(new TransferChange(TransferField.HeldItem, "Leftovers", null, TransferChangeReason.Transporter))
             .And.Contain(new TransferChange(TransferField.Nickname, "CHARIZARD", "Charizard", TransferChangeReason.Transporter));
         offered.Changes.Select(change => change.Reason).Should().BeSubsetOf([TransferChangeReason.HmRemoved, TransferChangeReason.PalPark, TransferChangeReason.PokeTransfer, TransferChangeReason.Transporter, TransferChangeReason.Bank]);
+    }
+
+    [Theory]
+    [InlineData(GameVersion.RD)]
+    [InlineData(GameVersion.C)]
+    public void AVirtualConsolePokemonReachesSunThroughTransporterAndBankAndIsLegal(GameVersion from)
+    {
+        var offered = new Transfer(GameBoy(from, Species.Pikachu, Move.ThunderShock), Blank(GameVersion.SN)).Preview(Send(Box(0))).Offers.Single();
+
+        offered.Route.Should().Equal(TransferRoute.Transporter, TransferRoute.Bank);
+        offered.Arrives.Pkm.Should().BeOfType<PK7>();
+        offered.Changes.Should().NotBeEmpty();
+        offered.Changes.Select(change => change.Reason).Should().BeSubsetOf([TransferChangeReason.Transporter, TransferChangeReason.Bank]);
+        offered.Legality.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
+    }
+
+    [Theory]
+    [InlineData(GameVersion.RD, GameVersion.RD, Locations.Transfer1)]
+    [InlineData(GameVersion.YW, GameVersion.YW, Locations.Transfer1)]
+    [InlineData(GameVersion.C, GameVersion.C, Locations.Transfer2)]
+    [InlineData(GameVersion.SI, GameVersion.SI, Locations.Transfer2)]
+    public void TransporterConvertsAVirtualConsolePokemonAsTheGameDid(GameVersion from, GameVersion origin, ushort metLocation)
+    {
+        var mine = GameBoy(from, Species.Pikachu, Move.ThunderShock, shiny: true);
+        var leaving = mine.Trainer.PokemonBox.All[0].Pkm;
+
+        var offered = new Transfer(mine, Blank(GameVersion.SN)).Preview(Send(Box(0))).Offers.Single();
+        var arrives = offered.Arrives.Pkm;
+
+        offered.Legality.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
+        (arrives.Version, arrives.MetLocation, arrives.MetLevel, arrives.Ball).Should().Be((origin, metLocation, (byte)leaving.CurrentLevel, (byte)Ball.Poke));
+        arrives.Nature.Should().Be(Experience.GetNatureVC(leaving.EXP));
+        arrives.AbilityNumber.Should().Be(4);
+        arrives.IsShiny.Should().BeTrue();
+        arrives.Language.Should().Be((int)LanguageID.English);
+        arrives.OriginalTrainerName.Should().Be(leaving.OriginalTrainerName);
+        new[] { arrives.IV_HP, arrives.IV_ATK, arrives.IV_DEF, arrives.IV_SPA, arrives.IV_SPD, arrives.IV_SPE }.Count(iv => iv == 31).Should().BeGreaterThanOrEqualTo(3);
+    }
+
+    [Fact]
+    public void TransporterGivesMewFiveFlawlessIvsAndAFatefulEncounter()
+    {
+        var arrives = new Transfer(GameBoy(GameVersion.RD, Species.Mew, Move.Pound), Blank(GameVersion.SN)).Preview(Send(Box(0))).Offers.Single().Arrives.Pkm;
+
+        new[] { arrives.IV_HP, arrives.IV_ATK, arrives.IV_DEF, arrives.IV_SPA, arrives.IV_SPD, arrives.IV_SPE }.Count(iv => iv == 31).Should().BeGreaterThanOrEqualTo(5);
+        arrives.FatefulEncounter.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AVirtualConsolePokemonTakesTheLanguageOfItsSave()
+    {
+        var japanese = GameBoy(GameVersion.RD, Species.Pikachu, Move.ThunderShock, LanguageID.Japanese);
+        var sun = Blank(GameVersion.SN);
+        var region = (SAV7)sun.SaveFile;
+        (region.ConsoleRegion, region.Country, region.Region) = (0, 1, 0);
+
+        var offered = new Transfer(japanese, sun).Preview(Send(Box(0))).Offers.Single();
+
+        offered.Arrives.Pkm.Language.Should().Be((int)LanguageID.Japanese);
+        offered.Legality.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
+    }
+
+    [Fact]
+    public void TransporterRefusesAVirtualConsolePokemonFromAnotherConsoleRegion()
+    {
+        var japanese = GameBoy(GameVersion.RD, Species.Pikachu, Move.ThunderShock, LanguageID.Japanese);
+
+        new Transfer(japanese, Blank(GameVersion.SN)).Preview(Send(Box(0))).Refused.Single().Reason.Should().Be(TransferRefusal.LanguageMismatch);
+    }
+
+    [Fact]
+    public void TransporterGivesTheSameVirtualConsolePokemonTheSameBytesEveryTime()
+    {
+        var crystal = GameBoy(GameVersion.C, Species.Pikachu, Move.ThunderShock);
+
+        var first = new Transfer(crystal, Blank(GameVersion.SN)).Preview(Send(Box(0))).Offers.Single().Arrives;
+        var again = new Transfer(crystal, Blank(GameVersion.SN)).Preview(Send(Box(0))).Offers.Single().Arrives;
+
+        again.ToFile().Bytes.Should().Equal(first.ToFile().Bytes);
+    }
+
+    [Fact]
+    public void TransporterRefusesAGen2PokemonHoldingAnItem()
+    {
+        var crystal = GameBoy(GameVersion.C, Species.Pikachu, Move.ThunderShock);
+        crystal.Trainer.PokemonBox.All[0].Pkm.HeldItem = ItemConverter.GetItemOld2(Leftovers);
+
+        new Transfer(crystal, Blank(GameVersion.SN)).Preview(Send(Box(0))).Refused
+            .Should().Equal(new RefusedPokemon(TransferDirection.Send, Box(0), TransferRefusal.HoldingItem));
+    }
+
+    [Fact]
+    public void TransporterRefusesAGen2Egg()
+    {
+        var crystal = GameBoy(GameVersion.C, Species.Pichu, Move.ThunderShock);
+        crystal.Trainer.PokemonBox.All[0].Pkm.IsEgg = true;
+
+        new Transfer(crystal, Blank(GameVersion.SN)).Preview(Send(Box(0))).Refused.Single().Reason.Should().Be(TransferRefusal.EggAcrossGenerations);
     }
 
     [Fact]
@@ -769,6 +870,23 @@ public class TransferTests
         var black = BlankSaveFile.Get(GameVersion.B);
         black.SetBoxSlotAtIndex(boxed, 0, EntityImportSettings.None);
         return new Game(black);
+    }
+
+    private static Game GameBoy(GameVersion version, Species species, Move move, LanguageID language = LanguageID.English, bool shiny = false)
+    {
+        var save = BlankSaveFile.Get(version, language == LanguageID.Japanese ? "サトシ" : "ASH", language);
+        var pokemon = save.BlankPKM;
+        pokemon.Species = (ushort)species;
+        pokemon.CurrentLevel = 30;
+        pokemon.Move1 = (ushort)move;
+        pokemon.Move1_PP = pokemon.GetMovePP(pokemon.Move1, 0);
+        pokemon.OriginalTrainerName = save.OT;
+        pokemon.TID16 = save.TID16;
+        ((GBPKM)pokemon).DV16 = shiny ? (ushort)0xFAAA : (ushort)0x1234;
+        ((GBPKM)pokemon).SetNotNicknamed((int)language);
+        pokemon.ResetPartyStats();
+        save.SetBoxSlotAtIndex(pokemon, 0, EntityImportSettings.None);
+        return new Game(save);
     }
 
     private static Game Blank(GameVersion version) => new(BlankSaveFile.Get(version));

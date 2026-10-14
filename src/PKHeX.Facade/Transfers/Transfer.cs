@@ -66,6 +66,8 @@ public class Transfer(Game mine, Game partner)
     {
         if (source == target) return [TransferRoute.Link];
         if (IsGameBoy(source) && IsGameBoy(target)) return [TransferRoute.TimeCapsule];
+        // Poké Transporter took the Virtual Console games' Pokémon to Pokémon Bank, which let them out only into Gen 7.
+        if (source == typeof(PK1) || source == typeof(PK2)) return target == typeof(PK7) ? [TransferRoute.Transporter, TransferRoute.Bank] : null;
 
         var (from, to) = (Array.IndexOf(Generations, source), Array.IndexOf(Generations, target));
         if (from < 0 || to <= from) return null;
@@ -75,8 +77,9 @@ public class Transfer(Game mine, Game partner)
 
     private record Stop(TransferRoute Route, Game Game);
 
-    private static List<Stop> Stops(IReadOnlyList<TransferRoute> route, Game to) =>
-        route.Select((hop, index) => new Stop(hop, index == route.Count - 1 ? to : Between(hop))).ToList();
+    // Pokémon Bank holds a Virtual Console Pokémon as the Gen 7 Pokémon it arrives as, so Transporter converts it for the destination.
+    private static List<Stop> Stops(IReadOnlyList<TransferRoute> route, Game from, Game to) =>
+        route.Select((hop, index) => new Stop(hop, index == route.Count - 1 || IsGameBoy(from.SaveFile.PKMType) ? to : Between(hop))).ToList();
 
     // Where a Pokémon waits for its next hop: a game of the next generation, or Pokémon Bank, which holds it as a Gen 6 Pokémon.
     private static Game Between(TransferRoute hop) => new(BlankSaveFile.Get(hop switch
@@ -94,6 +97,7 @@ public class Transfer(Game mine, Game partner)
             var (route, at) = stops[hop];
             var leaving = arrives!.Clone();
             if (route == TransferRoute.Bank && IsFused(leaving.Pkm)) return TransferRefusal.Fused;
+            if (route == TransferRoute.Transporter && leaving.Pkm is PK2 { HeldItem: not 0 }) return TransferRefusal.HoldingItem;
             if (route is TransferRoute.Transporter or TransferRoute.Bank)
             {
                 var item = TransferEffects.TakeHeldItem(leaving.Pkm);
@@ -160,7 +164,7 @@ public class Transfer(Game mine, Game partner)
     {
         var (from, to) = (From(direction), To(direction));
         var route = RouteBetween(from, to);
-        var stops = route is null ? [] : Stops(route, to);
+        var stops = route is null ? [] : Stops(route, from, to);
         var room = new Queue<int>(EmptyBoxSlots(to));
         var partyLeft = from.Trainer.Party.Pokemons.Count(p => !p.Pkm.IsEgg);
         var caught = new HashSet<Species>();

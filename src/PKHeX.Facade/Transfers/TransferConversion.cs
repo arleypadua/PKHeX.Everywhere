@@ -19,6 +19,7 @@ internal static class TransferConversion
                 ? TransferRefusal.SpeciesNotInGame
                 : TransferRefusal.ConversionFailed;
 
+        if (!unofficial && pokemon.Pkm is GBPKM gb && converted is PK7 pk7 && VirtualConsoleTransporter.Rework(gb, pokemon.Game.SaveFile, pk7, to.SaveFile) is { } refused) return refused;
         if (adapt) to.SaveFile.AdaptToSaveFile(converted, isParty: false);
         arrives = new Pokemon(converted, to);
         return to.IsAwareOf(arrives) ? null : TransferRefusal.SpeciesNotInGame;
@@ -115,7 +116,7 @@ internal static class TransferConversion
         if (converted.Format >= 6) converted.EncryptionConstant = (uint)rng.Next();
     }
 
-    private static ulong Seed(GBPKM pk)
+    public static ulong Seed(GBPKM pk)
     {
         const ulong fnvOffset = 14695981039346656037UL, fnvPrime = 1099511628211UL;
         var hash = fnvOffset;

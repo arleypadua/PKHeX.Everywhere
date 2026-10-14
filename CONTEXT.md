@@ -71,7 +71,7 @@ Moving Pokémon between the loaded save and a partner save the Engine holds next
 _Avoid_: trade, except for the link trade; migration
 
 **Route**:
-How a Transfer moves a Pokémon, as a list of hops. A hop is a link trade between saves of the same format, the Time Capsule (Gen 1 and 2), Pal Park (Gen 3 to 4), Poké Transfer (Gen 4 to 5), Poké Transporter (Gen 5 into Pokémon Bank) or Pokémon Bank (into Gen 6 or 7). Official hops chain only forward, so Emerald to Sun takes four hops, each with its own changes and refusals. Any other pair takes `unofficial`, a route no game has, where PKHeX copies the fields the destination can hold. Saves loaded with a ROM hack format and Let's Go saves have no Route. A Pokémon file added to a box takes the unofficial Route only when PKHeX has no conversion of its own.
+How a Transfer moves a Pokémon, as a list of hops. A hop is a link trade between saves of the same format, the Time Capsule (Gen 1 and 2), Pal Park (Gen 3 to 4), Poké Transfer (Gen 4 to 5), Poké Transporter (Gen 5, or Gen 1 and 2 as the Virtual Console games, into Pokémon Bank) or Pokémon Bank (into Gen 6 or 7, and only Gen 7 for Gen 1 and 2 Pokémon). Official hops chain only forward, so Emerald to Sun takes four hops, each with its own changes and refusals. Any other pair takes `unofficial`, a route no game has, where PKHeX copies the fields the destination can hold. Saves loaded with a ROM hack format and Let's Go saves have no Route. A Pokémon file added to a box takes the unofficial Route only when PKHeX has no conversion of its own.
 _Avoid_: path, conversion
 
 **Topic**:
