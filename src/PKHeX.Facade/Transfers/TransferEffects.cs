@@ -37,7 +37,6 @@ internal static class TransferEffects
         return tookOrb;
     }
 
-    // Poké Transporter and Pokémon Bank take no held items, and a form the item gave goes back to the base form.
     public static ushort TakeHeldItem(PKM pk)
     {
         var item = (ushort)pk.HeldItem;

@@ -48,6 +48,7 @@ public class Transfer(Game mine, Game partner)
 
         if (refusal is { } reason) throw new PokemonRefusedException(reason);
 
+        // A file converts in one step, so only a one-hop route can name the hop behind each change.
         var route = OfficialRoute(pokemon.Pkm.GetType(), to.SaveFile.PKMType) is [var hop] ? hop : TransferRoute.Unofficial;
         return new PokemonImport(arrives!, unofficial, Changes(pokemon, arrives!, route).OrderBy(change => change.Field).ToList());
     }
@@ -108,7 +109,6 @@ public class Transfer(Game mine, Game partner)
         return null;
     }
 
-    // Pokémon Bank won't store a Kyurem fused with Reshiram or Zekrom.
     private static bool IsFused(PKM pk) => pk.Species == (ushort)Species.Kyurem && pk.Form != 0;
 
     /// <exception cref="ArgumentException">An arrival is for a Pokémon the offer doesn't have.</exception>
@@ -334,7 +334,7 @@ public class Transfer(Game mine, Game partner)
     {
         if (route == TransferRoute.Unofficial)
         {
-            return Changes(from, arrives, (field, before, after) => field switch
+            return Changes(from, arrives, keepsMetLocation: false, (field, before, after) => field switch
             {
                 TransferField.Moves or TransferField.HeldItem when after is null => TransferChangeReason.NotInGame,
                 TransferField.HeldItem => TransferChangeReason.ItemRemapped,
@@ -365,9 +365,6 @@ public class Transfer(Game mine, Game partner)
 
     private static IEnumerable<TransferChange> Changes(Pokemon from, Pokemon arrives, TransferChangeReason reason, TransferChangeReason? itemReason = null) =>
         Changes(from, arrives, keepsMetLocation: false, (field, _, _) => field == TransferField.HeldItem ? itemReason ?? reason : reason);
-
-    private static IEnumerable<TransferChange> Changes(Pokemon from, Pokemon arrives, Func<TransferField, string?, string?, TransferChangeReason> why) =>
-        Changes(from, arrives, keepsMetLocation: false, why);
 
     // The games' routes keep the met location's ID, and a later game naming that place its own way isn't a change.
     private static IEnumerable<TransferChange> Changes(Pokemon from, Pokemon arrives, bool keepsMetLocation, Func<TransferField, string?, string?, TransferChangeReason> why)

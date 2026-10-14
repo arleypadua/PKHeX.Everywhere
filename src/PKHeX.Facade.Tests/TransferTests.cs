@@ -134,7 +134,7 @@ public class TransferTests
     [InlineData(GameVersion.X, GameVersion.SN, Species.Kyurem, 2, Move.FusionBolt, TransferRefusal.Fused)]
     [InlineData(GameVersion.OR, GameVersion.SN, Species.Pikachu, 1, Move.Thunderbolt, TransferRefusal.SpeciesNotInGame)]
     [InlineData(GameVersion.Pt, GameVersion.B, Species.Pichu, 1, Move.ThunderShock, TransferRefusal.SpeciesNotInGame)]
-    public void TheOriginalToolsRefusalsHold(GameVersion from, GameVersion to, Species species, byte form, Move move, TransferRefusal refusal) =>
+    public void PreviewRefusesWhatTransporterAndBankRefused(GameVersion from, GameVersion to, Species species, byte form, Move move, TransferRefusal refusal) =>
         new Transfer(Boxed(from, species, form, move), Blank(to)).Preview(Send(Box(0))).Refused
             .Should().Equal(new RefusedPokemon(TransferDirection.Send, Box(0), refusal));
 
