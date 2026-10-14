@@ -1,5 +1,11 @@
 # @pkhex-everywhere/engine
 
+## 0.22.1
+
+### Patch Changes
+
+- 5cebfe3: `mysteryGift.status` reports the language of Generation 5 cards in the album.
+
 ## 0.22.0
 
 ### Minor Changes
