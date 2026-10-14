@@ -10,10 +10,10 @@ internal static class MysteryGiftDatabase
 
     private static readonly Lazy<IReadOnlyList<Entry>> Gen4 = new(() => Index("pcd", EncounterEvent.MGDB_G4));
     private static readonly Lazy<IReadOnlyList<Entry>> Gen5 = new(() => Index("pgf", EncounterEvent.MGDB_G5));
-    private static readonly Lazy<FrozenDictionary<string, string?>> KnownCards = new(() => Gen4.Value.Concat(Gen5.Value)
+    private static readonly Lazy<FrozenDictionary<string, string?>> KnownCardLanguages = new(() => Gen4.Value.Concat(Gen5.Value)
         .Select(entry => new WonderCard(entry.Gift))
         .GroupBy(KeyOf)
-        .ToFrozenDictionary(cards => cards.Key, OnlyLanguage));
+        .ToFrozenDictionary(cards => cards.Key, SharedLanguage));
 
     internal static readonly GameVersion[] Gen4Versions = [GameVersion.D, GameVersion.P, GameVersion.Pt, GameVersion.HG, GameVersion.SS];
     private static readonly GameVersion[] Gen5Versions = [GameVersion.B, GameVersion.W, GameVersion.B2, GameVersion.W2];
@@ -37,11 +37,11 @@ internal static class MysteryGiftDatabase
     internal static ushort Gen4Compatibility(IEnumerable<GameVersion> versions) =>
         (ushort)versions.Aggregate(0, (bits, version) => bits | (1 << (int)version));
 
-    public static bool Knows(WonderCard card) => KnownCards.Value.ContainsKey(KeyOf(card));
+    public static bool Knows(WonderCard card) => KnownCardLanguages.Value.ContainsKey(KeyOf(card));
 
-    public static string? LanguageOf(WonderCard card) => KnownCards.Value.GetValueOrDefault(KeyOf(card));
+    public static string? LanguageOf(WonderCard card) => KnownCardLanguages.Value.GetValueOrDefault(KeyOf(card));
 
-    private static string? OnlyLanguage(IEnumerable<WonderCard> cards)
+    private static string? SharedLanguage(IEnumerable<WonderCard> cards)
     {
         var languages = cards.Select(card => card.OwnLanguage).OfType<string>().Distinct().ToList();
         return languages.Count == 1 ? languages[0] : null;

@@ -34,7 +34,7 @@ public sealed class WonderCard
 
     public ItemDefinition? Item => ItemId is { } id ? ItemRepository.GetItem(id) : null;
 
-    // A Generation 5 card's language is only in PKHeX's database, so a card from a save takes it from its database copy.
+    // PKHeX's database knows a Generation 5 card's language but the card's bytes don't, so a card from a save or a file takes it from its database copy.
     public string? Language => OwnLanguage ?? MysteryGiftDatabase.LanguageOf(this);
 
     internal string? OwnLanguage => LanguageCode(Gift switch
