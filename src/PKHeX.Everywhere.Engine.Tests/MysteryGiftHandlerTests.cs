@@ -106,6 +106,17 @@ public class MysteryGiftHandlerTests
         Events(session).Single(e => Id(e) == Id(pokemon))["received"]!.GetValue<bool>().Should().BeTrue();
     }
 
+    [Fact]
+    public void AnInsertedGen5CardKeepsItsLanguage()
+    {
+        var session = Open(nameof(GameVersion.B2));
+        var meloetta = Events(session).First(e => Id(e).StartsWith("pgf-129-ENG-"));
+
+        Value(Dispatch(session, "mysteryGift.insertEvent", Args(Id(meloetta), 0)));
+
+        Slot(session, 0)!["language"]!.GetValue<string>().Should().Be("ENG");
+    }
+
     [Theory]
     [MemberData(nameof(ExportableSaves))]
     public void AnInsertedCardSurvivesExportAndLoad(string save)
