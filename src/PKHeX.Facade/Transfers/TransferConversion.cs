@@ -24,6 +24,18 @@ internal static class TransferConversion
         return to.IsAwareOf(arrives) ? null : TransferRefusal.SpeciesNotInGame;
     }
 
+    // From Gen 6 the games refuse a trade bringing a move, item or ability the receiver predates, such as an Omega Ruby move into X.
+    public static bool CanHold(Game to, Pokemon pokemon)
+    {
+        var (save, pk) = (to.SaveFile, pokemon.Pkm);
+        if (save.Generation < 6) return true;
+
+        return pk.HeldItem <= save.MaxItemID
+            && (pk.HeldItem == 0 || pk.CanHoldItem(save.HeldItems))
+            && pk.Ability <= save.MaxAbilityID
+            && Enumerable.Range(0, 4).All(slot => pk.GetMove(slot) <= save.MaxMoveID);
+    }
+
     public static bool HasBall(Game game, byte ball) => game.Options.Balls.Any(choice => choice.Id == ball);
 
     public static bool CanHaveAbility(PKM pk, int ability) => pk.PersonalInfo.GetIndexOfAbility(ability) >= 0;

@@ -96,6 +96,7 @@ public enum TransferDirection
 /// <c>speciesNotInGame</c>: the destination game doesn't have its species or form. <c>lastPartyMember</c>: the sending party must keep a Pokémon that isn't an egg.
 /// <c>noRoom</c>: the destination has no empty box slot left for it. <c>bagFull</c>: Platinum can't put back the Griseous Orb it takes before a link trade.
 /// <c>conversionFailed</c>: PKHeX can't convert it to the destination's format.
+/// <c>notInGame</c>: the destination game doesn't have one of its moves, its held item or its ability, such as a move from Omega Ruby traded to X.
 /// </remarks>
 public enum TransferRefusal
 {
@@ -108,6 +109,7 @@ public enum TransferRefusal
     NoRoom,
     BagFull,
     ConversionFailed,
+    NotInGame,
 }
 
 /// <summary>
@@ -278,6 +280,7 @@ public static class TransferMapping
         Transfers.TransferRefusal.NoRoom => TransferRefusal.NoRoom,
         Transfers.TransferRefusal.BagFull => TransferRefusal.BagFull,
         Transfers.TransferRefusal.ConversionFailed => TransferRefusal.ConversionFailed,
+        Transfers.TransferRefusal.NotInGame => TransferRefusal.NotInGame,
         _ => throw new ArgumentOutOfRangeException(nameof(refusal), refusal, null),
     };
 

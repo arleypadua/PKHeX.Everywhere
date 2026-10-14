@@ -115,6 +115,33 @@ public class TransferHandlerTests
         preview["refused"]!.ToJsonString().Should().Be("""[{"direction":"send","at":{"source":"box","slot":1,"box":0,"team":null},"reason":"speciesNotInGame"}]""");
     }
 
+    [Theory]
+    [InlineData(GameVersion.X, GameVersion.OR)]
+    [InlineData(GameVersion.SN, GameVersion.US)]
+    public void BlankSavesOfTheSameGenerationTradeByLink(GameVersion mine, GameVersion partner)
+    {
+        var session = Blank(mine);
+
+        var transfer = Open(session, Exported(Blank(partner, Species.Gengar, Move.ShadowBall)));
+        var preview = Preview(session, Receive(PokemonHandle.InBox(0, 0)));
+        Value(Dispatch(session, "transfer.commit", Args(Receive(PokemonHandle.InBox(0, 0)))));
+
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":"link","receive":"link"}""");
+        preview["refused"]!.AsArray().Should().BeEmpty();
+        session.Game!.Trainer.PokemonBox.All[0].Species.Name.Should().Be("Gengar");
+    }
+
+    [Fact]
+    public void SunRefusesAMoveOnlyUltraSunHas()
+    {
+        var session = Blank(GameVersion.US, Species.Necrozma, Move.PhotonGeyser);
+        Open(session, Exported(Blank(GameVersion.SN)));
+
+        var preview = Preview(session, Send(PokemonHandle.InBox(0, 0)));
+
+        preview["refused"]![0]!["reason"]!.GetValue<string>().Should().Be("notInGame");
+    }
+
     [Fact]
     public void AJapaneseGen2SaveRefusesAnInternationalGen1Pokemon()
     {
@@ -591,6 +618,25 @@ public class TransferHandlerTests
 
     private static JsonNode Open(Session session, byte[] partner) =>
         Value(Dispatch(session, "transfer.open", Args(Convert.ToBase64String(partner), "partner.sav", null!)))!;
+
+    private static Session Blank(GameVersion version, Species? boxed = null, Move move = Move.None)
+    {
+        var session = new Session();
+        Value(Dispatch(session, "game.loadBlank", Args((int)version)));
+        if (boxed is null) return session;
+
+        var save = session.Game!.SaveFile;
+        var pokemon = save.BlankPKM;
+        pokemon.Species = (ushort)boxed;
+        pokemon.CurrentLevel = 50;
+        pokemon.Move1 = (ushort)move;
+        save.SetBoxSlotAtIndex(pokemon, 0, EntityImportSettings.None);
+        session.Load(new Game(save), "boxed.sav");
+        return session;
+    }
+
+    private static byte[] Exported(Session session) =>
+        Convert.FromBase64String(Value(Dispatch(session, "game.export", "[]"))!["bytes"]!.GetValue<string>());
 
     private static JsonNode Preview(Session session, object offer) => Value(Dispatch(session, "transfer.preview", Args(offer)))!;
 

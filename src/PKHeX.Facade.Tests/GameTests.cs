@@ -57,4 +57,22 @@ public class GameTests
     [InlineData(GameVersion.C)]
     public void EmptyOf_Gen2_CutsTheTrainerNameToTheGamesLimit(GameVersion version) =>
         Game.EmptyOf(GameVersionRepository.Instance.Get(version), "ABCDEFGHIJ").Trainer.Name.Should().Be("ABCDEFG");
+
+    [Theory]
+    [InlineData(GameVersion.X)]
+    [InlineData(GameVersion.Y)]
+    [InlineData(GameVersion.OR)]
+    [InlineData(GameVersion.AS)]
+    [InlineData(GameVersion.SN)]
+    [InlineData(GameVersion.MN)]
+    [InlineData(GameVersion.US)]
+    [InlineData(GameVersion.UM)]
+    public void EmptyOf_LoadsBackOnceExported(GameVersion version)
+    {
+        var bytes = Game.EmptyOf(GameVersionRepository.Instance.Get(version)).ToByteArray();
+        var loaded = Game.LoadFrom(bytes, "blank.sav").SaveFile;
+
+        loaded.GetType().Should().Be(BlankSaveFile.Get(version).GetType());
+        loaded.ChecksumsValid.Should().BeTrue();
+    }
 }
