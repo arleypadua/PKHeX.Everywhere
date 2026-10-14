@@ -17,9 +17,9 @@ public sealed class Gen3Events
 
     internal static Gen3Events? For(Game game) => game.SaveFile switch
     {
-        SAV3E emerald => new Gen3Events(new EventTickets(game), EmeraldIslands(emerald)),
-        SAV3FRLG frlg => new Gen3Events(new EventTickets(game), FireRedLeafGreenIslands(frlg)),
-        SAV3 => new Gen3Events(new EventTickets(game), []),
+        SAV3E emerald => new Gen3Events(new EventTickets(game, []), EmeraldIslands(emerald)),
+        SAV3FRLG frlg => new Gen3Events(new EventTickets(game, FireRedLeafGreenShipFlags), FireRedLeafGreenIslands(frlg)),
+        SAV3 => new Gen3Events(new EventTickets(game, []), []),
         _ => null,
     };
 
@@ -37,10 +37,20 @@ public sealed class Gen3Events
         Island(save, 0x1DB, "Initial event: Navel Rock"),
     ];
 
+    private const int BirthIslandShipFlag = 0x84B;
+    private const int NavelRockShipFlag = 0x84A;
+
+    // The Seagallop at Vermilion checks these flags as well as the ticket; a real distribution sets them.
+    private static readonly ImmutableDictionary<ushort, int> FireRedLeafGreenShipFlags = new Dictionary<ushort, int>
+    {
+        [EventTickets.AuroraTicketId] = BirthIslandShipFlag,
+        [EventTickets.MysticTicketId] = NavelRockShipFlag,
+    }.ToImmutableDictionary();
+
     private static ImmutableList<EventFlagEntry> FireRedLeafGreenIslands(SAV3FRLG save) =>
     [
-        Island(save, EventTickets.BirthIslandShipFlag, "Reachable: Birth Island"),
-        Island(save, EventTickets.NavelRockShipFlag, "Reachable: Navel Rock"),
+        Island(save, BirthIslandShipFlag, "Reachable: Birth Island"),
+        Island(save, NavelRockShipFlag, "Reachable: Navel Rock"),
     ];
 
     private static EventFlagEntry Island(SAV3 save, int flag, string name) =>
@@ -52,25 +62,18 @@ public sealed class EventTickets
     private const string KeyItems = nameof(InventoryType.KeyItems);
     private const ushort SsTicketId = 265;
     private const ushort EonTicketId = 275;
-    private const ushort MysticTicketId = 370;
-    private const ushort AuroraTicketId = 371;
+    internal const ushort MysticTicketId = 370;
+    internal const ushort AuroraTicketId = 371;
     private const ushort OldSeaMapId = 376;
     private static readonly ushort[] TicketIds = [SsTicketId, EonTicketId, MysticTicketId, AuroraTicketId, OldSeaMapId];
-    internal const int BirthIslandShipFlag = 0x84B;
-    internal const int NavelRockShipFlag = 0x84A;
-
-    // The Seagallop at Vermilion checks these flags as well as the ticket; a real distribution sets them.
-    private static readonly Dictionary<ushort, int> FireRedLeafGreenShipFlags = new()
-    {
-        [AuroraTicketId] = BirthIslandShipFlag,
-        [MysticTicketId] = NavelRockShipFlag,
-    };
 
     private readonly Game _game;
+    private readonly ImmutableDictionary<ushort, int> _flagsSetOnGive;
 
-    internal EventTickets(Game game)
+    internal EventTickets(Game game, ImmutableDictionary<ushort, int> flagsSetOnGive)
     {
         _game = game;
+        _flagsSetOnGive = flagsSetOnGive;
     }
 
     private Inventory Pouch => _game.Trainer.Inventories[KeyItems];
@@ -100,8 +103,8 @@ public sealed class EventTickets
         foreach (var ticket in toAdd)
         {
             Pouch.Set(ticket.Id, 1);
-            if (_game.SaveFile is SAV3FRLG frlg && FireRedLeafGreenShipFlags.TryGetValue(ticket.Id, out var flag))
-                frlg.SetEventFlag(flag, true);
+            if (_flagsSetOnGive.TryGetValue(ticket.Id, out var flag))
+                ((SAV3)_game.SaveFile).SetEventFlag(flag, true);
         }
 
         return toAdd;

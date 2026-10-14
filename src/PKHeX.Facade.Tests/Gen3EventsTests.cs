@@ -106,15 +106,12 @@ public class Gen3EventsTests
     [Fact]
     public void Tickets_FireRed_ShouldEnableTheShipsToTheirIslands()
     {
-        var game = Game.LoadFrom(SaveFilePath.FireRed);
+        var game = Blank(GameVersion.FR);
+        ShipFlags(game).Should().Equal(false, false);
 
         game.Events!.Gen3!.Tickets.Give(includeOldSeaMap: true);
 
-        game.SaveAndReload(reloaded =>
-            reloaded.Events!.Gen3!.Islands
-                .Where(i => i.Name is "Reachable: Birth Island" or "Reachable: Navel Rock")
-                .Select(i => i.Value)
-                .Should().Equal(true, true));
+        ShipFlags(game).Should().Equal(true, true);
     }
 
     [Fact]
@@ -138,6 +135,9 @@ public class Gen3EventsTests
     {
         Game.LoadFrom(SaveFilePath.PathFrom(version)).Events!.Gen3.Should().BeNull();
     }
+
+    private static IEnumerable<bool> ShipFlags(Game game) =>
+        game.Events!.Gen3!.Islands.Where(i => i.Index is 0x84B or 0x84A).Select(i => i.Value);
 
     private static Game Blank(GameVersion version) =>
         Game.EmptyOf(GameVersionRepository.Instance.Get(version), "ASH");
