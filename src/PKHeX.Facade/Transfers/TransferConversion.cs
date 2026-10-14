@@ -33,7 +33,7 @@ internal static class TransferConversion
         return pk.HeldItem <= save.MaxItemID
             && (pk.HeldItem == 0 || pk.CanHoldItem(save.HeldItems))
             && pk.Ability <= save.MaxAbilityID
-            && Enumerable.Range(0, 4).All(slot => pk.GetMove(slot) <= save.MaxMoveID);
+            && Enumerable.Range(0, 4).All(slot => pk.GetMove(slot) <= save.MaxMoveID && pk.GetRelearnMove(slot) <= save.MaxMoveID);
     }
 
     public static bool HasBall(Game game, byte ball) => game.Options.Balls.Any(choice => choice.Id == ball);

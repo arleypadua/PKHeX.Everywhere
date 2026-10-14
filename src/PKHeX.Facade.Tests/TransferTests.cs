@@ -69,6 +69,14 @@ public class TransferTests
     }
 
     [Fact]
+    public void XRefusesARelearnMoveOnlyOmegaRubyHas()
+    {
+        var omegaRuby = Boxed(GameVersion.OR, Species.Rayquaza, move: Move.Fly, relearn: Move.DragonAscent);
+
+        new Transfer(omegaRuby, Blank(GameVersion.X)).Preview(Send(Box(0))).Refused.Single().Reason.Should().Be(TransferRefusal.NotInGame);
+    }
+
+    [Fact]
     public void RoomCountsTheEmptyBoxSlots() =>
         new Transfer(SaveFilePath.Load(SaveFilePath.FireRed), SaveFilePath.Load(SaveFilePath.Emerald)).Room.Should().Be(new TransferRoom(63, 7));
 
@@ -657,7 +665,7 @@ public class TransferTests
 
     private static Game Blank(GameVersion version) => new(BlankSaveFile.Get(version));
 
-    private static Game Boxed(GameVersion version, Species species, byte form = 0, Move move = Move.ShadowBall, int item = 0)
+    private static Game Boxed(GameVersion version, Species species, byte form = 0, Move move = Move.ShadowBall, int item = 0, Move relearn = Move.None)
     {
         var save = BlankSaveFile.Get(version);
         var pokemon = save.BlankPKM;
@@ -665,6 +673,7 @@ public class TransferTests
         pokemon.Form = form;
         pokemon.CurrentLevel = 50;
         pokemon.Move1 = (ushort)move;
+        pokemon.RelearnMove1 = (ushort)relearn;
         pokemon.HeldItem = item;
         pokemon.Language = (int)LanguageID.English;
         save.SetBoxSlotAtIndex(pokemon, 0, EntityImportSettings.None);

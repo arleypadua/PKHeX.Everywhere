@@ -7,6 +7,9 @@ internal static class BeefSaves
 {
     private const uint FooterMagic = 0x42454546;
     private const int FooterSize = 0x200;
+    private const int MagicOffset = 0x10;
+    private const int BlockTableOffset = 0x14;
+    private const int BlockEntrySize = 8;
     private const uint PokedexMagic = 0x2F120F17;
     private const int PokedexBlock = 6;
 
@@ -19,10 +22,10 @@ internal static class BeefSaves
 
         var blocks = ((SAV_BEEF)save).AllBlocks;
         var footer = save.Data[^FooterSize..];
-        WriteUInt32LittleEndian(footer[0x10..], FooterMagic);
+        WriteUInt32LittleEndian(footer[MagicOffset..], FooterMagic);
         foreach (var block in blocks)
         {
-            var entry = footer[(0x14 + (int)block.ID * 8)..];
+            var entry = footer[(BlockTableOffset + (int)block.ID * BlockEntrySize)..];
             WriteUInt32LittleEndian(entry, (uint)block.Length);
             WriteUInt16LittleEndian(entry[4..], (ushort)block.ID);
         }
