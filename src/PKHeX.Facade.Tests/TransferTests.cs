@@ -117,11 +117,11 @@ public class TransferTests
     }
 
     [Theory]
-    [InlineData(GameVersion.RD, GameVersion.RD, Locations.Transfer1)]
-    [InlineData(GameVersion.YW, GameVersion.YW, Locations.Transfer1)]
-    [InlineData(GameVersion.C, GameVersion.C, Locations.Transfer2)]
-    [InlineData(GameVersion.SI, GameVersion.SI, Locations.Transfer2)]
-    public void TransporterConvertsAVirtualConsolePokemonAsTheGameDid(GameVersion from, GameVersion origin, ushort metLocation)
+    [InlineData(GameVersion.RD, Locations.Transfer1)]
+    [InlineData(GameVersion.YW, Locations.Transfer1)]
+    [InlineData(GameVersion.C, Locations.Transfer2)]
+    [InlineData(GameVersion.GD, Locations.Transfer2)]
+    public void TransporterConvertsAVirtualConsolePokemonAsTheGameDid(GameVersion from, ushort metLocation)
     {
         var mine = GameBoy(from, Species.Pikachu, Move.ThunderShock, shiny: true);
         var leaving = mine.Trainer.PokemonBox.All[0].Pkm;
@@ -130,7 +130,7 @@ public class TransferTests
         var arrives = offered.Arrives.Pkm;
 
         offered.Legality.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
-        (arrives.Version, arrives.MetLocation, arrives.MetLevel, arrives.Ball).Should().Be((origin, metLocation, (byte)leaving.CurrentLevel, (byte)Ball.Poke));
+        (arrives.Version, arrives.MetLocation, arrives.MetLevel, arrives.Ball).Should().Be((from, metLocation, (byte)leaving.CurrentLevel, (byte)Ball.Poke));
         arrives.Nature.Should().Be(Experience.GetNatureVC(leaving.EXP));
         arrives.AbilityNumber.Should().Be(4);
         arrives.IsShiny.Should().BeTrue();
@@ -189,6 +189,36 @@ public class TransferTests
 
         new Transfer(crystal, Blank(GameVersion.SN)).Preview(Send(Box(0))).Refused
             .Should().Equal(new RefusedPokemon(TransferDirection.Send, Box(0), TransferRefusal.HoldingItem));
+    }
+
+    [Fact]
+    public void ImportingAGen2PokemonHoldingAnItemIntoSunIsRefused()
+    {
+        var pikachu = Pikachu(0x1234);
+        pikachu.HeldItem = ItemConverter.GetItemOld2(Leftovers);
+
+        var import = () => Transfer.Import(new Pokemon(pikachu, Blank(GameVersion.C)), Blank(GameVersion.SN));
+
+        import.Should().Throw<PokemonRefusedException>().Which.Reason.Should().Be(TransferRefusal.HoldingItem);
+    }
+
+    [Fact]
+    public void TwoPokemonWithTheSameTrainerAndDvsArriveWithDifferentPids()
+    {
+        var crystal = Crystal(Pikachu(0x1234), Pikachu(0x1234));
+        crystal.Trainer.PokemonBox.All[1].Pkm.EXP += 100;
+
+        var offers = new Transfer(crystal, Blank(GameVersion.SN)).Preview(Send(Box(0), Box(1))).Offers;
+
+        offers[1].Arrives.Pkm.PID.Should().NotBe(offers[0].Arrives.Pkm.PID);
+    }
+
+    [Fact]
+    public void AStadiumSendsToSunUnofficially()
+    {
+        var (stadium, _) = Stadium(1, Species.Pikachu);
+
+        Transfer.RouteBetween(stadium, Blank(GameVersion.SN)).Should().Equal(TransferRoute.Unofficial);
     }
 
     [Fact]
@@ -882,8 +912,9 @@ public class TransferTests
         pokemon.Move1_PP = pokemon.GetMovePP(pokemon.Move1, 0);
         pokemon.OriginalTrainerName = save.OT;
         pokemon.TID16 = save.TID16;
-        ((GBPKM)pokemon).DV16 = shiny ? (ushort)0xFAAA : (ushort)0x1234;
-        ((GBPKM)pokemon).SetNotNicknamed((int)language);
+        var gb = (GBPKM)pokemon;
+        gb.DV16 = shiny ? (ushort)0xFAAA : (ushort)0x1234;
+        gb.SetNotNicknamed((int)language);
         pokemon.ResetPartyStats();
         save.SetBoxSlotAtIndex(pokemon, 0, EntityImportSettings.None);
         return new Game(save);

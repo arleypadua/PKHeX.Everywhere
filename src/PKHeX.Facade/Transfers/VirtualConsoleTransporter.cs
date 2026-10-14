@@ -10,6 +10,8 @@ internal static class VirtualConsoleTransporter
 
     public static TransferRefusal? Rework(GBPKM from, SaveFile source, PK7 arrives, SaveFile destination)
     {
+        if (from is PK2 { HeldItem: not 0 }) return TransferRefusal.HoldingItem;
+
         var language = Language(from, source);
         if (!SetRegion(arrives, destination, language)) return TransferRefusal.LanguageMismatch;
 
@@ -19,9 +21,10 @@ internal static class VirtualConsoleTransporter
         // PKHeX gives a Pokémon caught in Crystal, which alone records where, Crystal as its origin.
         if (Origin(source) is { } origin && from is not PK2 { HasOriginalMetLocation: true }) arrives.Version = origin;
 
-        var rng = new Xoroshiro128Plus(TransferConversion.Seed(from));
+        var rng = new Xoroshiro128Plus(TransferConversion.Seed(from), (ulong)from.Species << 32 | from.EXP);
         arrives.EncryptionConstant = (uint)rng.Next();
         arrives.PID = (uint)rng.Next();
+        // As PKHeX's SetTransferPID: a shiny becomes a square shiny against a secret ID of 0, and any other loses its shininess.
         if (from.IsShiny && !arrives.IsShiny)
         {
             var low = arrives.PID & 0xFFFF;

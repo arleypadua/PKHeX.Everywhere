@@ -23,6 +23,8 @@ public class Transfer(Game mine, Game partner)
     public static IReadOnlyList<TransferRoute>? RouteBetween(Game from, Game to)
     {
         if (!HasRoutes(from) || !HasRoutes(to)) return null;
+        // Poké Transporter reached only the Virtual Console games, never a Stadium.
+        if (IsStadium(from) && !IsGameBoy(to.SaveFile.PKMType)) return [TransferRoute.Unofficial];
         return OfficialRoute(from.SaveFile.PKMType, to.SaveFile.PKMType) ?? [TransferRoute.Unofficial];
     }
 
@@ -97,8 +99,8 @@ public class Transfer(Game mine, Game partner)
             var (route, at) = stops[hop];
             var leaving = arrives!.Clone();
             if (route == TransferRoute.Bank && IsFused(leaving.Pkm)) return TransferRefusal.Fused;
-            if (route == TransferRoute.Transporter && leaving.Pkm is PK2 { HeldItem: not 0 }) return TransferRefusal.HoldingItem;
-            if (route is TransferRoute.Transporter or TransferRoute.Bank)
+            // Poké Transporter refused a Virtual Console Pokémon holding an item rather than take it.
+            if (route is TransferRoute.Transporter or TransferRoute.Bank && !IsGameBoy(leaving.Pkm.GetType()))
             {
                 var item = TransferEffects.TakeHeldItem(leaving.Pkm);
                 if (hop == 0) returned = item;
