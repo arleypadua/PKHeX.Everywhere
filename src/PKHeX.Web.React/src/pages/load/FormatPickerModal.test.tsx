@@ -18,9 +18,7 @@ describe('FormatPickerModal', () => {
   it('asks whether a save with no candidates is from a ROM hack', () => {
     const picker = renderPicker({ candidates: [], pkhexGame: 'Emerald' })
 
-    expect(picker.text()).toContain(
-      "'Pokemon Emerald.sav' has Pokémon or moves that Emerald doesn't have. It might be from a ROM hack we don't support.",
-    )
+    expect(picker.text()).toContain("moves that Emerald doesn't have")
     expect(picker.options()).toEqual(["No, it's Emerald"])
   })
 

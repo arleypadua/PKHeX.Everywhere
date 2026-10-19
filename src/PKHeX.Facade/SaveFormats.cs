@@ -81,7 +81,7 @@ public static class SaveFormats
 public class FormatChoiceRequiredException(IReadOnlyList<ISaveFormat> candidates, string? pkhexGame)
     : Exception(candidates.Count > 0
         ? $"The save might be {string.Join(" or ", candidates.Select(format => format.Name))}. Choose a format to load it with."
-        : $"The save has Pokémon or moves that {pkhexGame} doesn't have. It might be from a ROM hack.")
+        : $"The save has Pokémon or moves that {pkhexGame ?? "its game"} doesn't have. It might be from a ROM hack.")
 {
     public FormatChoiceRequiredException(IReadOnlyList<ISaveFormat> candidates) : this(candidates, null)
     {
@@ -89,8 +89,5 @@ public class FormatChoiceRequiredException(IReadOnlyList<ISaveFormat> candidates
 
     public IReadOnlyList<ISaveFormat> Candidates { get; } = candidates;
 
-    /// <summary>
-    /// The game PKHeX's own detection reads the save as, the way <see cref="Game.GameVersionApproximation"/> names it, or <c>null</c> when PKHeX can't read the save.
-    /// </summary>
     public string? PKHeXGame { get; } = pkhexGame;
 }
