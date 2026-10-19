@@ -5,6 +5,7 @@ using PKHeX.Core;
 using PKHeX.Facade.Abstractions;
 using PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 using PKHeX.Everywhere.RomHacks.Cfru.Unbound;
+using PKHeX.Everywhere.RomHacks.Expansion.HeartAndSoul;
 using PKHeX.Everywhere.RomHacks.Expansion.Imperium;
 using PKHeX.Everywhere.RomHacks.Legacy;
 using Xunit.Sdk;
@@ -55,6 +56,7 @@ public static class SaveFilePath
     public const string RadicalRed = "./data/save/radicalred.sav";
     public const string Imperium = "./data/save/imperium.sav"; // Emerald Imperium 1.3
     public const string EmeraldLegacy = "./data/save/emerald-legacy.sav";
+    public const string HeartAndSoul = "./data/save/heartandsoul.sav"; // Heart & Soul 2.0.6
     public const string UnboundUnknownSpecies = "./data/save/unbound-unknown-species.sav"; // Shadow Warrior in box 23, slot 19
 
     public static IReadOnlyList<string> All { get; } =
@@ -68,6 +70,21 @@ public static class SaveFilePath
         var first = Enumerable.Range(0, 28).First(sector => ReadUInt16LittleEndian(fixture.AsSpan((sector * 0x1000) + 0xFF4)) == 0);
         for (var sector = 0; sector < 28; sector++)
             fixture.AsSpan(((sector + first) % 28) * 0x1000, 0x1000).CopyTo(data.AsSpan(sector * 0x1000));
+
+        return data;
+    }
+
+    // Sets saveVersion in both slots and fixes the checksum it changes.
+    public static byte[] HeartAndSoulWithSaveVersion(ushort version)
+    {
+        var data = File.ReadAllBytes(HeartAndSoul);
+        for (var sector = 0; sector < 28; sector++)
+        {
+            var bytes = data.AsSpan(sector * 0x1000, 0x1000);
+            if (ReadUInt16LittleEndian(bytes[0xFF4..]) != 1) continue;
+            WriteUInt16LittleEndian(bytes, version);
+            WriteUInt16LittleEndian(bytes[0xFF6..], Checksums.CheckSum32(bytes[..3968]));
+        }
 
         return data;
     }
@@ -107,5 +124,6 @@ internal static class RomHackFormats
         SaveFormats.Register(new RadicalRedFormat());
         SaveFormats.Register(new ImperiumFormat());
         SaveFormats.Register(new EmeraldLegacyFormat());
+        SaveFormats.Register(new HeartAndSoulFormat(), enabled: false);
     }
 }
