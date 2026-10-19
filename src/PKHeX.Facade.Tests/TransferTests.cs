@@ -153,7 +153,7 @@ public class TransferTests
         offered.Arrives.Pkm.Should().BeOfType<PK7>();
         offered.Changes.Should().NotBeEmpty();
         offered.Changes.Select(change => change.Reason).Should().BeSubsetOf([TransferChangeReason.Transporter, TransferChangeReason.Bank]);
-        offered.Legality.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
+        offered.Legality!.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
     }
 
     [Theory]
@@ -169,7 +169,7 @@ public class TransferTests
         var offered = new Transfer(mine, Blank(GameVersion.SN)).Preview(Send(Box(0))).Offers.Single();
         var arrives = offered.Arrives.Pkm;
 
-        offered.Legality.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
+        offered.Legality!.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
         (arrives.Version, arrives.MetLocation, arrives.MetLevel, arrives.Ball).Should().Be((from, metLocation, (byte)leaving.CurrentLevel, (byte)Ball.Poke));
         arrives.Nature.Should().Be(Experience.GetNatureVC(leaving.EXP));
         arrives.AbilityNumber.Should().Be(4);
@@ -199,7 +199,7 @@ public class TransferTests
         var offered = new Transfer(japanese, sun).Preview(Send(Box(0))).Offers.Single();
 
         offered.Arrives.Pkm.Language.Should().Be((int)LanguageID.Japanese);
-        offered.Legality.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
+        offered.Legality!.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
     }
 
     [Fact]
@@ -333,7 +333,7 @@ public class TransferTests
 
         offered.Changes.Should().BeEmpty();
         offered.Arrives.Pkm.Data.ToArray().Should().Equal(offered.Pokemon.Pkm.Data.ToArray());
-        offered.Legality.Valid.Should().BeTrue();
+        offered.Legality!.Valid.Should().BeTrue();
     }
 
     [Fact]
@@ -726,7 +726,7 @@ public class TransferTests
         arrives.EVTotal.Should().Be(0);
         arrives.PID.Should().NotBe(0);
         (arrives.Gender, arrives.IsShiny).Should().Be((inCrystal.Pokemon.Pkm.Gender, inCrystal.Pokemon.Pkm.IsShiny));
-        offered.Legality.Messages.Should().NotContain(message => message.Contains("Language") || message.Contains("EV") || message.Contains("Encryption"));
+        offered.Legality!.Messages.Should().NotContain(message => message.Contains("Language") || message.Contains("EV") || message.Contains("Encryption"));
     }
 
     [Fact]

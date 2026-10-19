@@ -142,7 +142,7 @@ public record PokemonImport(Pokemon Arrives, bool Unofficial, IReadOnlyList<Tran
     /// <summary>
     /// PKHeX's legality check of the Pokémon as it arrives, judged in the save. Null when the save has no legality check, such as a ROM hack's.
     /// </summary>
-    public PokemonLegality? Legality() => Arrives.Game.Supports(Capability.Legality) ? Transfer.LegalityIn(Arrives.Game, Arrives) : null;
+    public PokemonLegality? Legality() => Transfer.LegalityIn(Arrives.Game, Arrives);
 
     /// <summary>
     /// The Pokémon's details as it arrives, with <see cref="Legality"/> judged in the save.

@@ -207,7 +207,7 @@ public class Transfer(Game mine, Game partner)
             var arriving = route![^1];
             var received = converted!.Clone();
             // PKHeX's rules for receiving and evolving are the official games', which a hack may not follow.
-            var sameHack = from.Format is not null;
+            var sameHack = from.Format is not null && from.Format.Id == to.Format?.Id;
             if (!sameHack) TransferEffects.Receive(received.Pkm, arriving);
             var evolved = received.Clone();
             // Storing a Pokémon in a Stadium isn't a trade, so nothing evolves on the way in or out.
@@ -249,7 +249,7 @@ public class Transfer(Game mine, Game partner)
                 arrives,
                 changes,
                 saveChanges,
-                to.Supports(Capability.Legality) ? LegalityIn(to, arrives) : null));
+                LegalityIn(to, arrives)));
         }
     }
 
@@ -445,6 +445,7 @@ public class Transfer(Game mine, Game partner)
         .Select(move => move.Name)
         .ToList();
 
-    internal static PokemonLegality LegalityIn(Game destination, Pokemon arrival) =>
-        SaveRules.Under(destination.SaveFile, arrival.LegalityReport);
+    internal static PokemonLegality? LegalityIn(Game destination, Pokemon arrival) => destination.Supports(Capability.Legality)
+        ? SaveRules.Under(destination.SaveFile, arrival.LegalityReport)
+        : null;
 }
