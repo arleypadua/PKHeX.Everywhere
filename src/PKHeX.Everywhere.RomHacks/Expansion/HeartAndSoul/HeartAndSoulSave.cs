@@ -80,6 +80,21 @@ public sealed class HeartAndSoulSave : SaveFile
     internal static int SaveBlock1Offset(ReadOnlySpan<int> sectors, int offset) =>
         sectors[SaveBlock1 + (offset / SectorData)] + (offset % SectorData);
 
+    internal (int Offset, int Slots)[] SaveBlock1Slots(int offset, int slots, int slotSize)
+    {
+        List<(int Offset, int Slots)> regions = [];
+        while (slots > 0)
+        {
+            var inSector = offset % SectorData;
+            var fit = Math.Min(slots, (SectorData - inSector) / slotSize);
+            regions.Add((SaveBlock1Offset(_sectors, offset), fit));
+            offset += fit * slotSize;
+            slots -= fit;
+        }
+
+        return [..regions];
+    }
+
     private Span<byte> Sector(int id) => Data.Slice(_sectors[id], SectorSize);
 
     private void CopyStorage(bool toSave)
@@ -160,8 +175,10 @@ public sealed class HeartAndSoulSave : SaveFile
     public override ushort TID16 { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0A..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0A..], value); }
     public override ushort SID16 { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0C..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0C..], value); }
 
-    private uint EncryptionKey => ReadUInt32LittleEndian(Sector(SaveBlock2)[0xAC..]);
+    internal uint EncryptionKey => ReadUInt32LittleEndian(Sector(SaveBlock2)[0xAC..]);
     public override uint Money { get => ReadUInt32LittleEndian(Sector(SaveBlock1)[0x494..]) ^ EncryptionKey; set => WriteUInt32LittleEndian(Sector(SaveBlock1)[0x494..], value ^ EncryptionKey); }
+
+    public override HeartAndSoulBag Inventory => new(this);
 
     // SaveBlock1 starts with the save version, so the party sits 4 bytes later than Emerald's.
     public override int PartyCount { get => Sector(SaveBlock1)[0x238]; protected set => Sector(SaveBlock1)[0x238] = (byte)value; }
