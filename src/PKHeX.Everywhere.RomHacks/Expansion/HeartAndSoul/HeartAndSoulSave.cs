@@ -160,6 +160,9 @@ public sealed class HeartAndSoulSave : SaveFile
     public override ushort TID16 { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0A..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0A..], value); }
     public override ushort SID16 { get => ReadUInt16LittleEndian(Sector(SaveBlock2)[0x0C..]); set => WriteUInt16LittleEndian(Sector(SaveBlock2)[0x0C..], value); }
 
+    private uint EncryptionKey => ReadUInt32LittleEndian(Sector(SaveBlock2)[0xAC..]);
+    public override uint Money { get => ReadUInt32LittleEndian(Sector(SaveBlock1)[0x494..]) ^ EncryptionKey; set => WriteUInt32LittleEndian(Sector(SaveBlock1)[0x494..], value ^ EncryptionKey); }
+
     // SaveBlock1 starts with the save version, so the party sits 4 bytes later than Emerald's.
     public override int PartyCount { get => Sector(SaveBlock1)[0x238]; protected set => Sector(SaveBlock1)[0x238] = (byte)value; }
     protected override Span<byte> PartyBuffer => Sector(SaveBlock1).Slice(0x23C, 6 * ExpansionPokemon.SizeParty);

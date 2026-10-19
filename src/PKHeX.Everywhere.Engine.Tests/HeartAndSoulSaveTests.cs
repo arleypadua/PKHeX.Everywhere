@@ -135,6 +135,44 @@ public class HeartAndSoulSaveTests
         Enumerable.Range(NewerSlot, 14).Single(sector => ReadUInt16LittleEndian(Fixture.AsSpan((sector * 0x1000) + 0xFF4)) == id) * 0x1000;
 
     [Fact]
+    public void ShowsTheTrainer()
+    {
+        var trainer = Value(Dispatch(Loaded(), "trainer.get", "[]"))!;
+
+        trainer["name"]!.GetValue<string>().Should().Be("Pukster");
+        trainer["gender"]!.GetValue<string>().Should().Be("male");
+        trainer["id"]!.GetValue<string>().Should().Be("18233/57075");
+        trainer["money"]!.GetValue<uint>().Should().Be(1026739);
+    }
+
+    [Fact]
+    public void AnEditedTrainerSurvivesExportAndChangesNoOtherByte()
+    {
+        var session = Loaded();
+
+        Value(Dispatch(session, "trainer.setName", Args("Gold")));
+        Value(Dispatch(session, "trainer.setGender", Args("female")));
+        Value(Dispatch(session, "trainer.setMoney", Args(424242)));
+
+        var exported = Exported(session);
+        var money = SectorOf(1) + 0x494;
+        var key = ReadUInt32LittleEndian(Fixture.AsSpan(SectorOf(0) + 0xAC));
+        ReadUInt32LittleEndian(exported.AsSpan(money)).Should().Be(424242 ^ key);
+        var owned = new HashSet<int>(Enumerable.Range(NewerSlot, 14).Select(sector => (sector * 0x1000) + 0xFF6).SelectMany(checksum => new[] { checksum, checksum + 1 }));
+        owned.UnionWith(Enumerable.Range(SectorOf(0), 9));
+        owned.UnionWith(Enumerable.Range(money, 4));
+        Enumerable.Range(0, Fixture.Length).Where(index => exported[index] != Fixture[index])
+            .Should().NotBeEmpty().And.OnlyContain(index => owned.Contains(index));
+
+        var reloaded = Loaded(exported);
+        reloaded.Game!.SaveFile.ChecksumsValid.Should().BeTrue();
+        var trainer = Value(Dispatch(reloaded, "trainer.get", "[]"))!;
+        trainer["name"]!.GetValue<string>().Should().Be("Gold");
+        trainer["gender"]!.GetValue<string>().Should().Be("female");
+        trainer["money"]!.GetValue<uint>().Should().Be(424242);
+    }
+
+    [Fact]
     public void TheFormatIsListed() =>
         Value(Dispatch(new Session(), "game.formats", "[]"))!.AsArray()
             .Select(format => format!["id"]!.GetValue<string>()).Should().Contain("heart-and-soul");
