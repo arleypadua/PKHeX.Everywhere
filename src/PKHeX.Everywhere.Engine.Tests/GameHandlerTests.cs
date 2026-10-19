@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using AwesomeAssertions;
 using PKHeX.Core;
 using PKHeX.Facade;
@@ -90,9 +91,14 @@ public class GameHandlerTests
             .Should().Be("invalid-save");
 
     [Fact]
-    public void LoadReturnsInvalidSaveForAGen3SaveAboveTheBaseGamesLimits() =>
-        Error(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(EditedEmerald.WithBoxSpecies(412)), "emerald.sav", null!)))
-            .Should().Be("invalid-save");
+    public void LoadAsksWhetherAGen3SaveAboveTheBaseGamesLimitsIsAROMHack()
+    {
+        var envelope = JsonNode.Parse(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(EditedEmerald.WithBoxSpecies(412)), "emerald.sav", null!)))!;
+
+        Error(envelope.ToJsonString()).Should().Be("format-choice-required");
+        envelope["error"]!["pkhexGame"]!.GetValue<string>().Should().Be("Emerald");
+        envelope["error"]!["candidates"]!.AsArray().Should().BeEmpty();
+    }
 
     [Fact]
     public void ExportedBytesLoadBackWithTheSameTrainer()

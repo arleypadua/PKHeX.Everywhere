@@ -61,7 +61,7 @@ public static class SaveFormats
             return enabled ? new Game(certain.Load(data), certain) : throw new GameNotLoadedException();
 
         var possible = matches.Where(match => match.Enabled).Select(match => match.Format).ToArray();
-        if (possible.Length > 0) throw new FormatChoiceRequiredException(possible);
+        if (possible.Length > 0) throw new FormatChoiceRequiredException(possible, Game.PKHeXGameName(data));
         return matches.Length == 0 ? null : throw new GameNotLoadedException();
     }
 
@@ -78,8 +78,19 @@ public static class SaveFormats
     }
 }
 
-public class FormatChoiceRequiredException(IReadOnlyList<ISaveFormat> candidates)
-    : Exception($"The save might be {string.Join(" or ", candidates.Select(format => format.Name))}. Choose a format to load it with.")
+public class FormatChoiceRequiredException(IReadOnlyList<ISaveFormat> candidates, string? pkhexGame)
+    : Exception(candidates.Count > 0
+        ? $"The save might be {string.Join(" or ", candidates.Select(format => format.Name))}. Choose a format to load it with."
+        : $"The save has Pokémon or moves that {pkhexGame} doesn't have. It might be from a ROM hack.")
 {
+    public FormatChoiceRequiredException(IReadOnlyList<ISaveFormat> candidates) : this(candidates, null)
+    {
+    }
+
     public IReadOnlyList<ISaveFormat> Candidates { get; } = candidates;
+
+    /// <summary>
+    /// The game PKHeX's own detection reads the save as, the way <see cref="Game.GameVersionApproximation"/> names it, or <c>null</c> when PKHeX can't read the save.
+    /// </summary>
+    public string? PKHeXGame { get; } = pkhexGame;
 }

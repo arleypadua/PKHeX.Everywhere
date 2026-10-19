@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using PKHeX.Core;
+using PKHeX.Everywhere.RomHacks.Legacy;
 using PKHeX.Facade.Abstractions;
 
 namespace PKHeX.Facade.Tests;
@@ -11,6 +12,7 @@ public class SaveFormatsTests
     private static readonly byte[] MarkedForDisabled = Enumerable.Repeat((byte)0xD1, 0x1234).ToArray();
     private static readonly byte[] MarkedForEnabledLater = Enumerable.Repeat((byte)0xE1, 0x1234).ToArray();
     private static readonly byte[] PossiblyMarkedForDisabled = Enumerable.Repeat((byte)0xD2, 0x1234).ToArray();
+    private static readonly byte[] PossiblyMarkedUnreadable = Enumerable.Repeat((byte)0xB3, 0x1234).ToArray();
 
     static SaveFormatsTests()
     {
@@ -21,6 +23,8 @@ public class SaveFormatsTests
         SaveFormats.Register(new MarkedFormat("disabled-marked", MarkedForDisabled), enabled: false);
         SaveFormats.Register(new MarkedFormat("enabled-later", MarkedForEnabledLater), enabled: false);
         SaveFormats.Register(new PossiblyMarkedFormat("only-disabled-possible", PossiblyMarkedForDisabled), enabled: false);
+        SaveFormats.Register(new PossiblyMarkedFormat("possible-unreadable", PossiblyMarkedUnreadable));
+        SaveFormats.Register(new EmeraldLegacyFormat());
     }
 
     private static byte[] PossiblyMarkedEmerald()
@@ -41,6 +45,22 @@ public class SaveFormatsTests
 
         load.Should().Throw<FormatChoiceRequiredException>()
             .Which.Candidates.Select(format => format.Id).Should().Equal("possible", "also-possible");
+    }
+
+    [Fact]
+    public void APossibleMatchNamesTheGamePKHeXReadsTheSaveAs()
+    {
+        var load = () => Game.LoadFrom(File.ReadAllBytes(SaveFilePath.EmeraldLegacy));
+
+        load.Should().Throw<FormatChoiceRequiredException>().Which.PKHeXGame.Should().Be("Emerald");
+    }
+
+    [Fact]
+    public void APossibleMatchPKHeXCannotReadNamesNoGame()
+    {
+        var load = () => Game.LoadFrom(PossiblyMarkedUnreadable);
+
+        load.Should().Throw<FormatChoiceRequiredException>().Which.PKHeXGame.Should().BeNull();
     }
 
     [Fact]

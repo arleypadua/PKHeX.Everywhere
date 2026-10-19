@@ -22,7 +22,11 @@ export function FormatPickerModal({ choice, onChoose, onCancel }: FormatPickerMo
       onCancel={onCancel}
       okButtonProps={{ disabled: !formatId }}
     >
-      <Typography.Paragraph>'{choice.file.name}' might be from one of these games.</Typography.Paragraph>
+      <Typography.Paragraph>
+        {choice.candidates.length
+          ? `'${choice.file.name}' might be from one of these games.`
+          : `'${choice.file.name}' has Pokémon or moves that ${choice.pkhexGame} doesn't have. It might be from a ROM hack we don't support.`}
+      </Typography.Paragraph>
       <Radio.Group
         vertical
         aria-label="Game"
@@ -30,7 +34,7 @@ export function FormatPickerModal({ choice, onChoose, onCancel }: FormatPickerMo
         onChange={(event) => setFormatId(event.target.value as string)}
         options={[
           ...choice.candidates.map((format) => ({ value: format.id, label: format.name })),
-          { value: pkhexFormatId, label: "No, it's FireRed" },
+          ...(choice.pkhexGame ? [{ value: pkhexFormatId, label: `No, it's ${choice.pkhexGame}` }] : []),
         ]}
       />
     </Modal>

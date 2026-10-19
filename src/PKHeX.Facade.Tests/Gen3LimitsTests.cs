@@ -9,6 +9,13 @@ public class Gen3LimitsTests
     private const ushort AboveGen3Species = 412;
     private const ushort AboveGen3Move = 355;
 
+    private static void ShouldAskWhetherItIsAROMHack(Func<Game> load)
+    {
+        var choice = load.Should().Throw<FormatChoiceRequiredException>().Which;
+        choice.Candidates.Should().BeEmpty();
+        choice.PKHeXGame.Should().Be("Emerald");
+    }
+
     [Theory]
     [InlineData(SaveFilePath.Emerald)]
     [InlineData(SaveFilePath.FireRed)]
@@ -28,39 +35,39 @@ public class Gen3LimitsTests
     }
 
     [Fact]
-    public void ABoxPokemonWithASpeciesAboveGen3sMaximumFailsToLoad()
+    public void ABoxPokemonWithASpeciesAboveGen3sMaximumAsksWhetherItIsAROMHack()
     {
         var load = () => Game.LoadFrom(EditedEmerald.WithBoxSpecies(AboveGen3Species), "emerald.sav");
 
-        load.Should().Throw<GameNotLoadedException>().Which.InnerException.Should().BeNull();
+        ShouldAskWhetherItIsAROMHack(load);
     }
 
     [Fact]
-    public void ABoxPokemonWithAMoveAboveGen3sMaximumFailsToLoad()
+    public void ABoxPokemonWithAMoveAboveGen3sMaximumAsksWhetherItIsAROMHack()
     {
         var load = () => Game.LoadFrom(EditedEmerald.WithBoxMove(AboveGen3Move), "emerald.sav");
 
-        load.Should().Throw<GameNotLoadedException>().Which.InnerException.Should().BeNull();
+        ShouldAskWhetherItIsAROMHack(load);
     }
 
     [Fact]
-    public void APartyPokemonWithASpeciesAboveGen3sMaximumFailsToLoad()
+    public void APartyPokemonWithASpeciesAboveGen3sMaximumAsksWhetherItIsAROMHack()
     {
         var load = () => Game.LoadFrom(EditedEmerald.WithFirstPartyPokemon(pk => pk.SpeciesInternal = AboveGen3Species), "emerald.sav");
 
-        load.Should().Throw<GameNotLoadedException>().Which.InnerException.Should().BeNull();
+        ShouldAskWhetherItIsAROMHack(load);
     }
 
     [Fact]
-    public void AnEmptyBoxSlotWithAMoveAboveGen3sMaximumFailsToLoad()
+    public void AnEmptyBoxSlotWithAMoveAboveGen3sMaximumAsksWhetherItIsAROMHack()
     {
         var load = () => Game.LoadFrom(EditedEmerald.WithEmptyBoxSlot(pk => pk.Move1 = AboveGen3Move), "emerald.sav");
 
-        load.Should().Throw<GameNotLoadedException>().Which.InnerException.Should().BeNull();
+        ShouldAskWhetherItIsAROMHack(load);
     }
 
     [Fact]
-    public void AnEggWithASpeciesAboveGen3sMaximumFailsToLoad()
+    public void AnEggWithASpeciesAboveGen3sMaximumAsksWhetherItIsAROMHack()
     {
         var load = () => Game.LoadFrom(EditedEmerald.WithFirstBoxPokemon(pk =>
         {
@@ -68,7 +75,7 @@ public class Gen3LimitsTests
             pk.SpeciesInternal = AboveGen3Species;
         }), "emerald.sav");
 
-        load.Should().Throw<GameNotLoadedException>().Which.InnerException.Should().BeNull();
+        ShouldAskWhetherItIsAROMHack(load);
     }
 
     [Fact]

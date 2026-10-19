@@ -41,7 +41,7 @@ public static class Dispatcher
         }
         catch (EngineException e)
         {
-            return Failure(e.Code, e.Message, e.Candidates);
+            return Failure(e.Code, e.Message, e.Candidates, e.PKHeXGame);
         }
         catch (CapabilityNotSupportedException e)
         {
@@ -69,7 +69,7 @@ public static class Dispatcher
         throw new EngineException(ErrorCodes.BadArguments, "Arguments must be a JSON array.");
     }
 
-    private static string Failure(string code, string message, FormatEntry[]? candidates = null) => Envelope(w =>
+    private static string Failure(string code, string message, FormatEntry[]? candidates = null, string? pkhexGame = null) => Envelope(w =>
     {
         w.WriteBoolean("ok", false);
         w.WriteStartObject("error");
@@ -88,6 +88,8 @@ public static class Dispatcher
 
             w.WriteEndArray();
         }
+
+        if (pkhexGame is not null) w.WriteString("pkhexGame", pkhexGame);
 
         w.WriteEndObject();
     });

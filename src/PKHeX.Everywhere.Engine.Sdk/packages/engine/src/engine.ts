@@ -10,7 +10,7 @@ export const engineAssembly = 'PKHeX.Everywhere.Engine.dll'
 
 type Envelope<T> =
   | { ok: true; value: T }
-  | { ok: false; error: { code: ErrorCode; message: string; candidates?: FormatEntry[] } }
+  | { ok: false; error: { code: ErrorCode; message: string; candidates?: FormatEntry[]; pkhexGame?: string } }
 
 /** The error a call rejects with when the engine refuses it, such as `no-save` when no save is loaded. */
 export class EngineError extends Error {
@@ -19,14 +19,21 @@ export class EngineError extends Error {
   /**
    * The save formats the save might be in, when `code` is `format-choice-required`.
    * Load the save again with one of their ids as `formatId`, or with `pkhex` to load it with PKHeX's own detection.
+   * Empty for a Gen 3 save holding Pokémon or moves its game doesn't have, which might be from an unsupported ROM hack.
    */
   readonly candidates?: FormatEntry[]
+  /**
+   * The game PKHeX's own detection reads the save as, such as `Emerald`, when `code` is `format-choice-required`.
+   * Loading with `pkhex` loads the save as this game. Missing when PKHeX can't read the save.
+   */
+  readonly pkhexGame?: string
 
-  constructor(code: ErrorCode, message: string, candidates?: FormatEntry[]) {
+  constructor(code: ErrorCode, message: string, candidates?: FormatEntry[], pkhexGame?: string) {
     super(message)
     this.name = 'EngineError'
     this.code = code
     if (candidates) this.candidates = candidates
+    if (pkhexGame) this.pkhexGame = pkhexGame
   }
 }
 
@@ -123,7 +130,8 @@ export function createEngine({ host = wasmHost(), lazy = false }: { host?: Engin
     const engine = await boot()
     const envelope = JSON.parse(await engine.Call(name, JSON.stringify(args))) as Envelope<T>
     if (envelope.ok) return envelope.value
-    throw new EngineError(envelope.error.code, envelope.error.message, envelope.error.candidates)
+    const { code, message, candidates, pkhexGame } = envelope.error
+    throw new EngineError(code, message, candidates, pkhexGame)
   }
 
   const failureListeners = new Set<(call: CallName, error: unknown) => void>()

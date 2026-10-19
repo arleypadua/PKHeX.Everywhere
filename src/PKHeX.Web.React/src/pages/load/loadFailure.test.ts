@@ -10,8 +10,19 @@ describe('loadFailure', () => {
     expect(loadFailure(error)).toEqual({ kind: 'formatChoice', candidates })
   })
 
-  it('reports a format choice with no candidates as unsupported', () => {
+  it('carries the game PKHeX reads the save as', () => {
+    const error = new EngineError('format-choice-required', 'Choose a format.', candidates, 'Emerald')
+    expect(loadFailure(error)).toEqual({ kind: 'formatChoice', candidates, pkhexGame: 'Emerald' })
+  })
+
+  it('asks about a save with no candidates that PKHeX reads as a game', () => {
+    const error = new EngineError('format-choice-required', 'Choose a format.', [], 'Emerald')
+    expect(loadFailure(error)).toEqual({ kind: 'formatChoice', candidates: [], pkhexGame: 'Emerald' })
+  })
+
+  it('reports a format choice with no candidates and no PKHeX game as unsupported', () => {
     expect(loadFailure(new EngineError('format-choice-required', 'Choose a format.'))).toEqual({ kind: 'unsupported' })
+    expect(loadFailure(new EngineError('format-choice-required', 'Choose a format.', []))).toEqual({ kind: 'unsupported' })
   })
 
   it('reports an invalid save as unsupported', () => {
