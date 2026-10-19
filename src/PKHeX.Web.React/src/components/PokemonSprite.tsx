@@ -2,19 +2,13 @@ import { useState } from 'react'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import type { PokemonSummary } from '@pkhex-everywhere/engine'
 
-const iconsUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons'
+const iconsUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/ba403973fdf9d0ac59175813861e6a1f8ed5020c/sprites/pokemon/versions/generation-viii/icons'
 
-const formSuffixes: Record<string, string> = {
-  alola: '-alola',
-  galar: '-galar',
-}
-
-type SpriteSpecies = Pick<PokemonSummary, 'speciesId'> & Partial<Pick<PokemonSummary, 'form'>>
+type SpriteSpecies = Pick<PokemonSummary, 'speciesId'>
 
 export function pokemonIconUrl(pokemon: SpriteSpecies): string | null {
   if (pokemon.speciesId === null) return null
-  const suffix = formSuffixes[pokemon.form?.name.toLowerCase() ?? ''] ?? ''
-  return `${iconsUrl}/${pokemon.speciesId}${suffix}.png`
+  return `${iconsUrl}/${pokemon.speciesId}.png`
 }
 
 interface PlaceholderSpriteProps {
