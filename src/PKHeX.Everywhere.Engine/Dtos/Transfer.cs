@@ -43,7 +43,8 @@ public record TransferRoom(int Mine, int Partner);
 /// <summary>
 /// The transfer <c>transfer.open</c> opened: the partner save, the routes between the saves and the room in each.
 /// </summary>
-public record TransferSummary(SaveSummary Partner, TransferRoutes Routes, TransferRoom Room);
+/// <param name="Trainer">The partner save's trainer, as <c>trainer.get</c> reads it.</param>
+public record TransferSummary(SaveSummary Partner, TransferRoutes Routes, TransferRoom Room, TrainerCard Trainer);
 
 /// <summary>
 /// The Pokémon to move. Each handle points to a party or box slot: in the loaded save for <c>send</c>, and in the partner for <c>receive</c>.

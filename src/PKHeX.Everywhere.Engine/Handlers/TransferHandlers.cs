@@ -152,7 +152,8 @@ public static class TransferHandlers
         return new TransferSummary(
             partner.Save.ToSummary(partner.FileName),
             new TransferRoutes(transfer.SendRoute.ToDto(), transfer.ReceiveRoute.ToDto()),
-            transfer.Room.ToDto());
+            transfer.Room.ToDto(),
+            partner.Save.ToTrainerCard());
     }
 
     private static Transfers.TransferOffer ToFacade(Transfers.Transfer transfer, TransferOffer offer) => new(

@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent } from 'react'
-import { App, Flex, type TableColumnsType } from 'antd'
+import { App, Flex } from 'antd'
 import type { PokemonSummary } from '@pkhex-everywhere/engine'
 import { useBox, useEngine, useLoadedGame } from '@pkhex-everywhere/react'
 import { ButtonOrMenu } from '../../components/ButtonOrMenu'
@@ -10,21 +10,11 @@ import { useSupports } from '../../hooks/useSupports'
 import { openCalculator, useNavigate } from '../../host'
 import { routes } from '../../routes'
 import { boxActions } from './boxActions'
+import { boxColumns } from './boxColumns'
 import { TransferModal } from './TransferModal'
 import { useLoadPokemonFile } from './useLoadPokemonFile'
 
 const selectionKey = (pokemon: PokemonSummary) => `${pokemon.id}@${JSON.stringify(pokemon.at)}`
-
-const boxNumber = (pokemon: PokemonSummary) => (pokemon.at.box ?? 0) + 1
-
-const boxColumns: TableColumnsType<PokemonSummary> = [
-  {
-    title: 'Box',
-    key: 'box',
-    render: (_, pokemon) => boxNumber(pokemon),
-    sorter: (a, b) => boxNumber(a) - boxNumber(b) || a.at.slot - b.at.slot,
-  },
-]
 
 export default function BoxPage() {
   const { box } = useBox()

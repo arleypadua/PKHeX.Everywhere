@@ -1189,6 +1189,8 @@ export interface TransferSummary {
   partner: SaveSummary
   routes: TransferRoutes
   room: TransferRoom
+  /** The partner save's trainer, as `trainer.get` reads it. */
+  trainer: TrainerCard
 }
 
 /** A Pokémon a transfer moved. */

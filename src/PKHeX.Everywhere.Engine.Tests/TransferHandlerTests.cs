@@ -28,6 +28,7 @@ public class TransferHandlerTests
         transfer["partner"]!["fileName"]!.GetValue<string>().Should().Be("partner.sav");
         transfer["routes"]!.ToJsonString().Should().Be("""{"send":["link"],"receive":["link"]}""");
         transfer["room"]!.ToJsonString().Should().Be("""{"mine":63,"partner":7}""");
+        transfer["trainer"]!.ToJsonString().Should().Be(Value(Dispatch(Loaded(SaveFilePath.Emerald), "trainer.get", "[]"))!.ToJsonString());
     }
 
     [Fact]
