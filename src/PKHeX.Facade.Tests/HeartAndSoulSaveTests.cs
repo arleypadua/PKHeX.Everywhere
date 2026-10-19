@@ -73,6 +73,7 @@ public class HeartAndSoulSaveTests
     [InlineData(829, "Clefablite")]
     [InlineData(873, "Glimmoranite")]
     [InlineData(881, "Clear Bell")]
+    [InlineData(888, "Secret Medicine (G4)")]
     [InlineData(900, "Azure Flute")]
     public void ReadsItemsByHeartAndSoulsIds(ushort index, string item)
     {
@@ -104,7 +105,6 @@ public class HeartAndSoulSaveTests
     public void ReadsBallsInHeartAndSoulsOrder(byte index, Ball ball) =>
         new HeartAndSoulPokemon { BallIndex = index }.Ball.Should().Be((byte)ball);
 
-    // Heart & Soul's shiny odds are 8 in 65536.
     [Theory]
     [InlineData(7, true)]
     [InlineData(8, false)]
