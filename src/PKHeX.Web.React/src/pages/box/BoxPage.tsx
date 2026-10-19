@@ -1,8 +1,7 @@
 import { useRef, useState, type ChangeEvent } from 'react'
-import { CalculatorOutlined, CopyOutlined, FolderOpenOutlined } from '@ant-design/icons'
 import { App, Flex, type TableColumnsType } from 'antd'
 import type { PokemonSummary } from '@pkhex-everywhere/engine'
-import { useBox, useEngine } from '@pkhex-everywhere/react'
+import { useBox, useEngine, useLoadedGame } from '@pkhex-everywhere/react'
 import { ButtonOrMenu } from '../../components/ButtonOrMenu'
 import { PageHeader } from '../../components/PageHeader'
 import { PokemonTable } from '../../components/PokemonTable'
@@ -10,6 +9,8 @@ import { useCopyShowdown } from '../../hooks/useCopyShowdown'
 import { useSupports } from '../../hooks/useSupports'
 import { openCalculator, useNavigate } from '../../host'
 import { routes } from '../../routes'
+import { boxActions } from './boxActions'
+import { TransferModal } from './TransferModal'
 import { useLoadPokemonFile } from './useLoadPokemonFile'
 
 const selectionKey = (pokemon: PokemonSummary) => `${pokemon.id}@${JSON.stringify(pokemon.at)}`
@@ -27,6 +28,7 @@ const boxColumns: TableColumnsType<PokemonSummary> = [
 
 export default function BoxPage() {
   const { box } = useBox()
+  const { game } = useLoadedGame()
   const engine = useEngine()
   const navigate = useNavigate()
   const copyShowdown = useCopyShowdown()
@@ -36,6 +38,7 @@ export default function BoxPage() {
   const loadPokemonFile = useLoadPokemonFile()
   const fileInput = useRef<HTMLInputElement>(null)
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+  const [transferring, setTransferring] = useState(false)
 
   const selected = box.filter((pokemon) => selectedKeys.includes(selectionKey(pokemon)))
 
@@ -67,28 +70,16 @@ export default function BoxPage() {
         extra={
           <>
             <ButtonOrMenu
-              actions={[
-                ...(encountersSupported
-                  ? [{ key: 'add', label: 'Add', type: 'primary' as const, onClick: () => navigate(routes.searchEncounter) }]
-                  : []),
+              actions={boxActions(
+                { encounters: encountersSupported, showdown: showdownSupported },
                 {
-                  key: 'load',
-                  label: 'Load *.pk',
-                  icon: <FolderOpenOutlined />,
-                  onClick: () => fileInput.current?.click(),
+                  add: () => navigate(routes.searchEncounter),
+                  load: () => fileInput.current?.click(),
+                  calculator: openSelectedInCalculator,
+                  showdown: copyBoxShowdown,
+                  transfer: () => setTransferring(true),
                 },
-                ...(showdownSupported
-                  ? [
-                      {
-                        key: 'calculator',
-                        label: 'Calculator',
-                        icon: <CalculatorOutlined />,
-                        onClick: openSelectedInCalculator,
-                      },
-                      { key: 'showdown', label: 'Showdown', icon: <CopyOutlined />, onClick: copyBoxShowdown },
-                    ]
-                  : []),
-              ]}
+              )}
             />
             <input ref={fileInput} type="file" hidden onChange={loadFile} />
           </>
@@ -100,6 +91,7 @@ export default function BoxPage() {
         selected={selected}
         onSelectedChange={(rows) => setSelectedKeys(rows.map(selectionKey))}
       />
+      {transferring && game && <TransferModal game={game} onClose={() => setTransferring(false)} />}
     </Flex>
   )
 }
