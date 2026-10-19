@@ -74,10 +74,16 @@ public class Game
      *
      * If the save file yields an actual game version, it will be returned instead of an approximation.
      */
-    public GameVersionDefinition GameVersionApproximation => SaveVersion.Aggregated
-        ? GameVersionRepository.Instance.FindFirstOfPair(SaveVersion.Version)
-          ?? GameVersionRepository.Instance.Get(SaveFile.Context.GetSingleGameVersion())
-        : SaveVersion;
+    public GameVersionDefinition GameVersionApproximation => ApproximationOf(SaveFile);
+
+    private static GameVersionDefinition ApproximationOf(SaveFile saveFile)
+    {
+        var version = GameVersionRepository.Instance.Get(saveFile.Version);
+        return version.Aggregated
+            ? GameVersionRepository.Instance.FindFirstOfPair(version.Version)
+              ?? GameVersionRepository.Instance.Get(saveFile.Context.GetSingleGameVersion())
+            : version;
+    }
 
     public EntityContext Generation => SaveFile.Context;
 
@@ -114,7 +120,22 @@ public class Game
         }, path);
 
     private static Game? FromPKHeXDetection(SaveFile? saveFile) =>
-        saveFile is SAV3 gen3 && Gen3Limits.AreExceededBy(gen3) ? null : FromPKHeX(saveFile);
+        saveFile is SAV3 gen3 && Gen3Limits.AreExceededBy(gen3)
+            ? throw new FormatChoiceRequiredException([], ApproximationOf(gen3).Name)
+            : FromPKHeX(saveFile);
+
+    // Detection only names the game for the player, so a save PKHeX throws on reading names none.
+    internal static string? PKHeXGameName(byte[] data)
+    {
+        try
+        {
+            return SaveUtil.GetSaveFile(data) is { } saveFile ? ApproximationOf(saveFile).Name : null;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
 
     private static Game? FromPKHeX(SaveFile? saveFile) => saveFile is null ? null : new Game(saveFile);
 

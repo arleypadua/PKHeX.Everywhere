@@ -688,3 +688,5 @@ PKHeX.Facade.Transfers.TransferChangeReason.ItemUsed = 11 -> PKHeX.Facade.Transf
 PKHeX.Facade.Transfers.TransferChangeReason.FormReverted = 12 -> PKHeX.Facade.Transfers.TransferChangeReason
 PKHeX.Facade.Transfers.TransferChangeReason.NotInGame = 13 -> PKHeX.Facade.Transfers.TransferChangeReason
 PKHeX.Facade.Transfers.TransferChangeReason.Unofficial = 14 -> PKHeX.Facade.Transfers.TransferChangeReason
+PKHeX.Facade.FormatChoiceRequiredException.FormatChoiceRequiredException(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Abstractions.ISaveFormat!>! candidates, string? pkhexGame) -> void
+PKHeX.Facade.FormatChoiceRequiredException.PKHeXGame.get -> string?

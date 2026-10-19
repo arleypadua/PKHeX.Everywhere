@@ -71,17 +71,17 @@ describe('createEngine', () => {
     expect(error).toMatchObject({ code: 'no-save', message: 'No save is loaded.' })
   })
 
-  it('rejects with the candidate formats when the save needs a format choice', async () => {
+  it('rejects with the candidate formats and the PKHeX game when the save needs a format choice', async () => {
     const candidates = [{ id: 'radicalred', name: 'Pokémon Radical Red' }]
     const { host, signalReady } = fakeHost(() => ({
       ok: false,
-      error: { code: 'format-choice-required', message: 'Choose a format.', candidates },
+      error: { code: 'format-choice-required', message: 'Choose a format.', candidates, pkhexGame: 'FireRed' },
     }))
     signalReady()
 
     const error = await createEngine({ host }).game.load(new Uint8Array([1])).catch((e: unknown) => e)
 
-    expect(error).toMatchObject({ code: 'format-choice-required', candidates })
+    expect(error).toMatchObject({ code: 'format-choice-required', candidates, pkhexGame: 'FireRed' })
   })
 
   it('tells call failure listeners which call failed and why', async () => {

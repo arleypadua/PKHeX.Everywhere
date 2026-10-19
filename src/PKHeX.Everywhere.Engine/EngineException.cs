@@ -7,4 +7,6 @@ public class EngineException(string code, string message, Exception? inner = nul
     public string Code { get; } = code;
 
     public FormatEntry[]? Candidates { get; init; }
+
+    public string? PKHeXGame { get; init; }
 }

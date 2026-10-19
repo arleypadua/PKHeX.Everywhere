@@ -10,6 +10,7 @@ const maxFileSize = 6 * 1024 * 1024
 export interface FormatChoice {
   file: File
   candidates: FormatEntry[]
+  pkhexGame?: string
 }
 
 export function useLoadSave() {
@@ -28,7 +29,7 @@ export function useLoadSave() {
       } catch (error) {
         const failure = loadFailure(error)
         if (!failure) throw error
-        if (failure.kind === 'formatChoice') setFormatChoice({ file, candidates: failure.candidates })
+        if (failure.kind === 'formatChoice') setFormatChoice({ file, candidates: failure.candidates, pkhexGame: failure.pkhexGame })
         else notification.error({ title: `'${file.name}' is not a supported save file.`, description: 'The file is not a valid save file.' })
         return false
       }
