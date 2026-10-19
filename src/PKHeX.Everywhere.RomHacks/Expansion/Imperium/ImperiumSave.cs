@@ -49,21 +49,8 @@ public sealed class ImperiumSave : SaveFile
 
     private Span<byte> Sector(int id) => Data.Slice(_sectors[id], SectorSize);
 
-    // SaveBlock1 runs on across sectors 1 to 4, so a run of slots can start in one sector and end in the next.
-    internal (int Offset, int Slots)[] SaveBlock1Slots(int offset, int slots, int slotSize)
-    {
-        List<(int Offset, int Slots)> regions = [];
-        while (slots > 0)
-        {
-            var inSector = offset % SectorData;
-            var fit = Math.Min(slots, (SectorData - inSector) / slotSize);
-            regions.Add((_sectors[SaveBlock1 + (offset / SectorData)] + inSector, fit));
-            offset += fit * slotSize;
-            slots -= fit;
-        }
-
-        return [..regions];
-    }
+    internal (int Offset, int Slots)[] SaveBlock1Slots(int offset, int slots, int slotSize) =>
+        SectorRegions.Of(_sectors.AsSpan(SaveBlock1), SectorData, offset, slots, slotSize);
 
     private void CopyStorage(bool toSave)
     {

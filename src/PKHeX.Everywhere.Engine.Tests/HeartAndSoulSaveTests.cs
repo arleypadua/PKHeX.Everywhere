@@ -17,6 +17,9 @@ public class HeartAndSoulSaveTests
     // The fixture's first slot has counter 100 and its second 101.
     private const int NewerSlot = 14;
 
+    // SaveBlock1 runs on from sector 1 to sector 4 in chunks of this many bytes.
+    private const int SectorData = 3968;
+
     private static Session Loaded(byte[]? bytes = null)
     {
         var session = new Session();
@@ -194,7 +197,6 @@ public class HeartAndSoulSaveTests
     public void ReadsTheBag(string pouch, string item, int count) =>
         Owned(Loaded(), pouch).Should().Contain((item, count));
 
-    // SaveBlock1 runs on from sector 1 to sector 4 in 3968-byte chunks.
     [Theory]
     [InlineData("Items", 0x564, 236)]
     [InlineData("Medicine", 0xE28, 92)]
@@ -224,7 +226,7 @@ public class HeartAndSoulSaveTests
 
         var key = ReadUInt16LittleEndian(Fixture.AsSpan(SectorOf(0) + 0xAC));
         ReadUInt16LittleEndian(exported.AsSpan(SectorOf(1) + offset + 2)).Should().Be((ushort)(999 ^ key));
-        var pocket = Enumerable.Range(offset, slots * 4).Select(at => SectorOf(1 + (at / 3968)) + (at % 3968));
+        var pocket = Enumerable.Range(offset, slots * 4).Select(at => SectorOf(1 + (at / SectorData)) + (at % SectorData));
         var allowed = Enumerable.Range(NewerSlot, 14).SelectMany(sector => new[] { (sector * 0x1000) + 0xFF6, (sector * 0x1000) + 0xFF7 })
             .Concat(pocket).ToHashSet();
         Enumerable.Range(0, Fixture.Length).Where(index => exported[index] != Fixture[index])

@@ -80,20 +80,8 @@ public sealed class HeartAndSoulSave : SaveFile
     internal static int SaveBlock1Offset(ReadOnlySpan<int> sectors, int offset) =>
         sectors[SaveBlock1 + (offset / SectorData)] + (offset % SectorData);
 
-    internal (int Offset, int Slots)[] SaveBlock1Slots(int offset, int slots, int slotSize)
-    {
-        List<(int Offset, int Slots)> regions = [];
-        while (slots > 0)
-        {
-            var inSector = offset % SectorData;
-            var fit = Math.Min(slots, (SectorData - inSector) / slotSize);
-            regions.Add((SaveBlock1Offset(_sectors, offset), fit));
-            offset += fit * slotSize;
-            slots -= fit;
-        }
-
-        return [..regions];
-    }
+    internal (int Offset, int Slots)[] SaveBlock1Slots(int offset, int slots, int slotSize) =>
+        SectorRegions.Of(_sectors.AsSpan(SaveBlock1), SectorData, offset, slots, slotSize);
 
     private Span<byte> Sector(int id) => Data.Slice(_sectors[id], SectorSize);
 
