@@ -60,7 +60,7 @@ public static class SaveFilePath
     public const string UnboundUnknownSpecies = "./data/save/unbound-unknown-species.sav"; // Shadow Warrior in box 23, slot 19
 
     public static IReadOnlyList<string> All { get; } =
-        [Yellow, Crystal, Emerald, FireRed, HgSs, LetsGoPikachu, LetsGoEevee, Unbound, Unbound21, RadicalRed, Imperium];
+        [Yellow, Crystal, Emerald, FireRed, HgSs, LetsGoPikachu, LetsGoEevee, Unbound, Unbound21, RadicalRed, Imperium, HeartAndSoul];
 
     // The fixture's slot starts at sector id 18. Rotated so id 0 comes first, PKHeX reads it as Emerald.
     public static byte[] ImperiumReadableAsEmerald()
@@ -124,6 +124,6 @@ internal static class RomHackFormats
         SaveFormats.Register(new RadicalRedFormat());
         SaveFormats.Register(new ImperiumFormat());
         SaveFormats.Register(new EmeraldLegacyFormat());
-        SaveFormats.Register(new HeartAndSoulFormat(), enabled: false);
+        SaveFormats.Register(new HeartAndSoulFormat());
     }
 }

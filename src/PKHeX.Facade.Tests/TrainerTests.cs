@@ -8,7 +8,7 @@ namespace PKHeX.Facade.Tests;
 public class TrainerTests
 {
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.HeartAndSoul])] // Heart & Soul's money isn't read yet
     public void TrainerData_ShouldBeParsed(string saveFile)
     {
         var game = SaveFilePath.Load(saveFile);

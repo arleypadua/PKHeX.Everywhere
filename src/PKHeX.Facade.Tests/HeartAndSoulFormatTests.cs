@@ -91,12 +91,8 @@ public class HeartAndSoulFormatTests
     }
 
     [Fact]
-    public void RefusesToLoadAHeartAndSoulSaveForNow()
-    {
-        var load = () => Format.Load(Fixture);
-
-        load.Should().Throw<GameNotLoadedException>();
-    }
+    public void LoadsASaveVersion5Save() =>
+        Format.Load(Fixture.ToArray()).Should().BeOfType<HeartAndSoulSave>();
 
     [Fact]
     public void RefusesASaveOfAnotherSaveVersion()
@@ -110,13 +106,11 @@ public class HeartAndSoulFormatTests
     }
 
     [Fact]
-    public void DoesNotLoadAsEmeraldWhileTheFormatIsOff()
+    public void LoadsAsHeartAndSoulThoughPKHeXReadsItAsEmerald()
     {
         SaveUtil.GetSaveFile(Fixture.ToArray()).Should().BeOfType<SAV3E>();
 
-        var load = () => Game.LoadFrom(Fixture.ToArray(), SaveFilePath.HeartAndSoul);
-
-        load.Should().Throw<GameNotLoadedException>();
+        Game.LoadFrom(Fixture.ToArray(), SaveFilePath.HeartAndSoul).SaveFile.Should().BeOfType<HeartAndSoulSave>();
     }
 
     // First sector of each slot. The fixture's first slot has counter 100 and its second 101.

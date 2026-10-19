@@ -21,7 +21,8 @@ public sealed class ImperiumFormat : ISaveFormat
     public GameVersion BaseGame => GameVersion.E;
     public IReadOnlySet<Capability> Capabilities => FrozenSet<Capability>.Empty;
 
-    public IGameDataSource GameData(SaveFile save) => new ImperiumGameData((ImperiumSave)save);
+    public IGameDataSource GameData(SaveFile save) =>
+        new ExpansionGameData(save, ImperiumPokemon.Map, ImperiumPokemon.Items, ImperiumMoveTable.Map, ImperiumPokemon.Balls);
 
     public SaveFormatMatch Detect(ReadOnlySpan<byte> data) =>
         Matches(data, ImperiumSave.ChunkLengths) || Matches(data, Version2ChecksumLengths) ? SaveFormatMatch.Certain : SaveFormatMatch.No;
