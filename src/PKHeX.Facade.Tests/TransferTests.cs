@@ -18,6 +18,11 @@ public class TransferTests
     [InlineData(SaveFilePath.Emerald, SaveFilePath.HgSs, new[] { TransferRoute.PalPark }, new[] { TransferRoute.Unofficial })]
     [InlineData(SaveFilePath.Crystal, SaveFilePath.Emerald, new[] { TransferRoute.Unofficial }, new[] { TransferRoute.Unofficial })]
     [InlineData(SaveFilePath.Unbound, SaveFilePath.FireRed, null, null)]
+    [InlineData(SaveFilePath.Imperium, SaveFilePath.Imperium, new[] { TransferRoute.Link }, new[] { TransferRoute.Link })]
+    [InlineData(SaveFilePath.Unbound, SaveFilePath.Unbound21, new[] { TransferRoute.Link }, new[] { TransferRoute.Link })]
+    [InlineData(SaveFilePath.Unbound, SaveFilePath.RadicalRed, null, null)]
+    [InlineData(SaveFilePath.Imperium, SaveFilePath.Emerald, null, null)]
+    [InlineData(SaveFilePath.EmeraldLegacy, SaveFilePath.Emerald, null, null)]
     [InlineData(SaveFilePath.LetsGoPikachu, SaveFilePath.LetsGoEevee, null, null)]
     public void RoutesFollowTheGames(string mine, string partner, TransferRoute[]? send, TransferRoute[]? receive)
     {
@@ -25,6 +30,41 @@ public class TransferTests
 
         transfer.SendRoute.Should().BeEquivalentTo(send, options => options.WithStrictOrdering());
         transfer.ReceiveRoute.Should().BeEquivalentTo(receive, options => options.WithStrictOrdering());
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Imperium)]
+    [InlineData(SaveFilePath.Unbound)]
+    public void ASameHackLinkMovesThePokemonAsItLeft(string save)
+    {
+        var (mine, partner) = (SaveFilePath.Load(save), SaveFilePath.Load(save));
+        var (index, leaving) = mine.Trainer.PokemonBox.Boxed().First();
+        var bytes = leaving.Pkm.Data.ToArray();
+        var transfer = new Transfer(mine, partner);
+
+        var offered = transfer.Preview(Send(Box(index))).Offers.Single();
+        var arrived = transfer.Commit(Send(Box(index))).Single();
+
+        offered.Route.Should().Equal(TransferRoute.Link);
+        offered.Changes.Should().BeEmpty();
+        offered.SaveChanges.Should().BeEmpty();
+        mine.Trainer.PokemonBox.All[index].IsEmpty.Should().BeTrue();
+        partner.SaveAndReload(reloaded => reloaded.Trainer.PokemonBox.All[arrived.BoxIndex].Pkm.Data.ToArray().Should().Equal(bytes));
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Imperium)]
+    [InlineData(SaveFilePath.Unbound)]
+    public void ATradeEvolutionDoesntEvolveOverASameHackLink(string save)
+    {
+        var mine = SaveFilePath.Load(save);
+        var (index, haunter) = mine.Trainer.PokemonBox.Boxed().First();
+        haunter.Pkm.Species = (ushort)Species.Haunter;
+        haunter.Pkm.HeldItem = 0;
+
+        var arrived = new Transfer(mine, SaveFilePath.Load(save)).Commit(Send(Box(index))).Single();
+
+        arrived.Pokemon.Species.Name.Should().Be("Haunter");
     }
 
     [Theory]

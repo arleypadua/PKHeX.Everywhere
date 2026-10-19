@@ -211,5 +211,5 @@ public static class TransferHandlers
         offered.Arrives.ToSummary(PokemonSlots.BoxHandle(transfer.To(offered.Direction).SaveFile, offered.ArrivesAt)),
         offered.Changes.Select(change => change.ToDto()).ToArray(),
         offered.SaveChanges.Select(change => change.ToDto()).ToArray(),
-        new Legality(offered.Legality.Valid, offered.Legality.Messages.ToArray()));
+        offered.Legality is { } legality ? new Legality(legality.Valid, legality.Messages.ToArray()) : null);
 }

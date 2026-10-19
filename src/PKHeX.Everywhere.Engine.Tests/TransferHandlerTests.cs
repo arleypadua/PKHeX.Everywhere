@@ -104,6 +104,27 @@ public class TransferHandlerTests
     }
 
     [Fact]
+    public void TwoImperiumSavesTradeByLinkAndThePokemonArrivesAsItLeft()
+    {
+        var session = Loaded(SaveFilePath.Imperium);
+        var (index, leaving) = session.Game!.Trainer.PokemonBox.Boxed().First();
+        var at = PokemonHandle.InBox(index / session.Game.SaveFile.BoxSlotCount, index % session.Game.SaveFile.BoxSlotCount);
+        var bytes = leaving.Pkm.Data.ToArray();
+
+        var transfer = Open(session, SaveFilePath.Imperium);
+        var offer = Preview(session, Send(at))["offers"]![0]!;
+        var arrived = Value(Dispatch(session, "transfer.commit", Args(Send(at))))!;
+
+        transfer["routes"]!.ToJsonString().Should().Be("""{"send":["link"],"receive":["link"]}""");
+        offer["arrives"]!["species"]!.GetValue<string>().Should().Be(leaving.Species.Name);
+        offer["changes"]!.AsArray().Should().BeEmpty();
+        offer["saveChanges"]!.AsArray().Should().BeEmpty();
+        offer["legality"].Should().BeNull();
+        var partner = Game.LoadFrom(Bytes(arrived["partner"]!));
+        partner.Trainer.PokemonBox.All[Index(partner, arrived["arrived"]![0]!["at"]!)].Pkm.Data.ToArray().Should().Equal(bytes);
+    }
+
+    [Fact]
     public void CrystalToYellowRefusesAGen2Species()
     {
         var session = Loaded(SaveFilePath.Crystal);

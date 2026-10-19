@@ -27,7 +27,7 @@ public enum TransferRoute
 /// A route with one hop is a one-item list, and an unofficial route is <c>['unofficial']</c>.
 /// Routes only go where the games went: from Generation 7 to 6, and into any older game, the route is <c>['unofficial']</c>.
 /// A null route means Pokémon can't move that way, and every Pokémon offered that way is refused with <c>noRoute</c>.
-/// Only saves loaded with a ROM hack format and Let's Go saves have no route.
+/// Two saves of the same ROM hack format trade by <c>['link']</c>. A ROM hack save has no route to a save of any other format, and Let's Go saves have none at all.
 /// </summary>
 /// <param name="Send">The hops from the loaded save to the partner, in order.</param>
 /// <param name="Receive">The hops from the partner to the loaded save, in order.</param>
@@ -228,7 +228,7 @@ public record TransferSaveChange(TransferSaveChangeKind Kind, TransferSide Save,
 /// <param name="Arrives">The Pokémon as it will be in the other save. Its handle is the box slot it will land in.</param>
 /// <param name="Changes">The fields the move changes, in the order of <see cref="TransferField"/>, each with the hop that changed it. A field can show up once per hop that changes it, and a move once per move removed. For a Pokémon with an arrival, the Pokémon as it is against the arrival, with the last hop's reasons.</param>
 /// <param name="SaveChanges">What the move changes in either save.</param>
-/// <param name="Legality">PKHeX's legality check of the Pokémon as it arrives, judged in the destination game.</param>
+/// <param name="Legality">PKHeX's legality check of the Pokémon as it arrives, judged in the destination game. Null when the destination has no legality check, such as a ROM hack's.</param>
 public record OfferedPokemon(
     TransferDirection Direction,
     TransferRoute[] Route,
@@ -236,7 +236,7 @@ public record OfferedPokemon(
     PokemonSummary Arrives,
     TransferChange[] Changes,
     TransferSaveChange[] SaveChanges,
-    Legality Legality);
+    Legality? Legality);
 
 /// <summary>
 /// A Pokémon in the offer that can't be transferred.

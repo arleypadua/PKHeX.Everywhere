@@ -22,6 +22,8 @@ public class Transfer(Game mine, Game partner)
 
     public static IReadOnlyList<TransferRoute>? RouteBetween(Game from, Game to)
     {
+        // Hacks sharing a Pokémon format, such as Unbound and Radical Red, still number species and items their own way.
+        if (from.Format is not null || to.Format is not null) return from.Format?.Id == to.Format?.Id ? [TransferRoute.Link] : null;
         if (!HasRoutes(from) || !HasRoutes(to)) return null;
         // Poké Transporter reached only the Virtual Console games, never a Stadium.
         if (IsStadium(from) && !IsGameBoy(to.SaveFile.PKMType)) return [TransferRoute.Unofficial];
@@ -204,10 +206,12 @@ public class Transfer(Game mine, Game partner)
             if (leavesParty) partyLeft--;
             var arriving = route![^1];
             var received = converted!.Clone();
-            TransferEffects.Receive(received.Pkm, arriving);
+            // PKHeX's rules for receiving and evolving are the official games', which a hack may not follow.
+            var sameHack = from.Format is not null;
+            if (!sameHack) TransferEffects.Receive(received.Pkm, arriving);
             var evolved = received.Clone();
             // Storing a Pokémon in a Stadium isn't a trade, so nothing evolves on the way in or out.
-            if (!IsStadium(from) && !IsStadium(to)) TransferEffects.Evolve(evolved.Pkm, to, arriving);
+            if (!sameHack && !IsStadium(from) && !IsStadium(to)) TransferEffects.Evolve(evolved.Pkm, to, arriving);
             var given = arrivals.FirstOrDefault(a => a.Direction == direction && a.At == slot);
             var arrives = given is null ? evolved : Arrival(given, to);
 
@@ -245,7 +249,7 @@ public class Transfer(Game mine, Game partner)
                 arrives,
                 changes,
                 saveChanges,
-                LegalityIn(to, arrives)));
+                to.Supports(Capability.Legality) ? LegalityIn(to, arrives) : null));
         }
     }
 
