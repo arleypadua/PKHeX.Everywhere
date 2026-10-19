@@ -15,7 +15,7 @@ public sealed class ImperiumBag : PlayerBag
     private static readonly ushort[] KeyItems = [78, 113, 121, 123, 216, 723, 872, 874, 875, 876, 877, 878, 1833, 1857, 1858, 2481, 2554];
 
     private static readonly CfruItemStorage Storage = new(
-        ImperiumPokemon.ItemMap.Items,
+        ImperiumPokemon.Items.Items,
         ItemStorage9ZA.MegaStones.ToArray().Select(item => (item, InventoryType.MegaStones))
             .Concat(KeyItems.Select(item => (item, InventoryType.KeyItems)))
             .ToDictionary());

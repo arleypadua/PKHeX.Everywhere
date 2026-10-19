@@ -108,8 +108,8 @@ public sealed class ImperiumSave : SaveFile
     public override int Language { get => (int)LanguageID.English; set { } }
 
     public override IPersonalTable Personal => SpeciesMap.Personal;
-    internal CfruSpeciesMap SpeciesMap => ImperiumPokemon.SpeciesMap;
-    internal CfruItemMap ItemMap => ImperiumPokemon.ItemMap;
+    internal CfruSpeciesMap SpeciesMap => ImperiumPokemon.Map;
+    internal CfruItemMap ItemMap => ImperiumPokemon.Items;
 
     public override Type PKMType => typeof(ImperiumPokemon);
     public override ImperiumPokemon BlankPKM => new();
