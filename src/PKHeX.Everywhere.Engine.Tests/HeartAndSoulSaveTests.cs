@@ -17,6 +17,9 @@ public class HeartAndSoulSaveTests
     // The fixture's first slot has counter 100 and its second 101.
     private const int NewerSlot = 14;
 
+    // SaveBlock1 runs on from sector 1 to sector 4 in chunks of this many bytes.
+    private const int SectorData = 3968;
+
     private static Session Loaded(byte[]? bytes = null)
     {
         var session = new Session();
@@ -170,6 +173,75 @@ public class HeartAndSoulSaveTests
         trainer["name"]!.GetValue<string>().Should().Be("Gold");
         trainer["gender"]!.GetValue<string>().Should().Be("female");
         trainer["money"]!.GetValue<uint>().Should().Be(424242);
+    }
+
+    private static JsonNode Pouch(Session session, string name) =>
+        Value(Dispatch(session, "inventory.get", "[]"))!.AsArray().Single(pouch => pouch!["name"]!.GetValue<string>() == name)!;
+
+    private static (string Name, int Count)[] Owned(Session session, string pouch) =>
+        Pouch(session, pouch)["items"]!.AsArray().Select(item => (item!["name"]!.GetValue<string>(), item["count"]!.GetValue<int>())).ToArray();
+
+    [Fact]
+    public void ListsTheSixPockets() =>
+        Value(Dispatch(Loaded(), "inventory.get", "[]"))!.AsArray().Select(pouch => pouch!["name"]!.GetValue<string>())
+            .Should().BeEquivalentTo("Items", "Medicine", "Balls", "TMHMs", "Berries", "KeyItems");
+
+    [Theory]
+    [InlineData("Items", "Max Repel", 9985)]
+    [InlineData("Items", "Unknown item #877", 9408)]
+    [InlineData("Medicine", "Rare Candy", 911)]
+    [InlineData("Balls", "Great Ball", 9835)]
+    [InlineData("TMHMs", "TM030", 1)]
+    [InlineData("Berries", "Rawst Berry", 10)]
+    [InlineData("KeyItems", "Unknown item #874", 4783)]
+    public void ReadsTheBag(string pouch, string item, int count) =>
+        Owned(Loaded(), pouch).Should().Contain((item, count));
+
+    [Theory]
+    [InlineData("Items", 0x564, 236)]
+    [InlineData("Medicine", 0xE28, 92)]
+    [InlineData("Balls", 0xA04, 39)]
+    [InlineData("TMHMs", 0xAA0, 160)]
+    [InlineData("Berries", 0xD20, 66)]
+    [InlineData("KeyItems", 0x914, 60)]
+    public void BagEditsSurviveExportAndChangeNoByteOutsideThePocketAndTheChecksums(string pouch, int offset, int slots)
+    {
+        var session = Loaded();
+        var owned = Pouch(session, pouch)["items"]!.AsArray();
+        var changed = new ItemHandle(pouch, owned[0]!["id"]!.GetValue<int>());
+        var removed = new ItemHandle(pouch, owned[1]!["id"]!.GetValue<int>());
+        var added = new ItemHandle(pouch, Pouch(session, pouch)["addable"]![0]!["id"]!.GetValue<int>());
+
+        Value(Dispatch(session, "inventory.setItem", Args(changed, 999)));
+        Value(Dispatch(session, "inventory.setItem", Args(removed, 0)));
+        Value(Dispatch(session, "inventory.setItem", Args(added, 4)));
+
+        var exported = Exported(session);
+        var reloadedSession = Loaded(exported);
+        reloadedSession.Game!.SaveFile.ChecksumsValid.Should().BeTrue();
+        var reloaded = Pouch(reloadedSession, pouch)["items"]!.AsArray()
+            .Select(item => (item!["id"]!.GetValue<int>(), item["count"]!.GetValue<int>())).ToArray();
+        reloaded.Should().Contain((changed.ItemId, 999)).And.Contain((added.ItemId, 4))
+            .And.NotContain(item => item.Item1 == removed.ItemId);
+
+        var key = ReadUInt16LittleEndian(Fixture.AsSpan(SectorOf(0) + 0xAC));
+        ReadUInt16LittleEndian(exported.AsSpan(SectorOf(1) + offset + 2)).Should().Be((ushort)(999 ^ key));
+        var pocket = Enumerable.Range(offset, slots * 4).Select(at => SectorOf(1 + (at / SectorData)) + (at % SectorData));
+        var allowed = Enumerable.Range(NewerSlot, 14).SelectMany(sector => new[] { (sector * 0x1000) + 0xFF6, (sector * 0x1000) + 0xFF7 })
+            .Concat(pocket).ToHashSet();
+        Enumerable.Range(0, Fixture.Length).Where(index => exported[index] != Fixture[index])
+            .Should().NotBeEmpty().And.OnlyContain(index => allowed.Contains(index));
+    }
+
+    [Fact]
+    public void AnUnknownItemsCountChanges()
+    {
+        var session = Loaded();
+        var unknown = Pouch(session, "Items")["items"]!.AsArray().Single(item => item!["name"]!.GetValue<string>() == "Unknown item #877")!;
+
+        Value(Dispatch(session, "inventory.setItem", Args(new ItemHandle("Items", unknown["id"]!.GetValue<int>()), 12)));
+
+        Owned(Loaded(Exported(session)), "Items").Should().Contain(("Unknown item #877", 12));
     }
 
     [Fact]

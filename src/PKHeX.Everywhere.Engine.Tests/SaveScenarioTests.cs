@@ -117,7 +117,6 @@ public class SaveScenarioTests
 
     [Theory]
     [EverySave]
-    [KnownGap(SaveFilePath.HeartAndSoul, "Heart & Soul's bag isn't read yet.")]
     public void SettingAndRemovingBagItemsSurvivesExport(string saveFile, string? knownGap) => PassesUnlessKnownGap(knownGap, () =>
     {
         var session = LoadSession(saveFile);
