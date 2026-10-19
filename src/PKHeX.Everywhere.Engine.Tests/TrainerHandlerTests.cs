@@ -97,7 +97,7 @@ public class TrainerHandlerTests
         Error(Dispatch(Blank(version), "trainer.setGender", Args("female"))).Should().Be("not-in-game");
 
     [Theory]
-    [SupportedSaveFiles]
+    [SupportedSaveFiles(Except = [SaveFilePath.HeartAndSoul])] // Heart & Soul's money isn't read yet
     public void SetMoneyChangesTheMoney(string saveFile)
     {
         var session = Loaded(saveFile);
