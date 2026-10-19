@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { App, Button, Flex, Modal, Segmented, Space, Typography, type TableColumnsType } from 'antd'
-import { EngineError, type PokemonSummary, type TransferPreview, type TransferSummary } from '@pkhex-everywhere/engine'
+import {
+  EngineError,
+  type PokemonHandle,
+  type PokemonSummary,
+  type TransferOffer,
+  type TransferPreview,
+  type TransferSummary,
+} from '@pkhex-everywhere/engine'
 import { useEngine } from '@pkhex-everywhere/react'
 import { gameName } from '../../capabilities'
 import { PokemonTable } from '../../components/PokemonTable'
@@ -11,14 +18,15 @@ import { transferPick } from './transferPick'
 
 type View = 'party' | 'box'
 
-const pickKey = (pokemon: PokemonSummary) => JSON.stringify(pokemon.at)
+const handleKey = (at: PokemonHandle) => JSON.stringify(at)
+const pickKey = (pokemon: PokemonSummary) => handleKey(pokemon.at)
 
 function previewColumn(preview: TransferPreview | undefined): TableColumnsType<PokemonSummary>[number] {
   return {
     key: 'transfer',
     render: (_, pokemon) => {
       const key = pickKey(pokemon)
-      const refused = preview?.refused.find((refusal) => JSON.stringify(refusal.at) === key)
+      const refused = preview?.refused.find((refusal) => handleKey(refusal.at) === key)
       const offered = preview?.offers.find((offer) => pickKey(offer.from) === key)
       return (
         <div style={{ maxWidth: 280 }}>
@@ -43,7 +51,7 @@ export function TransferPicker({ transfer, onClose }: { transfer: TransferSummar
   const [view, setView] = useState<View>('party')
   const [partnerPokemon, setPartnerPokemon] = useState<PokemonSummary[]>([])
   const [pickedKeys, setPickedKeys] = useState<string[]>([])
-  const [previewed, setPreviewed] = useState<{ of: PokemonSummary[]; preview: TransferPreview }>()
+  const [previewed, setPreviewed] = useState<{ of: TransferOffer; preview: TransferPreview }>()
   const [moving, setMoving] = useState(false)
 
   useEffect(() => {
@@ -59,23 +67,19 @@ export function TransferPicker({ transfer, onClose }: { transfer: TransferSummar
     [partnerPokemon, pickedKeys],
   )
 
+  const offer = useMemo<TransferOffer>(() => ({ send: [], receive: picked.map((pokemon) => pokemon.at) }), [picked])
+
   useEffect(() => {
-    if (picked.length === 0) return
+    if (offer.receive.length === 0) return
     let current = true
-    void engine.transfer
-      .preview({ send: [], receive: picked.map((pokemon) => pokemon.at) })
-      .then((preview) => current && setPreviewed({ of: picked, preview }))
+    void engine.transfer.preview(offer).then((preview) => current && setPreviewed({ of: offer, preview }))
     return () => {
       current = false
     }
-  }, [engine, picked])
+  }, [engine, offer])
 
-  const preview = previewed?.of === picked ? previewed.preview : undefined
-  const pick = transferPick(
-    picked.map((pokemon) => pokemon.at),
-    transfer.room,
-    preview,
-  )
+  const preview = previewed?.of === offer ? previewed.preview : undefined
+  const pick = transferPick(offer.receive, transfer.room, preview)
   const shown = partnerPokemon.filter((pokemon) => pokemon.at.source === view)
 
   const changePicked = (rows: PokemonSummary[]) =>
@@ -84,7 +88,7 @@ export function TransferPicker({ transfer, onClose }: { transfer: TransferSummar
   const move = async () => {
     setMoving(true)
     try {
-      const result = await engine.transfer.commit({ send: [], receive: picked.map((pokemon) => pokemon.at) })
+      const result = await engine.transfer.commit(offer)
       notification.success({
         title: `${result.arrived.length} Pokémon moved to your box`,
         description: 'Export this save from the Save page to keep them.',
@@ -98,6 +102,7 @@ export function TransferPicker({ transfer, onClose }: { transfer: TransferSummar
     } catch (error) {
       if (!(error instanceof EngineError)) throw error
       notification.error({ title: error.message })
+    } finally {
       setMoving(false)
     }
   }
@@ -117,11 +122,13 @@ export function TransferPicker({ transfer, onClose }: { transfer: TransferSummar
       onCancel={onClose}
       footer={
         <Flex justify="space-between" align="center" gap={8} wrap>
-          <Typography.Text type="secondary">{pick.summary}</Typography.Text>
+          <Typography.Text type="secondary">
+            {`${pick.selected} selected · ${pick.freeSlots} free slots${pick.refused ? ` · ${pick.refused} can't move` : ''}`}
+          </Typography.Text>
           <Space>
             <Button onClick={onClose}>Cancel</Button>
             <Button type="primary" disabled={!pick.canMove} loading={moving} onClick={move}>
-              {pick.moveLabel}
+              {`Move ${pick.selected} here`}
             </Button>
           </Space>
         </Flex>

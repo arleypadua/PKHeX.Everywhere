@@ -10,11 +10,7 @@ const movable: TransferPreview = { offers: [], refused: [] }
 
 describe('transferPick', () => {
   it('counts the picked Pokémon against the free slots', () => {
-    expect(transferPick([party0, box3], room, movable)).toEqual({
-      summary: '2 selected · 2 free slots',
-      moveLabel: 'Move 2 here',
-      canMove: true,
-    })
+    expect(transferPick([party0, box3], room, movable)).toEqual({ selected: 2, freeSlots: 2, refused: 0, canMove: true })
   })
 
   it("can't move nothing", () => {
@@ -32,9 +28,6 @@ describe('transferPick', () => {
   it("can't move while the preview refuses a Pokémon", () => {
     const refused: TransferPreview = { offers: [], refused: [{ direction: 'receive', at: party0, reason: 'lastPartyMember' }] }
 
-    expect(transferPick([party0], room, refused)).toMatchObject({
-      summary: "1 selected · 2 free slots · 1 can't move",
-      canMove: false,
-    })
+    expect(transferPick([party0], room, refused)).toMatchObject({ refused: 1, canMove: false })
   })
 })

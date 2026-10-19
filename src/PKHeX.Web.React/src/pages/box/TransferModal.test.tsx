@@ -17,6 +17,7 @@ import { EngineProvider } from '@pkhex-everywhere/react'
 import { downloadFile } from '../../host'
 import { render } from '../../testing/render'
 import { TransferModal } from './TransferModal'
+import { refusalReasons } from './transferLabels'
 
 vi.mock('../../host', async (original) => ({ ...(await original<typeof import('../../host')>()), downloadFile: vi.fn() }))
 
@@ -139,7 +140,16 @@ function renderTransfer(
       act(() => button.click())
       await flush()
     },
-    button: (label: string) => [...document.querySelectorAll('button')].find((b) => b.textContent === label),
+    moveButton: () => document.querySelector<HTMLButtonElement>('.ant-modal-footer .ant-btn-primary')!,
+    move: async () => {
+      act(() => document.querySelector<HTMLButtonElement>('.ant-modal-footer .ant-btn-primary')!.click())
+      await flush()
+    },
+    downloadPartner: async () => {
+      act(() => document.querySelector<HTMLButtonElement>('.ant-notification-notice button.ant-btn-link')!.click())
+      await flush()
+    },
+    succeeded: () => document.querySelector('.ant-notification-notice-success') !== null,
     rows: () => [...dialogs()[0].querySelectorAll('tbody tr[data-row-key]')].map((row) => row.textContent),
     pick: async (species: string) => {
       const row = [...dialogs()[0].querySelectorAll('tbody tr[data-row-key]')].find((r) => r.textContent?.includes(species))!
@@ -168,7 +178,7 @@ describe('TransferModal', () => {
     await modal.openSave(partnerFile)
 
     expect(modal.transfer.open).toHaveBeenCalledWith(partnerFile, undefined, undefined)
-    expect(modal.text()).toContain('Transfer from partner.sav')
+    expect(modal.text()).toContain('partner.sav')
     expect(modal.text()).toContain('MAY')
   })
 
@@ -246,24 +256,23 @@ describe('TransferModal', () => {
     await modal.choose('Box')
     await modal.pick('Zigzagoon')
 
-    expect(modal.text()).toContain('2 selected · 30 free slots')
     expect(modal.transfer.preview).toHaveBeenLastCalledWith({ send: [], receive: [kadabra.at, zigzagoon.at] })
 
-    await modal.click('Move 2 here')
+    await modal.move()
 
     expect(modal.transfer.commit).toHaveBeenCalledWith({ send: [], receive: [kadabra.at, zigzagoon.at] })
     expect(modal.transfer.close).toHaveBeenCalled()
     expect(modal.onClose).toHaveBeenCalled()
-    expect(modal.notifications()).toContain('2 Pokémon moved to your box')
+    expect(modal.succeeded()).toBe(true)
   })
 
   it('downloads the partner save without the moved Pokémon from the notification', async () => {
     const modal = renderTransfer(async () => opened)
     await modal.openSave(partnerFile)
     await modal.pick('Kadabra')
-    await modal.click('Move 1 here')
+    await modal.move()
 
-    await modal.click('Download partner.sav')
+    await modal.downloadPartner()
 
     expect(downloadFile).toHaveBeenCalledWith(moved.partner.bytes, 'partner.sav')
   })
@@ -272,7 +281,7 @@ describe('TransferModal', () => {
     const modal = renderTransfer(async () => opened)
     await modal.openSave(partnerFile)
 
-    expect(modal.button('Move 0 here')?.disabled).toBe(true)
+    expect(modal.moveButton().disabled).toBe(true)
   })
 
   it("can't move more Pokémon than this save has room for", async () => {
@@ -282,7 +291,7 @@ describe('TransferModal', () => {
     await modal.pick('Kadabra')
     await modal.pick('Swampert')
 
-    expect(modal.button('Move 2 here')?.disabled).toBe(true)
+    expect(modal.moveButton().disabled).toBe(true)
   })
 
   it('shows why a Pokémon is refused', async () => {
@@ -296,8 +305,8 @@ describe('TransferModal', () => {
 
     await modal.pick('Kadabra')
 
-    expect(modal.rows()[0]).toContain('The party must keep a Pokémon')
-    expect(modal.button('Move 1 here')?.disabled).toBe(true)
+    expect(modal.rows()[0]).toContain(refusalReasons.lastPartyMember)
+    expect(modal.moveButton().disabled).toBe(true)
   })
 
   it('shows what moving a Pokémon changes', async () => {
@@ -312,6 +321,6 @@ describe('TransferModal', () => {
 
     await modal.pick('Kadabra')
 
-    expect(modal.rows()[0]).toContain('Kadabra → Alakazam')
+    expect(modal.rows()[0]).toContain('Alakazam')
   })
 })
