@@ -1,5 +1,11 @@
 # @pkhex-everywhere/engine
 
+## 0.26.1
+
+### Patch Changes
+
+- c85a4dd: A Gen 3 save holding Pokémon or moves its game doesn't have now fails with `format-choice-required` and no `candidates`, instead of `invalid-save`. `EngineError.pkhexGame` names the game loading with `pkhex` reads the save as.
+
 ## 0.26.0
 
 ### Minor Changes
