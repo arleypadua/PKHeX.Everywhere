@@ -1,5 +1,19 @@
 # @pkhex-everywhere/engine
 
+## 0.27.0
+
+### Minor Changes
+
+- eaca354: Two saves of the same ROM hack now trade by `['link']`, and the Pokémon arrives byte for byte as it left, without evolving. Saves of different hacks, or a hack and an official game, still have no route. `OfferedPokemon.legality` is `null` when the destination has no legality check, such as a ROM hack's.
+- 5c4026b: `TransferSummary.trainer` gives the partner save's trainer, as `trainer.get` reads it.
+
+### Patch Changes
+
+- 14f0286: `inventory.get` and `inventory.setItem` read and edit a Heart & Soul save's bag pockets.
+- 44f8f22: With `game.enableFormat("heart-and-soul")`, a Pokémon Heart & Soul 2.0 save loads. Its party and 14 boxes list, a Pokémon's level, nature, moves, held item, nickname and ball can be edited, and export keeps every byte it didn't change. Heart & Soul's own items show as Unknown. The trainer's money and the bag aren't read yet.
+- 6fc3be4: A Pokémon Heart & Soul save fails to load with `invalid-save` instead of loading as Emerald. The `heart-and-soul` format is registered off, and `game.formats()` leaves it out.
+- 7656b66: `trainer.get` and `trainer.setMoney` read and edit a Heart & Soul save's money.
+
 ## 0.26.1
 
 ### Patch Changes
