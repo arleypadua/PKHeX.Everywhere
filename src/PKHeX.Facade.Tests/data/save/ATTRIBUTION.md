@@ -12,3 +12,5 @@ with a same-length placeholder, and the sector checksums were recomputed. Ids an
 since a Gen 3 Pokémon's substructures are encrypted with its PID and OT id.
 
 `unbound-2.1.sav` (Pokémon Unbound 2.1.1.1) is `Pokemon - Unbound (v2.1.1.1).srm` from [Unbound-2.1.1.1-living-dex](https://github.com/RickHalden/Unbound-2.1.1.1-living-dex) by RickHalden, copied unchanged at commit `6337b2131e829cbc539c0a179e3a31e8fb24a9bc` (blob `2c647823d76d2685484b1dbdc9e2b686e7d03b73`). That repository has no license.
+
+`heartandsoul.sav` (Pokémon Heart & Soul 2.0.6) is `heartandsoul206.sav` from [Dynamic-Calc-Decomps](https://github.com/hzla/Dynamic-Calc-Decomps) by hzla, copied unchanged from `cypress/fixtures/saves` at commit `bebf34ffe8827089b355e7534df48ba95eecc3c6` (blob `f2d1d7db795597b8f160a40b88a1384461a55f41`). That repository has no license. Pokémon Heart & Soul is by the [Pokemon Heart and Soul](https://github.com/PokemonHnS-Development/pokehns-expansion) team, built on RHH's pokeemerald-expansion.
