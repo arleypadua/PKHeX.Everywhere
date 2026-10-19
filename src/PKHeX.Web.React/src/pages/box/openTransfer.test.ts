@@ -15,8 +15,10 @@ const partner: SaveSummary = {
   statsApproximate: false,
 }
 
+const trainer = { id: '12345/54321', name: 'MAY', maxNameLength: 7, gender: 'female' as const, money: 3000, battlePoints: null, rival: null }
+
 function summary(receive: TransferRoute[] | null): TransferSummary {
-  return { partner, routes: { send: receive, receive }, room: { mine: 30, partner: 30 } }
+  return { partner, routes: { send: receive, receive }, room: { mine: 30, partner: 30 }, trainer }
 }
 
 function fakeTransfer(open: () => Promise<TransferSummary>) {

@@ -39,16 +39,17 @@ const rowKey = (pokemon: PokemonSummary) => JSON.stringify(pokemon.at)
 interface PokemonTableProps {
   pokemon: PokemonSummary[]
   extraColumns?: TableColumnsType<PokemonSummary>
+  actions?: boolean
   selected?: PokemonSummary[]
   onSelectedChange?: (selected: PokemonSummary[]) => void
 }
 
-export function PokemonTable({ pokemon, extraColumns = [], selected = [], onSelectedChange }: PokemonTableProps) {
+export function PokemonTable({ pokemon, extraColumns = [], actions = true, selected = [], onSelectedChange }: PokemonTableProps) {
   return (
     <Table<PokemonSummary>
       rowKey={rowKey}
       dataSource={pokemon}
-      columns={[...leadingColumns, ...extraColumns, actionColumn]}
+      columns={[...leadingColumns, ...extraColumns, ...(actions ? [actionColumn] : [])]}
       rowSelection={
         onSelectedChange && {
           selectedRowKeys: selected.map(rowKey),

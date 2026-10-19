@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent } from 'react'
-import { App, Descriptions, Modal, Typography } from 'antd'
+import { App, Modal, Typography } from 'antd'
 import type { SaveSummary, TransferSummary } from '@pkhex-everywhere/engine'
 import { useEngine } from '@pkhex-everywhere/react'
 import { gameName } from '../../capabilities'
@@ -7,6 +7,7 @@ import { FormatPickerModal } from '../load/FormatPickerModal'
 import { SaveFileDrop } from '../load/SaveFileDrop'
 import type { FormatChoice } from '../load/useLoadSave'
 import { openTransfer } from './openTransfer'
+import { TransferPicker } from './TransferPicker'
 
 export function TransferModal({ game, onClose }: { game: SaveSummary; onClose: () => void }) {
   const engine = useEngine()
@@ -42,6 +43,8 @@ export function TransferModal({ game, onClose }: { game: SaveSummary; onClose: (
     onClose()
   }
 
+  if (opened) return <TransferPicker transfer={opened} onClose={close} />
+
   return (
     <>
       <Modal
@@ -50,25 +53,9 @@ export function TransferModal({ game, onClose }: { game: SaveSummary; onClose: (
         okText="Open save file..."
         onOk={() => fileInput.current?.click()}
         onCancel={close}
-        footer={opened ? null : undefined}
-        modalRender={(content) => (
-          <SaveFileDrop onOpen={openSave} disabled={!!opened}>
-            {content}
-          </SaveFileDrop>
-        )}
+        modalRender={(content) => <SaveFileDrop onOpen={openSave}>{content}</SaveFileDrop>}
       >
-        {opened ? (
-          <Descriptions
-            bordered
-            size="small"
-            items={[
-              { key: 'file', label: 'File', children: opened.partner.fileName },
-              { key: 'version', label: 'Version', children: gameName(opened.partner) },
-            ]}
-          />
-        ) : (
-          <Typography.Paragraph>{`Open another ${gameName(game)} save to move its Pokémon into this one.`}</Typography.Paragraph>
-        )}
+        <Typography.Paragraph>{`Open another ${gameName(game)} save to move its Pokémon into this one.`}</Typography.Paragraph>
         <input ref={fileInput} type="file" hidden onChange={loadFile} />
       </Modal>
       {formatChoice && (
