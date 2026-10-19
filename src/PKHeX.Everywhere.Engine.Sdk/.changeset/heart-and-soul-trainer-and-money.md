@@ -2,4 +2,4 @@
 "@pkhex-everywhere/engine": patch
 ---
 
-A Heart & Soul save's money reads and edits through `trainer.get` and `trainer.setMoney`, next to the trainer's name, gender and ID.
+`trainer.get` and `trainer.setMoney` read and edit a Heart & Soul save's money.

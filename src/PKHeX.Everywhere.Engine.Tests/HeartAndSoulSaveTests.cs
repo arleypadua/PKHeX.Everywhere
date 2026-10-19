@@ -164,7 +164,9 @@ public class HeartAndSoulSaveTests
         Enumerable.Range(0, Fixture.Length).Where(index => exported[index] != Fixture[index])
             .Should().NotBeEmpty().And.OnlyContain(index => owned.Contains(index));
 
-        var trainer = Value(Dispatch(Loaded(exported), "trainer.get", "[]"))!;
+        var reloaded = Loaded(exported);
+        reloaded.Game!.SaveFile.ChecksumsValid.Should().BeTrue();
+        var trainer = Value(Dispatch(reloaded, "trainer.get", "[]"))!;
         trainer["name"]!.GetValue<string>().Should().Be("Gold");
         trainer["gender"]!.GetValue<string>().Should().Be("female");
         trainer["money"]!.GetValue<uint>().Should().Be(424242);
