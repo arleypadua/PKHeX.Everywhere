@@ -88,7 +88,7 @@ await engine.transfer.close()
 - A game refuses a species or form it doesn't have with `speciesNotInGame`. From Generation 6, it also refuses a move, held item or ability it doesn't have with `notInGame`. X and Y refuse Omega Ruby and Alpha Sapphire moves, and Sun and Moon refuse Ultra Sun and Ultra Moon ones.
 - `commit` fails with `transfer-refused`, changing nothing, while `preview` refuses any Pokémon in the offer. It returns both saves' bytes.
 - On the `unofficial` route, the moves, held item, ball and ability the destination game doesn't have are removed, with the reason `notInGame`. A ball becomes a Poké Ball, and a Pokémon left with no moves learns its first level-up move. Every other change has the reason `unofficial`.
-- Saves loaded with a ROM hack format and Let's Go saves have no route, and their Pokémon are refused with `noRoute`.
+- Two saves of the same ROM hack format trade by `['link']`, and the Pokémon arrives exactly as it left. A ROM hack save has no route to a save of any other format, and Let's Go saves have none at all. Their Pokémon are refused with `noRoute`.
 
 `transfer.convert` converts a Pokémon file to the format of either save, the way a transfer would, and writes nothing. The same file always gives the same bytes. `transfer.details` and `transfer.export` read a slot in either save. An offer's `arrivals` replace the usual conversion: the offered Pokémon arrives as the given bytes, with a patch applied as `pokemon.update` applies it. This lets a client keep its own copy of a Pokémon and decide which fields to bring back when it moves forward again:
 

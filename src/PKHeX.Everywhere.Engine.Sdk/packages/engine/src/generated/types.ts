@@ -523,8 +523,8 @@ export interface OfferedPokemon {
   changes: TransferChange[]
   /** What the move changes in either save. */
   saveChanges: TransferSaveChange[]
-  /** PKHeX's legality check of the Pokémon as it arrives, judged in the destination game. */
-  legality: Legality
+  /** PKHeX's legality check of the Pokémon as it arrives, judged in the destination game. Null when the destination has no legality check, such as a ROM hack's. */
+  legality: Legality | null
 }
 
 /** An item the trainer holds in a pouch. */
@@ -1158,7 +1158,7 @@ export interface TransferRoom {
 /** One hop of the way a Pokémon gets from one save to the other, as the games move it. */
 export type TransferRoute = 'link' | 'timeCapsule' | 'palPark' | 'pokeTransfer' | 'transporter' | 'bank' | 'unofficial'
 
-/** The routes of an open transfer. A route lists its hops in order, such as `['palPark', 'pokeTransfer']` from Emerald to Black. A route with one hop is a one-item list, and an unofficial route is `['unofficial']`. Routes only go where the games went: from Generation 7 to 6, and into any older game, the route is `['unofficial']`. A null route means Pokémon can't move that way, and every Pokémon offered that way is refused with `noRoute`. Only saves loaded with a ROM hack format and Let's Go saves have no route. */
+/** The routes of an open transfer. A route lists its hops in order, such as `['palPark', 'pokeTransfer']` from Emerald to Black. A route with one hop is a one-item list, and an unofficial route is `['unofficial']`. Routes only go where the games went: from Generation 7 to 6, and into any older game, the route is `['unofficial']`. A null route means Pokémon can't move that way, and every Pokémon offered that way is refused with `noRoute`. Two saves of the same ROM hack format trade by `['link']`. A ROM hack save has no route to a save of any other format, and Let's Go saves have none at all. */
 export interface TransferRoutes {
   /** The hops from the loaded save to the partner, in order. */
   send: TransferRoute[] | null

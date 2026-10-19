@@ -117,6 +117,7 @@ public record TransferChange(TransferField Field, string? Before, string? After,
 public record TransferSaveChange(TransferSaveChangeKind Kind, TransferSide Save, string Label);
 
 /// <param name="ArrivesAt">The box slot, counted across every box, the Pokémon lands in.</param>
+/// <param name="Legality">PKHeX's legality check of the Pokémon as it arrives, judged in the destination. Null when the destination has no legality check, such as a ROM hack's.</param>
 public record TransferredPokemon(
     TransferDirection Direction,
     IReadOnlyList<TransferRoute> Route,
@@ -126,7 +127,7 @@ public record TransferredPokemon(
     Pokemon Arrives,
     IReadOnlyList<TransferChange> Changes,
     IReadOnlyList<TransferSaveChange> SaveChanges,
-    PokemonLegality Legality);
+    PokemonLegality? Legality);
 
 public record RefusedPokemon(TransferDirection Direction, TransferSlot From, TransferRefusal Reason);
 
@@ -141,7 +142,7 @@ public record PokemonImport(Pokemon Arrives, bool Unofficial, IReadOnlyList<Tran
     /// <summary>
     /// PKHeX's legality check of the Pokémon as it arrives, judged in the save. Null when the save has no legality check, such as a ROM hack's.
     /// </summary>
-    public PokemonLegality? Legality() => Arrives.Game.Supports(Capability.Legality) ? Transfer.LegalityIn(Arrives.Game, Arrives) : null;
+    public PokemonLegality? Legality() => Transfer.LegalityIn(Arrives.Game, Arrives);
 
     /// <summary>
     /// The Pokémon's details as it arrives, with <see cref="Legality"/> judged in the save.

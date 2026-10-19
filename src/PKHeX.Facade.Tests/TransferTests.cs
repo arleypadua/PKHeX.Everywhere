@@ -18,6 +18,11 @@ public class TransferTests
     [InlineData(SaveFilePath.Emerald, SaveFilePath.HgSs, new[] { TransferRoute.PalPark }, new[] { TransferRoute.Unofficial })]
     [InlineData(SaveFilePath.Crystal, SaveFilePath.Emerald, new[] { TransferRoute.Unofficial }, new[] { TransferRoute.Unofficial })]
     [InlineData(SaveFilePath.Unbound, SaveFilePath.FireRed, null, null)]
+    [InlineData(SaveFilePath.Imperium, SaveFilePath.Imperium, new[] { TransferRoute.Link }, new[] { TransferRoute.Link })]
+    [InlineData(SaveFilePath.Unbound, SaveFilePath.Unbound21, new[] { TransferRoute.Link }, new[] { TransferRoute.Link })]
+    [InlineData(SaveFilePath.Unbound, SaveFilePath.RadicalRed, null, null)]
+    [InlineData(SaveFilePath.Imperium, SaveFilePath.Emerald, null, null)]
+    [InlineData(SaveFilePath.EmeraldLegacy, SaveFilePath.Emerald, null, null)]
     [InlineData(SaveFilePath.LetsGoPikachu, SaveFilePath.LetsGoEevee, null, null)]
     public void RoutesFollowTheGames(string mine, string partner, TransferRoute[]? send, TransferRoute[]? receive)
     {
@@ -25,6 +30,41 @@ public class TransferTests
 
         transfer.SendRoute.Should().BeEquivalentTo(send, options => options.WithStrictOrdering());
         transfer.ReceiveRoute.Should().BeEquivalentTo(receive, options => options.WithStrictOrdering());
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Imperium)]
+    [InlineData(SaveFilePath.Unbound)]
+    public void ASameHackLinkMovesThePokemonAsItLeft(string save)
+    {
+        var (mine, partner) = (SaveFilePath.Load(save), SaveFilePath.Load(save));
+        var (index, leaving) = mine.Trainer.PokemonBox.Boxed().First();
+        var bytes = leaving.Pkm.Data.ToArray();
+        var transfer = new Transfer(mine, partner);
+
+        var offered = transfer.Preview(Send(Box(index))).Offers.Single();
+        var arrived = transfer.Commit(Send(Box(index))).Single();
+
+        offered.Route.Should().Equal(TransferRoute.Link);
+        offered.Changes.Should().BeEmpty();
+        offered.SaveChanges.Should().BeEmpty();
+        mine.Trainer.PokemonBox.All[index].IsEmpty.Should().BeTrue();
+        partner.SaveAndReload(reloaded => reloaded.Trainer.PokemonBox.All[arrived.BoxIndex].Pkm.Data.ToArray().Should().Equal(bytes));
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.Imperium)]
+    [InlineData(SaveFilePath.Unbound)]
+    public void ATradeEvolutionDoesntEvolveOverASameHackLink(string save)
+    {
+        var mine = SaveFilePath.Load(save);
+        var (index, haunter) = mine.Trainer.PokemonBox.Boxed().First();
+        haunter.Pkm.Species = (ushort)Species.Haunter;
+        haunter.Pkm.HeldItem = 0;
+
+        var arrived = new Transfer(mine, SaveFilePath.Load(save)).Commit(Send(Box(index))).Single();
+
+        arrived.Pokemon.Species.Name.Should().Be("Haunter");
     }
 
     [Theory]
@@ -113,7 +153,7 @@ public class TransferTests
         offered.Arrives.Pkm.Should().BeOfType<PK7>();
         offered.Changes.Should().NotBeEmpty();
         offered.Changes.Select(change => change.Reason).Should().BeSubsetOf([TransferChangeReason.Transporter, TransferChangeReason.Bank]);
-        offered.Legality.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
+        offered.Legality!.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
     }
 
     [Theory]
@@ -129,7 +169,7 @@ public class TransferTests
         var offered = new Transfer(mine, Blank(GameVersion.SN)).Preview(Send(Box(0))).Offers.Single();
         var arrives = offered.Arrives.Pkm;
 
-        offered.Legality.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
+        offered.Legality!.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
         (arrives.Version, arrives.MetLocation, arrives.MetLevel, arrives.Ball).Should().Be((from, metLocation, (byte)leaving.CurrentLevel, (byte)Ball.Poke));
         arrives.Nature.Should().Be(Experience.GetNatureVC(leaving.EXP));
         arrives.AbilityNumber.Should().Be(4);
@@ -159,7 +199,7 @@ public class TransferTests
         var offered = new Transfer(japanese, sun).Preview(Send(Box(0))).Offers.Single();
 
         offered.Arrives.Pkm.Language.Should().Be((int)LanguageID.Japanese);
-        offered.Legality.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
+        offered.Legality!.Valid.Should().BeTrue(string.Join("; ", offered.Legality.Messages));
     }
 
     [Fact]
@@ -293,7 +333,7 @@ public class TransferTests
 
         offered.Changes.Should().BeEmpty();
         offered.Arrives.Pkm.Data.ToArray().Should().Equal(offered.Pokemon.Pkm.Data.ToArray());
-        offered.Legality.Valid.Should().BeTrue();
+        offered.Legality!.Valid.Should().BeTrue();
     }
 
     [Fact]
@@ -686,7 +726,7 @@ public class TransferTests
         arrives.EVTotal.Should().Be(0);
         arrives.PID.Should().NotBe(0);
         (arrives.Gender, arrives.IsShiny).Should().Be((inCrystal.Pokemon.Pkm.Gender, inCrystal.Pokemon.Pkm.IsShiny));
-        offered.Legality.Messages.Should().NotContain(message => message.Contains("Language") || message.Contains("EV") || message.Contains("Encryption"));
+        offered.Legality!.Messages.Should().NotContain(message => message.Contains("Language") || message.Contains("EV") || message.Contains("Encryption"));
     }
 
     [Fact]
