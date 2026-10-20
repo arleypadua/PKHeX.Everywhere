@@ -1,5 +1,15 @@
 # @pkhex-everywhere/engine
 
+## 0.29.0
+
+### Minor Changes
+
+- 92253f2: `pokemon.read` reads Colosseum (62) and XD (63) Pokémon from their 312-byte CK3 and 196-byte XK3 bytes. For an XD shadow Pokémon, `isShadow` and `purification` are null, since XD keeps them in the save.
+
+### Patch Changes
+
+- 9003743: A Pokémon Heart & Soul save loads with the `heart-and-soul` format without `game.enableFormat`. `game.formats()` lists it.
+
 ## 0.28.0
 
 ### Minor Changes
