@@ -89,6 +89,7 @@ public class PokemonReadTests
     [InlineData(GameVersion.HGSS)]
     [InlineData(GameVersion.BW)]
     [InlineData(GameVersion.B2W2)]
+    [InlineData(GameVersion.CXD)]
     public void RejectsACombinedVersion(GameVersion version) =>
         Failure(() => Pokemon.Read(new byte[100], (int)version)).Should().Be(UnreadableReason.CombinedVersion);
 
@@ -106,7 +107,8 @@ public class PokemonReadTests
     [InlineData((int)GameVersion.C)]
     [InlineData((int)GameVersion.X)]
     [InlineData((int)GameVersion.SWSH)]
-    [InlineData((int)GameVersion.CXD)]
+    [InlineData((int)GameVersion.COLO)]
+    [InlineData((int)GameVersion.XD)]
     [InlineData((int)GameVersion.BATREV)]
     [InlineData(-1)]
     [InlineData(256 + (int)GameVersion.E)]

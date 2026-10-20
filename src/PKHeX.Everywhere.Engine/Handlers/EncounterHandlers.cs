@@ -11,7 +11,7 @@ public static class EncounterHandlers
         game.PokemonRepository.EncounterVersions()
             .Select(version => version.ToEntry())
             .ToArray(),
-        game.GameVersionApproximation.Id);
+        game.PokemonRepository.DefaultEncounterVersion().Id);
 
     /// <summary>
     /// Lists the event Pokémon the loaded save can hold, whatever game each names as its origin, so a FireRed save lists the WISHMKR Jirachi from Ruby.

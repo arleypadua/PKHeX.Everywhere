@@ -690,3 +690,4 @@ PKHeX.Facade.Transfers.TransferChangeReason.NotInGame = 13 -> PKHeX.Facade.Trans
 PKHeX.Facade.Transfers.TransferChangeReason.Unofficial = 14 -> PKHeX.Facade.Transfers.TransferChangeReason
 PKHeX.Facade.FormatChoiceRequiredException.FormatChoiceRequiredException(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Abstractions.ISaveFormat!>! candidates, string? pkhexGame) -> void
 PKHeX.Facade.FormatChoiceRequiredException.PKHeXGame.get -> string?
+PKHeX.Facade.Repositories.PokemonRepository.DefaultEncounterVersion() -> PKHeX.Facade.Repositories.GameVersionDefinition!

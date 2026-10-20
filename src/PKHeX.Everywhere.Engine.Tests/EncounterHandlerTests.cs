@@ -26,7 +26,6 @@ public class EncounterHandlerTests
             .Select(v => new { id = v.Id, name = v.Name });
         result["versions"]!.ToJsonString().Should().Be(JsonSerializer.Serialize(expected));
         result["default"]!.GetValue<int>().Should().Be(game.GameVersionApproximation.Id);
-        result["versions"]!.AsArray().Select(v => v!["id"]!.GetValue<int>()).Should().Contain(game.GameVersionApproximation.Id);
     }
 
     [Theory]

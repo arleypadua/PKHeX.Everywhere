@@ -22,6 +22,16 @@ public class PokemonRepository
         return _game.AvailableVersions;
     }
 
+    // PKHeX's encounter versions hold Colosseum and XD as their shared version, and Box as no version at all.
+    public GameVersionDefinition DefaultEncounterVersion()
+    {
+        var version = _game.GameVersionApproximation.Version is GameVersion.COLO or GameVersion.XD
+            ? GameVersion.CXD
+            : _game.GameVersionApproximation.Version;
+        return EncounterVersions().FirstOrDefault(v => v.Version == version)
+            ?? GameVersionRepository.Instance.Get(_saveFile.Context.GetSingleGameVersion());
+    }
+
     public IEnumerable<Encounter> FindEncounter(GameVersion version, Species species, bool? shiny = null, bool? egg = null)
     {
         _game.Require(Capability.Encounters);
