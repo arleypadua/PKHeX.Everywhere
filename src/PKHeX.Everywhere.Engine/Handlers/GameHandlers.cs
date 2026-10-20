@@ -29,12 +29,16 @@ public static class GameHandlers
     /// <summary>
     /// Loads a save file, replacing the one loaded before.
     /// </summary>
-    /// <param name="data">The save file's bytes.</param>
+    /// <param name="data">
+    /// The save file's bytes. A whole GameCube memory card loads the Colosseum, XD or Box save on it, and <c>game.export()</c> returns the whole card.
+    /// A Colosseum or XD file with no story saved to it fails with <c>invalid-save</c>.
+    /// </param>
     /// <param name="fileName">The file name to export the save with. Defaults to the name of a <c>File</c>, or <c>save.sav</c>.</param>
     /// <param name="formatId">
     /// The id of a save format from <c>game.formats()</c> to load the save with, skipping detection. Pass <c>pkhex</c> to load it with PKHeX's own detection.
     /// An unknown id fails with <c>not-found</c>, and a save the format can't read fails with <c>invalid-save</c>.
     /// Without it, a save that might be in one of the formats fails with <c>format-choice-required</c>, whose <c>candidates</c> list them.
+    /// A GameCube memory card holding more than one of Colosseum, XD and Box fails the same way, with a candidate for each game, whose id this takes too.
     /// A Gen 3 save holding Pokémon or moves its game doesn't have might be from an unsupported ROM hack, and fails the same way with empty <c>candidates</c>.
     /// The error's <c>pkhexGame</c> names the game <c>pkhex</c> loads the save as.
     /// </param>
