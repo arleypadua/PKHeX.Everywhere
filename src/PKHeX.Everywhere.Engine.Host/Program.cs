@@ -19,7 +19,7 @@ SaveFormats.Register(new UnboundFormat());
 SaveFormats.Register(new RadicalRedFormat());
 SaveFormats.Register(new ImperiumFormat());
 SaveFormats.Register(new EmeraldLegacyFormat());
-SaveFormats.Register(new HeartAndSoulFormat(), enabled: false);
+SaveFormats.Register(new HeartAndSoulFormat());
 
 _ = new PlugInHost(Session.Current);
 

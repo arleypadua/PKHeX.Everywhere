@@ -6,11 +6,31 @@ export interface NewsEntry {
   items: string[]
 }
 
-export const romHacksNewsDate = '2026-10-04'
+export const romHacksNewsDate = '2026-10-20'
 
 export const news: NewsEntry[] = [
   {
     date: romHacksNewsDate,
+    headline:
+      'PKHeX.Web now opens Heart & Soul and Emerald Legacy saves, along with Unbound, Radical Red and Emerald Imperium.',
+    items: [
+      'Added support for Pokémon Heart & Soul and Emerald Legacy saves.',
+      'The Box page can open a second save and move its Pokémon into the loaded one, including between two saves of the same ROM hack.',
+      'You can open a save by dropping it on the Load page.',
+      'Unbound and Radical Red bags have a Key Items pocket.',
+      "Emerald Imperium Pokémon can switch to another of their species' abilities.",
+      "Radical Red's Hakamo-o and its Basculin, Calyrex and Terapagos forms show correctly.",
+      "A Gen 3 save past its game's limits asks whether it's from a ROM hack instead of failing to load.",
+      'ROM hack saves from more emulators load.',
+      'Colosseum, XD and Box saves on a GameCube memory card open.',
+      'The Home page hides the trainer gender for games that have none.',
+      'Exporting a save writes back only the Pokémon you changed.',
+      'Pokémon icons that stopped loading show again.',
+      'Stadium saves no longer leave gaps in boxes after export.',
+    ],
+  },
+  {
+    date: '2026-10-04',
     headline: 'PKHeX.Web now opens Unbound, Radical Red and Emerald Imperium saves.',
     items: ['Added support for Pokémon Unbound, Radical Red and Emerald Imperium saves.'],
   },
