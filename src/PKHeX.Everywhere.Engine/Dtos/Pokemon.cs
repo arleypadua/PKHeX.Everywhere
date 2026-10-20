@@ -147,6 +147,9 @@ public enum PokemonHandler
 /// <param name="MetLocation">Location id from the origin game's list. See <c>metLocations</c> in <c>pokemon.options()</c>.</param>
 /// <param name="MetDate">Date it was met, as <c>yyyy-MM-dd</c>. Null when the game stores none.</param>
 /// <param name="FatefulEncounter">The fateful encounter flag that event Pokémon carry.</param>
+/// <param name="IsShadow">A shadow Pokémon not yet purified. Null outside Colosseum and XD.</param>
+/// <param name="ShadowId">The game's id for the shadow Pokémon it was snagged as, or 0 if it never was one. Null outside Colosseum and XD.</param>
+/// <param name="Purification">What is left of its heart gauge. 0 once purified. Null outside Colosseum and XD.</param>
 /// <param name="Ivs">Individual values: 0 to 31 each, or 0 to 15 in Gen 1 and 2.</param>
 /// <param name="Evs">Effort values: up to 252 each from Gen 6 on, 255 in Gen 3 to 5, 65535 in Gen 1 and 2.</param>
 /// <param name="Avs">Awakening values, 0 to 200 each. Null outside the Let's Go games.</param>
@@ -193,6 +196,9 @@ public record EditablePokemon(
     int MetLevel,
     string? MetDate,
     bool FatefulEncounter,
+    bool? IsShadow,
+    int? ShadowId,
+    int? Purification,
     StatValues Ivs,
     StatValues Evs,
     StatValues? Avs,
@@ -245,6 +251,8 @@ public record MoveSlot(int Id, string Name, int Pp, int MaxPp, bool IsUnknown);
 /// <param name="MetLocation">Location id from <c>metLocations</c> in <c>pokemon.options()</c>, checked against the origin game after any <c>version</c> change.</param>
 /// <param name="MetLevel">0 to 100.</param>
 /// <param name="MetDate">A <c>yyyy-MM-dd</c> date between 2000 and 2099.</param>
+/// <param name="Purification">Only for a shadow Pokémon in Colosseum and XD. 0 or more.</param>
+/// <param name="IsShadow">Only in Colosseum and XD. <c>false</c> purifies a shadow Pokémon: its heart gauge goes to 0 and it gets the National Ribbon. A purified Pokémon can't be made a shadow Pokémon again.</param>
 /// <param name="Avs">Only in the Let's Go games. 0 to 200 each.</param>
 /// <param name="CombatPower">Only in the Let's Go games. 0 to 65535. Changing <c>ivs</c>, <c>evs</c> or <c>avs</c> recalculates Combat Power unless this is also set.</param>
 /// <param name="Moves">PKHeX move ids for all four slots, 0 for an empty slot. All zeros changes nothing.</param>
@@ -275,6 +283,8 @@ public record PokemonPatch(
     int? MetLevel = null,
     string? MetDate = null,
     bool? FatefulEncounter = null,
+    int? Purification = null,
+    bool? IsShadow = null,
     StatPatch? Ivs = null,
     StatPatch? Evs = null,
     StatPatch? Avs = null,
@@ -419,6 +429,9 @@ public static class PokemonMapping
         details.MetLevel,
         details.MetDate?.ToString(DateFormat, CultureInfo.InvariantCulture),
         details.FatefulEncounter,
+        details.IsShadow,
+        details.ShadowId,
+        details.Purification,
         details.Ivs.ToDto(),
         details.Evs.ToDto(),
         details.Avs?.ToDto(),
@@ -460,7 +473,11 @@ public static class PokemonMapping
         patch.Evs?.ToFacade(),
         patch.Avs?.ToFacade(),
         patch.CombatPower,
-        patch.Moves);
+        patch.Moves)
+    {
+        Purification = patch.Purification,
+        IsShadow = patch.IsShadow,
+    };
 
     private static StatValues ToDto(this Facade.Pokemons.StatValues stats) =>
         new(stats.Health, stats.Attack, stats.Defense, stats.SpecialAttack, stats.SpecialDefense, stats.Speed);

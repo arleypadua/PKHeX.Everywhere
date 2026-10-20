@@ -86,6 +86,13 @@ public class GameTests
         Game.EmptyOf(GameVersionRepository.Instance.Get(version)).GameVersionApproximation.Version.Should().Be(version);
 
     [Theory]
+    [InlineData(GameVersion.COLO)]
+    [InlineData(GameVersion.XD)]
+    public void EmptyOf_AGameCubeGame_LoadsBackAfterExport(GameVersion version) =>
+        Game.LoadFrom(Game.EmptyOf(GameVersionRepository.Instance.Get(version)).ToByteArray())
+            .GameVersionApproximation.Version.Should().Be(version);
+
+    [Theory]
     [InlineData(GameVersion.X)]
     [InlineData(GameVersion.Y)]
     [InlineData(GameVersion.OR)]

@@ -27,16 +27,22 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
         {
             for (var i = 0; i < _partyData.Count; i++)
                 if (_snapshot.HasChanged(i, _partyData[i]))
-                    game.SaveFile.SetPartySlotAtIndex(_partyData[i], i, EntityImportSettings.None);
+                    Write(_partyData[i], i);
         }
         else if (_snapshot.AnyChanged(_partyData))
         {
             var members = _partyData.Where(pkm => !Pokemon.IsBlank(pkm)).ToList();
             for (var i = 0; i < MaxPartySize; i++)
-                game.SaveFile.SetPartySlotAtIndex(i < members.Count ? members[i] : game.SaveFile.BlankPKM, i, EntityImportSettings.None);
+                Write(i < members.Count ? members[i] : game.SaveFile.BlankPKM, i);
         }
 
         _snapshot = new SlotSnapshot(_partyData);
+    }
+
+    private void Write(PKM pkm, int slot)
+    {
+        game.SaveFile.SetPartySlotAtIndex(pkm, slot, EntityImportSettings.None);
+        XDShadows.Write(game.SaveFile, pkm);
     }
 
     // Let's Go keeps party members in box storage, so each one also sits at a box index.

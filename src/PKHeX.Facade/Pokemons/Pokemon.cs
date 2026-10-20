@@ -128,6 +128,8 @@ public partial class Pokemon(PKM pokemon, Game game)
         }
     }
 
+    private IShadowCapture? Shadow => pokemon as IShadowCapture;
+
     public ItemDefinition HeldItem
     {
         get => Game.ItemRepository.GetGameItem(Convert.ToUInt16(pokemon.HeldItem));

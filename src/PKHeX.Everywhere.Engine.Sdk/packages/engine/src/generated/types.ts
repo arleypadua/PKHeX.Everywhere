@@ -188,6 +188,12 @@ export interface EditablePokemon {
   metDate: string | null
   /** The fateful encounter flag that event Pokémon carry. */
   fatefulEncounter: boolean
+  /** A shadow Pokémon not yet purified. Null outside Colosseum and XD. */
+  isShadow: boolean | null
+  /** The game's id for the shadow Pokémon it was snagged as, or 0 if it never was one. Null outside Colosseum and XD. */
+  shadowId: number | null
+  /** What is left of its heart gauge. 0 once purified. Null outside Colosseum and XD. */
+  purification: number | null
   /** Individual values: 0 to 31 each, or 0 to 15 in Gen 1 and 2. */
   ivs: StatValues
   /** Effort values: up to 252 each from Gen 6 on, 255 in Gen 3 to 5, 65535 in Gen 1 and 2. */
@@ -840,6 +846,10 @@ export interface PokemonPatch {
   /** A `yyyy-MM-dd` date between 2000 and 2099. */
   metDate?: string | null
   fatefulEncounter?: boolean | null
+  /** Only for a shadow Pokémon in Colosseum and XD. 0 or more. */
+  purification?: number | null
+  /** Only in Colosseum and XD. `false` purifies a shadow Pokémon: its heart gauge goes to 0 and it gets the National Ribbon. A purified Pokémon can't be made a shadow Pokémon again. */
+  isShadow?: boolean | null
   ivs?: StatPatch | null
   evs?: StatPatch | null
   /** Only in the Let's Go games. 0 to 200 each. */

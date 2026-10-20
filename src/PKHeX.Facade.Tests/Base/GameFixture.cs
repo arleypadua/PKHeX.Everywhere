@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using AwesomeAssertions;
 using PKHeX.Core;
 using PKHeX.Facade.Abstractions;
+using PKHeX.Facade.Repositories;
 using PKHeX.Everywhere.RomHacks.Cfru.RadicalRed;
 using PKHeX.Everywhere.RomHacks.Cfru.Unbound;
 using PKHeX.Everywhere.RomHacks.Expansion.HeartAndSoul;
@@ -22,6 +23,20 @@ public static class GameFixture
         reloadedGame.Should().NotBeNull();
 
         afterReload(reloadedGame);
+    }
+
+    public static Game WithShadowPokemon(GameVersion version)
+    {
+        var save = Game.EmptyOf(GameVersionRepository.Instance.Get(version)).SaveFile;
+        IShadowCapture shadow = version == GameVersion.COLO ? new CK3() : new XK3();
+        var pkm = (PKM)shadow;
+        pkm.Species = (ushort)Species.Makuhita;
+        pkm.CurrentLevel = 30;
+        shadow.ShadowID = 10;
+        shadow.Purification = 3000;
+        save.SetBoxSlotAtIndex(pkm, 0);
+
+        return Game.LoadFrom(new Game(save).ToByteArray());
     }
 }
 
