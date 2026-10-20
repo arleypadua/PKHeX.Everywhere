@@ -13,6 +13,7 @@ export const refusalReasons: Record<TransferRefusal, string> = {
   notInGame: "This game doesn't have one of its moves, its held item or its ability.",
   fused: "Pokémon Bank won't take a fused Kyurem.",
   holdingItem: "Poké Transporter won't take it while it holds an item.",
+  shadow: "A shadow Pokémon can't be traded until it's purified.",
 }
 
 const fieldNames: Record<TransferField, string> = {

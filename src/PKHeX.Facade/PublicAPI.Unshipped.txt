@@ -701,3 +701,4 @@ PKHeX.Facade.Pokemons.PokemonPatch.Purification.get -> int?
 PKHeX.Facade.Pokemons.PokemonPatch.Purification.init -> void
 PKHeX.Facade.Pokemons.PokemonPatch.IsShadow.get -> bool?
 PKHeX.Facade.Pokemons.PokemonPatch.IsShadow.init -> void
+PKHeX.Facade.Transfers.TransferRefusal.Shadow = 12 -> PKHeX.Facade.Transfers.TransferRefusal
