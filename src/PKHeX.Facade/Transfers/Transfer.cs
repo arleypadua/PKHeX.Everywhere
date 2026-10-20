@@ -72,7 +72,7 @@ public class Transfer(Game mine, Game partner)
     {
         if (source == target) return [TransferRoute.Link];
         if (IsGameBoy(source) && IsGameBoy(target)) return [TransferRoute.TimeCapsule];
-        if (IsGameCube(source) && target == typeof(PK3) || source == typeof(PK3) && IsGameCube(target)) return [TransferRoute.Link];
+        if ((IsColosseumOrXD(source) && target == typeof(PK3)) || (source == typeof(PK3) && IsColosseumOrXD(target))) return [TransferRoute.Link];
         // Poké Transporter took the Virtual Console games' Pokémon to Pokémon Bank, which let them out only into Gen 7.
         if (source == typeof(PK1) || source == typeof(PK2)) return target == typeof(PK7) ? [TransferRoute.Transporter, TransferRoute.Bank] : null;
 
@@ -323,7 +323,7 @@ public class Transfer(Game mine, Game partner)
 
     private static bool IsStorage(Game game) => IsStadium(game) || game.SaveFile is SAV3RSBox;
 
-    private static bool IsGameCube(Type type) => type == typeof(CK3) || type == typeof(XK3);
+    private static bool IsColosseumOrXD(Type type) => type == typeof(CK3) || type == typeof(XK3);
 
     private static bool IsGameCube(Game game) => game.SaveFile is SAV3Colosseum or SAV3XD or SAV3RSBox;
 

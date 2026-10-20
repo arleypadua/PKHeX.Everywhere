@@ -847,18 +847,20 @@ public class TransferTests
         var mine = GameCube(gameCube, Species.Espeon);
         var partner = Blank(gba);
 
-        var there = new Transfer(mine, partner).Preview(Send(Box(0))).Offers.Single();
-        new Transfer(mine, partner).Commit(Send(Box(0)));
-        var back = new Transfer(partner, mine).Preview(Send(Box(there.ArrivesAt))).Offers.Single();
+        var (sending, returning) = (new Transfer(mine, partner), new Transfer(partner, mine));
+        var there = sending.Commit(Send(Box(0))).Single();
+        var back = returning.Commit(Send(Box(there.BoxIndex))).Single();
 
-        there.Route.Concat(back.Route).Should().Equal(TransferRoute.Link, TransferRoute.Link);
-        (there.Arrives.Pkm.GetType(), back.Arrives.Pkm.GetType(), back.Arrives.Species.Name).Should().Be((typeof(PK3), mine.SaveFile.PKMType, "Espeon"));
+        sending.SendRoute!.Concat(returning.SendRoute!).Should().Equal(TransferRoute.Link, TransferRoute.Link);
+        (there.Pokemon.Pkm.GetType(), back.Pokemon.Pkm.GetType(), back.Pokemon.Species.Name).Should().Be((typeof(PK3), mine.SaveFile.PKMType, "Espeon"));
     }
 
     [Fact]
     public void AShadowPokemonCantBeTraded()
     {
-        var colosseum = GameCube(GameVersion.COLO, Species.Makuhita, pokemon => (((CK3)pokemon).ShadowID, ((CK3)pokemon).Purification) = (1, 3000));
+        var colosseum = GameCube(GameVersion.COLO, Species.Makuhita);
+        var shadow = (CK3)colosseum.Trainer.PokemonBox.All[0].Pkm;
+        (shadow.ShadowID, shadow.Purification) = (1, 3000);
 
         new Transfer(colosseum, Blank(GameVersion.E)).Preview(Send(Box(0))).Refused
             .Should().Equal(new RefusedPokemon(TransferDirection.Send, Box(0), TransferRefusal.Shadow));
@@ -876,7 +878,7 @@ public class TransferTests
         (stored.Pokemon.Species.Name, back.Species.Name, back.Friendship).Should().Be(("Kadabra", "Kadabra", 200));
     }
 
-    private static Game GameCube(GameVersion version, Species species, Action<PKM>? edit = null)
+    private static Game GameCube(GameVersion version, Species species)
     {
         var save = GameCubeSaves.Blank(version)!;
         var pokemon = save.BlankPKM;
@@ -887,7 +889,6 @@ public class TransferTests
         pokemon.OriginalTrainerName = "WES";
         pokemon.Version = GameVersion.CXD;
         pokemon.ClearNickname();
-        edit?.Invoke(pokemon);
         save.SetBoxSlotAtIndex(pokemon, 0, EntityImportSettings.None);
         return new Game(save);
     }

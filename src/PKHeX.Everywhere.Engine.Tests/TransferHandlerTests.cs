@@ -207,10 +207,6 @@ public class TransferHandlerTests
     }
 
     [Fact]
-    public void ColosseumTradesWithEmeraldByLink() =>
-        Open(Blank(GameVersion.COLO), SaveFilePath.Emerald)["routes"]!.ToJsonString().Should().Be("""{"send":["link"],"receive":["link"]}""");
-
-    [Fact]
     public void AShadowPokemonIsRefused()
     {
         var session = Blank(GameVersion.COLO, Species.Makuhita, Move.Tackle);
