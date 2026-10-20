@@ -207,6 +207,21 @@ public class TransferHandlerTests
     }
 
     [Fact]
+    public void ColosseumTradesWithEmeraldByLink() =>
+        Open(Blank(GameVersion.COLO), SaveFilePath.Emerald)["routes"]!.ToJsonString().Should().Be("""{"send":["link"],"receive":["link"]}""");
+
+    [Fact]
+    public void AShadowPokemonIsRefused()
+    {
+        var session = Blank(GameVersion.COLO, Species.Makuhita, Move.Tackle);
+        var shadow = (CK3)session.Game!.Trainer.PokemonBox.All[0].Pkm;
+        (shadow.ShadowID, shadow.Purification) = (1, 3000);
+        Open(session, SaveFilePath.Emerald);
+
+        Preview(session, Send(PokemonHandle.InBox(0, 0)))["refused"]![0]!["reason"]!.GetValue<string>().Should().Be("shadow");
+    }
+
+    [Fact]
     public void BankRefusesAFusedKyurem()
     {
         var session = Blank(GameVersion.X, Species.Kyurem, Move.FusionFlare, form: 1);

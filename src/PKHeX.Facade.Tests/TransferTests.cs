@@ -810,6 +810,88 @@ public class TransferTests
         new Transfer(partner, stadium).Preview(new TransferOffer([], [Box(0)])).Offers.Single().Arrives.Species.Name.Should().Be("Haunter");
     }
 
+    [Theory]
+    [InlineData(GameVersion.COLO, GameVersion.R)]
+    [InlineData(GameVersion.COLO, GameVersion.S)]
+    [InlineData(GameVersion.COLO, GameVersion.E)]
+    [InlineData(GameVersion.COLO, GameVersion.FR)]
+    [InlineData(GameVersion.COLO, GameVersion.LG)]
+    [InlineData(GameVersion.XD, GameVersion.E)]
+    [InlineData(GameVersion.XD, GameVersion.FR)]
+    [InlineData(GameVersion.RSBOX, GameVersion.E)]
+    public void TheGameCubeGamesTradeWithTheGbaGamesByLink(GameVersion gameCube, GameVersion gba)
+    {
+        var transfer = new Transfer(Blank(gameCube), Blank(gba));
+
+        transfer.SendRoute.Should().Equal(TransferRoute.Link);
+        transfer.ReceiveRoute.Should().Equal(TransferRoute.Link);
+    }
+
+    [Theory]
+    [InlineData(GameVersion.COLO, GameVersion.XD)]
+    [InlineData(GameVersion.COLO, GameVersion.RSBOX)]
+    [InlineData(GameVersion.XD, GameVersion.RSBOX)]
+    public void TheGameCubeGamesDontTradeWithEachOther(GameVersion mine, GameVersion partner)
+    {
+        var transfer = new Transfer(Blank(mine), Blank(partner));
+
+        transfer.SendRoute.Should().Equal(TransferRoute.Unofficial);
+        transfer.ReceiveRoute.Should().Equal(TransferRoute.Unofficial);
+    }
+
+    [Theory]
+    [InlineData(GameVersion.COLO, GameVersion.E)]
+    [InlineData(GameVersion.XD, GameVersion.FR)]
+    public void APokemonMovesFromAGameCubeGameToAGbaGameAndBackByLink(GameVersion gameCube, GameVersion gba)
+    {
+        var mine = GameCube(gameCube, Species.Espeon);
+        var partner = Blank(gba);
+
+        var there = new Transfer(mine, partner).Preview(Send(Box(0))).Offers.Single();
+        new Transfer(mine, partner).Commit(Send(Box(0)));
+        var back = new Transfer(partner, mine).Preview(Send(Box(there.ArrivesAt))).Offers.Single();
+
+        there.Route.Concat(back.Route).Should().Equal(TransferRoute.Link, TransferRoute.Link);
+        (there.Arrives.Pkm.GetType(), back.Arrives.Pkm.GetType(), back.Arrives.Species.Name).Should().Be((typeof(PK3), mine.SaveFile.PKMType, "Espeon"));
+    }
+
+    [Fact]
+    public void AShadowPokemonCantBeTraded()
+    {
+        var colosseum = GameCube(GameVersion.COLO, Species.Makuhita, pokemon => (((CK3)pokemon).ShadowID, ((CK3)pokemon).Purification) = (1, 3000));
+
+        new Transfer(colosseum, Blank(GameVersion.E)).Preview(Send(Box(0))).Refused
+            .Should().Equal(new RefusedPokemon(TransferDirection.Send, Box(0), TransferRefusal.Shadow));
+    }
+
+    [Fact]
+    public void StoringInPokemonBoxIsntATrade()
+    {
+        var emerald = Emerald(new PK3 { Species = (ushort)Species.Kadabra, CurrentLevel = 30, Move1 = (ushort)Move.Confusion, OriginalTrainerFriendship = 200, Language = (int)LanguageID.English });
+        var box = Blank(GameVersion.RSBOX);
+
+        var stored = new Transfer(emerald, box).Commit(Send(Box(0))).Single();
+        var back = new Transfer(box, emerald).Commit(Send(Box(stored.BoxIndex))).Single().Pokemon;
+
+        (stored.Pokemon.Species.Name, back.Species.Name, back.Friendship).Should().Be(("Kadabra", "Kadabra", 200));
+    }
+
+    private static Game GameCube(GameVersion version, Species species, Action<PKM>? edit = null)
+    {
+        var save = GameCubeSaves.Blank(version)!;
+        var pokemon = save.BlankPKM;
+        pokemon.Species = (ushort)species;
+        pokemon.CurrentLevel = 30;
+        pokemon.Move1 = (ushort)Move.Tackle;
+        pokemon.Language = (int)LanguageID.English;
+        pokemon.OriginalTrainerName = "WES";
+        pokemon.Version = GameVersion.CXD;
+        pokemon.ClearNickname();
+        edit?.Invoke(pokemon);
+        save.SetBoxSlotAtIndex(pokemon, 0, EntityImportSettings.None);
+        return new Game(save);
+    }
+
     private static List<string?> BoxSpecies(Game game) => game.Trainer.PokemonBox.All.Take(3).Select(p => p.IsEmpty ? null : p.Species.Name).ToList();
 
     private static (Game Game, Func<Memory<byte>, SAV_STADIUM> Load) Stadium(int generation, params Species[] boxed)
@@ -960,7 +1042,7 @@ public class TransferTests
         return new Game(save);
     }
 
-    private static Game Blank(GameVersion version) => new(BlankSaveFile.Get(version));
+    private static Game Blank(GameVersion version) => new(GameCubeSaves.Blank(version) ?? BlankSaveFile.Get(version));
 
     private static Game Boxed(GameVersion version, Species species, byte form = 0, Move move = Move.ShadowBall, int item = 0, Move relearn = Move.None)
     {

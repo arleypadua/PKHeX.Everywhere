@@ -105,6 +105,7 @@ public enum TransferDirection
 /// <c>conversionFailed</c>: PKHeX can't convert it to the destination's format.
 /// <c>notInGame</c>: the destination game doesn't have one of its moves, its held item or its ability, such as a move from Omega Ruby traded to X.
 /// <c>fused</c>: Pokémon Bank won't take a Kyurem fused with Reshiram or Zekrom. <c>holdingItem</c>: Poké Transporter won't take a Generation 2 Pokémon holding an item.
+/// <c>shadow</c>: Colosseum and XD won't trade a shadow Pokémon until it's purified.
 /// </remarks>
 public enum TransferRefusal
 {
@@ -120,6 +121,7 @@ public enum TransferRefusal
     NotInGame,
     Fused,
     HoldingItem,
+    Shadow,
 }
 
 /// <summary>
@@ -299,6 +301,7 @@ public static class TransferMapping
         Transfers.TransferRefusal.NotInGame => TransferRefusal.NotInGame,
         Transfers.TransferRefusal.Fused => TransferRefusal.Fused,
         Transfers.TransferRefusal.HoldingItem => TransferRefusal.HoldingItem,
+        Transfers.TransferRefusal.Shadow => TransferRefusal.Shadow,
         _ => throw new ArgumentOutOfRangeException(nameof(refusal), refusal, null),
     };
 

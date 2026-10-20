@@ -33,6 +33,7 @@ public enum TransferRefusal
     NotInGame,
     Fused,
     HoldingItem,
+    Shadow,
 }
 
 public enum TransferField

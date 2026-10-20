@@ -27,6 +27,8 @@ public class Transfer(Game mine, Game partner)
         if (!HasRoutes(from) || !HasRoutes(to)) return null;
         // Poké Transporter reached only the Virtual Console games, never a Stadium.
         if (IsStadium(from) && !IsGameBoy(to.SaveFile.PKMType)) return [TransferRoute.Unofficial];
+        // Pokémon Box holds Pokémon as the GBA games do, but no GameCube game traded with another.
+        if (IsGameCube(from) && IsGameCube(to) && from.SaveFile.PKMType != to.SaveFile.PKMType) return [TransferRoute.Unofficial];
         return OfficialRoute(from.SaveFile.PKMType, to.SaveFile.PKMType) ?? [TransferRoute.Unofficial];
     }
 
@@ -70,6 +72,7 @@ public class Transfer(Game mine, Game partner)
     {
         if (source == target) return [TransferRoute.Link];
         if (IsGameBoy(source) && IsGameBoy(target)) return [TransferRoute.TimeCapsule];
+        if (IsGameCube(source) && target == typeof(PK3) || source == typeof(PK3) && IsGameCube(target)) return [TransferRoute.Link];
         // Poké Transporter took the Virtual Console games' Pokémon to Pokémon Bank, which let them out only into Gen 7.
         if (source == typeof(PK1) || source == typeof(PK2)) return target == typeof(PK7) ? [TransferRoute.Transporter, TransferRoute.Bank] : null;
 
@@ -188,6 +191,7 @@ public class Transfer(Game mine, Game partner)
             {
                 null => TransferRefusal.NoRoute,
                 _ when slot.Source == PokemonSource.Box && from.SaveFile.IsBoxSlotOverwriteProtected(slot.Index) => TransferRefusal.SlotLocked,
+                _ when pokemon.Pkm is IShadowCapture { IsShadow: true } => TransferRefusal.Shadow,
                 not [TransferRoute.Link] when pokemon.Pkm.IsEgg => TransferRefusal.EggAcrossGenerations,
                 _ when !IsLanguageCompatible(pokemon, to) => TransferRefusal.LanguageMismatch,
                 _ when Travel(leaving, stops, out converted, out hopChanges, out taken) is { } failed => failed,
@@ -208,10 +212,11 @@ public class Transfer(Game mine, Game partner)
             var received = converted!.Clone();
             // PKHeX's rules for receiving and evolving are the official games', which a hack may not follow.
             var sameHack = from.Format is not null && from.Format.Id == to.Format?.Id;
-            if (!sameHack) TransferEffects.Receive(received.Pkm, arriving);
+            // Storing a Pokémon in a Stadium or Pokémon Box isn't a trade, so nothing evolves on the way in or out.
+            var traded = !sameHack && !IsStorage(from) && !IsStorage(to);
+            if (traded) TransferEffects.Receive(received.Pkm, arriving);
             var evolved = received.Clone();
-            // Storing a Pokémon in a Stadium isn't a trade, so nothing evolves on the way in or out.
-            if (!sameHack && !IsStadium(from) && !IsStadium(to)) TransferEffects.Evolve(evolved.Pkm, to, arriving);
+            if (traded) TransferEffects.Evolve(evolved.Pkm, to, arriving);
             var given = arrivals.FirstOrDefault(a => a.Direction == direction && a.At == slot);
             var arrives = given is null ? evolved : Arrival(given, to);
 
@@ -315,6 +320,12 @@ public class Transfer(Game mine, Game partner)
     private static bool IsGameBoy(Type type) => type == typeof(PK1) || type == typeof(PK2) || type == typeof(SK2);
 
     private static bool IsStadium(Game game) => game.SaveFile is SAV_STADIUM;
+
+    private static bool IsStorage(Game game) => IsStadium(game) || game.SaveFile is SAV3RSBox;
+
+    private static bool IsGameCube(Type type) => type == typeof(CK3) || type == typeof(XK3);
+
+    private static bool IsGameCube(Game game) => game.SaveFile is SAV3Colosseum or SAV3XD or SAV3RSBox;
 
     // ConvertToType doesn't check it, so a Japanese Gen 1 or 2 Pokémon would convert into an international save.
     private static bool IsLanguageCompatible(Pokemon pokemon, Game to) =>
