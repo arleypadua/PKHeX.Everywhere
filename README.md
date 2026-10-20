@@ -10,6 +10,7 @@ PKHeX.Web also opens saves from these ROM hacks:
 - Pokémon Radical Red
 - Emerald Imperium
 - Pokémon Emerald Legacy
+- Pokémon Heart & Soul
 
 ROM hack support is experimental. Keep a backup of your save.
 
