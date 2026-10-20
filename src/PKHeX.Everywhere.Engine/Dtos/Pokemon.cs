@@ -147,9 +147,9 @@ public enum PokemonHandler
 /// <param name="MetLocation">Location id from the origin game's list. See <c>metLocations</c> in <c>pokemon.options()</c>.</param>
 /// <param name="MetDate">Date it was met, as <c>yyyy-MM-dd</c>. Null when the game stores none.</param>
 /// <param name="FatefulEncounter">The fateful encounter flag that event Pokémon carry.</param>
-/// <param name="IsShadow">A shadow Pokémon not yet purified. Null outside Colosseum and XD.</param>
+/// <param name="IsShadow">A shadow Pokémon not yet purified. Null outside Colosseum and XD, and for an XD shadow Pokémon read by <c>pokemon.read</c>, since XD keeps it in the save.</param>
 /// <param name="ShadowId">The game's id for the shadow Pokémon it was snagged as, or 0 if it never was one. Null outside Colosseum and XD.</param>
-/// <param name="Purification">What is left of its heart gauge. 0 once purified. Null outside Colosseum and XD.</param>
+/// <param name="Purification">What is left of its heart gauge. 0 once purified. Null outside Colosseum and XD, and for an XD shadow Pokémon read by <c>pokemon.read</c>, since XD keeps it in the save.</param>
 /// <param name="Ivs">Individual values: 0 to 31 each, or 0 to 15 in Gen 1 and 2.</param>
 /// <param name="Evs">Effort values: up to 252 each from Gen 6 on, 255 in Gen 3 to 5, 65535 in Gen 1 and 2.</param>
 /// <param name="Avs">Awakening values, 0 to 200 each. Null outside the Let's Go games.</param>

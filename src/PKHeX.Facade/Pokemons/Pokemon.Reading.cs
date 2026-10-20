@@ -11,7 +11,7 @@ public partial class Pokemon
     /// Colosseum and XD keep theirs unencrypted, as CK3 and XK3.
     /// Nothing is written to a save, and the details hold no legality report.
     /// Party bytes read at the level the game stores in them, box bytes at the level their EXP gives.
-    /// XD keeps whether a shadow Pokémon is purified, and its purification, in the save, so both are null.
+    /// XD keeps shadow state in the save, so for an XD shadow Pokémon <see cref="PokemonDetails.IsShadow"/> and <see cref="PokemonDetails.Purification"/> are null.
     /// </summary>
     /// <exception cref="UnreadablePokemonException">The bytes or the version can't be read as a Pokémon.</exception>
     public static PokemonDetails Read(byte[] bytes, int version)
@@ -23,7 +23,7 @@ public partial class Pokemon
             ?? throw new UnreadablePokemonException(UnreadableReason.CombinedVersion, $"Version {version} isn't a single game.");
 
         var game = Game.EmptyOf(definition);
-        var pkm = Decrypted(bytes, game.SaveFile.PKMType, definition);
+        var pkm = FromMemory(bytes, game.SaveFile.PKMType, definition);
 
         if (!pkm.ChecksumValid || !pkm.Valid || pkm is PK3 { FlagIsBadEgg: true } || IsBlank(pkm) || !game.SpeciesRepository.Knows(pkm.Species))
             throw new UnreadablePokemonException(UnreadableReason.BadChecksum, "The bytes aren't a Pokémon.");
@@ -96,7 +96,7 @@ public partial class Pokemon
         version is GameVersion.COLO or GameVersion.XD || version.Generation is 3 or 4 or 5;
 
     // Gen 3 to 5 bytes always arrive encrypted, so they're decrypted outright: PKHeX's constructors guess from the data and can skip it.
-    private static PKM Decrypted(byte[] bytes, Type type, GameVersionDefinition definition)
+    private static PKM FromMemory(byte[] bytes, Type type, GameVersionDefinition definition)
     {
         var data = bytes.ToArray();
         PKM pkm;
@@ -143,7 +143,7 @@ public partial class Pokemon
 /// </summary>
 public enum UnreadableReason
 {
-    /// <summary>The checksum doesn't match, the species is empty or unknown, or it's a Gen 3 bad egg. For Colosseum and XD, which have no checksum, the bytes are flagged invalid.</summary>
+    /// <summary>The checksum doesn't match, the species is empty or unknown, it's a Gen 3 bad egg, or Colosseum or XD flag it invalid.</summary>
     BadChecksum,
     CombinedVersion,
     WrongLength,

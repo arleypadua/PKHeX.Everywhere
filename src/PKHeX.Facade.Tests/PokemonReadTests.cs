@@ -110,7 +110,7 @@ public class PokemonReadTests
     [InlineData((int)GameVersion.BATREV)]
     [InlineData(-1)]
     [InlineData(256 + (int)GameVersion.E)]
-    public void RejectsAVersionOutsideGen3To5(int version) =>
+    public void RejectsAVersionItCannotRead(int version) =>
         Failure(() => Pokemon.Read(new byte[100], version)).Should().Be(UnreadableReason.UnsupportedVersion);
 
     [Theory]

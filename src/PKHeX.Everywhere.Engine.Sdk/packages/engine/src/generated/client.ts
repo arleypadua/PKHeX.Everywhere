@@ -189,7 +189,7 @@ export interface EngineClient {
     /** Requires a loaded save; throws `no-save` otherwise. */
     options(at: PokemonHandle): Promise<PokemonOptions>
     /**
-     * Reads one Gen 3, 4 or 5, Colosseum or XD Pokémon from bytes taken from a running game, without a loaded save. Nothing is written, and `legality` is null. Bytes that aren't a Pokémon, such as all zeros, an empty species or a Gen 3 bad egg, fail with `bad-checksum`. From party bytes, `level` is the level the game stores and shows. Box bytes have no level, so theirs comes from the Pokémon's EXP. XD keeps whether a shadow Pokémon is purified, and its purification, in the save, so for an XD shadow Pokémon `isShadow` and `purification` are null.
+     * Reads one Gen 3, 4 or 5, Colosseum or XD Pokémon from bytes taken from a running game, without a loaded save. Nothing is written, and `legality` is null. Bytes that aren't a Pokémon, such as all zeros, an empty species or a Gen 3 bad egg, fail with `bad-checksum`. From party bytes, `level` is the level the game stores and shows. Box bytes have no level, so theirs comes from the Pokémon's EXP. XD keeps shadow state in the save, so for an XD shadow Pokémon `isShadow` and `purification` are null.
      *
      * @param bytes The Pokémon as the game keeps it: encrypted and shuffled, in its party (100-byte PK3, 236-byte PK4, 220-byte PK5) or box (80-byte PK3, 136-byte PK4 or PK5) layout. Colosseum and XD keep theirs unencrypted, in 312-byte CK3 and 196-byte XK3. Another length fails with `bad-arguments`.
      * @param version The PKHeX game version id the bytes come from. A combined version, such as FireRed/LeafGreen, fails with `bad-arguments`, and a game outside Gen 3 to 5, Colosseum and XD with `not-supported`.

@@ -24,7 +24,7 @@ public static class PokemonHandlers
     /// Reads one Gen 3, 4 or 5, Colosseum or XD Pokémon from bytes taken from a running game, without a loaded save. Nothing is written, and <c>legality</c> is null.
     /// Bytes that aren't a Pokémon, such as all zeros, an empty species or a Gen 3 bad egg, fail with <c>bad-checksum</c>.
     /// From party bytes, <c>level</c> is the level the game stores and shows. Box bytes have no level, so theirs comes from the Pokémon's EXP.
-    /// XD keeps whether a shadow Pokémon is purified, and its purification, in the save, so for an XD shadow Pokémon <c>isShadow</c> and <c>purification</c> are null.
+    /// XD keeps shadow state in the save, so for an XD shadow Pokémon <c>isShadow</c> and <c>purification</c> are null.
     /// </summary>
     /// <param name="bytes">The Pokémon as the game keeps it: encrypted and shuffled, in its party (100-byte PK3, 236-byte PK4, 220-byte PK5) or box (80-byte PK3, 136-byte PK4 or PK5) layout. Colosseum and XD keep theirs unencrypted, in 312-byte CK3 and 196-byte XK3. Another length fails with <c>bad-arguments</c>.</param>
     /// <param name="version">The PKHeX game version id the bytes come from. A combined version, such as FireRed/LeafGreen, fails with <c>bad-arguments</c>, and a game outside Gen 3 to 5, Colosseum and XD with <c>not-supported</c>.</param>

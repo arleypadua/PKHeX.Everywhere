@@ -188,11 +188,11 @@ export interface EditablePokemon {
   metDate: string | null
   /** The fateful encounter flag that event Pokémon carry. */
   fatefulEncounter: boolean
-  /** A shadow Pokémon not yet purified. Null outside Colosseum and XD. */
+  /** A shadow Pokémon not yet purified. Null outside Colosseum and XD, and for an XD shadow Pokémon read by `pokemon.read`, since XD keeps it in the save. */
   isShadow: boolean | null
   /** The game's id for the shadow Pokémon it was snagged as, or 0 if it never was one. Null outside Colosseum and XD. */
   shadowId: number | null
-  /** What is left of its heart gauge. 0 once purified. Null outside Colosseum and XD. */
+  /** What is left of its heart gauge. 0 once purified. Null outside Colosseum and XD, and for an XD shadow Pokémon read by `pokemon.read`, since XD keeps it in the save. */
   purification: number | null
   /** Individual values: 0 to 31 each, or 0 to 15 in Gen 1 and 2. */
   ivs: StatValues
