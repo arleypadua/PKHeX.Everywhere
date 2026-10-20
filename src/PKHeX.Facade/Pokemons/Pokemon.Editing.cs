@@ -56,6 +56,9 @@ public partial class Pokemon
         SpeciesIndex = SpeciesIndex,
         HeldItemIndex = HeldItemIndex,
         EvolutionFamily = EvolutionFamily,
+        IsShadow = Shadow?.IsShadow,
+        ShadowId = Shadow?.ShadowID,
+        Purification = Shadow is { } shadow ? Math.Max(shadow.Purification, 0) : null,
     };
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices())
@@ -107,6 +110,8 @@ public partial class Pokemon
         if (patch.MetLevel is { } metLevel) ApplyMetLevel(metLevel);
         if (patch.MetDate is { } metDate) ApplyMetDate(metDate);
         if (patch.FatefulEncounter is { } fatefulEncounter) ApplyFatefulEncounter(fatefulEncounter);
+        if (patch.Purification is { } purification) ApplyPurification(purification);
+        if (patch.IsShadow is { } isShadow) ApplyIsShadow(isShadow);
         if (patch.Ivs is { } ivs) ApplyStats(ivs, nameof(PokemonPatch.Ivs), "IV", Pkm.MaxIV, (index, value) => Pkm.SetIV(index, value), Pkm.GetIV);
         if (patch.Evs is { } evs) ApplyStats(evs, nameof(PokemonPatch.Evs), "EV", Pkm.MaxEV, (index, value) => Pkm.SetEV(index, value), Pkm.GetEV);
         if (patch.Avs is { } avs) ApplyAvs(avs);
@@ -325,6 +330,34 @@ public partial class Pokemon
     {
         Pkm.FatefulEncounter = fatefulEncounter;
         Require(Pkm.FatefulEncounter == fatefulEncounter, nameof(PokemonPatch.FatefulEncounter), "Fateful encounters aren't stored in this game.");
+    }
+
+    private void ApplyPurification(int purification)
+    {
+        Require(Shadow is not null, nameof(PokemonPatch.Purification), "Shadow Pokémon aren't in this game.");
+        Require(Shadow!.IsShadow, nameof(PokemonPatch.Purification), $"{Species.Name} isn't a shadow Pokémon.");
+        Require(purification >= 0, nameof(PokemonPatch.Purification), $"Purification must be 0 or more, got {purification}.");
+        Shadow.Purification = purification;
+    }
+
+    private void ApplyIsShadow(bool isShadow)
+    {
+        Require(Shadow is not null, nameof(PokemonPatch.IsShadow), "Shadow Pokémon aren't in this game.");
+        if (Shadow!.IsShadow == isShadow) return;
+        Require(!isShadow, nameof(PokemonPatch.IsShadow), $"{Species.Name} can't become a shadow Pokémon.");
+
+        switch (Pkm)
+        {
+            case CK3 ck3:
+                ck3.Purification = CK3.Purified;
+                break;
+            case XK3 xk3:
+                XDShadows.Purify(xk3);
+                break;
+        }
+
+        // The game awards the National Ribbon on purification, and PKHeX's legality check expects it.
+        if (Pkm is IRibbonSetEvent3 ribbons) ribbons.RibbonNational = true;
     }
 
     private void ApplyAvs(StatPatch avs)

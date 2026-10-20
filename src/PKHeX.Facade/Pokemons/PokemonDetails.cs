@@ -54,6 +54,10 @@ public record PokemonDetails(
     /// The National Pokédex number of the first species in its evolution family: 1 for Bulbasaur, Ivysaur and Venusaur.
     /// </summary>
     public int EvolutionFamily { get; init; }
+
+    public bool? IsShadow { get; init; }
+    public int? ShadowId { get; init; }
+    public int? Purification { get; init; }
 }
 
 public record StatValues(int Health, int Attack, int Defense, int SpecialAttack, int SpecialDefense, int Speed);
@@ -99,7 +103,11 @@ public record PokemonPatch(
     StatPatch? Evs = null,
     StatPatch? Avs = null,
     int? CombatPower = null,
-    IReadOnlyList<int>? Moves = null);
+    IReadOnlyList<int>? Moves = null)
+{
+    public int? Purification { get; init; }
+    public bool? IsShadow { get; init; }
+}
 
 public record StatPatch(
     int? Health = null,

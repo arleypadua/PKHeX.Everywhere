@@ -52,13 +52,19 @@ public class PokemonBox : IMutablePokemonCollection
     {
         for (var index = 0; index < _pokemonList.Count; index++)
             if (_snapshot.HasChanged(index, _pokemonList[index].Pkm) && !_game.SaveFile.IsBoxSlotOverwriteProtected(index))
-                _game.SaveFile.SetBoxSlotAtIndex(_pokemonList[index].Pkm, index, EntityImportSettings.None);
+                Write(_pokemonList[index].Pkm, index);
 
         foreach (var (index, pkm) in _party.BoxedMembers())
             if (_snapshot.HasChanged(index, pkm))
-                _game.SaveFile.SetBoxSlotAtIndex(pkm, index, EntityImportSettings.None);
+                Write(pkm, index);
 
         TakeSnapshot();
+    }
+
+    private void Write(PKM pkm, int index)
+    {
+        _game.SaveFile.SetBoxSlotAtIndex(pkm, index, EntityImportSettings.None);
+        XDShadows.Write(_game.SaveFile, pkm);
     }
 
     public bool AddOnEmptySlot(Pokemon pokemon) => AddOnEmptySlot(pokemon, out _);

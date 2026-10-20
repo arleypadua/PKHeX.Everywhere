@@ -691,3 +691,13 @@ PKHeX.Facade.Transfers.TransferChangeReason.Unofficial = 14 -> PKHeX.Facade.Tran
 PKHeX.Facade.FormatChoiceRequiredException.FormatChoiceRequiredException(System.Collections.Generic.IReadOnlyList<PKHeX.Facade.Abstractions.ISaveFormat!>! candidates, string? pkhexGame) -> void
 PKHeX.Facade.FormatChoiceRequiredException.PKHeXGame.get -> string?
 PKHeX.Facade.Repositories.PokemonRepository.DefaultEncounterVersion() -> PKHeX.Facade.Repositories.GameVersionDefinition!
+PKHeX.Facade.Pokemons.PokemonDetails.IsShadow.get -> bool?
+PKHeX.Facade.Pokemons.PokemonDetails.IsShadow.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.ShadowId.get -> int?
+PKHeX.Facade.Pokemons.PokemonDetails.ShadowId.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Purification.get -> int?
+PKHeX.Facade.Pokemons.PokemonDetails.Purification.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Purification.get -> int?
+PKHeX.Facade.Pokemons.PokemonPatch.Purification.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.IsShadow.get -> bool?
+PKHeX.Facade.Pokemons.PokemonPatch.IsShadow.init -> void
