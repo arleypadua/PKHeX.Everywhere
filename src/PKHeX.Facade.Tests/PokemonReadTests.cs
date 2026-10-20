@@ -107,13 +107,83 @@ public class PokemonReadTests
     [InlineData((int)GameVersion.C)]
     [InlineData((int)GameVersion.X)]
     [InlineData((int)GameVersion.SWSH)]
-    [InlineData((int)GameVersion.COLO)]
-    [InlineData((int)GameVersion.XD)]
     [InlineData((int)GameVersion.BATREV)]
     [InlineData(-1)]
     [InlineData(256 + (int)GameVersion.E)]
-    public void RejectsAVersionOutsideGen3To5(int version) =>
+    public void RejectsAVersionItCannotRead(int version) =>
         Failure(() => Pokemon.Read(new byte[100], version)).Should().Be(UnreadableReason.UnsupportedVersion);
+
+    [Theory]
+    [InlineData(GameVersion.COLO)]
+    [InlineData(GameVersion.XD)]
+    public void ReadsAColosseumOrXDPokemonAsItsGameStoresIt(GameVersion version)
+    {
+        var pokemon = GameCubeLead(version);
+
+        var details = Pokemon.Read(pokemon.ToFile().Bytes, (int)version);
+
+        details.Should().BeEquivalentTo(new
+        {
+            Species = (int)Species.Makuhita,
+            Level = 31,
+            Nature = (int)Nature.Adamant,
+            Ability = (int)Ability.ThickFat,
+        });
+        details.Moves.Select(m => m.Id).Should().Equal((int)Move.Tackle, (int)Move.BulkUp, 0, 0);
+    }
+
+    [Fact]
+    public void ReadsTheShadowFieldsOfAColosseumPokemon() =>
+        Pokemon.Read(GameCubeLead(GameVersion.COLO).ToFile().Bytes, (int)GameVersion.COLO)
+            .Should().BeEquivalentTo(new { IsShadow = true, ShadowId = 10, Purification = 3000 });
+
+    [Fact]
+    public void ReadsAnXDShadowPokemonWithoutTheStateItsSaveKeeps() =>
+        Pokemon.Read(GameCubeLead(GameVersion.XD).ToFile().Bytes, (int)GameVersion.XD)
+            .Should().BeEquivalentTo(new { IsShadow = (bool?)null, ShadowId = 10, Purification = (int?)null });
+
+    [Theory]
+    [InlineData(GameVersion.COLO, 312)]
+    [InlineData(GameVersion.XD, 196)]
+    public void RejectsAllZeroColosseumOrXDBytes(GameVersion version, int length) =>
+        Failure(() => Pokemon.Read(new byte[length], (int)version)).Should().Be(UnreadableReason.BadChecksum);
+
+    [Theory]
+    [InlineData(GameVersion.COLO)]
+    [InlineData(GameVersion.XD)]
+    public void RejectsAColosseumOrXDSpeciesOutOfRange(GameVersion version)
+    {
+        var bytes = GameCubeLead(version).ToFile().Bytes;
+        bytes[0] = 0xFF;
+        bytes[1] = 0xFF;
+
+        Failure(() => Pokemon.Read(bytes, (int)version)).Should().Be(UnreadableReason.BadChecksum);
+    }
+
+    [Theory]
+    [InlineData(GameVersion.COLO, 196)]
+    [InlineData(GameVersion.XD, 312)]
+    [InlineData(GameVersion.XD, 100)]
+    public void RejectsALengthThatDoesNotFitColosseumOrXD(GameVersion version, int length) =>
+        Failure(() => Pokemon.Read(new byte[length], (int)version)).Should().Be(UnreadableReason.WrongLength);
+
+    private static Pokemon GameCubeLead(GameVersion version)
+    {
+        var game = Game.EmptyOf(GameVersionRepository.Instance.Get(version));
+        IShadowCapture shadow = version == GameVersion.COLO ? new CK3() : new XK3();
+        var pkm = (PKM)shadow;
+        pkm.Species = (ushort)Species.Makuhita;
+        pkm.PID = 3;
+        pkm.AbilityNumber = 1;
+        pkm.Move1 = (ushort)Move.Tackle;
+        pkm.Move2 = (ushort)Move.BulkUp;
+        pkm.CurrentLevel = 30;
+        pkm.ResetPartyStats();
+        pkm.Stat_Level = 31;
+        shadow.ShadowID = 10;
+        shadow.Purification = 3000;
+        return new Pokemon(pkm, game);
+    }
 
     private static Pokemon Lead(GameVersion version) => version switch
     {

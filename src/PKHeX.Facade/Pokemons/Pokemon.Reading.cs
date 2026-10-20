@@ -8,25 +8,28 @@ public partial class Pokemon
 {
     /// <summary>
     /// Reads one Gen 3, 4 or 5 Pokémon as its game keeps it in memory: encrypted and shuffled, in its party or box layout.
+    /// Colosseum and XD keep theirs unencrypted, as CK3 and XK3.
     /// Nothing is written to a save, and the details hold no legality report.
     /// Party bytes read at the level the game stores in them, box bytes at the level their EXP gives.
+    /// XD keeps shadow state in the save, so for an XD shadow Pokémon <see cref="PokemonDetails.IsShadow"/> and <see cref="PokemonDetails.Purification"/> are null.
     /// </summary>
     /// <exception cref="UnreadablePokemonException">The bytes or the version can't be read as a Pokémon.</exception>
     public static PokemonDetails Read(byte[] bytes, int version)
     {
-        if (version is < 0 or > byte.MaxValue || ((GameVersion)version).Generation is not (3 or 4 or 5))
-            throw new UnreadablePokemonException(UnreadableReason.UnsupportedVersion, $"Version {version} isn't a Gen 3, 4 or 5 game.");
+        if (version is < 0 or > byte.MaxValue || !IsReadable((GameVersion)version))
+            throw new UnreadablePokemonException(UnreadableReason.UnsupportedVersion, $"Version {version} isn't a Gen 3, 4 or 5 game, Colosseum or XD.");
 
         var definition = GameVersionRepository.Instance.FindBlank(version)
             ?? throw new UnreadablePokemonException(UnreadableReason.CombinedVersion, $"Version {version} isn't a single game.");
 
         var game = Game.EmptyOf(definition);
-        var pkm = Decrypted(bytes, game.SaveFile.PKMType, definition);
+        var pkm = FromMemory(bytes, game.SaveFile.PKMType, definition);
 
         if (!pkm.ChecksumValid || !pkm.Valid || pkm is PK3 { FlagIsBadEgg: true } || IsBlank(pkm) || !game.SpeciesRepository.Knows(pkm.Species))
             throw new UnreadablePokemonException(UnreadableReason.BadChecksum, "The bytes aren't a Pokémon.");
 
-        return ReadDetails(pkm, game, party: bytes.Length == pkm.SIZE_PARTY);
+        var details = ReadDetails(pkm, game, party: bytes.Length == pkm.SIZE_PARTY);
+        return pkm is XK3 { ShadowID: not 0 } ? details with { IsShadow = null, Purification = null } : details;
     }
 
     /// <summary>
@@ -89,8 +92,11 @@ public partial class Pokemon
         return party ? details with { Level = pkm.Stat_Level } : details;
     }
 
-    // The bytes always arrive encrypted, so they're decrypted outright: PKHeX's constructors guess from the data and can skip it.
-    private static PKM Decrypted(byte[] bytes, Type type, GameVersionDefinition definition)
+    private static bool IsReadable(GameVersion version) =>
+        version is GameVersion.COLO or GameVersion.XD || version.Generation is 3 or 4 or 5;
+
+    // Gen 3 to 5 bytes always arrive encrypted, so they're decrypted outright: PKHeX's constructors guess from the data and can skip it.
+    private static PKM FromMemory(byte[] bytes, Type type, GameVersionDefinition definition)
     {
         var data = bytes.ToArray();
         PKM pkm;
@@ -109,9 +115,17 @@ public partial class Pokemon
             pkm = RequireLength(new PK5(), data, definition);
             PokeCrypto.Decrypt45(data);
         }
+        else if (type == typeof(CK3))
+        {
+            pkm = RequireLength(new CK3(), data, definition);
+        }
+        else if (type == typeof(XK3))
+        {
+            pkm = RequireLength(new XK3(), data, definition);
+        }
         else
         {
-            throw new UnreadablePokemonException(UnreadableReason.UnsupportedVersion, $"{definition.Name} doesn't keep Pokémon as PK3, PK4 or PK5.");
+            throw new UnreadablePokemonException(UnreadableReason.UnsupportedVersion, $"{definition.Name} doesn't keep Pokémon as PK3, PK4, PK5, CK3 or XK3.");
         }
 
         data.CopyTo(pkm.Data);
@@ -129,7 +143,7 @@ public partial class Pokemon
 /// </summary>
 public enum UnreadableReason
 {
-    /// <summary>The checksum doesn't match, the species is empty or unknown, or it's a Gen 3 bad egg.</summary>
+    /// <summary>The checksum doesn't match, the species is empty or unknown, it's a Gen 3 bad egg, or Colosseum or XD flag it invalid.</summary>
     BadChecksum,
     CombinedVersion,
     WrongLength,

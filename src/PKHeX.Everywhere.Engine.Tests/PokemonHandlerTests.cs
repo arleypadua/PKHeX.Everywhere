@@ -173,12 +173,52 @@ public class PokemonHandlerTests
     }
 
     [Theory]
+    [InlineData(GameVersion.COLO)]
+    [InlineData(GameVersion.XD)]
+    public void ReadReturnsTheDetailsOfAColosseumOrXDPartyPokemonExportedFromItsSave(GameVersion version)
+    {
+        var session = WithPartyPokemon(version);
+        var details = Value(Dispatch(session, "pokemon.details", Args(PokemonHandle.Party(0))))!;
+        var exported = Value(Dispatch(session, "pokemon.export", Args(PokemonHandle.Party(0))))!["bytes"]!.GetValue<string>();
+
+        var read = Value(Dispatch(new Session(), "pokemon.read", Args(exported, (int)version, null!)))!;
+
+        read["species"]!.GetValue<int>().Should().Be((int)Species.Makuhita);
+        read["level"]!.GetValue<int>().Should().Be(30);
+        foreach (var field in new[] { "species", "level", "nature", "ability", "moves" })
+            read[field]!.ToJsonString().Should().Be(details[field]!.ToJsonString());
+    }
+
+    [Theory]
+    [InlineData(312, (int)GameVersion.COLO)]
+    [InlineData(196, (int)GameVersion.XD)]
+    public void ReadFailsWithBadChecksumForZeroedColosseumOrXDBytes(int length, int version) =>
+        Error(Dispatch(new Session(), "pokemon.read", Args(Convert.ToBase64String(new byte[length]), version, null!))).Should().Be("bad-checksum");
+
+    [Theory]
     [InlineData(100, (int)GameVersion.E, "bad-checksum")]
     [InlineData(100, (int)GameVersion.FRLG, "bad-arguments")]
     [InlineData(136, (int)GameVersion.E, "bad-arguments")]
     [InlineData(100, (int)GameVersion.SW, "not-supported")]
     public void ReadFailsWithTheCodeOfTheProblem(int length, int version, string code) =>
         Error(Dispatch(new Session(), "pokemon.read", Args(Convert.ToBase64String(new byte[length]), version, null!))).Should().Be(code);
+
+    private static Session WithPartyPokemon(GameVersion version)
+    {
+        var session = new Session();
+        Value(Dispatch(session, "game.loadBlank", Args((int)version)));
+        var save = session.Game!.SaveFile;
+        var pokemon = save.BlankPKM;
+        pokemon.Species = (ushort)Species.Makuhita;
+        pokemon.PID = 3;
+        pokemon.Move1 = (ushort)Move.Tackle;
+        pokemon.Move2 = (ushort)Move.BulkUp;
+        pokemon.CurrentLevel = 30;
+        pokemon.ResetPartyStats();
+        save.SetPartySlotAtIndex(pokemon, 0, EntityImportSettings.None);
+        session.Load(new Game(save), "party.gci");
+        return session;
+    }
 
     private static string EncryptedParty(Session session) =>
         Convert.ToBase64String(session.Game!.Trainer.Party.Pokemons[0].ToFile(encrypted: true).Bytes);
