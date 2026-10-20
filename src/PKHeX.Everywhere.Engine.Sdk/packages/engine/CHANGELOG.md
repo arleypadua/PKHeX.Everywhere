@@ -1,5 +1,21 @@
 # @pkhex-everywhere/engine
 
+## 0.28.0
+
+### Minor Changes
+
+- 8929ee6: Colosseum and XD now trade with Ruby, Sapphire, Emerald, FireRed and LeafGreen by `['link']`, both ways. `TransferRefusal` adds `shadow` for a shadow Pokémon, which the games won't trade. Moving a Pokémon into or out of a Box Ruby & Sapphire save no longer evolves it or resets its friendship.
+- 9f35fc3: Colosseum, XD and Box Ruby & Sapphire saves are no longer reported as Emerald. `game.get` and `game.version` name them as those games, with ids 62, 63 and 61, and `game.file` reports `COLO`, `XD` or `RSBOX`. `encounters.versions` defaults to Colosseum/XD (15) for a Colosseum or XD save.
+  
+  `game.blankVersions` lists Colosseum, XD and Box separately. The shared Colosseum/XD entry (15) is gone, so `game.loadBlank(15)` fails with `not-found`, and `pokemon.read` with version 15 fails with `bad-arguments`, like any combined version.
+- dcf7c0e: `pokemon.details` reports shadow Pokémon in Colosseum and XD saves: `isShadow`, `shadowId` and `purification`, the heart gauge. They are null in other saves. `pokemon.update` takes `purification` to set the heart gauge of a shadow Pokémon, and `isShadow: false` to purify it.
+  
+  Blank Colosseum and XD saves from `game.loadBlank` can now be exported and loaded back.
+
+### Patch Changes
+
+- 9ca8d59: `game.load` opens a GameCube memory card and loads its Colosseum, XD or Box save, and `game.export` returns the whole card. A Colosseum or XD file with no story saved fails with `invalid-save`.
+
 ## 0.27.0
 
 ### Minor Changes
