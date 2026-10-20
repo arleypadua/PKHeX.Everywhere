@@ -22,6 +22,10 @@ A format detects a save as a certain or a possible match. A possible match fails
 A format can be registered off, for a hack we haven't validated. It isn't listed or chosen, and a save it matches for certain fails to load instead of falling through to PKHeX. Its possible matches aren't offered. The host turns it on with `game.enableFormat`.
 _Avoid_: save type, ROM hack format
 
+**Memory card**:
+A GameCube memory card image, as Dolphin keeps it, holding a Colosseum, XD or Box save among other games' files. Loading opens the save on it, and exporting writes back only that file and its directory entry. A card holding more than one of these games fails with `format-choice-required`, with a candidate for each.
+_Avoid_: GCI, which is one file taken off a card
+
 **Capability**:
 A feature that needs PKHeX to know the save's game: legality, AutoLegality, encounters, Showdown, events or plug-ins. PKHeX saves have all of them, and a save format turns off the ones it can't support. Calls behind a capability that's off fail with `not-supported`, and the UI hides them.
 _Avoid_: feature flag, support level

@@ -36,6 +36,8 @@ public class Game
 
     public SaveFormatDescription? Format { get; }
 
+    internal MemoryCardFile? Card { get; private init; }
+
     /// <summary>The Save format's own event names, when it renumbers what its base game stores.</summary>
     internal Abstractions.EventLabels? EventLabels { get; }
 
@@ -103,19 +105,24 @@ public class Game
 
         if (SaveFile is IStorageCleanup storage && storage.FixStoragePreWrite()) Trainer.PokemonBox.Reload();
 
-        return SaveFile.Write(
+        var bytes = SaveFile.Write(
             setting: SaveFile.Metadata.GetSuggestedFlags(Path.GetExtension(SaveFile.Metadata.FileName))
         ).ToArray();
+        return Card?.Write(bytes) ?? bytes;
     }
 
-    public static Game LoadFrom(string path) =>
-        LoadFrom(() => SaveFormats.Detect(File.ReadAllBytes(path)) ?? FromPKHeXDetection(SaveUtil.GetSaveFile(path)), path);
+    public static Game LoadFrom(string path) => LoadFrom(() =>
+    {
+        var bytes = File.ReadAllBytes(path);
+        return MemoryCards.Detect(bytes) ?? SaveFormats.Detect(bytes) ?? FromPKHeXDetection(SaveUtil.GetSaveFile(path));
+    }, path);
 
     public static Game LoadFrom(byte[] bytes, string? path = null, ISaveFormat? format = null) =>
         LoadFrom(() => format switch
         {
-            null => SaveFormats.Detect(bytes) ?? FromPKHeXDetection(SaveUtil.GetSaveFile(bytes, path)),
-            SaveFormats.PKHeXFormat => FromPKHeX(SaveUtil.GetSaveFile(bytes, path)),
+            null => MemoryCards.Detect(bytes) ?? SaveFormats.Detect(bytes) ?? FromPKHeXDetection(SaveUtil.GetSaveFile(bytes, path)),
+            SaveFormats.PKHeXFormat => MemoryCards.Detect(bytes) ?? FromPKHeX(SaveUtil.GetSaveFile(bytes, path)),
+            MemoryCardFormat card => card.LoadGame(bytes),
             _ => new Game(format.Load(bytes), format),
         }, path);
 
@@ -137,7 +144,13 @@ public class Game
         }
     }
 
-    private static Game? FromPKHeX(SaveFile? saveFile) => saveFile is null ? null : new Game(saveFile);
+    // Colosseum and XD create their file on first boot, before a story is saved to it, and PKHeX reads its empty slots as garbage.
+    internal static Game? FromPKHeX(SaveFile? saveFile, MemoryCardFile? card = null) => saveFile switch
+    {
+        null => null,
+        SAV3Colosseum or SAV3XD when !saveFile.ChecksumsValid => throw new GameNotLoadedException(),
+        _ => new Game(saveFile) { Card = card },
+    };
 
     /**
      * A save format is picked by file size before anything is parsed, so a file that merely matches a

@@ -46,7 +46,7 @@ public static class SaveFormats
     }
 
     public static ISaveFormat? Find(string id) =>
-        id == PKHeX.Id ? PKHeX : All.FirstOrDefault(format => format.Id == id);
+        id == PKHeX.Id ? PKHeX : MemoryCards.Find(id) ?? All.FirstOrDefault(format => format.Id == id);
 
     internal static Game? Detect(byte[] data)
     {
