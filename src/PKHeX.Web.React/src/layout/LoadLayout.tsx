@@ -8,6 +8,8 @@ export function LoadLayout() {
       <Layout.Content style={{ margin: '24px 16px 0', display: 'flex', justifyContent: 'center' }}>
         <div
           style={{
+            width: '100%',
+            maxWidth: 728 + 2 * 24,
             padding: 24,
             minHeight: 360,
             display: 'flex',
