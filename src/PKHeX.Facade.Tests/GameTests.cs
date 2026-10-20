@@ -52,11 +52,37 @@ public class GameTests
     }
 
     [Theory]
+    [InlineData(GameVersion.COLO, "Colosseum")]
+    [InlineData(GameVersion.XD, "XD")]
+    [InlineData(GameVersion.RSBOX, "Box Ruby & Sapphire")]
+    public void GameVersionApproximation_OfAGameCubeSave_IsItsOwnGame(GameVersion version, string name)
+    {
+        SaveFile save = version switch
+        {
+            GameVersion.COLO => new SAV3Colosseum(new byte[SaveUtil.SIZE_G3COLO]),
+            GameVersion.XD => new SAV3XD(),
+            _ => new SAV3RSBox(),
+        };
+
+        var game = new Game(save);
+
+        game.GameVersionApproximation.Version.Should().Be(version);
+        game.GameVersionApproximation.Name.Should().Be(name);
+    }
+
+    [Theory]
     [InlineData(GameVersion.GD)]
     [InlineData(GameVersion.SI)]
     [InlineData(GameVersion.C)]
     public void EmptyOf_Gen2_CutsTheTrainerNameToTheGamesLimit(GameVersion version) =>
         Game.EmptyOf(GameVersionRepository.Instance.Get(version), "ABCDEFGHIJ").Trainer.Name.Should().Be("ABCDEFG");
+
+    [Theory]
+    [InlineData(GameVersion.COLO)]
+    [InlineData(GameVersion.XD)]
+    [InlineData(GameVersion.RSBOX)]
+    public void EmptyOf_AGameCubeGame_MakesASaveOfThatGame(GameVersion version) =>
+        Game.EmptyOf(GameVersionRepository.Instance.Get(version)).GameVersionApproximation.Version.Should().Be(version);
 
     [Theory]
     [InlineData(GameVersion.X)]

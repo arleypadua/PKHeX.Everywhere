@@ -17,6 +17,11 @@ public class GameVersionRepositoryTests
     }
 
     [Fact]
+    public void BlankVersionsListTheGameCubeGamesRatherThanColosseumXD() =>
+        GameVersionRepository.Instance.Blank.Select(v => v.Version).Should()
+            .Contain([GameVersion.COLO, GameVersion.XD, GameVersion.RSBOX]).And.NotContain(GameVersion.CXD);
+
+    [Fact]
     public void FindBlankReturnsNullForAnAggregatedOrUnknownVersion()
     {
         GameVersionRepository.Instance.FindBlank((int)GameVersion.SW)!.Version.Should().Be(GameVersion.SW);

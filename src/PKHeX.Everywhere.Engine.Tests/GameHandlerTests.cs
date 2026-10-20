@@ -58,6 +58,16 @@ public class GameHandlerTests
     }
 
     [Fact]
+    public void VersionNamesABlankColosseumSaveAsColosseum()
+    {
+        var session = new Session();
+        Dispatch(session, "game.loadBlank", Args((int)GameVersion.COLO));
+
+        Value(Dispatch(session, "game.version", "[]"))!.ToJsonString()
+            .Should().Be("""{"version":"Colosseum","versionId":62,"generation":"Gen3","generationId":3,"formatId":null}""");
+    }
+
+    [Fact]
     public void LoadLoadsTheSaveAndChangesEverything()
     {
         var session = new Session();
@@ -169,6 +179,7 @@ public class GameHandlerTests
     [Theory]
     [InlineData(-1)]
     [InlineData((int)GameVersion.HGSS)]
+    [InlineData((int)GameVersion.CXD)]
     public void LoadBlankReturnsNotFoundForAnUnknownVersion(int version) =>
         Error(Dispatch(new Session(), "game.loadBlank", Args(version))).Should().Be("not-found");
 

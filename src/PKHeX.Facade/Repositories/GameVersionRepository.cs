@@ -24,7 +24,7 @@ public class GameVersionRepository
     private GameVersionRepository()
     {
         _versions = Enum.GetValues<GameVersion>()
-            .Select(v => new GameVersionDefinition(v, GameInfo.GetVersionName(v)))
+            .Select(v => new GameVersionDefinition(v, GameCubeSaves.Names.GetValueOrDefault(v) ?? GameInfo.GetVersionName(v)))
             .ToDictionary(x => x.Version, x => x);
     }
 
@@ -39,7 +39,9 @@ public class GameVersionRepository
         _versions.GetValueOrDefault((GameVersion)id) is { } version && HasBlank(version) ? version : null;
 
     // PKHeX counts the Stadium games as origins rather than saved versions, but the Facade makes blank Stadium saves.
-    private static bool HasBlank(GameVersionDefinition version) => !version.Aggregated || StadiumSaves.Versions.Contains(version.Version);
+    // Colosseum and XD each get their own blank in place of the one they share.
+    private static bool HasBlank(GameVersionDefinition version) =>
+        (!version.Aggregated && version.Version is not GameVersion.CXD) || StadiumSaves.Versions.Contains(version.Version);
 
     public GameVersionDefinition Get(int id) => _versions[(GameVersion)id];
     public GameVersionDefinition Get(GameVersion version) => Get((int)version);
@@ -60,5 +62,5 @@ public record GameVersionDefinition(GameVersion Version, string Name)
     /**
      * PKHeX aggregates some versions, like soul silver and heart gold are loaded as HGSS
      */
-    public bool Aggregated => !Version.IsValidSavedVersion();
+    public bool Aggregated => !Version.IsValidSavedVersion() && !GameCubeSaves.Names.ContainsKey(Version);
 }
