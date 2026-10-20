@@ -61,7 +61,8 @@ public class GameTests
         {
             GameVersion.COLO => new SAV3Colosseum(new byte[SaveUtil.SIZE_G3COLO]),
             GameVersion.XD => new SAV3XD(),
-            _ => new SAV3RSBox(),
+            GameVersion.RSBOX => new SAV3RSBox(),
+            _ => throw new ArgumentOutOfRangeException(nameof(version)),
         };
 
         var game = new Game(save);
