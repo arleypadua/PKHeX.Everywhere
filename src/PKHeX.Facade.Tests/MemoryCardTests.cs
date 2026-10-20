@@ -38,19 +38,27 @@ public class MemoryCardTests
         Game.LoadFrom(exported, "card.raw").Trainer.PokemonBox.All.Should().Contain(pokemon => pokemon.Nickname == EditedNickname);
     }
 
-    [Fact]
-    public void ExportKeepsTheEditInTheSlotTheGameLoads()
+    public static TheoryData<string, int[], int> SlotsByCounter => new()
     {
-        var card = new MemoryCardBuilder().Add(ColosseumCode, ColosseumFile(5, 9, 7)).Build();
+        { ColosseumCode, [5, 9, 7], 1 },
+        { XDCode, [9, 5], 0 },
+    };
+
+    [Theory]
+    [MemberData(nameof(SlotsByCounter))]
+    public void ExportKeepsTheEditInTheSlotTheGameLoads(string gameCode, int[] counters, int latest)
+    {
+        var file = gameCode == ColosseumCode ? ColosseumFile(counters) : XDFile(counters);
+        var card = new MemoryCardBuilder().Add(gameCode, file).Build();
         var game = Game.LoadFrom(card.Bytes, "card.raw");
 
         game.Trainer.PokemonBox.All.Single(pokemon => pokemon.Nickname == StoredNickname).ChangeNickname(EditedNickname);
-        var before = FileOf(card.Bytes, card, ColosseumCode);
-        var after = FileOf(game.ToByteArray(), card, ColosseumCode);
+        var before = FileOf(card.Bytes, card, gameCode);
+        var after = FileOf(game.ToByteArray(), card, gameCode);
 
-        int[] slots = [0, 1, 2];
-        slots.Select(slot => SaveCounter(after, slot)).Should().Equal(5, 9, 7);
-        slots.Where(slot => !ColoCrypto.GetSlot(before, slot).Span.SequenceEqual(ColoCrypto.GetSlot(after, slot).Span)).Should().Equal(1);
+        var slots = Enumerable.Range(0, counters.Length).ToArray();
+        slots.Select(slot => SaveCounter(Slot(gameCode, after, slot))).Should().Equal(counters);
+        slots.Where(slot => !Slot(gameCode, before, slot).SequenceEqual(Slot(gameCode, after, slot))).Should().Equal(latest);
     }
 
     [Fact]
@@ -61,7 +69,7 @@ public class MemoryCardTests
         var load = () => Game.LoadFrom(card.Bytes, "card.raw");
 
         load.Should().Throw<FormatChoiceRequiredException>()
-            .Which.Candidates.Select(format => format.Name).Should().Equal("Pokémon Colosseum", "Pokémon XD");
+            .Which.Candidates.Select(format => format.Id).Should().Equal("memory-card-colosseum", "memory-card-xd");
     }
 
     [Fact]
@@ -69,7 +77,7 @@ public class MemoryCardTests
     {
         var card = new MemoryCardBuilder().Add(ColosseumCode, File(ColosseumCode)).Add(XDCode, File(XDCode)).Build();
         var choice = Record.Exception(() => Game.LoadFrom(card.Bytes, "card.raw")).As<FormatChoiceRequiredException>()
-            .Candidates.Single(format => format.Name == "Pokémon XD");
+            .Candidates.Single(format => format.Id == "memory-card-xd");
 
         var game = Game.LoadFrom(card.Bytes, "card.raw", SaveFormats.Find(choice.Id));
         game.Trainer.PokemonBox.All.Single(pokemon => pokemon.Nickname == StoredNickname).ChangeNickname(EditedNickname);
@@ -121,8 +129,10 @@ public class MemoryCardTests
 
     private const string EditedNickname = "EDITED";
 
-    private static int SaveCounter(byte[] file, int slot) =>
-        System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(ColoCrypto.GetSlot(file, slot).Span[4..]);
+    private static byte[] Slot(string gameCode, byte[] file, int slot) =>
+        (gameCode == ColosseumCode ? ColoCrypto.GetSlot(file, slot) : XDCrypto.GetSlot(file, slot)).ToArray();
+
+    private static int SaveCounter(byte[] slot) => System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(slot.AsSpan(4));
 
     private static IEnumerable<int> ChangedBytes(byte[] before, byte[] after) =>
         Enumerable.Range(0, before.Length).Where(at => before[at] != after[at]);

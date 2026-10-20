@@ -36,7 +36,7 @@ public class Game
 
     public SaveFormatDescription? Format { get; }
 
-    internal MemoryCardFile? Card { get; private init; }
+    internal MemoryCardFile? CardFile { get; private init; }
 
     /// <summary>The Save format's own event names, when it renumbers what its base game stores.</summary>
     internal Abstractions.EventLabels? EventLabels { get; }
@@ -108,7 +108,7 @@ public class Game
         var bytes = SaveFile.Write(
             setting: SaveFile.Metadata.GetSuggestedFlags(Path.GetExtension(SaveFile.Metadata.FileName))
         ).ToArray();
-        return Card?.Write(bytes) ?? bytes;
+        return CardFile?.Write(bytes) ?? bytes;
     }
 
     public static Game LoadFrom(string path) => LoadFrom(() =>
@@ -149,7 +149,7 @@ public class Game
     {
         null => null,
         SAV3Colosseum or SAV3XD when !saveFile.ChecksumsValid => throw new GameNotLoadedException(),
-        _ => new Game(saveFile) { Card = card },
+        _ => new Game(saveFile) { CardFile = card },
     };
 
     /**

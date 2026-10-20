@@ -29,7 +29,6 @@ internal static class MemoryCards
     }
 }
 
-/// <summary>A Pokémon game's save on a GameCube memory card, for the caller to pick when the card holds several.</summary>
 internal sealed class MemoryCardFormat(string id, string name, GameVersion game, Func<byte[], SaveFile> open) : ISaveFormat
 {
     public string Id => id;
@@ -58,6 +57,10 @@ internal sealed class MemoryCard
     private const int EntryCount = 127;
     private const int FirstFileBlock = 5;
     private const int BlockMapSize = 0xFFB;
+    private const int ModifiedAt = 0x28;
+    private const int FirstBlockAt = 0x36;
+    private const int BlockCountAt = 0x38;
+    private const int NextBlocksAt = 0x0A;
 
     private readonly byte[] _card;
     private readonly int _directory;
@@ -83,9 +86,9 @@ internal sealed class MemoryCard
     {
         for (var entry = 0; entry < EntryCount; entry++)
         {
-            var at = (_directory * BlockSize) + (entry * EntrySize);
-            if (SaveHandlerGCI.GetGameCode(_card.AsSpan(at, 4)) == game && Blocks(at) is { } blocks)
-                return new MemoryCardFile(this, at, blocks);
+            var entryAt = (_directory * BlockSize) + (entry * EntrySize);
+            if (SaveHandlerGCI.GetGameCode(_card.AsSpan(entryAt, 4)) == game && Blocks(entryAt) is { } blocks)
+                return new MemoryCardFile(this, entryAt, blocks);
         }
 
         return null;
@@ -93,27 +96,27 @@ internal sealed class MemoryCard
 
     public byte[] Read(IReadOnlyList<int> blocks) => blocks.SelectMany(block => _card.AsSpan(block * BlockSize, BlockSize).ToArray()).ToArray();
 
-    public byte[] Write(int entry, IReadOnlyList<int> blocks, ReadOnlySpan<byte> file)
+    public byte[] Write(int entryAt, IReadOnlyList<int> blocks, ReadOnlySpan<byte> file)
     {
         var card = _card.ToArray();
         for (var i = 0; i < blocks.Count; i++)
             file.Slice(i * BlockSize, BlockSize).CopyTo(card.AsSpan(blocks[i] * BlockSize));
 
-        WriteUInt32BigEndian(card.AsSpan(entry + 0x28), (uint)(DateTime.Now - new DateTime(2000, 1, 1)).TotalSeconds);
+        WriteUInt32BigEndian(card.AsSpan(entryAt + ModifiedAt), (uint)(DateTime.Now - new DateTime(2000, 1, 1)).TotalSeconds);
         Seal(card, _directory, 0x1FFC, ..0x1FFC);
         return card;
     }
 
-    private int[]? Blocks(int entry)
+    private int[]? Blocks(int entryAt)
     {
-        var block = (int)ReadUInt16BigEndian(_card.AsSpan(entry + 0x36));
-        var count = ReadUInt16BigEndian(_card.AsSpan(entry + 0x38));
+        var block = (int)ReadUInt16BigEndian(_card.AsSpan(entryAt + FirstBlockAt));
+        var count = ReadUInt16BigEndian(_card.AsSpan(entryAt + BlockCountAt));
         var blocks = new int[count];
         for (var i = 0; i < count; i++)
         {
             if (block < FirstFileBlock || block - FirstFileBlock >= BlockMapSize || (block + 1) * BlockSize > _card.Length) return null;
             blocks[i] = block;
-            block = ReadUInt16BigEndian(_card.AsSpan((_blockMap * BlockSize) + 0x0A + ((block - FirstFileBlock) * 2)));
+            block = ReadUInt16BigEndian(_card.AsSpan((_blockMap * BlockSize) + NextBlocksAt + ((block - FirstFileBlock) * 2)));
         }
 
         return blocks;
@@ -154,9 +157,9 @@ internal sealed class MemoryCard
     }
 }
 
-internal sealed class MemoryCardFile(MemoryCard card, int entry, int[] blocks)
+internal sealed class MemoryCardFile(MemoryCard card, int entryAt, int[] blocks)
 {
     public byte[] Read() => card.Read(blocks);
 
-    public byte[] Write(ReadOnlySpan<byte> file) => card.Write(entry, blocks, file);
+    public byte[] Write(ReadOnlySpan<byte> file) => card.Write(entryAt, blocks, file);
 }
