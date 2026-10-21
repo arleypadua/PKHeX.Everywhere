@@ -13,3 +13,18 @@ updates:
       nuget:
         patterns:
           - "*"
+  - package-ecosystem: "npm"
+    directories:
+      - "/src/PKHeX.Everywhere.Engine.Sdk"
+      - "/src/PKHeX.Everywhere.Engine.Sdk/docs"
+      - "/src/PKHeX.Web.React"
+      - "/src/PKHeX.Web.React/blog"
+    schedule:
+      interval: "weekly"
+    # Security updates only: a limit of 0 turns off version updates, not security updates.
+    open-pull-requests-limit: 0
+    groups:
+      npm-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
