@@ -5,10 +5,6 @@ namespace PKHeX.Facade.Repositories;
 
 public class GameVersionRepository
 {
-    // PKHeX saves these games under versions it counts as origins rather than saved versions, and names none of them.
-    internal static readonly IReadOnlyDictionary<GameVersion, string> SideGameNames =
-        GameCubeSaves.Names.Concat(StadiumSaves.Names).ToDictionary();
-
     public static readonly GameVersionRepository Instance = new();
     
     private readonly Dictionary<GameVersion, GameVersionDefinition> _versions;
@@ -28,7 +24,7 @@ public class GameVersionRepository
     private GameVersionRepository()
     {
         _versions = Enum.GetValues<GameVersion>()
-            .Select(v => new GameVersionDefinition(v, SideGameNames.GetValueOrDefault(v) ?? GameInfo.GetVersionName(v)))
+            .Select(v => new GameVersionDefinition(v, GameVersionDefinition.SideGameNames.GetValueOrDefault(v) ?? GameInfo.GetVersionName(v)))
             .ToDictionary(x => x.Version, x => x);
     }
 
@@ -59,10 +55,14 @@ public class GameVersionRepository
 
 public record GameVersionDefinition(GameVersion Version, string Name)
 {
+    // PKHeX saves these games under versions it counts as origins rather than saved versions, and names none of them.
+    internal static readonly IReadOnlyDictionary<GameVersion, string> SideGameNames =
+        GameCubeSaves.Names.Concat(StadiumSaves.Names).ToDictionary();
+
     public int Id => (int)Version;
     
     /**
      * PKHeX aggregates some versions, like soul silver and heart gold are loaded as HGSS
      */
-    public bool Aggregated => !Version.IsValidSavedVersion() && !GameVersionRepository.SideGameNames.ContainsKey(Version);
+    public bool Aggregated => !Version.IsValidSavedVersion() && !SideGameNames.ContainsKey(Version);
 }
