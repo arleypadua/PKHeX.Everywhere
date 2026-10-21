@@ -7,14 +7,19 @@ namespace PKHeX.Facade.Tests;
 public class GameVersionRepositoryTests
 {
     [Fact]
-    public void BlankVersionsAreTheSavedVersionsAndTheStadiumsSortedByName()
+    public void BlankVersionsAreTheSavedVersionsSortedByName()
     {
         var blank = GameVersionRepository.Instance.Blank;
 
         blank.Should().NotBeEmpty();
-        blank.Where(v => v.Aggregated).Select(v => v.Version).Order().Should().Equal(GameVersion.StadiumJ, GameVersion.Stadium, GameVersion.Stadium2);
+        blank.Should().NotContain(v => v.Aggregated);
         blank.Select(v => v.Name).Should().BeInAscendingOrder();
     }
+
+    [Fact]
+    public void BlankVersionsListTheStadiums() =>
+        GameVersionRepository.Instance.Blank.Select(v => v.Version).Should()
+            .Contain([GameVersion.Stadium, GameVersion.StadiumJ, GameVersion.Stadium2]);
 
     [Fact]
     public void BlankVersionsListTheGameCubeGamesRatherThanColosseumXD() =>

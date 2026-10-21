@@ -21,6 +21,9 @@ public class PokemonRepositoryTests
     [InlineData(GameVersion.COLO, GameVersion.CXD)]
     [InlineData(GameVersion.XD, GameVersion.CXD)]
     [InlineData(GameVersion.RSBOX, GameVersion.E)]
+    [InlineData(GameVersion.Stadium, GameVersion.RD)]
+    [InlineData(GameVersion.StadiumJ, GameVersion.RD)]
+    [InlineData(GameVersion.Stadium2, GameVersion.C)]
     public void DefaultEncounterVersion_IsOneOfTheEncounterVersions(GameVersion save, GameVersion expected)
     {
         var repository = Game.EmptyOf(GameVersionRepository.Instance.Get(save)).PokemonRepository;
