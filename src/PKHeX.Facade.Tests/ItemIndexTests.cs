@@ -75,6 +75,17 @@ public class ItemIndexTests
         abilityCapsule.Index.Should().Be(79);
     }
 
+    [Theory]
+    [InlineData(SaveFilePath.RadicalRed, 102, "Ice Stone")]
+    [InlineData(SaveFilePath.RadicalRed, 105, "Balm Mushroom")]
+    [InlineData(SaveFilePath.RadicalRed, 116, "Honey")]
+    [InlineData(SaveFilePath.RadicalRed, 117, "Pretty Feather")]
+    [InlineData(SaveFilePath.RadicalRed, 218, "Upgrade")]
+    [InlineData(SaveFilePath.Imperium, 831, "HM08 (G4)")]
+    public void AHackItemIndexReadsAsTheItemInTheRom(string saveFile, int index, string name) =>
+        SaveFilePath.Load(saveFile).ItemRepository.GameItems.Should().ContainSingle(item => item.Index == index)
+            .Which.Should().BeEquivalentTo(new { Name = name, IsUnknown = false });
+
     [Fact]
     public void AVanillaEmeraldHeldItemIndexIsItsId()
     {
