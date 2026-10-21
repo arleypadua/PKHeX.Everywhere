@@ -1,5 +1,11 @@
 # @pkhex-everywhere/engine
 
+## 0.31.0
+
+### Minor Changes
+
+- 2ce6ba4: `EditablePokemon` has `experience` and `experienceRange`, the EXP the Pokémon can have without changing its level. `pokemon.update` takes `experience`, and the level follows it.
+
 ## 0.30.0
 
 ### Minor Changes
