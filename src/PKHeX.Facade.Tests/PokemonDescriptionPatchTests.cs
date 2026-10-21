@@ -304,11 +304,11 @@ public class PokemonDescriptionPatchTests
     {
         var pokemon = SaveFilePath.Load(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Level < 99);
         var range = pokemon.Details().ExperienceRange;
+        var level = pokemon.Level;
 
         pokemon.Update(new PokemonPatch { Experience = range.Max });
-        pokemon.Details().Should().BeEquivalentTo(new { Experience = range.Max, Level = pokemon.Level });
+        pokemon.Details().Should().BeEquivalentTo(new { Experience = range.Max, Level = level });
 
-        var level = pokemon.Level;
         pokemon.Update(new PokemonPatch { Experience = range.Max + 1 });
         pokemon.Details().Should().BeEquivalentTo(new { Experience = range.Max + 1, Level = level + 1 });
         pokemon.Pkm.Stat_Level.Should().Be((byte)(level + 1));

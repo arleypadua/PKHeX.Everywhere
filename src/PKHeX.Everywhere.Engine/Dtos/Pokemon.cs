@@ -427,7 +427,7 @@ public static class PokemonMapping
         details.Nickname,
         details.Level,
         details.Experience,
-        new ExperienceRange(details.ExperienceRange.Min, details.ExperienceRange.Max),
+        details.ExperienceRange.ToDto(),
         details.Pid,
         details.Types.ToArray(),
         details.IsInfected,
@@ -497,6 +497,8 @@ public static class PokemonMapping
 
     private static StatValues ToDto(this Facade.Pokemons.StatValues stats) =>
         new(stats.Health, stats.Attack, stats.Defense, stats.SpecialAttack, stats.SpecialDefense, stats.Speed);
+
+    private static ExperienceRange ToDto(this Facade.Pokemons.ExperienceRange range) => new(range.Min, range.Max);
 
     private static Facade.Pokemons.StatPatch ToFacade(this StatPatch patch) =>
         new(patch.Health, patch.Attack, patch.Defense, patch.SpecialAttack, patch.SpecialDefense, patch.Speed);

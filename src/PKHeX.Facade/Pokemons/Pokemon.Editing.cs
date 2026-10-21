@@ -66,11 +66,11 @@ public partial class Pokemon
     private ExperienceRange ExperienceRangeOfLevel()
     {
         var level = Pkm.CurrentLevel;
-        var growth = Pkm.PersonalInfo.EXPGrowth;
-        var min = PKHeX.Core.Experience.GetEXP(level, growth);
-        var max = level >= PKHeX.Core.Experience.MaxLevel ? min : PKHeX.Core.Experience.GetEXP((byte)(level + 1), growth) - 1;
-        return new ExperienceRange(min, max);
+        var min = ExpAt(level);
+        return new ExperienceRange(min, level >= PKHeX.Core.Experience.MaxLevel ? min : ExpAt((byte)(level + 1)) - 1);
     }
+
+    private uint ExpAt(byte level) => PKHeX.Core.Experience.GetEXP(level, Pkm.PersonalInfo.EXPGrowth);
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices())
     {
@@ -241,7 +241,7 @@ public partial class Pokemon
 
     private void ApplyExperience(uint experience)
     {
-        var max = PKHeX.Core.Experience.GetEXP(PKHeX.Core.Experience.MaxLevel, Pkm.PersonalInfo.EXPGrowth);
+        var max = ExpAt(PKHeX.Core.Experience.MaxLevel);
         Require(experience <= max, nameof(PokemonPatch.Experience), $"EXP must be between 0 and {max}, got {experience}.");
         Pkm.EXP = experience;
         Pkm.Stat_Level = Pkm.CurrentLevel;
