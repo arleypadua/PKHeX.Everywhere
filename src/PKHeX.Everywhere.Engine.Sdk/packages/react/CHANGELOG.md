@@ -1,5 +1,12 @@
 # @pkhex-everywhere/react
 
+## 0.30.0
+
+### Patch Changes
+
+- Updated dependencies [7c019f4]
+  - @pkhex-everywhere/engine@0.30.0
+
 ## 0.29.0
 
 ### Patch Changes
