@@ -24,7 +24,7 @@ public class GameVersionRepository
     private GameVersionRepository()
     {
         _versions = Enum.GetValues<GameVersion>()
-            .Select(v => new GameVersionDefinition(v, GameCubeSaves.Names.GetValueOrDefault(v) ?? GameInfo.GetVersionName(v)))
+            .Select(v => new GameVersionDefinition(v, GameVersionDefinition.SideGameNames.GetValueOrDefault(v) ?? GameInfo.GetVersionName(v)))
             .ToDictionary(x => x.Version, x => x);
     }
 
@@ -38,10 +38,8 @@ public class GameVersionRepository
     public GameVersionDefinition? FindBlank(int id) =>
         _versions.GetValueOrDefault((GameVersion)id) is { } version && HasBlank(version) ? version : null;
 
-    // PKHeX counts the Stadium games as origins rather than saved versions, but the Facade makes blank Stadium saves.
     // Colosseum and XD each get their own blank in place of the one they share.
-    private static bool HasBlank(GameVersionDefinition version) =>
-        (!version.Aggregated && version.Version is not GameVersion.CXD) || StadiumSaves.Versions.Contains(version.Version);
+    private static bool HasBlank(GameVersionDefinition version) => !version.Aggregated && version.Version is not GameVersion.CXD;
 
     public GameVersionDefinition Get(int id) => _versions[(GameVersion)id];
     public GameVersionDefinition Get(GameVersion version) => Get((int)version);
@@ -57,10 +55,14 @@ public class GameVersionRepository
 
 public record GameVersionDefinition(GameVersion Version, string Name)
 {
+    // PKHeX saves these games under versions it counts as origins rather than saved versions, and names none of them.
+    internal static readonly IReadOnlyDictionary<GameVersion, string> SideGameNames =
+        GameCubeSaves.Names.Concat(StadiumSaves.Names).ToDictionary();
+
     public int Id => (int)Version;
     
     /**
      * PKHeX aggregates some versions, like soul silver and heart gold are loaded as HGSS
      */
-    public bool Aggregated => !Version.IsValidSavedVersion() && !GameCubeSaves.Names.ContainsKey(Version);
+    public bool Aggregated => !Version.IsValidSavedVersion() && !SideGameNames.ContainsKey(Version);
 }

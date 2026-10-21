@@ -72,6 +72,18 @@ public class GameTests
     }
 
     [Theory]
+    [InlineData(GameVersion.Stadium, "Stadium")]
+    [InlineData(GameVersion.StadiumJ, "Pocket Monsters Stadium")]
+    [InlineData(GameVersion.Stadium2, "Stadium 2")]
+    public void GameVersionApproximation_OfAStadiumSave_IsItsOwnGame(GameVersion version, string name)
+    {
+        var game = Game.EmptyOf(GameVersionRepository.Instance.Get(version));
+
+        game.GameVersionApproximation.Version.Should().Be(version);
+        game.GameVersionApproximation.Name.Should().Be(name);
+    }
+
+    [Theory]
     [InlineData(GameVersion.GD)]
     [InlineData(GameVersion.SI)]
     [InlineData(GameVersion.C)]

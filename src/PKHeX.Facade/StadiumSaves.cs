@@ -52,7 +52,12 @@ internal sealed record StadiumTeamLayout(
 
 internal static class StadiumSaves
 {
-    public static readonly IReadOnlySet<GameVersion> Versions = new HashSet<GameVersion> { GameVersion.Stadium, GameVersion.StadiumJ, GameVersion.Stadium2 };
+    public static readonly IReadOnlyDictionary<GameVersion, string> Names = new Dictionary<GameVersion, string>
+    {
+        [GameVersion.Stadium] = "Stadium",
+        [GameVersion.StadiumJ] = "Pocket Monsters Stadium",
+        [GameVersion.Stadium2] = "Stadium 2",
+    };
 
     // PKHeX's blank Stadium saves have no footer magic, so they aren't recognized once exported. Each box gets the footer a loaded
     // save has, and the games' checksums are written when the save is.

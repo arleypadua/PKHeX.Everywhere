@@ -5,7 +5,6 @@ namespace PKHeX.Facade;
 
 internal static class GameCubeSaves
 {
-    // PKHeX saves these games under versions it counts as origins rather than saved versions, and names none of them.
     public static readonly IReadOnlyDictionary<GameVersion, string> Names = new Dictionary<GameVersion, string>
     {
         [GameVersion.COLO] = "Colosseum",

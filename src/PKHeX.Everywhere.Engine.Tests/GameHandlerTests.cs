@@ -68,6 +68,16 @@ public class GameHandlerTests
     }
 
     [Fact]
+    public void VersionNamesABlankStadiumSaveAsStadium()
+    {
+        var session = new Session();
+        Dispatch(session, "game.loadBlank", Args((int)GameVersion.Stadium));
+
+        Value(Dispatch(session, "game.version", "[]"))!.ToJsonString()
+            .Should().Be("""{"version":"Stadium","versionId":89,"generation":"Gen1","generationId":1,"formatId":null}""");
+    }
+
+    [Fact]
     public void LoadLoadsTheSaveAndChangesEverything()
     {
         var session = new Session();
@@ -151,14 +161,14 @@ public class GameHandlerTests
     }
 
     [Fact]
-    public void BlankVersionsHaveNoAggregatedVersionButTheStadiums()
+    public void BlankVersionsHaveNoAggregatedVersion()
     {
         var versions = Value(Dispatch(new Session(), "game.blankVersions", "[]"))!.AsArray();
 
         var ids = versions.Select(v => v!["id"]!.GetValue<int>()).ToList();
         ids.Should().NotBeEmpty();
-        ids.Where(id => GameVersionRepository.Instance.Get(id).Aggregated).Order().Should()
-            .Equal((int)GameVersion.StadiumJ, (int)GameVersion.Stadium, (int)GameVersion.Stadium2);
+        ids.Should().NotContain(id => GameVersionRepository.Instance.Get(id).Aggregated);
+        ids.Should().Contain([(int)GameVersion.StadiumJ, (int)GameVersion.Stadium, (int)GameVersion.Stadium2]);
         versions.Select(v => v!["name"]!.GetValue<string>()).Should().BeInAscendingOrder();
     }
 
