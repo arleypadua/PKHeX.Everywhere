@@ -161,6 +161,10 @@ export interface EditablePokemon {
   /** The species name when the Pokémon has no nickname. */
   nickname: string
   level: number
+  /** EXP points. The level follows from them. */
+  experience: number
+  /** The EXP the Pokémon can have without changing its level. */
+  experienceRange: ExperienceRange
   /** Personality value (PID). */
   pid: number
   /** Type ids, named by `game.types()`. One entry for a single-type Pokémon. */
@@ -297,6 +301,14 @@ export interface EventWork {
   value: number
   /** Known values for this entry. Empty when PKHeX knows none; any value between `workMin` and `workMax` is still accepted. */
   options: WorkOption[]
+}
+
+/** The EXP a Pokémon can have without changing its level. At level 100, `min` and `max` are the same. */
+export interface ExperienceRange {
+  /** The EXP the current level starts at. */
+  min: number
+  /** The most EXP before the next level. */
+  max: number
 }
 
 /** A Pokémon exported as a PKHeX entity file. */
@@ -828,6 +840,8 @@ export interface PokemonPatch {
   nickname?: string | null
   /** 1 to 100. */
   level?: number | null
+  /** 0 up to the EXP of level 100 for the species' growth rate. The level follows the EXP. If `level` is also set, `experience` wins. */
+  experience?: number | null
   /** In the same format as `trainerId` on `EditablePokemon`. Can be set without `secretId`. */
   trainerId?: number | null
   /** In the same format as `secretId` on `EditablePokemon`. Can be set without `trainerId`. */

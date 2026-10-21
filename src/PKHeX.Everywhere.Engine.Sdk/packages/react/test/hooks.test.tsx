@@ -147,6 +147,8 @@ describe('entity hooks', () => {
       isEgg: false,
       nickname: 'Pikachu',
       level: 12,
+      experience: 1728,
+      experienceRange: { min: 1728, max: 2196 },
       pid: 1,
       types: [12],
       isInfected: false,
