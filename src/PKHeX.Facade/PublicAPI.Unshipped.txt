@@ -702,3 +702,26 @@ PKHeX.Facade.Pokemons.PokemonPatch.Purification.init -> void
 PKHeX.Facade.Pokemons.PokemonPatch.IsShadow.get -> bool?
 PKHeX.Facade.Pokemons.PokemonPatch.IsShadow.init -> void
 PKHeX.Facade.Transfers.TransferRefusal.Shadow = 12 -> PKHeX.Facade.Transfers.TransferRefusal
+PKHeX.Facade.Pokemons.ExperienceRange
+PKHeX.Facade.Pokemons.ExperienceRange.ExperienceRange(uint Min, uint Max) -> void
+PKHeX.Facade.Pokemons.ExperienceRange.Min.get -> uint
+PKHeX.Facade.Pokemons.ExperienceRange.Min.init -> void
+PKHeX.Facade.Pokemons.ExperienceRange.Max.get -> uint
+PKHeX.Facade.Pokemons.ExperienceRange.Max.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.Experience.get -> uint
+PKHeX.Facade.Pokemons.PokemonDetails.Experience.init -> void
+PKHeX.Facade.Pokemons.PokemonDetails.ExperienceRange.get -> PKHeX.Facade.Pokemons.ExperienceRange!
+PKHeX.Facade.Pokemons.PokemonDetails.ExperienceRange.init -> void
+PKHeX.Facade.Pokemons.PokemonPatch.Experience.get -> uint?
+PKHeX.Facade.Pokemons.PokemonPatch.Experience.init -> void
+PKHeX.Facade.Pokemons.ExperienceRange.Deconstruct(out uint Min, out uint Max) -> void
+override PKHeX.Facade.Pokemons.ExperienceRange.Equals(object? obj) -> bool
+override PKHeX.Facade.Pokemons.ExperienceRange.GetHashCode() -> int
+override PKHeX.Facade.Pokemons.ExperienceRange.ToString() -> string!
+static PKHeX.Facade.Pokemons.ExperienceRange.operator !=(PKHeX.Facade.Pokemons.ExperienceRange? left, PKHeX.Facade.Pokemons.ExperienceRange? right) -> bool
+static PKHeX.Facade.Pokemons.ExperienceRange.operator ==(PKHeX.Facade.Pokemons.ExperienceRange? left, PKHeX.Facade.Pokemons.ExperienceRange? right) -> bool
+virtual PKHeX.Facade.Pokemons.ExperienceRange.<Clone>$() -> PKHeX.Facade.Pokemons.ExperienceRange!
+virtual PKHeX.Facade.Pokemons.ExperienceRange.EqualityContract.get -> System.Type!
+virtual PKHeX.Facade.Pokemons.ExperienceRange.Equals(PKHeX.Facade.Pokemons.ExperienceRange? other) -> bool
+virtual PKHeX.Facade.Pokemons.ExperienceRange.PrintMembers(System.Text.StringBuilder! builder) -> bool
+PKHeX.Facade.Pokemons.ExperienceRange.ExperienceRange(PKHeX.Facade.Pokemons.ExperienceRange! original) -> void

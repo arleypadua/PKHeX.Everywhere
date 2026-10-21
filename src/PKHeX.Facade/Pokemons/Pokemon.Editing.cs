@@ -59,7 +59,18 @@ public partial class Pokemon
         IsShadow = Shadow?.IsShadow,
         ShadowId = Shadow?.ShadowID,
         Purification = Shadow is { } shadow ? Math.Max(shadow.Purification, 0) : null,
+        Experience = Pkm.EXP,
+        ExperienceRange = ExperienceRangeOfLevel(),
     };
+
+    private ExperienceRange ExperienceRangeOfLevel()
+    {
+        var level = Pkm.CurrentLevel;
+        var growth = Pkm.PersonalInfo.EXPGrowth;
+        var min = PKHeX.Core.Experience.GetEXP(level, growth);
+        var max = level >= PKHeX.Core.Experience.MaxLevel ? min : PKHeX.Core.Experience.GetEXP((byte)(level + 1), growth) - 1;
+        return new ExperienceRange(min, max);
+    }
 
     public PokemonOptions Options() => new(SpeciesChoices(), AbilityChoices(), FormChoices(), MetLocationChoices(), MoveChoices())
     {
@@ -94,6 +105,7 @@ public partial class Pokemon
         if (patch.Friendship is { } friendship) ApplyFriendship(friendship);
         if (patch.Nickname is { } nickname) ApplyNickname(nickname.Trim());
         if (patch.Level is { } level) ApplyLevel(level);
+        if (patch.Experience is { } experience) ApplyExperience(experience);
         if (patch.Moves is { } moves) ApplyMoves(moves);
         if (patch.IsShiny is { } isShiny) ApplyIsShiny(isShiny);
         if (patch.IsAlpha is { } isAlpha) ApplyIsAlpha(isAlpha);
@@ -225,6 +237,14 @@ public partial class Pokemon
     {
         Require(level is >= 1 and <= 100, nameof(PokemonPatch.Level), $"Level must be between 1 and 100, got {level}.");
         ChangeLevel(level);
+    }
+
+    private void ApplyExperience(uint experience)
+    {
+        var max = PKHeX.Core.Experience.GetEXP(PKHeX.Core.Experience.MaxLevel, Pkm.PersonalInfo.EXPGrowth);
+        Require(experience <= max, nameof(PokemonPatch.Experience), $"EXP must be between 0 and {max}, got {experience}.");
+        Pkm.EXP = experience;
+        Pkm.Stat_Level = Pkm.CurrentLevel;
     }
 
     private void ApplyMoves(IReadOnlyList<int> moves)

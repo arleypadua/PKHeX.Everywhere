@@ -136,6 +136,8 @@ public enum PokemonHandler
 /// <param name="Language">PKHeX language id. See <c>game.languages()</c>.</param>
 /// <param name="IsAlpha">Null in games without alpha Pokémon. Only Legends: Arceus and Legends: Z-A have them.</param>
 /// <param name="Nickname">The species name when the Pokémon has no nickname.</param>
+/// <param name="Experience">EXP points. The level follows from them.</param>
+/// <param name="ExperienceRange">The EXP the Pokémon can have without changing its level.</param>
 /// <param name="Pid">Personality value (PID).</param>
 /// <param name="Types">Type ids, named by <c>game.types()</c>. One entry for a single-type Pokémon.</param>
 /// <param name="IsInfected">Has Pokérus.</param>
@@ -180,6 +182,8 @@ public record EditablePokemon(
     bool IsEgg,
     string Nickname,
     int Level,
+    uint Experience,
+    ExperienceRange ExperienceRange,
     uint Pid,
     int[] Types,
     bool IsInfected,
@@ -208,6 +212,13 @@ public record EditablePokemon(
     int? CalculatedCombatPower,
     MoveSlot[] Moves,
     Legality? Legality);
+
+/// <summary>
+/// The EXP a Pokémon can have without changing its level. At level 100, <c>min</c> and <c>max</c> are the same.
+/// </summary>
+/// <param name="Min">The EXP the current level starts at.</param>
+/// <param name="Max">The most EXP before the next level.</param>
+public record ExperienceRange(uint Min, uint Max);
 
 /// <summary>
 /// A value for each of a Pokémon's six stats.
@@ -245,6 +256,7 @@ public record MoveSlot(int Id, string Name, int Pp, int MaxPp, bool IsUnknown);
 /// <param name="IsAlpha">Only in games with alpha Pokémon.</param>
 /// <param name="Nickname">Trimmed. An empty string resets it to the species name.</param>
 /// <param name="Level">1 to 100.</param>
+/// <param name="Experience">0 up to the EXP of level 100 for the species' growth rate. The level follows the EXP. If <c>level</c> is also set, <c>experience</c> wins.</param>
 /// <param name="TrainerId">In the same format as <c>trainerId</c> on <see cref="EditablePokemon"/>. Can be set without <c>secretId</c>.</param>
 /// <param name="SecretId">In the same format as <c>secretId</c> on <see cref="EditablePokemon"/>. Can be set without <c>trainerId</c>.</param>
 /// <param name="Version">PKHeX game version id from <c>game.originGames()</c>. If the new game uses a different location list, the met location resets to a suggested one.</param>
@@ -271,6 +283,7 @@ public record PokemonPatch(
     bool? IsEgg = null,
     string? Nickname = null,
     int? Level = null,
+    uint? Experience = null,
     uint? TrainerId = null,
     uint? SecretId = null,
     string? OriginalTrainerName = null,
@@ -413,6 +426,8 @@ public static class PokemonMapping
         details.IsEgg,
         details.Nickname,
         details.Level,
+        details.Experience,
+        new ExperienceRange(details.ExperienceRange.Min, details.ExperienceRange.Max),
         details.Pid,
         details.Types.ToArray(),
         details.IsInfected,
@@ -477,6 +492,7 @@ public static class PokemonMapping
     {
         Purification = patch.Purification,
         IsShadow = patch.IsShadow,
+        Experience = patch.Experience,
     };
 
     private static StatValues ToDto(this Facade.Pokemons.StatValues stats) =>

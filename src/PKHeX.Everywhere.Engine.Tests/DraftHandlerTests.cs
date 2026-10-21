@@ -249,6 +249,23 @@ public class DraftHandlerTests
     }
 
     [Fact]
+    public void UpdateChangesTheExpWithinTheLevel()
+    {
+        var session = Loaded(SaveFilePath.HgSs);
+        Edit(session, PokemonHandle.Party(0));
+        var before = Details(session, Draft);
+        var max = before["experienceRange"]!["max"]!.GetValue<uint>();
+        before["experience"]!.GetValue<uint>().Should().BeLessThan(max);
+
+        Update(session, Draft, new { experience = max });
+
+        var details = Details(session, Draft);
+        details["experience"]!.GetValue<uint>().Should().Be(max);
+        details["level"]!.GetValue<int>().Should().Be(before["level"]!.GetValue<int>());
+        details["experienceRange"]!.ToJsonString().Should().Be(before["experienceRange"]!.ToJsonString());
+    }
+
+    [Fact]
     public void UpdateAppliesAnIllegalValueAndReportsIt()
     {
         var session = Loaded(SaveFilePath.HgSs);
