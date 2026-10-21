@@ -1,9 +1,11 @@
-import { Descriptions, Grid, InputNumber, Radio, Space, Switch, Typography } from 'antd'
+import { useState } from 'react'
+import { Button, Descriptions, Grid, InputNumber, Radio, Space, Switch, Typography } from 'antd'
 import type { DescriptionsProps } from 'antd'
 import { draftHandle, type PokemonGender } from '@pkhex-everywhere/engine'
 import { useQuery } from '@pkhex-everywhere/react'
 import { ItemSelect } from '../../components/ItemSelect'
 import { ChoiceSelect } from './ChoiceSelect'
+import { ExperienceModal } from './ExperienceModal'
 import { isLocked } from './locked'
 import { useDraft } from './useDraft'
 
@@ -22,6 +24,7 @@ export function DescriptionTab() {
   const balls = useQuery('game.balls')
   const languages = useQuery('game.languages')
   const screens = Grid.useBreakpoint()
+  const [editingExperience, setEditingExperience] = useState(false)
 
   const items: DescriptionsProps['items'] = [
     {
@@ -89,13 +92,18 @@ export function DescriptionTab() {
       key: 'level',
       label: 'Level',
       children: (
-        <InputNumber
-          aria-label="Level"
-          min={1}
-          max={100}
-          value={details.level}
-          onChange={(level) => level !== null && submit({ level })}
-        />
+        <Space>
+          <InputNumber
+            aria-label="Level"
+            min={1}
+            max={100}
+            value={details.level}
+            onChange={(level) => level !== null && submit({ level })}
+          />
+          <Button type="link" size="small" onClick={() => setEditingExperience(true)}>
+            Edit EXP
+          </Button>
+        </Space>
       ),
     },
     ...(natures.length === 0
@@ -213,12 +221,15 @@ export function DescriptionTab() {
   ]
 
   return (
-    <Descriptions
-      bordered
-      size="small"
-      layout={screens.sm ? 'horizontal' : 'vertical'}
-      column={{ xs: 1, sm: 2, md: 3 }}
-      items={items}
-    />
+    <>
+      <Descriptions
+        bordered
+        size="small"
+        layout={screens.sm ? 'horizontal' : 'vertical'}
+        column={{ xs: 1, sm: 2, md: 3 }}
+        items={items}
+      />
+      {editingExperience && <ExperienceModal onClose={() => setEditingExperience(false)} />}
+    </>
   )
 }

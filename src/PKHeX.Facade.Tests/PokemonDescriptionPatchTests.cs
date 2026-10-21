@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using PKHeX.Core;
+using PKHeX.Facade.Extensions;
 using PKHeX.Facade.Pokemons;
 using PKHeX.Facade.Repositories;
 using PKHeX.Facade.Tests.Base;
@@ -273,4 +274,85 @@ public class PokemonDescriptionPatchTests
 
         pokemon.Options().Forms.Select(f => f.Name).Should().Contain("Alola");
     }
+
+    [Fact]
+    public void ReportsTheExpAndTheExpRangeOfTheCurrentLevel()
+    {
+        var pokemon = SaveFilePath.Load(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Level < 100);
+        var growth = pokemon.Pkm.PersonalInfo.EXPGrowth;
+        var level = pokemon.Pkm.CurrentLevel;
+
+        var details = pokemon.Details();
+
+        details.Experience.Should().Be(pokemon.Pkm.EXP);
+        details.ExperienceRange.Should().Be(new ExperienceRange(Experience.GetEXP(level, growth), Experience.GetEXP((byte)(level + 1), growth) - 1));
+    }
+
+    [Fact]
+    public void TheExpRangeAtLevel100IsASingleValue()
+    {
+        var pokemon = SaveFilePath.Load(SaveFilePath.HgSs).Trainer.Party.Pokemons[0];
+        pokemon.Update(new PokemonPatch(Level: 100));
+
+        var range = pokemon.Details().ExperienceRange;
+
+        range.Min.Should().Be(range.Max);
+    }
+
+    [Fact]
+    public void SetsTheExpAndTheLevelFollows()
+    {
+        var pokemon = SaveFilePath.Load(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Level < 99);
+        var range = pokemon.Details().ExperienceRange;
+        var level = pokemon.Level;
+
+        pokemon.Update(new PokemonPatch { Experience = range.Max });
+        pokemon.Details().Should().BeEquivalentTo(new { Experience = range.Max, Level = level });
+
+        pokemon.Update(new PokemonPatch { Experience = range.Max + 1 });
+        pokemon.Details().Should().BeEquivalentTo(new { Experience = range.Max + 1, Level = level + 1 });
+        pokemon.Pkm.Stat_Level.Should().Be((byte)(level + 1));
+    }
+
+    [Fact]
+    public void TheExpWinsOverTheLevel()
+    {
+        var pokemon = SaveFilePath.Load(SaveFilePath.HgSs).Trainer.Party.Pokemons.First(p => p.Level < 100);
+        var exp = Experience.GetEXP(50, pokemon.Pkm.PersonalInfo.EXPGrowth) + 1;
+
+        pokemon.Update(new PokemonPatch(Level: 20) { Experience = exp });
+
+        pokemon.Details().Should().BeEquivalentTo(new { Experience = exp, Level = 50 });
+    }
+
+    [Fact]
+    public void RejectsAnExpAboveLevel100()
+    {
+        var pokemon = SaveFilePath.Load(SaveFilePath.HgSs).Trainer.Party.Pokemons[0];
+        var before = pokemon.Pkm.Data.ToArray();
+        var max = Experience.GetEXP(100, pokemon.Pkm.PersonalInfo.EXPGrowth);
+
+        var update = () => pokemon.Update(new PokemonPatch { Experience = max + 1 });
+
+        update.Should().Throw<InvalidPatchException>().Which.Field.Should().Be(nameof(PokemonPatch.Experience));
+        pokemon.Pkm.Data.ToArray().Should().Equal(before);
+    }
+
+    [Theory]
+    [InlineData(SaveFilePath.HgSs)]
+    [InlineData(SaveFilePath.Emerald)]
+    public void GainedExpLetsAPokemonAtItsMetLevelHoldMoreThan100EVs(string saveFile)
+    {
+        var pokemon = SaveFilePath.Load(saveFile).Trainer.Party.Pokemons
+            .First(p => p.Pkm.Generation == p.Pkm.Format && p.Pkm.MetLevel is > 1 and < 100);
+        pokemon.Update(new PokemonPatch(Level: pokemon.Pkm.MetLevel, Evs: new StatPatch(0, 252, 0, 0, 0, 0)));
+        HasUntrainedEvs(pokemon).Should().BeTrue();
+
+        pokemon.Update(new PokemonPatch { Experience = pokemon.Details().ExperienceRange.Max });
+
+        HasUntrainedEvs(pokemon).Should().BeFalse();
+    }
+
+    private static bool HasUntrainedEvs(Pokemon pokemon) =>
+        pokemon.Legality().Results.Any(r => r.Result == LegalityCheckResultCode.EffortUntrainedCap_0);
 }

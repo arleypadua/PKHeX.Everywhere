@@ -58,7 +58,11 @@ public record PokemonDetails(
     public bool? IsShadow { get; init; }
     public int? ShadowId { get; init; }
     public int? Purification { get; init; }
+    public uint Experience { get; init; }
+    public ExperienceRange ExperienceRange { get; init; } = new(0, 0);
 }
+
+public record ExperienceRange(uint Min, uint Max);
 
 public record StatValues(int Health, int Attack, int Defense, int SpecialAttack, int SpecialDefense, int Speed);
 
@@ -107,6 +111,7 @@ public record PokemonPatch(
 {
     public int? Purification { get; init; }
     public bool? IsShadow { get; init; }
+    public uint? Experience { get; init; }
 }
 
 public record StatPatch(
