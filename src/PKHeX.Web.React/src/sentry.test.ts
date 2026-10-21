@@ -77,6 +77,18 @@ describe('Sentry', () => {
     expect(events.map((event) => event.exception?.values?.[0]?.value)).toEqual(['Boom', 'Rejected'])
   })
 
+  it('ignores errors thrown from AdSense', async () => {
+    start()
+    const adSense = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
+    const error = new Error('adsbygoogle.push() error: No slot size for availableWidth=216')
+    error.stack = `TagError: ${error.message}\n    at ${adSense}:1:2345`
+
+    window.onerror?.('Uncaught TagError', adSense, 1, 2345, error)
+    await flush()
+
+    expect(events).toEqual([])
+  })
+
   it('captures an Engine host that fails to boot', async () => {
     start()
     const engine = { ...fakeEngine(), ready: Promise.reject(new Error('Main failed')) }

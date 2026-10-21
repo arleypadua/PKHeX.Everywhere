@@ -7,7 +7,9 @@ declare global {
 
 export function AdSlot({ slot, format = 'auto' }: { slot: string; format?: 'auto' | 'autorelaxed' | 'horizontal' }) {
   useEffect(() => {
-    ;(globalThis.adsbygoogle ??= []).push({})
+    try {
+      ;(globalThis.adsbygoogle ??= []).push({})
+    } catch {}
   }, [])
 
   return (
