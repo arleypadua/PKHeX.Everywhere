@@ -42,7 +42,7 @@ describe('RoutedContent', () => {
     const container = await renderFailedBoot()
 
     expect(reloadButton(container)).toBeDefined()
-    expect(container.textContent).not.toContain('File an issue on GitHub')
+    expect(container.querySelector('a[href*="/issues/new"]')).toBeNull()
   })
 
   it('reloads the page from the boot failure alert', async () => {
