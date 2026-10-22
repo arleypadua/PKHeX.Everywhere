@@ -1,4 +1,5 @@
 ﻿using AwesomeAssertions;
+using PKHeX.Facade.Extensions;
 using PKHeX.Facade.Tests.Base;
 
 namespace PKHeX.Facade.Tests;
@@ -112,5 +113,22 @@ public class PokemonPartyTests
         var expected = edited.Pkm.Clone();
         expected.ResetPartyStats();
         game.Trainer.Party.Pokemons[0].Pkm.Stat_HPMax.Should().Be(expected.Stat_HPMax).And.NotBe(saved.Pkm.Stat_HPMax);
+    }
+
+    [Fact]
+    public void MembersLeaveOutAnEmptySlotAndKeepTheirSlots()
+    {
+        var party = GameFixture.WithEmptyFirstPartySlot().Trainer.Party;
+
+        party.Members().Select(member => member.Slot).Should().Equal(Enumerable.Range(1, party.Pokemons.Count - 1));
+        party.Members().Select(member => member.Pokemon.UniqueId).Should().Equal(party.Pokemons.Skip(1).Select(p => p.UniqueId));
+    }
+
+    [Fact]
+    public void ShowdownLeavesOutAnEmptySlot()
+    {
+        var party = GameFixture.WithEmptyFirstPartySlot().Trainer.Party;
+
+        party.Showdown().Should().Be(party.Pokemons.Skip(1).Showdown());
     }
 }

@@ -40,8 +40,8 @@ public static class TransferHandlers
     public static PokemonSummary[] PartnerBoxes(Session session)
     {
         var partner = RequirePartner(session).Save;
-        return partner.Trainer.Party.Pokemons
-            .Select((pokemon, slot) => pokemon.ToSummary(PokemonHandle.Party(slot)))
+        return partner.Trainer.Party.Members()
+            .Select(member => member.Pokemon.ToSummary(PokemonHandle.Party(member.Slot)))
             .Concat(partner.Trainer.PokemonBox.Boxed().Select(boxed => boxed.Pokemon.ToSummary(PokemonSlots.BoxHandle(partner.SaveFile, boxed.Index))))
             .ToArray();
     }
