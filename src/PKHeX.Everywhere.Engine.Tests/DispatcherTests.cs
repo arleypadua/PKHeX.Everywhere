@@ -39,6 +39,22 @@ public class DispatcherTests
     }
 
     [Fact]
+    public void PartyGetLeavesOutAnEmptySlot()
+    {
+        var game = GameFixture.WithEmptyFirstPartySlot();
+        var session = new Session();
+        session.Load(game, SaveFilePath.HgSs);
+
+        var party = Value(Dispatch(session, "party.get", "[]"))!.AsArray();
+
+        var expected = game.Trainer.Party.Pokemons;
+        party.Select(p => p!["at"]!["slot"]!.GetValue<int>()).Should().Equal(Enumerable.Range(1, expected.Count - 1));
+        party.Select(p => p!["id"]!.GetValue<string>()).Should().Equal(expected.Skip(1).Select(p => p.UniqueId.Value));
+        foreach (var pokemon in party)
+            Value(Dispatch(session, "pokemon.edit", $"[{pokemon!["at"]!.ToJsonString()}]"));
+    }
+
+    [Fact]
     public void ArgumentsCanBeOmitted()
     {
         var session = new Session();

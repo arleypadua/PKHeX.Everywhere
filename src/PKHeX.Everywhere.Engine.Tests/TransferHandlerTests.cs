@@ -56,6 +56,19 @@ public class TransferHandlerTests
     }
 
     [Fact]
+    public void PartnerBoxesLeaveOutAnEmptyPartySlot()
+    {
+        var partner = GameFixture.WithEmptyFirstPartySlot();
+        var session = Loaded(SaveFilePath.Emerald);
+        Open(session, partner.ToByteArray());
+
+        var theirs = Value(Dispatch(session, "transfer.partnerBoxes", "[]"))!.AsArray();
+
+        theirs.Where(p => p!["at"]!["source"]!.GetValue<string>() == "party").Select(p => p!["at"]!["slot"]!.GetValue<int>())
+            .Should().Equal(Enumerable.Range(1, partner.Trainer.Party.Pokemons.Count - 1));
+    }
+
+    [Fact]
     public void FireRedToEmeraldIsALinkTradeThatChangesNothingButPlacement()
     {
         var session = Loaded(SaveFilePath.FireRed);

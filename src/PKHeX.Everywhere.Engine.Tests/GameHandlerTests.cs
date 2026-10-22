@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using AwesomeAssertions;
 using PKHeX.Core;
+using PKHeX.Everywhere.Engine.Dtos;
 using PKHeX.Facade;
 using PKHeX.Facade.Abstractions;
 using PKHeX.Facade.Repositories;
@@ -232,6 +233,15 @@ public class GameHandlerTests
     public void LoadingWithADisabledFormatFailsWithNotFound() =>
         Error(Dispatch(new Session(), "game.load", Args(Convert.ToBase64String(File.ReadAllBytes(SaveFilePath.Emerald)), "emerald.sav", "engine-disabled")))
             .Should().Be("not-found");
+
+    [Fact]
+    public void TheOverviewLeavesOutAnEmptyPartySlot()
+    {
+        var game = GameFixture.WithEmptyFirstPartySlot();
+
+        var expected = game.Trainer.Party.Pokemons.Skip(1).Select(p => new PartyMember(p.Species.Id, p.SpeciesIndex, p.Species.Name, p.Level));
+        game.ToOverview().Party.Should().Equal(expected);
+    }
 
     private sealed class DisabledFormat(string id) : ISaveFormat
     {

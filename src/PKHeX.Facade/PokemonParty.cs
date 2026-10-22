@@ -14,10 +14,14 @@ public class PokemonParty(Game game) : IMutablePokemonCollection
         .Select(pkm => new Pokemon(pkm, game))
         .ToList();
 
+    public IEnumerable<(int Slot, Pokemon Pokemon)> Members() => Pokemons
+        .Select((pokemon, slot) => (slot, pokemon))
+        .Where(member => !member.pokemon.IsEmpty);
+
     public string Showdown()
     {
         game.Require(Capability.Showdown);
-        return Pokemons.Showdown();
+        return Members().Select(member => member.Pokemon).Showdown();
     }
 
     public void Commit()

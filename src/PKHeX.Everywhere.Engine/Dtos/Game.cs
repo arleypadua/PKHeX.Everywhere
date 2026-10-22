@@ -149,7 +149,7 @@ public static class GameMapping
         (int)game.Generation,
         game.Trainer.Gender.Name,
         game.Trainer.PokemonBox.All.Count,
-        game.Trainer.Party.Pokemons.Select(p => new PartyMember(p.IsUnknown ? null : p.Species.Id, p.SpeciesIndex, p.Species.Name, p.Level)).ToArray(),
+        game.Trainer.Party.Members().Select(member => member.Pokemon).Select(p => new PartyMember(p.IsUnknown ? null : p.Species.Id, p.SpeciesIndex, p.Species.Name, p.Level)).ToArray(),
         game.Format?.Id);
 
     public static LoadedSave ToFile(this Game game, string? fileName) =>

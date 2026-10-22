@@ -38,6 +38,17 @@ public static class GameFixture
 
         return Game.LoadFrom(new Game(save).ToByteArray());
     }
+
+    // SetPartySlotAtIndex would lower PartyCount, so the blank is written straight into the party's bytes.
+    public static Game WithEmptyFirstPartySlot()
+    {
+        var save = (SAV4)SaveFilePath.Load(SaveFilePath.HgSs).SaveFile;
+        var count = save.PartyCount;
+        save.SetPartySlot(save.BlankPKM, save.General[save.GetPartyOffset(0)..]);
+        save.PartyCount.Should().Be(count);
+
+        return Game.LoadFrom(new Game(save).ToByteArray());
+    }
 }
 
 public class SupportedSaveFilesAttribute : DataAttribute
