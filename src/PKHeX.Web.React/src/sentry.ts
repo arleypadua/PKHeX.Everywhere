@@ -16,6 +16,7 @@ export function startSentry(enabled = enabledInBuild, options: Sentry.BrowserOpt
     dsn,
     tracesSampleRate: 0.1,
     integrations: [Sentry.browserTracingIntegration()],
+    allowUrls: [new URL('assets/', document.baseURI).href, new URL('_framework/', document.baseURI).href],
     denyUrls: [/googlesyndication\.com/],
     ...options,
   })

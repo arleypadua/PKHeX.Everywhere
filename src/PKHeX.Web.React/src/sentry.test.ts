@@ -32,12 +32,20 @@ function fakeEngine(version: SaveVersion | null = emerald) {
 
 let events: Sentry.ErrorEvent[] = []
 
-function start() {
+function start({ filterUrls = false } = {}) {
   startSentry(true, {
+    // Errors these tests throw have their top frame in this file, which allowUrls would drop.
+    ...(filterUrls ? {} : { allowUrls: [] }),
     beforeSend: (event) => {
       events.push(event)
       return null
     },
+  })
+}
+
+function captureFrom(filename: string, lineno?: number, colno?: number) {
+  Sentry.captureEvent({
+    exception: { values: [{ type: 'RangeError', value: 'Maximum call stack size exceeded.', stacktrace: { frames: [{ filename, lineno, colno }] } }] },
   })
 }
 
@@ -87,6 +95,28 @@ describe('Sentry', () => {
     await flush()
 
     expect(events).toEqual([])
+  })
+
+  it('ignores errors thrown from scripts the browser injects under the page URL', async () => {
+    start({ filterUrls: true })
+
+    captureFrom(`${location.origin}/load`, 193, 70)
+    await flush()
+
+    expect(events).toEqual([])
+  })
+
+  it('captures errors thrown from the app bundle and the .NET runtime', async () => {
+    start({ filterUrls: true })
+
+    captureFrom(`${location.origin}/assets/index-abc.js`)
+    captureFrom(`${location.origin}/_framework/dotnet.runtime.js`)
+    await flush()
+
+    expect(events.map((event) => event.exception?.values?.[0]?.stacktrace?.frames?.[0]?.filename)).toEqual([
+      `${location.origin}/assets/index-abc.js`,
+      `${location.origin}/_framework/dotnet.runtime.js`,
+    ])
   })
 
   it('captures an Engine host that fails to boot', async () => {
