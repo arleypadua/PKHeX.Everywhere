@@ -207,6 +207,34 @@ public class RadicalRedSaveTests
         Exported(session).Should().Equal(bytes);
     }
 
+    private const int Squawkabilly = 931;
+
+    [Fact]
+    public void ClearingTheNicknameOfALongNamedSpeciesTruncatesItToTenCharacters()
+    {
+        var session = LoadedRadicalRed();
+        var at = PokemonHandle.Party(0);
+        Value(Update(session, at, new { species = Squawkabilly }));
+
+        Value(Update(session, at, new { nickname = "" }));
+
+        Details(session, at)["nickname"]!.GetValue<string>().Should().Be("Squawkabil");
+        Details(LoadedRadicalRed(Exported(session)), at)["nickname"]!.GetValue<string>().Should().Be("Squawkabil");
+    }
+
+    [Fact]
+    public void ChangingToALongNamedSpeciesTruncatesTheResetNicknameToTenCharacters()
+    {
+        var session = LoadedRadicalRed();
+        var at = PokemonHandle.Party(0);
+        Value(Update(session, at, new { nickname = "" }));
+
+        Value(Update(session, at, new { species = Squawkabilly }));
+
+        Details(session, at)["nickname"]!.GetValue<string>().Should().Be("Squawkabil");
+        Details(LoadedRadicalRed(Exported(session)), at)["nickname"]!.GetValue<string>().Should().Be("Squawkabil");
+    }
+
     // A shiny xor of 8 to 15 is shiny at 1 in 4096 odds but not at 1 in 8192.
     [Theory]
     [InlineData(7, true, true)]

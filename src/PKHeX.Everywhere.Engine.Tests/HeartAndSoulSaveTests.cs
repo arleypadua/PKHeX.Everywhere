@@ -244,6 +244,34 @@ public class HeartAndSoulSaveTests
         Owned(Loaded(Exported(session)), "Items").Should().Contain(("Unknown item #877", 12));
     }
 
+    private const int Squawkabilly = 931;
+
+    [Fact]
+    public void ClearingTheNicknameOfALongNamedSpeciesKeepsAllTwelveCharacters()
+    {
+        var session = Loaded();
+        var at = PokemonHandle.Party(0);
+        Value(Update(session, at, new { species = Squawkabilly }));
+
+        Value(Update(session, at, new { nickname = "" }));
+
+        Details(session, at)["nickname"]!.GetValue<string>().Should().Be("Squawkabilly");
+        Details(Loaded(Exported(session)), at)["nickname"]!.GetValue<string>().Should().Be("Squawkabilly");
+    }
+
+    [Fact]
+    public void ChangingToALongNamedSpeciesKeepsAllTwelveCharactersOfTheResetNickname()
+    {
+        var session = Loaded();
+        var at = PokemonHandle.Party(0);
+        Value(Update(session, at, new { nickname = "" }));
+
+        Value(Update(session, at, new { species = Squawkabilly }));
+
+        Details(session, at)["nickname"]!.GetValue<string>().Should().Be("Squawkabilly");
+        Details(Loaded(Exported(session)), at)["nickname"]!.GetValue<string>().Should().Be("Squawkabilly");
+    }
+
     [Fact]
     public void TheFormatIsListed() =>
         Value(Dispatch(new Session(), "game.formats", "[]"))!.AsArray()
