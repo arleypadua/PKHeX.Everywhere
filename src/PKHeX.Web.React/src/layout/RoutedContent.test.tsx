@@ -54,4 +54,12 @@ describe('RoutedContent', () => {
 
     expect(reload).toHaveBeenCalledOnce()
   })
+
+  it('tells a browser without WebAssembly that reloading will not help', async () => {
+    vi.stubGlobal('WebAssembly', undefined)
+    const container = await renderFailedBoot()
+
+    expect(container.textContent).toContain('This browser has WebAssembly turned off, and the app needs it.')
+    expect(reloadButton(container)).toBeUndefined()
+  })
 })

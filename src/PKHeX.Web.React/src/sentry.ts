@@ -30,6 +30,9 @@ export function startSentry(enabled = enabledInBuild, options: Sentry.BrowserOpt
 }
 
 function dropsNoise(event: Sentry.Event) {
+  // The app can't run without WebAssembly, so nothing a browser without it reports is actionable.
+  if (typeof WebAssembly === 'undefined') return true
+
   const exception = event.exception?.values?.[0]
   const frames = exception?.stacktrace?.frames
 
