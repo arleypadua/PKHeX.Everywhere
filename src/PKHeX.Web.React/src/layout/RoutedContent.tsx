@@ -23,6 +23,15 @@ export function RoutedContent() {
 }
 
 function BootFailed() {
+  if (typeof WebAssembly === 'undefined')
+    return (
+      <Alert
+        type="error"
+        title={`${applicationName} couldn't start`}
+        description="This browser has WebAssembly turned off, and the app needs it. Turn it on or open the page in another browser."
+      />
+    )
+
   return (
     <Alert
       type="error"

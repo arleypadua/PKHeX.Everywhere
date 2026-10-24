@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as Sentry from '@sentry/browser'
 import { EngineError, type CallName, type SaveVersion, type Topic } from '@pkhex-everywhere/engine'
 import { captureError, startSentry, watchEngine } from './sentry'
@@ -57,6 +57,7 @@ describe('Sentry', () => {
   })
 
   afterEach(async () => {
+    vi.unstubAllGlobals()
     await Sentry.close()
   })
 
@@ -199,6 +200,38 @@ describe('Sentry', () => {
     expect(events).toHaveLength(1)
     expect(events[0].exception?.values?.[0]?.value).toBe('Main failed')
     expect(events[0].tags).toMatchObject({ boot: 'failed' })
+  })
+
+  it('ignores the .NET runtime failing to boot in a browser without WebAssembly', async () => {
+    vi.stubGlobal('WebAssembly', undefined)
+    start({ filterUrls: true })
+
+    Sentry.captureEvent({
+      exception: {
+        values: [
+          {
+            type: 'ReferenceError',
+            value: 'WebAssembly is not defined',
+            mechanism: { type: 'auto.browser.global_handlers.onunhandledrejection' },
+            stacktrace: { frames: [{ filename: `${location.origin}/_framework/dotnet.js` }] },
+          },
+        ],
+      },
+    })
+    await flush()
+
+    expect(events).toEqual([])
+  })
+
+  it('ignores an Engine host that fails to boot in a browser without WebAssembly', async () => {
+    vi.stubGlobal('WebAssembly', undefined)
+    start()
+    const engine = { ...fakeEngine(), ready: Promise.reject(new ReferenceError('WebAssembly is not defined')) }
+
+    watchEngine(engine, true)
+    await flush()
+
+    expect(events).toEqual([])
   })
 
   it('captures Engine calls that fail with an unexpected or internal code', async () => {
