@@ -9,6 +9,11 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    # The generators run inside the compiler, so their Roslyn version must stay
+    # at or below the compiler in the oldest SDK global.json allows.
+    ignore:
+      - dependency-name: "Microsoft.CodeAnalysis.CSharp"
+      - dependency-name: "Microsoft.CodeAnalysis.Analyzers"
     groups:
       nuget:
         patterns:

@@ -791,6 +791,34 @@ public class UnboundSaveTests
             .Should().Be("pouch-full");
     }
 
+    private const int Crabominable = 740;
+
+    [Fact]
+    public void ClearingTheNicknameOfALongNamedSpeciesTruncatesItToTenCharacters()
+    {
+        var session = LoadedUnbound();
+        var at = PokemonHandle.Party(0);
+        Value(Update(session, at, new { species = Crabominable }));
+
+        Value(Update(session, at, new { nickname = "" }));
+
+        Details(session, at)["nickname"]!.GetValue<string>().Should().Be("Crabominab");
+        Details(LoadedUnbound(Exported(session)), at)["nickname"]!.GetValue<string>().Should().Be("Crabominab");
+    }
+
+    [Fact]
+    public void ChangingToALongNamedSpeciesTruncatesTheResetNicknameToTenCharacters()
+    {
+        var session = LoadedUnbound();
+        var at = PokemonHandle.Party(0);
+        Value(Update(session, at, new { nickname = "" }));
+
+        Value(Update(session, at, new { species = Crabominable }));
+
+        Details(session, at)["nickname"]!.GetValue<string>().Should().Be("Crabominab");
+        Details(LoadedUnbound(Exported(session)), at)["nickname"]!.GetValue<string>().Should().Be("Crabominab");
+    }
+
     private static object Arg(PokemonHandle at) =>
         new { source = at.Source.ToString().ToLowerInvariant(), slot = at.Slot, box = at.Box };
 }

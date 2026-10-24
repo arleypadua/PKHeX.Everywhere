@@ -330,8 +330,17 @@ public abstract class ExpansionPokemon : PKM, ISpeciesIndex, IHeldItemIndex
 
     public override string GetString(ReadOnlySpan<byte> data) => StringConverter3.GetString(data, Language);
     public override int LoadString(ReadOnlySpan<byte> data, Span<char> text) => StringConverter3.LoadString(data, text, Language);
-    public override int SetString(Span<byte> data, ReadOnlySpan<char> text, int length, StringConverterOption option) =>
-        StringConverter3.SetString(data, text, length, Language, option);
+    public override int SetString(Span<byte> data, ReadOnlySpan<char> text, int length, StringConverterOption option)
+    {
+        if (data.Overlaps(NicknameTrash))
+        {
+            var written = Math.Min(text.Length, length);
+            Nickname = text[..written].ToString();
+            return written;
+        }
+
+        return StringConverter3.SetString(data, text, length, Language, option);
+    }
     public override int GetStringTerminatorIndex(ReadOnlySpan<byte> data) => TrashBytes8.GetTerminatorIndex(data);
     public override int GetStringLength(ReadOnlySpan<byte> data) => TrashBytes8.GetStringLength(data);
     public override int GetBytesPerChar() => 1;
