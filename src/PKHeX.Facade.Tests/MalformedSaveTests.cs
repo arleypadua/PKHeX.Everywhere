@@ -5,38 +5,6 @@ namespace PKHeX.Facade.Tests;
 
 public class MalformedSaveTests
 {
-    /// <summary>
-    /// A real save with corrupted contents still matches on size and footer, so it is detected as a save
-    /// and then decoded. A garbage game version byte in the general block decodes to a version that does
-    /// not exist, which used to surface as a raw KeyNotFoundException out of the repository indexer and
-    /// reach the user as a crash.
-    /// </summary>
-    private static byte[] CorruptedSave()
-    {
-        var bytes = File.ReadAllBytes(SaveFilePath.HgSs);
-        bytes[0x80] = 0x7F;
-        return bytes;
-    }
-
-    [Fact]
-    public void LoadFrom_ShouldReportGameNotLoaded_WhenASaveIsDetectedButItsContentsCannotBeDecoded()
-    {
-        var loading = () => Game.LoadFrom(CorruptedSave(), "corrupted.dsv");
-
-        loading.Should().Throw<GameNotLoadedException>();
-    }
-
-    [Fact]
-    public void LoadFrom_ShouldKeepTheUnderlyingFailure_WhenContentsCannotBeDecoded()
-    {
-        // The original cause has to survive, otherwise error reporting loses the only clue about why a
-        // file failed, and a genuine decoding bug becomes indistinguishable from an unsupported file.
-        var thrown = Record.Exception(() => Game.LoadFrom(CorruptedSave(), "corrupted.dsv"));
-
-        thrown.Should().BeOfType<GameNotLoadedException>()
-            .Which.InnerException.Should().NotBeNull();
-    }
-
     [Fact]
     public void LoadFrom_ShouldReportGameNotLoaded_WhenBytesMatchASaveSizeButAreNotASave()
     {

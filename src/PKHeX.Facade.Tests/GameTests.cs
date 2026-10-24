@@ -84,6 +84,22 @@ public class GameTests
     }
 
     [Theory]
+    [InlineData(GameVersion.StadiumJ, GameVersion.SS)]
+    [InlineData((GameVersion)200, GameVersion.SS)]
+    [InlineData(GameVersion.HG, GameVersion.HG)]
+    public void GameVersionApproximation_OfAGen4SaveWithAnUnsavedVersion_IsTheGenerationsDefaultGame(GameVersion stored, GameVersion expected)
+    {
+        var game = Game.LoadFrom(SaveFilePath.HgSs);
+        game.SaveFile.Version = stored;
+
+        game.SaveAndReload(reloaded =>
+        {
+            reloaded.GameVersionApproximation.Version.Should().Be(expected);
+            reloaded.Events.Should().NotBeNull();
+        });
+    }
+
+    [Theory]
     [InlineData(GameVersion.GD)]
     [InlineData(GameVersion.SI)]
     [InlineData(GameVersion.C)]
