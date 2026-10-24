@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Flex, InputNumber, Modal, Slider, Typography } from 'antd'
 import { useDraft } from './useDraft'
 
@@ -6,29 +6,58 @@ interface ExperienceModalProps {
   onClose: () => void
 }
 
+interface ExperienceFieldsProps {
+  min: number
+  max: number
+  initial: number
+  disabled: boolean
+  onChange: (value: number) => void
+}
+
+function ExperienceFields({ min, max, initial, disabled, onChange }: ExperienceFieldsProps) {
+  const [experience, setExperience] = useState(initial)
+
+  const set = (value: number) => {
+    setExperience(value)
+    onChange(value)
+  }
+
+  return (
+    <>
+      <Slider min={min} max={max} value={experience} disabled={disabled} tooltip={{ open: false }} onChange={set} />
+      <InputNumber<number>
+        aria-label="EXP"
+        min={min}
+        max={max}
+        precision={0}
+        value={experience}
+        disabled={disabled}
+        onChange={(value) => value !== null && set(value)}
+      />
+    </>
+  )
+}
+
 export function ExperienceModal({ onClose }: ExperienceModalProps) {
   const { details, submit } = useDraft()
   const { min, max } = details.experienceRange
-  const [experience, setExperience] = useState(details.experience)
+  const experience = useRef(details.experience)
   const atMaxLevel = min === max
 
   const handleOk = () => {
-    void submit({ experience })
+    void submit({ experience: experience.current })
     onClose()
   }
 
   return (
     <Modal open title="EXP" okText="Save" onOk={handleOk} onCancel={onClose}>
       <Flex vertical gap={12}>
-        <Slider min={min} max={max} value={experience} disabled={atMaxLevel} onChange={setExperience} />
-        <InputNumber<number>
-          aria-label="EXP"
+        <ExperienceFields
           min={min}
           max={max}
-          precision={0}
-          value={experience}
+          initial={details.experience}
           disabled={atMaxLevel}
-          onChange={(value) => value !== null && setExperience(value)}
+          onChange={(value) => (experience.current = value)}
         />
         <Typography.Text type="secondary">
           {atMaxLevel
