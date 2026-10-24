@@ -21,10 +21,30 @@ export function startSentry(enabled = enabledInBuild, options: Sentry.BrowserOpt
     ...options,
   })
 
+  Sentry.getGlobalScope().addEventProcessor((event) => (dropsNoise(event) ? null : event))
+
   Sentry.getGlobalScope().addEventProcessor((event) => ({
     ...event,
     contexts: { ...event.contexts, game_context: { ...gameContext(), ...event.contexts?.game_context } },
   }))
+}
+
+function dropsNoise(event: Sentry.Event) {
+  const exception = event.exception?.values?.[0]
+  const frames = exception?.stacktrace?.frames
+
+  // dotnet.js attaches a progress .then() with no rejection handler, so every failed runtime
+  // download raises an unhandled rejection even when the retry succeeds. Real boot failures
+  // reach Sentry tagged boot: failed instead.
+  if (
+    exception?.mechanism?.type === 'auto.browser.global_handlers.onunhandledrejection' &&
+    exception.type === 'TypeError' &&
+    frames?.some((frame) => frame.filename === new URL('_framework/dotnet.js', document.baseURI).href)
+  )
+    return true
+
+  const thrower = frames?.at(-1)
+  return !!thrower && (!thrower.filename || thrower.filename === '<anonymous>')
 }
 
 type WatchedEngine = Pick<Engine, 'ready' | 'subscribe' | 'onCallFailed'> & { game: Pick<Engine['game'], 'version'> }
