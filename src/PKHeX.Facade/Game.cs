@@ -80,11 +80,13 @@ public class Game
 
     private static GameVersionDefinition ApproximationOf(SaveFile saveFile)
     {
-        var version = GameVersionRepository.Instance.Get(saveFile.Version);
-        return version.Aggregated
-            ? GameVersionRepository.Instance.FindFirstOfPair(version.Version)
-              ?? GameVersionRepository.Instance.Get(saveFile.Context.GetSingleGameVersion())
-            : version;
+        var keepStoredVersion = saveFile is SAV_STADIUM or SAV3Colosseum or SAV3XD or SAV3RSBox
+            || saveFile.Version.IsValidSavedVersion();
+
+        return keepStoredVersion
+            ? GameVersionRepository.Instance.Get(saveFile.Version)
+            : GameVersionRepository.Instance.FindFirstOfPair(saveFile.Version)
+              ?? GameVersionRepository.Instance.Get(saveFile.Context.GetSingleGameVersion());
     }
 
     public EntityContext Generation => SaveFile.Context;

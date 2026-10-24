@@ -61,12 +61,13 @@ public sealed class GameEvents
         if (game.EventLabels is { } labels && saveFile is IEventFlag37 labelled)
             return new GameEvents(WorkspaceStore<IEventFlag37, ushort>.Labelled(labelled, labels), Gen3Events.For(game));
 
+        var version = game.GameVersionApproximation.Version;
         IEventStore? store = saveFile switch
         {
-            IEventFlag37 s => new WorkspaceStore<IEventFlag37, ushort>(s, saveFile.Version),
-            IEventFlagProvider37 p => new WorkspaceStore<IEventFlag37, ushort>(p.EventWork, saveFile.Version),
+            IEventFlag37 s => new WorkspaceStore<IEventFlag37, ushort>(s, version),
+            IEventFlagProvider37 p => new WorkspaceStore<IEventFlag37, ushort>(p.EventWork, version),
             SAV1 s => WorkspaceStore<SAV1, byte>.Unlabelled(s),
-            SAV2 s => new WorkspaceStore<SAV2, byte>(s, saveFile.Version),
+            SAV2 s => new WorkspaceStore<SAV2, byte>(s, version),
             SAV7b s => new LetsGoStore(s.EventWork),
             SAV8BS s => new BrilliantDiamondShiningPearlStore(s.FlagWork),
             _ => null,
