@@ -119,6 +119,76 @@ describe('Sentry', () => {
     ])
   })
 
+  it('ignores unhandled rejections from failed .NET runtime downloads', async () => {
+    start({ filterUrls: true })
+
+    Sentry.captureEvent({
+      exception: {
+        values: [
+          {
+            type: 'TypeError',
+            value: 'Failed to fetch',
+            mechanism: { type: 'auto.browser.global_handlers.onunhandledrejection' },
+            stacktrace: {
+              frames: [{ filename: `${location.origin}/_framework/dotnet.js` }, { filename: `${location.origin}/assets/index-abc.js` }],
+            },
+          },
+        ],
+      },
+    })
+    await flush()
+
+    expect(events).toEqual([])
+  })
+
+  it('still captures Failed to fetch rejections that do not touch the runtime loader', async () => {
+    start({ filterUrls: true })
+
+    Sentry.captureEvent({
+      exception: {
+        values: [
+          {
+            type: 'TypeError',
+            value: 'Failed to fetch',
+            mechanism: { type: 'auto.browser.global_handlers.onunhandledrejection' },
+            stacktrace: { frames: [{ filename: `${location.origin}/assets/index-abc.js` }] },
+          },
+        ],
+      },
+    })
+    await flush()
+
+    expect(events).toHaveLength(1)
+  })
+
+  it('ignores errors thrown by scripts injected into the page', async () => {
+    start({ filterUrls: true })
+
+    Sentry.captureEvent({
+      exception: {
+        values: [
+          {
+            type: 'SecurityError',
+            value: "Blocked a frame with origin from accessing a cross-origin frame.",
+            stacktrace: { frames: [{ filename: `${location.origin}/assets/index-abc.js` }, { filename: '<anonymous>' }] },
+          },
+        ],
+      },
+    })
+    await flush()
+
+    expect(events).toEqual([])
+  })
+
+  it('still captures events with no stack frames', async () => {
+    start({ filterUrls: true })
+
+    Sentry.captureEvent({ exception: { values: [{ type: 'Error', value: 'Boom' }] } })
+    await flush()
+
+    expect(events).toHaveLength(1)
+  })
+
   it('captures an Engine host that fails to boot', async () => {
     start()
     const engine = { ...fakeEngine(), ready: Promise.reject(new Error('Main failed')) }
