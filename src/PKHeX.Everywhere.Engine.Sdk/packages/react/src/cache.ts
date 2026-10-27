@@ -36,6 +36,11 @@ export class QueryCache {
   }
 
   invalidate = (changed: readonly string[]) => {
+    if (changed.includes('*')) {
+      this.queries.clear()
+      this.listeners.forEach((listener) => listener())
+      return
+    }
     for (const [key, query] of this.queries) {
       if (!affects(changed, query.topics)) continue
       if (query.entry.status === 'error') this.queries.delete(key)
