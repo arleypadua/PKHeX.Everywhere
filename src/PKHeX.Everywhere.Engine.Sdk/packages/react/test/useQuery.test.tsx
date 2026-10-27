@@ -1,7 +1,7 @@
 import { act, cleanup, render, screen } from '@testing-library/react'
-import { Suspense } from 'react'
+import { Suspense, type ReactNode } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
-import type { Engine, PokemonSummary } from '@pkhex-everywhere/engine'
+import { EngineError, type Engine, type PokemonSummary } from '@pkhex-everywhere/engine'
 import { EngineProvider, useQuery } from '../src'
 import { ErrorBoundary } from './ErrorBoundary'
 import { fakeEngine } from './fakeEngine'
@@ -26,6 +26,11 @@ function deferredEngine() {
 function PartyNames() {
   const party = useQuery('party.get')
   return <p>{party.map((p) => `${p.species} ${p.level}`).join(', ')}</p>
+}
+
+function Encounters({ version }: { version: number }) {
+  const rows = useQuery('encounters.search', version, 25)
+  return <p>encounters: {rows.length}</p>
 }
 
 function renderParty(engine: Engine) {
@@ -101,10 +106,47 @@ describe('useQuery', () => {
     renderParty(engine)
     await resolveAll([pikachu])
 
-    await emitChange(['*'])
+    await emitChange(['party'])
 
     expect(screen.getByText('Pikachu 12')).toBeDefined()
     expect(screen.queryByText('loading')).toBeNull()
+  })
+
+  it('suspends and shows fresh data after a save change', async () => {
+    const { engine, resolveAll, emitChange } = deferredEngine()
+    renderParty(engine)
+    await resolveAll([pikachu])
+
+    await emitChange(['*'])
+    expect(screen.getByText('loading')).toBeDefined()
+
+    await resolveAll([raichu])
+    expect(screen.getByText('Raichu 30')).toBeDefined()
+  })
+
+  it('does not fetch a query the new save rejects after a save change', async () => {
+    let loaded = false
+    const { engine, calls, emitChange } = fakeEngine((name, args) => {
+      if (name === 'encounters.search' && loaded && args[0] === 20)
+        throw new EngineError('bad-arguments', 'SoulSilver has no encounters for version 20.')
+      return []
+    })
+    const page = (child: ReactNode) => (
+      <EngineProvider engine={engine}>
+        <ErrorBoundary>
+          <Suspense fallback={<p>loading</p>}>{child}</Suspense>
+        </ErrorBoundary>
+      </EngineProvider>
+    )
+    const { rerender } = render(page(<Encounters version={20} />))
+    await act(async () => {})
+    expect(screen.getByText('encounters: 0')).toBeDefined()
+
+    rerender(page(null))
+    loaded = true
+    await act(async () => emitChange(['*']))
+
+    expect(calls).toEqual([{ name: 'encounters.search', args: [20, 25] }])
   })
 
   it('ignores changes to topics the query does not read', async () => {
