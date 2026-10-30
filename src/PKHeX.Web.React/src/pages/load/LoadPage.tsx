@@ -72,11 +72,17 @@ function LoadedGame({ game, onOpen }: { game: SaveSummary; onOpen: () => void })
           { key: 'version', label: 'Version', children: gameName(game) },
         ]}
       />
-      <Flex vertical gap={20} style={{ width: '100%', maxWidth: 300 }}>
+      <Flex vertical style={{ width: '100%', maxWidth: 300 }}>
         <Button type="primary" icon={<ExportOutlined aria-hidden />} onClick={exportSave}>
           Export
         </Button>
-        {exported && <PkhemuCard generation={cardGeneration(game)} onClose={() => setExported(false)} />}
+      </Flex>
+      {exported && (
+        <div style={{ width: '100%', maxWidth: 560 }}>
+          <PkhemuCard generation={cardGeneration(game)} onClose={() => setExported(false)} />
+        </div>
+      )}
+      <Flex vertical style={{ width: '100%', maxWidth: 300 }}>
         <OpenButton label="Open new..." onOpen={onOpen} />
       </Flex>
     </>

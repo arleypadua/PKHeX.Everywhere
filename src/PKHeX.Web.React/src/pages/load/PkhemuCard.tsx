@@ -1,18 +1,15 @@
 import { useEffect, useState } from 'react'
-import { Alert, Button, Flex } from 'antd'
+import { Alert, Flex } from 'antd'
 import { track } from '../../googleAnalytics'
 import { settings } from '../../host'
-import { pkhemuJoinUrl, showPkhemuCard } from './pkhemuInvite'
+import { pkhemuPlayUrl, showPkhemuCard } from './pkhemuInvite'
 
 export function PkhemuCard({ generation, onClose }: { generation: number; onClose: () => void }) {
-  const [preview] = useState(() => settings.readPkhemuPreview())
   const [visible] = useState(() =>
-    showPkhemuCard({ generation, userAgent: navigator.userAgent, preview, dismissed: settings.readPkhemuCardDismissed() }),
+    showPkhemuCard({ generation, userAgent: navigator.userAgent, dismissed: settings.readPkhemuCardDismissed() }),
   )
 
-  const report = (name: string) => {
-    if (!preview) track(name, { generation_id: generation })
-  }
+  const report = (name: string) => track(name, { generation_id: generation })
 
   useEffect(() => {
     if (visible) report('pkhemu_card_shown')
@@ -20,17 +17,13 @@ export function PkhemuCard({ generation, onClose }: { generation: number; onClos
 
   if (!visible) return null
 
-  const markDismissed = () => {
-    if (!preview) settings.writePkhemuCardDismissed()
-  }
-
   const join = () => {
-    markDismissed()
+    settings.writePkhemuCardDismissed()
     report('pkhemu_card_click')
   }
 
   const dismiss = () => {
-    markDismissed()
+    settings.writePkhemuCardDismissed()
     report('pkhemu_card_dismiss')
     onClose()
   }
@@ -45,11 +38,18 @@ export function PkhemuCard({ generation, onClose }: { generation: number; onClos
         <Flex vertical align="start" gap={8}>
           <span>
             pkhemu plays GB, GBC, GBA and DS games on Android with save editing built in. Pause, edit your save, and keep
-            playing, with no files to copy. It's in closed testing, and we need testers.
+            playing, with no files to copy.
           </span>
-          <Button type="primary" href={pkhemuJoinUrl} target="_blank" rel="noopener" onClick={join}>
-            Join the test
-          </Button>
+          {/* The badge PNG has transparent padding around it; the negative margin cancels it. */}
+          <a
+            href={pkhemuPlayUrl}
+            target="_blank"
+            rel="noopener"
+            onClick={join}
+            style={{ alignSelf: 'center', margin: -10 }}
+          >
+            <img src="/google-play-badge.png" alt="Get it on Google Play" height={62} />
+          </a>
         </Flex>
       }
     />
