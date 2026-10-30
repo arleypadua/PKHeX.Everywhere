@@ -37,6 +37,9 @@ export default function CreditsPage() {
         The pixel font is{' '}
         <a href="https://fontstruct.com/fontstructions/show/875033" target="_blank">PKMN RBYGSC</a> by David Fens.
       </p>
+
+      <h2>Google Play</h2>
+      <p>Google Play and the Google Play logo are trademarks of Google LLC.</p>
     </Typography>
   )
 }
