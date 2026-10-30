@@ -77,11 +77,7 @@ function LoadedGame({ game, onOpen }: { game: SaveSummary; onOpen: () => void })
           Export
         </Button>
       </Flex>
-      {exported && (
-        <div style={{ width: '100%', maxWidth: 560 }}>
-          <PkhemuCard generation={cardGeneration(game)} onClose={() => setExported(false)} />
-        </div>
-      )}
+      {exported && <PkhemuCard generation={cardGeneration(game)} onClose={() => setExported(false)} />}
       <Flex vertical style={{ width: '100%', maxWidth: 300 }}>
         <OpenButton label="Open new..." onOpen={onOpen} />
       </Flex>

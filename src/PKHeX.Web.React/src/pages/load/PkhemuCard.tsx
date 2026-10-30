@@ -29,29 +29,31 @@ export function PkhemuCard({ generation, onClose }: { generation: number; onClos
   }
 
   return (
-    <Alert
-      type="info"
-      showIcon
-      closable={{ onClose: dismiss }}
-      title="Edit and play in one app"
-      description={
-        <Flex vertical align="start" gap={8}>
-          <span>
-            pkhemu plays GB, GBC, GBA and DS games on Android with save editing built in. Pause, edit your save, and keep
-            playing, with no files to copy.
-          </span>
-          {/* The badge PNG has transparent padding around it; the negative margin cancels it. */}
-          <a
-            href={pkhemuPlayUrl}
-            target="_blank"
-            rel="noopener"
-            onClick={join}
-            style={{ alignSelf: 'center', margin: -10 }}
-          >
-            <img src="/google-play-badge.png" alt="Get it on Google Play" height={62} />
-          </a>
-        </Flex>
-      }
-    />
+    <div style={{ width: '100%', maxWidth: 560 }}>
+      <Alert
+        type="info"
+        showIcon
+        closable={{ onClose: dismiss }}
+        title="Edit and play in one app"
+        description={
+          <Flex vertical align="start" gap={8}>
+            <span>
+              pkhemu plays GB, GBC, GBA and DS games on Android with save editing built in. Pause, edit your save, and
+              keep playing, with no files to copy.
+            </span>
+            {/* The badge PNG has transparent padding around it; the negative margin cancels it. */}
+            <a
+              href={pkhemuPlayUrl}
+              target="_blank"
+              rel="noopener"
+              onClick={join}
+              style={{ alignSelf: 'center', margin: -10 }}
+            >
+              <img src="/google-play-badge.png" alt="Get it on Google Play" height={62} />
+            </a>
+          </Flex>
+        }
+      />
+    </div>
   )
 }
