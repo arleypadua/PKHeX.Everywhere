@@ -2,20 +2,27 @@ import { useEffect, useState } from 'react'
 import { Alert, Flex } from 'antd'
 import { track } from '../../googleAnalytics'
 import { settings } from '../../host'
-import { pkhemuPlayUrl, showPkhemuCard } from './pkhemuInvite'
+import { pkhemuStore, pkhemuStores } from './pkhemuInvite'
 
 export function PkhemuCard({ generation, onClose }: { generation: number; onClose: () => void }) {
-  const [visible] = useState(() =>
-    showPkhemuCard({ generation, userAgent: navigator.userAgent, dismissed: settings.readPkhemuCardDismissed() }),
+  const [store] = useState(() =>
+    pkhemuStore({
+      generation,
+      userAgent: navigator.userAgent,
+      maxTouchPoints: navigator.maxTouchPoints,
+      dismissed: settings.readPkhemuCardDismissed(),
+    }),
   )
 
-  const report = (name: string) => track(name, { generation_id: generation })
+  const report = (name: string) => track(name, { generation_id: generation, store })
 
   useEffect(() => {
-    if (visible) report('pkhemu_card_shown')
+    if (store) report('pkhemu_card_shown')
   }, [])
 
-  if (!visible) return null
+  if (!store) return null
+
+  const { url, badge, badgeWidth, alt, devices } = pkhemuStores[store]
 
   const join = () => {
     settings.writePkhemuCardDismissed()
@@ -36,20 +43,13 @@ export function PkhemuCard({ generation, onClose }: { generation: number; onClos
         closable={{ onClose: dismiss }}
         title="Edit and play in one app"
         description={
-          <Flex vertical align="start" gap={8}>
+          <Flex vertical align="start" gap={12}>
             <span>
-              pkhemu plays GB, GBC, GBA and DS games on Android with save editing built in. Pause, edit your save, and
-              keep playing, with no files to copy.
+              pkhemu plays GB, GBC, GBA and DS games on {devices} with save editing built in. Pause, edit your save,
+              and keep playing, with no files to copy.
             </span>
-            {/* The badge PNG has transparent padding around it; the negative margin cancels it. */}
-            <a
-              href={pkhemuPlayUrl}
-              target="_blank"
-              rel="noopener"
-              onClick={join}
-              style={{ alignSelf: 'center', margin: -10 }}
-            >
-              <img src="/google-play-badge.png" alt="Get it on Google Play" height={62} />
+            <a href={url} target="_blank" rel="noopener" onClick={join} style={{ alignSelf: 'center' }}>
+              <img src={badge} alt={alt} width={badgeWidth} height={42} style={{ display: 'block' }} />
             </a>
           </Flex>
         }
