@@ -45,7 +45,7 @@ export function PkhemuCard({ generation, onClose }: { generation: number; onClos
         description={
           <Flex vertical align="start" gap={12}>
             <span>
-              pkhemu plays GB, GBC, GBA and DS games on {devices} with save editing built in. Pause, edit your save,
+              pkhemu plays GB, GBC, GBA, DS and GameCube games on {devices} with save editing built in. Pause, edit your save,
               and keep playing, with no files to copy.
             </span>
             <a href={url} target="_blank" rel="noopener" onClick={join} style={{ alignSelf: 'center' }}>
